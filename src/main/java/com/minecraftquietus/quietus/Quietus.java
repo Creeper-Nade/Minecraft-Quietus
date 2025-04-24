@@ -1,11 +1,8 @@
 package com.minecraftquietus.quietus;
 
-import java.util.Properties;
-
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.mojang.serialization.MapCodec;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -54,7 +51,7 @@ public class Quietus
 
     // Creates a new Block with the id "quietus:example_block", combining the namespace and path
     // edit 2025.04.24 0.10.42: Kevin Sheng: made the example block higher friction and insta break
-    public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", BlockBehaviour.Properties.of().mapColor(MapColor.STONE).instabreak().friction(2.2f));
+    public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", BlockBehaviour.Properties.of().mapColor(MapColor.STONE).instabreak().friction(2.2f).jumpFactor(2.0f));
     // Creates a new BlockItem with the id "quietus:example_block", combining the namespace and path
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
 
