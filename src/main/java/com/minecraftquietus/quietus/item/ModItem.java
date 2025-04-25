@@ -14,7 +14,8 @@ public class ModItem {
     // Create a Deferred Register to hold Items which will all be registered under the "quietus" namespace
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     //CreeperNade: 1.21.2+ has changed register, use registerItem method in the format as below if you are to create an item
-    public static final DeferredItem<Item> SPELUNKER_POTION = ITEMS.registerItem("spelunker_potion",Item::new,new Item.Properties());
+    //public static final DeferredItem<Item> SPELUNKER_POTION = ITEMS.registerItem("spelunker_potion",Item::new,new Item.Properties());
+    public static final DeferredItem<Item> HARDENED_FUR = ITEMS.registerItem("hardened_fur",Item::new,new Item.Properties());
     // Creates a new BlockItem with the id "quietus:example_block", combining the namespace and path
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
     // Creates a new food item with the id "quietus:example_id", nutrition 1 and saturation 2

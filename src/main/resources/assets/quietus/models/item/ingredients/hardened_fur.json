@@ -1,6 +1,6 @@
 {
   "parent" : "minecraft:item/generated",
   "textures": {
-    "layer0": "quietus:item/consumables/spelunker_potion"
+    "layer0": "quietus:item/ingredients/hardened_fur"
   }
 }

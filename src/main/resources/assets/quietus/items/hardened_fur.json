@@ -1,7 +1,7 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "quietus:item/consumables/spelunker_potion"
+    "model": "quietus:item/ingredients/hardened_fur"
   },
   "properties": {
     "hand_animation_on_swap": true

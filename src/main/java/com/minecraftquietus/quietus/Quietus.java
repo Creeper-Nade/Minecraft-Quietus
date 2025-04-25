@@ -1,7 +1,9 @@
 package com.minecraftquietus.quietus;
 
 import com.minecraftquietus.quietus.block.ModBlocks;
+import com.minecraftquietus.quietus.effects.ModEffects;
 import com.minecraftquietus.quietus.item.ModItem;
+import com.minecraftquietus.quietus.potion.ModPotion;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -53,9 +55,9 @@ public class Quietus
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.quietus")) //The language key for the title of your CreativeModeTab
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> ModItem.SPELUNKER_POTION.get().getDefaultInstance())
+            .icon(() -> ModItem.HARDENED_FUR.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(ModItem.SPELUNKER_POTION.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(ModItem.HARDENED_FUR.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -70,6 +72,8 @@ public class Quietus
         //ITEMS.register(modEventBus);
         ModItem.register(modEventBus);
         ModBlocks.register(modEventBus);
+        ModPotion.register(modEventBus);
+        ModEffects.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -104,9 +108,12 @@ public class Quietus
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
             event.accept(ModItem.EXAMPLE_BLOCK_ITEM);
         }
-        if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS){
-            event.accept(ModItem.SPELUNKER_POTION);
+        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS){
+            event.accept(ModItem.HARDENED_FUR);
         }
+        //if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS){
+        //    event.accept(ModItem.SPELUNKER_POTION);
+        //}
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

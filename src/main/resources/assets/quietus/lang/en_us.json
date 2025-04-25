@@ -2,5 +2,10 @@
   "itemGroup.quietus": "Example Mod Tab",
   "block.quietus.example_block": "Example Block",
   "item.quietus.example_item": "Example Item",
-  "item.quietus.spelunker_potion": "Spelunker Potion"
+  "item.quietus.hardened_fur": "Hardened Fur",
+
+  "effect.quietus.spelunking": "Spelunking",
+  "item.minecraft.potion.effect.spelunker_potion": "Potion of Spelunking",
+  "item.minecraft.splash_potion.effect.spelunker_potion": "Splash Potion of Spelunking",
+  "item.minecraft.lingering_potion.effect.spelunker_potion": "Lingering Potion of Spelunking"
 }
