@@ -7,5 +7,9 @@
   "effect.quietus.spelunking": "Spelunking",
   "item.minecraft.potion.effect.spelunker_potion": "Potion of Spelunking",
   "item.minecraft.splash_potion.effect.spelunker_potion": "Splash Potion of Spelunking",
-  "item.minecraft.lingering_potion.effect.spelunker_potion": "Lingering Potion of Spelunking"
+  "item.minecraft.lingering_potion.effect.spelunker_potion": "Lingering Potion of Spelunking",
+  "item.quietus.copper_boots": "Copper Boots",
+  "item.quietus.copper_leggings": "Copper leggings",
+  "item.quietus.copper_chestplate": "Copper chestplate",
+  "item.quietus.copper_helmet": "Copper helmet"
 }
