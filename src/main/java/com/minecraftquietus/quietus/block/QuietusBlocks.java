@@ -9,7 +9,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public class ModBlocks {
+public class QuietusBlocks {
     // Create a Deferred Register to hold Blocks which will all be registered under the "quietus" namespace
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     // Creates a new Block with the id "quietus:example_block", combining the namespace and path

@@ -27,10 +27,10 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import com.minecraftquietus.quietus.block.ModBlocks;
-import com.minecraftquietus.quietus.effects.ModEffects;
-import com.minecraftquietus.quietus.item.ModItem;
-import com.minecraftquietus.quietus.potion.ModPotion;
+import com.minecraftquietus.quietus.block.QuietusBlocks;
+import com.minecraftquietus.quietus.effects.QuietusEffects;
+import com.minecraftquietus.quietus.item.QuietusItems;
+import com.minecraftquietus.quietus.potion.QuietusPotions;
 
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -48,9 +48,9 @@ public class Quietus
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.quietus")) //The language key for the title of your CreativeModeTab
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> ModItem.HARDENED_FUR.get().getDefaultInstance())
+            .icon(() -> QuietusItems.HARDENED_FUR.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(ModItem.HARDENED_FUR.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(QuietusItems.HARDENED_FUR.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -63,10 +63,10 @@ public class Quietus
         // Register the Deferred Register to the mod event bus so blocks get registered
         // Register the Deferred Register to the mod event bus so items get registered
         //ITEMS.register(modEventBus);
-        ModItem.register(modEventBus);
-        ModBlocks.register(modEventBus);
-        ModPotion.register(modEventBus);
-        ModEffects.register(modEventBus);
+        QuietusItems.register(modEventBus);
+        QuietusBlocks.register(modEventBus);
+        QuietusPotions.register(modEventBus);
+        QuietusEffects.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -99,19 +99,19 @@ public class Quietus
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(ModItem.EXAMPLE_BLOCK_ITEM);
+            event.accept(QuietusItems.EXAMPLE_BLOCK_ITEM);
         }
         if (event.getTabKey() == CreativeModeTabs.INGREDIENTS){
-            event.accept(ModItem.HARDENED_FUR);
+            event.accept(QuietusItems.HARDENED_FUR);
         }
         if (event.getTabKey() == CreativeModeTabs.COMBAT) {
-            event.accept(ModItem.COPPER_HELMET);
-            event.accept(ModItem.COPPER_CHESTPLATE);
-            event.accept(ModItem.COPPER_LEGGINGS);
-            event.accept(ModItem.COPPER_BOOTS);
+            event.accept(QuietusItems.COPPER_HELMET);
+            event.accept(QuietusItems.COPPER_CHESTPLATE);
+            event.accept(QuietusItems.COPPER_LEGGINGS);
+            event.accept(QuietusItems.COPPER_BOOTS);
         }
         //if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS){
-        //    event.accept(ModItem.SPELUNKER_POTION);
+        //    event.accept(QuietusItems.SPELUNKER_POTION);
         //}
     }
 

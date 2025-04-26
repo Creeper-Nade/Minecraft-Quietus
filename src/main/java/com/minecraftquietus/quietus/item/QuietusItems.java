@@ -12,11 +12,11 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
-import static com.minecraftquietus.quietus.block.ModBlocks.EXAMPLE_BLOCK;
+import static com.minecraftquietus.quietus.block.QuietusBlocks.EXAMPLE_BLOCK;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
 
 
-public class ModItem {
+public class QuietusItems {
     // Create a Deferred Register to hold Items which will all be registered under the "quietus" namespace
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     //CreeperNade: 1.21.2+ has changed register, use registerItem method in the format as below if you are to create an item

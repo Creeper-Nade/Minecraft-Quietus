@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.potion;
 
-import com.minecraftquietus.quietus.effects.ModEffects;
+import com.minecraftquietus.quietus.effects.QuietusEffects;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -13,7 +13,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public class ModPotion {
+public class QuietusPotions {
     public static final DeferredRegister<Potion> POTIONS=DeferredRegister.create(BuiltInRegistries.POTION, MODID);
 
     /*public static final Holder<Potion> SPELUNKER_POTION = POTIONS.register("spelunker_potion", new Potion(
@@ -25,7 +25,7 @@ public class ModPotion {
 
     public static final DeferredHolder<Potion,Potion> SPELUNKER_POTION=POTIONS.register("spelunker_potion", () -> new Potion("spelunker_potion",
             new MobEffectInstance[]{
-                    new MobEffectInstance(ModEffects.SPELUNKING_EFFECT,3600)
+                    new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,3600)
             }));
 
     public static void register(IEventBus eventBus)

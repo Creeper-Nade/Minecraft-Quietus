@@ -9,7 +9,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public class ModEffects {
+public class QuietusEffects {
     public static final DeferredRegister<MobEffect> MOB_EFFECTS= DeferredRegister.create(BuiltInRegistries.MOB_EFFECT,MODID);
 
     public static final Holder<MobEffect> SPELUNKING_EFFECT = MOB_EFFECTS.register("spelunking", () -> new Spelunking_Effect(
