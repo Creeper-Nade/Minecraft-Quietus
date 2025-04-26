@@ -2,5 +2,9 @@
   "itemGroup.quietus": "Example Mod Tab",
   "block.quietus.example_block": "Example Block",
   "item.quietus.example_item": "Example Item",
-  "item.quietus.spelunker_potion": "Spelunker Potion"
+  "item.quietus.spelunker_potion": "Spelunker Potion",
+  "item.quietus.copper_boots": "Copper Boots",
+  "item.quietus.copper_leggings": "Copper leggings",
+  "item.quietus.copper_chestplate": "Copper chestplate",
+  "item.quietus.copper_helmet": "Copper helmet"
 }
