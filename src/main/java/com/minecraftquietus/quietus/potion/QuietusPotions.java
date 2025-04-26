@@ -14,19 +14,26 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
 public class QuietusPotions {
-    public static final DeferredRegister<Potion> POTIONS=DeferredRegister.create(BuiltInRegistries.POTION, MODID);
+    public static final DeferredRegister<Potion> POTIONS = DeferredRegister.create(BuiltInRegistries.POTION, MODID);
 
-    /*public static final Holder<Potion> SPELUNKER_POTION = POTIONS.register("spelunker_potion", new Potion(
+    /*public static final Holder<Potion> SPELUNKER_POTION = POTIONS.register("spelunking", new Potion(
             // The suffix applied to the potion
             MODID.getPath(),
             // The effects used by the potion
             new MobEffectInstance(ModEffects.SPELUNKING_EFFECT, 3600)
     ));*/
 
-    public static final DeferredHolder<Potion,Potion> SPELUNKER_POTION=POTIONS.register("spelunker_potion", () -> new Potion("spelunker_potion",
+    public static final DeferredHolder<Potion,Potion> SPELUNKING = POTIONS.register("spelunking", () -> new Potion("spelunking",
             new MobEffectInstance[]{
                     new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,3600)
             }));
+            // A longer duration potion of spelunking than potion of spelunking (in vanilla Minecraft adding redstone to latter in brewing stand)
+            /*
+            public static final DeferredHolder<Potion,Potion> LONG_SPELUNKING = POTIONS.register("long_spelunking", () -> new Potion("spelunking",
+            new MobEffectInstance[]{
+                    new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,9600)
+            })); */
+    
 
     public static void register(IEventBus eventBus)
     {
