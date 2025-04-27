@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.effects;
 
+import com.minecraftquietus.quietus.effects.spelunker.Spelunking_Effect;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffect;

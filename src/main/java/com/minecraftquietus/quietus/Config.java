@@ -17,6 +17,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 @EventBusSubscriber(modid = Quietus.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class Config
 {
+
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
     private static final ModConfigSpec.BooleanValue LOG_DIRT_BLOCK = BUILDER
@@ -59,5 +60,33 @@ public class Config
         items = ITEM_STRINGS.get().stream()
                 .map(itemName -> BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(itemName)))
                 .collect(Collectors.toSet());
+    }
+
+
+    //config for spelunker render
+    public static class Client {
+        public final ModConfigSpec.IntValue range;
+        public final ModConfigSpec.ConfigValue<Integer> oreColor;
+
+        public Client(ModConfigSpec.Builder builder) {
+            builder.push("OreVision");
+            range = builder
+                    .comment("Maximum scan range (blocks)")
+                    .defineInRange("range", 10, 8, 64);
+            oreColor = builder
+                    .comment("Outline color (hex format, e.g., 0x00FF00 for green)")
+                    .define("oreColor", 0x00FF00);
+            builder.pop();
+        }
+    }
+
+    // DO NOT initialize statically! Use a holder.
+    public static final ModConfigSpec CLIENT_SPEC;
+    public static final Client CLIENT;
+
+    static {
+        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+        CLIENT = new Client(builder);
+        CLIENT_SPEC = builder.build();
     }
 }

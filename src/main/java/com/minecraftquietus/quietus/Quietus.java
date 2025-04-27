@@ -1,6 +1,11 @@
 package com.minecraftquietus.quietus;
 
 
+import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
+import com.minecraftquietus.quietus.event.QuietusEvents;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -67,6 +72,20 @@ public class Quietus
         QuietusBlocks.register(modEventBus);
         QuietusPotions.register(modEventBus);
         QuietusEffects.register(modEventBus);
+        //register renderer
+        /*if (!FMLEnvironment.dist.isClient()) {
+            return;
+        }
+
+        ModLoadingContext.get().getActiveContainer()
+                .registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);*/
+        modEventBus.register(ConfigHandler.class);
+        NeoForge.EVENT_BUS.register(Ore_Vision.class);
+        modEventBus.addListener(this::registerPipeline);
+        NeoForge.EVENT_BUS.addListener(QuietusEvents::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(QuietusEvents::onBlockBreak);
+        NeoForge.EVENT_BUS.addListener(QuietusEvents::onBlockPlace);
+        NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -133,4 +152,37 @@ public class Quietus
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         }
     }
+
+    private void registerPipeline(RegisterRenderPipelinesEvent event) {
+        event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
+    }
+
+
+    public static class ConfigHandler {
+        private static int cachedRange=10;
+        private static int cachedOreColor=0x00FF00;
+
+        @SubscribeEvent
+        public static void onConfigLoading(ModConfigEvent.Loading event) {
+            if (event.getConfig().getSpec() == Config.CLIENT_SPEC) {
+                // Initialize cached values when the config is first loaded
+                cachedRange = Config.CLIENT.range.get();
+                cachedOreColor = Config.CLIENT.oreColor.get();
+            }
+        }
+
+        @SubscribeEvent
+        public static void onConfigReload(ModConfigEvent.Reloading event) {
+            if (event.getConfig().getSpec() == Config.CLIENT_SPEC) {
+                // Update cached values when the config is reloaded (e.g., via /reload)
+                cachedRange = Config.CLIENT.range.get();
+                cachedOreColor = Config.CLIENT.oreColor.get();
+            }
+        }
+
+        // Safe getters for cached values
+        public static int getRange() { return cachedRange; }
+        public static int getOreColor() { return cachedOreColor; }
+
+    } 
 }

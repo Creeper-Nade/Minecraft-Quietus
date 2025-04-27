@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.effects;
+package com.minecraftquietus.quietus.effects.spelunker;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
