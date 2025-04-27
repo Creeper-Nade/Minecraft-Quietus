@@ -57,40 +57,6 @@ public class QuietusEvents {
     }
     */
 
-    /*
-    // Cached values (safe to access anywhere)
-    private static int cachedRange;
-    private static int cachedOreColor;
-
-    @SubscribeEvent
-    public static void onConfigLoading(ModConfigEvent.Loading event) {
-        if (event.getConfig().getSpec() == Config.CLIENT_SPEC) {
-            // Initialize cached values when the config is first loaded
-            cachedRange = Config.CLIENT.range.get();
-            cachedOreColor = Config.CLIENT.oreColor.get();
-        }
-    }
-
-    @SubscribeEvent
-    public static void onConfigReload(ModConfigEvent.Reloading event) {
-        if (event.getConfig().getSpec() == Config.CLIENT_SPEC) {
-            // Update cached values when the config is reloaded (e.g., via /reload)
-            cachedRange = Config.CLIENT.range.get();
-            cachedOreColor = Config.CLIENT.oreColor.get();
-        }
-    }
-
-    // Safe getters for cached values
-    public static int getRange() {
-        return cachedRange;
-    }
-
-    public static int getOreColor() {
-        return cachedOreColor;
-    }
-
-     */
-
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         if (event.getState().is(Tags.Blocks.ORES)) {
             Ore_Vision.RemoveSingleBlock(event);

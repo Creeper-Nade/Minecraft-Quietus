@@ -73,12 +73,6 @@ public class Quietus
         QuietusPotions.register(modEventBus);
         QuietusEffects.register(modEventBus);
         //register renderer
-        /*if (!FMLEnvironment.dist.isClient()) {
-            return;
-        }
-
-        ModLoadingContext.get().getActiveContainer()
-                .registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);*/
         modEventBus.register(ConfigHandler.class);
         NeoForge.EVENT_BUS.register(Ore_Vision.class);
         modEventBus.addListener(this::registerPipeline);
@@ -157,7 +151,7 @@ public class Quietus
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
     }
 
-
+    //for handling the spelunker render configuration
     public static class ConfigHandler {
         private static int cachedRange=10;
         private static int cachedOreColor=0x00FF00;

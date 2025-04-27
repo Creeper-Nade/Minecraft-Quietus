@@ -1,9 +1,6 @@
 package com.minecraftquietus.quietus.effects.spelunker;
 
-import com.minecraftquietus.quietus.Config;
 import com.minecraftquietus.quietus.Quietus;
-import com.minecraftquietus.quietus.effects.QuietusEffects;
-import com.minecraftquietus.quietus.misc.RBlockProperties;
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -16,9 +13,7 @@ import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -56,22 +51,6 @@ public class Ore_Vision {
             .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
             .build();
 
-    /*@SubscribeEvent
-    public static void onRenderWorld(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) return;
-
-        Minecraft minecraft = Minecraft.getInstance();
-        LocalPlayer player = minecraft.player;
-        if (player == null || !player.hasEffect(QuietusEffects.SPELUNKING_EFFECT)) return;
-
-        // Update cache periodically
-        if (scanTimer++ % SCAN_INTERVAL == 0) {
-            updateVisibleOres(player);
-        }
-
-        // Render cached blocks
-        renderOreOutlines(event.getPoseStack(), player);
-    }*/
 
     public static void updateVisibleOres(LocalPlayer player) {
         VISIBLE_ORES.clear();
@@ -149,17 +128,6 @@ public class Ore_Vision {
                     pipeline.getVertexFormatMode(), pipeline.getVertexFormat()
             );
 
-
-       /* BufferBuilder bufferBuilder = Tesselator.getInstance().begin(
-                pipeline.getVertexFormatMode(), pipeline.getVertexFormat()
-        );*/
-
-        // Convert hex color to RGB
-        /*int colorHex = Quietus.ConfigHandler.getOreColor();
-        float r = ((colorHex >> 16) & 0xFF) / 255f;
-        float g = ((colorHex >> 8) & 0xFF) / 255f;
-        float b = (colorHex & 0xFF) / 255f;*/
-
             VISIBLE_ORES.forEach((pos, block) -> {
                 int colorHex = OreColorRegistry.getColor(block);
                 float r = ((colorHex >> 16) & 0xFF) / 255f;
@@ -218,11 +186,4 @@ public class Ore_Vision {
         indexCount = 0;
     }
 
-
-
-
-    /*public static void renderOres(RenderLevelStageEvent event)
-    {
-
-    }*/
 }

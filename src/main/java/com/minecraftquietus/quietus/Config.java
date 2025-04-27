@@ -80,7 +80,6 @@ public class Config
         }
     }
 
-    // DO NOT initialize statically! Use a holder.
     public static final ModConfigSpec CLIENT_SPEC;
     public static final Client CLIENT;
 
