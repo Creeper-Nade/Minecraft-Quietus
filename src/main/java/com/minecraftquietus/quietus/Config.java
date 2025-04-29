@@ -72,7 +72,7 @@ public class Config
             builder.push("OreVision");
             range = builder
                     .comment("Maximum scan range (blocks)")
-                    .defineInRange("range", 10, 8, 64);
+                    .defineInRange("range", 7, 7, 64);
             oreColor = builder
                     .comment("Outline color (hex format, e.g., 0x00FF00 for green)")
                     .define("oreColor", 0x00FF00);

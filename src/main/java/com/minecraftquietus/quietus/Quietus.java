@@ -155,7 +155,7 @@ public class Quietus
 
     //for handling the spelunker render configuration
     public static class ConfigHandler {
-        private static int cachedRange=10;
+        private static int cachedRange=7;
         private static int cachedOreColor=0x00FF00;
 
         @SubscribeEvent
