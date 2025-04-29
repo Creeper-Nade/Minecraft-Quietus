@@ -76,10 +76,12 @@ public class Quietus
         modEventBus.register(ConfigHandler.class);
         NeoForge.EVENT_BUS.register(Ore_Vision.class);
         modEventBus.addListener(this::registerPipeline);
+
+        NeoForge.EVENT_BUS.register(QuietusEvents.class);
         NeoForge.EVENT_BUS.addListener(QuietusEvents::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(QuietusEvents::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(QuietusEvents::onBlockPlace);
-        NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
+        //NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 

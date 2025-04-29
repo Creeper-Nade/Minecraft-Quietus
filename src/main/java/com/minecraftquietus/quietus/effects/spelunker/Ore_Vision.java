@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.effects.spelunker;
 
 import com.minecraftquietus.quietus.Quietus;
+import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -16,6 +17,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,7 +44,7 @@ public class Ore_Vision {
     public static RenderPipeline LINES_NO_DEPTH = RenderPipeline.builder(RenderPipelines.MATRICES_COLOR_SNIPPET)
             .withLocation("pipeline/xray_lines")
             .withVertexShader("core/rendertype_lines")
-            .withFragmentShader("core/rendertype_lines")
+            .withFragmentShader(ResourceLocation.fromNamespaceAndPath("quietus", "core/orevision_line"))
             .withUniform("LineWidth", UniformType.FLOAT)
             .withUniform("ScreenSize", UniformType.VEC2)
             .withBlend(BlendFunction.TRANSLUCENT)
@@ -102,14 +104,37 @@ public class Ore_Vision {
         VISIBLE_ORES.put(event.getPos().immutable(),placedState.getBlock());
         needsRefresh = true;
     }
+
 @SubscribeEvent
-    public static void renderOreOutlines(RenderLevelStageEvent event) {
+    public static void onWorldRenderLast(RenderLevelStageEvent event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        LocalPlayer player = minecraft.player;
+        PoseStack poseStack = event.getPoseStack();
+
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
+            return;
+        }
+
+        if (player.hasEffect(QuietusEffects.SPELUNKING_EFFECT) && player != null) {
+            // this is a world pos of the player
+            Ore_Vision.updateVisibleOres(player);
+            Ore_Vision.renderOreOutlines(poseStack);
+        }
+        else
+        {
+            Ore_Vision.clearAllOutlines();
+            return;
+        }
+    }
+
+    public static void renderOreOutlines(PoseStack poseStack) {
         // Disable depth test to see through walls
         //RenderPipeline pipeline= LINES_NO_DEPTH;
-    if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) {
+        //System.out.println("Whatever Text");
+    /*if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
         return;
-    }
-    PoseStack poseStack = event.getPoseStack();
+    }*/
+
         if(VISIBLE_ORES.isEmpty())
             {
                 return;

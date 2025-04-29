@@ -4,6 +4,7 @@ import com.minecraftquietus.quietus.Config;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
@@ -80,10 +81,11 @@ public class QuietusEvents {
     }
 
 
-
+    /*
     public static void onWorldRenderLast(RenderLevelStageEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
+        PoseStack poseStack = event.getPoseStack();
 
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
             return;
@@ -92,13 +94,14 @@ public class QuietusEvents {
         if (player.hasEffect(QuietusEffects.SPELUNKING_EFFECT) && player != null) {
             // this is a world pos of the player
             Ore_Vision.updateVisibleOres(player);
-            Ore_Vision.renderOreOutlines(event);
+            Ore_Vision.renderOreOutlines(poseStack);
         }
         else
         {
             Ore_Vision.clearAllOutlines();
             return;
         }
-    }
+    }*/
+
 
 }
