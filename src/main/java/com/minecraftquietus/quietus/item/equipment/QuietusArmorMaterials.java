@@ -34,7 +34,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 1);
             map.put(ArmorType.BODY, 4);
         }),
-        10, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "exposed_copper"))
+        8, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "exposed_copper"))
     );
     public static final ArmorMaterial WEATHERED_COPPER = new ArmorMaterial(
         10,
@@ -45,7 +45,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 1);
             map.put(ArmorType.BODY, 3);
         }),
-        15, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "weathered_copper"))
+        11, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "weathered_copper"))
     );
     public static final ArmorMaterial OXIDIZED_COPPER = new ArmorMaterial(
         10,
@@ -56,7 +56,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 1);
             map.put(ArmorType.BODY, 3);
         }),
-        20, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_copper"))
+        14, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_copper"))
     );
 
 
