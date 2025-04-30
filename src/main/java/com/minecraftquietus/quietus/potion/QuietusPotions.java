@@ -27,9 +27,6 @@ public class QuietusPotions {
             new MobEffectInstance[]{
                     new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,3600)
             }));
-            // A longer duration potion of spelunking than potion of spelunking (in vanilla Minecraft adding redstone to latter in brewing stand)
-
-
     public static final DeferredHolder<Potion,Potion> LONG_SPELUNKING = POTIONS.register("long_spelunking", () -> new Potion("spelunking",
             new MobEffectInstance[]{
                     new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,6000)
