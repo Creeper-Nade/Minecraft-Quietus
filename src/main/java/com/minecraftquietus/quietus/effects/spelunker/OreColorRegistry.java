@@ -29,6 +29,11 @@ public class OreColorRegistry {
         ORE_COLORS.put(Blocks.DIAMOND_ORE, 0x00FFFF);  // Cyan
         ORE_COLORS.put(Blocks.DEEPSLATE_DIAMOND_ORE, 0x00FFFF);
         ORE_COLORS.put(Blocks.ANCIENT_DEBRIS,0x7E6059);
+
+        ORE_COLORS.put(Blocks.AMETHYST_CLUSTER, 0x9966CC); // Purple
+        ORE_COLORS.put(Blocks.LARGE_AMETHYST_BUD, 0x9966CC);
+        ORE_COLORS.put(Blocks.MEDIUM_AMETHYST_BUD, 0x9966CC);
+        ORE_COLORS.put(Blocks.SMALL_AMETHYST_BUD, 0x9966CC);
         // Add modded ores here
     }
 
