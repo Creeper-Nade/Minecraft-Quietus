@@ -58,7 +58,7 @@ public class Ore_Vision {
         VISIBLE_ORES.clear();
         Level level = player.level();
         BlockPos playerPos = player.blockPosition();
-        int range = Quietus.ConfigHandler.getRange();
+        int range = Quietus.ConfigHandler.getRange(player);
 
         /*VISIBLE_ORES.keySet().removeIf(pos ->
                 !player.level().getBlockState(pos).is(Tags.Blocks.ORES)

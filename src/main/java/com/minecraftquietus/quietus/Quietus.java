@@ -3,6 +3,7 @@ package com.minecraftquietus.quietus;
 
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.event.QuietusEvents;
+import net.minecraft.client.player.LocalPlayer;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -162,14 +163,12 @@ public class Quietus
     //for handling the spelunker render configuration
     public static class ConfigHandler {
         private static int cachedRange=7;
-        private static int cachedOreColor=0x00FF00;
 
         @SubscribeEvent
         public static void onConfigLoading(ModConfigEvent.Loading event) {
             if (event.getConfig().getSpec() == Config.CLIENT_SPEC) {
                 // Initialize cached values when the config is first loaded
                 cachedRange = Config.CLIENT.range.get();
-                cachedOreColor = Config.CLIENT.oreColor.get();
             }
         }
 
@@ -178,13 +177,19 @@ public class Quietus
             if (event.getConfig().getSpec() == Config.CLIENT_SPEC) {
                 // Update cached values when the config is reloaded (e.g., via /reload)
                 cachedRange = Config.CLIENT.range.get();
-                cachedOreColor = Config.CLIENT.oreColor.get();
             }
         }
 
         // Safe getters for cached values
-        public static int getRange() { return cachedRange; }
-        public static int getOreColor() { return cachedOreColor; }
+        public static int getRange(LocalPlayer player) {
+            if (!player.hasEffect(QuietusEffects.SPELUNKING_EFFECT)) return 0;
+
+            // Amplifier is 0 for level I, 1 for level II, etc.
+            int amplifier = player.getEffect(QuietusEffects.SPELUNKING_EFFECT).getAmplifier();
+            int rangePerLevel = 3; // Additional blocks per level
+
+            return cachedRange + (amplifier * rangePerLevel);
+        }
 
     } 
 }
