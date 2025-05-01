@@ -31,7 +31,7 @@ public class QuietusPotions {
             new MobEffectInstance[]{
                     new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,6000)
             }));
-    public static final DeferredHolder<Potion,Potion> SPELUNKING_II = POTIONS.register("spelunking_ii", () -> new Potion("spelunking",
+    public static final DeferredHolder<Potion,Potion> SPELUNKING_II = POTIONS.register("strong_spelunking", () -> new Potion("spelunking",
             new MobEffectInstance[]{
                     new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,2400,1)
             }));
