@@ -11,7 +11,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 
-public interface WeatheringCopperItems extends WeatheringItem<WeatheringCopperItems.CopperWeatherState> {
+public interface WeatheringIronItems extends WeatheringItem<WeatheringIronItems.IronWeatherState> {
 
     static final BiMap<Item, Item> OXIDATION_MAP = HashBiMap.create();
 
@@ -32,23 +32,20 @@ public interface WeatheringCopperItems extends WeatheringItem<WeatheringCopperIt
     public static Optional<Item> getPrevious(Item c) {
         return Optional.ofNullable((Item)((BiMap<Item,Item>)PREVIOUS_BY_ITEM.get()).get(c));
     }
-    /* 
-    public static boolean isWeatherable(Item item) {
-        return OXIDATION_MAP.containsKey(item);
-    }*/
+    
     public boolean isWeatherable();
 
 
-    public static enum CopperWeatherState implements StringRepresentable {
+    public static enum IronWeatherState implements StringRepresentable {
         UNAFFECTED("unaffected"),
         EXPOSED("exposed"),
         WEATHERED("weathered"),
         OXIDIZED("oxidized");
-        private CopperWeatherState(final String nameString) {
+        private IronWeatherState(final String nameString) {
             this.name = nameString;
         }
         
-        public static final Codec<WeatheringCopperItems.CopperWeatherState> WEATHERSTATE_CODEC = StringRepresentable.fromEnum(WeatheringCopperItems.CopperWeatherState::values);
+        public static final Codec<WeatheringIronItems.IronWeatherState> WEATHERSTATE_CODEC = StringRepresentable.fromEnum(WeatheringIronItems.IronWeatherState::values);
         private final String name;
 
 

@@ -1,8 +1,11 @@
 package com.minecraftquietus.quietus.event;
 
+import com.electronwill.nightconfig.core.NullObject;
 import com.minecraftquietus.quietus.item.WeatheringCopperArmorItem;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems;
-import com.minecraftquietus.quietus.item.WeatheringCopperItem;
+import com.minecraftquietus.quietus.item.WeatheringIronArmorItem;
+import com.minecraftquietus.quietus.item.WeatheringIronItems;
+import com.minecraftquietus.quietus.item.WeatheringItem;
 import com.mojang.logging.LogUtils;
 
 import java.util.Optional;
@@ -18,6 +21,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -32,8 +36,8 @@ public class WeatheringHandler {
     @SubscribeEvent
     public static void onServerTick(EntityTickEvent.Post event) {
         if (!event.getEntity().level().isClientSide()) {
-            if (event.getEntity() instanceof Player) {
-                Player player = (Player)event.getEntity();
+            if (event.getEntity() instanceof Player player) {
+                //Player player = (Player)event.getEntity();
                 ItemStack[] armorItems = { // ATTENTION: INVENTORY_SIZE by 1.21.5 vanilla is numerically equal to 36, and equipments indexes start from 36.
                     player.getInventory().getItem(EquipmentSlot.FEET.getIndex(Inventory.INVENTORY_SIZE)),
                     player.getInventory().getItem(EquipmentSlot.LEGS.getIndex(Inventory.INVENTORY_SIZE)),
@@ -41,14 +45,38 @@ public class WeatheringHandler {
                     player.getInventory().getItem(EquipmentSlot.HEAD.getIndex(Inventory.INVENTORY_SIZE))
                 };
                 for (int i = 0; i < armorItems.length; ++i) { // armor items
-                    if (WeatheringCopperArmorItem.isValid(armorItems[i].getItem()) && armorItems[i].getItem() instanceof WeatheringCopperItem<?> weatheringItem) {
+                    Optional<Item> nextOptional = Optional.empty();
+                    if (WeatheringItem.isValidToWeather(armorItems[i].getItem()) && armorItems[i].getItem() instanceof WeatheringItem<?> weatheringItem) {
                         if (weatheringItem.checkConditionsToWeather(armorItems[i], armorItems, RandomSource.create())) {
-                            Optional<Item> nextOptional = WeatheringCopperItems.getNext((Item)armorItems[i].getItem());
-                            if (nextOptional.isPresent()) {
-                                //LOGGER.info(armorItems[i].getItem().getName().getString() + " is oxidizing to " + nextOptional.get().asItem().getName().getString());
-                                weatherArmorItem(player, nextOptional, armorItems[i], i+Inventory.INVENTORY_SIZE);
+                            switch (armorItems[i].getItem()) { // flip through Oxidation_Map of all weathering items to find the next oxidation state of this item
+                                case WeatheringCopperItems copperArmorItem -> {
+                                    nextOptional = WeatheringCopperItems.getNext(armorItems[i].getItem());
+                                }
+                                case WeatheringIronItems ironArmorItem -> {
+                                    nextOptional = WeatheringIronItems.getNext(armorItems[i].getItem());
+                                }
+                                case null -> {
+                                    throw new NullPointerException("Item being checked is null");
+                                }
+                                default -> {
+                                    nextOptional = Optional.ofNullable(Items.AIR); // defaults to change this item to air, if cannot determine what is the next oxidation of this item
+                                }
                             }
                         }
+                    } else {
+                        if (WeatheringItem.isRegisteredExtraWeatheringItem(armorItems[i].getItem())) {
+                            if (WeatheringCopperItems.OXIDATION_MAP.containsKey(armorItems[i].getItem())) {
+                                nextOptional = WeatheringCopperItems.getNext(armorItems[i].getItem());
+                            }
+                            else if (WeatheringIronItems.OXIDATION_MAP.containsKey(armorItems[i].getItem())) {
+                                nextOptional = WeatheringIronItems.getNext(armorItems[i].getItem());
+                            }
+                            else {continue;}
+                        } else {continue;}
+                    }
+                    if (nextOptional.isPresent()) {
+                        //LOGGER.info(armorItems[i].getItem().getName().getString() + " is oxidizing to " + nextOptional.get().asItem().getName().getString());
+                        weatherArmorItem(player, nextOptional, armorItems[i], i+Inventory.INVENTORY_SIZE);
                     }
                 }
             }

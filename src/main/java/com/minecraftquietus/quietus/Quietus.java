@@ -17,6 +17,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -37,6 +38,9 @@ import com.minecraftquietus.quietus.block.QuietusBlocks;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems;
+import com.minecraftquietus.quietus.item.WeatheringIronArmorItem;
+import com.minecraftquietus.quietus.item.WeatheringIronItems;
+import com.minecraftquietus.quietus.item.WeatheringItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 
 
@@ -103,6 +107,7 @@ public class Quietus
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         event.enqueueWork(() -> {
+            // Register copper items in the OXIDATION_MAP of WeatheringCopperItems
             WeatheringCopperItems.registerWeathering(QuietusItems.COPPER_BOOTS.get(), QuietusItems.EXPOSED_COPPER_BOOTS.get());
             WeatheringCopperItems.registerWeathering(QuietusItems.EXPOSED_COPPER_BOOTS.get(), QuietusItems.WEATHERED_COPPER_BOOTS.get());
             WeatheringCopperItems.registerWeathering(QuietusItems.WEATHERED_COPPER_BOOTS.get(), QuietusItems.OXIDIZED_COPPER_BOOTS.get());
@@ -115,6 +120,24 @@ public class Quietus
             WeatheringCopperItems.registerWeathering(QuietusItems.COPPER_HELMET.get(), QuietusItems.EXPOSED_COPPER_HELMET.get());
             WeatheringCopperItems.registerWeathering(QuietusItems.EXPOSED_COPPER_HELMET.get(), QuietusItems.WEATHERED_COPPER_HELMET.get());
             WeatheringCopperItems.registerWeathering(QuietusItems.WEATHERED_COPPER_HELMET.get(), QuietusItems.OXIDIZED_COPPER_HELMET.get());
+            // Register iron items in the OXIDATION_MAP of WeatheringIronItems
+            WeatheringIronItems.registerWeathering(Items.IRON_BOOTS, QuietusItems.EXPOSED_IRON_BOOTS.get());
+            WeatheringIronItems.registerWeathering(QuietusItems.EXPOSED_IRON_BOOTS.get(), QuietusItems.WEATHERED_IRON_BOOTS.get());
+            WeatheringIronItems.registerWeathering(QuietusItems.WEATHERED_IRON_BOOTS.get(), QuietusItems.OXIDIZED_IRON_BOOTS.get());
+            WeatheringIronItems.registerWeathering(Items.IRON_LEGGINGS, QuietusItems.EXPOSED_IRON_LEGGINGS.get());
+            WeatheringIronItems.registerWeathering(QuietusItems.EXPOSED_IRON_LEGGINGS.get(), QuietusItems.WEATHERED_IRON_LEGGINGS.get());
+            WeatheringIronItems.registerWeathering(QuietusItems.WEATHERED_IRON_LEGGINGS.get(), QuietusItems.OXIDIZED_IRON_LEGGINGS.get());
+            WeatheringIronItems.registerWeathering(Items.IRON_CHESTPLATE, QuietusItems.EXPOSED_IRON_CHESTPLATE.get());
+            WeatheringIronItems.registerWeathering(QuietusItems.EXPOSED_IRON_CHESTPLATE.get(), QuietusItems.WEATHERED_IRON_CHESTPLATE.get());
+            WeatheringIronItems.registerWeathering(QuietusItems.WEATHERED_IRON_CHESTPLATE.get(), QuietusItems.OXIDIZED_IRON_CHESTPLATE.get());
+            WeatheringIronItems.registerWeathering(Items.IRON_HELMET, QuietusItems.EXPOSED_IRON_HELMET.get());
+            WeatheringIronItems.registerWeathering(QuietusItems.EXPOSED_IRON_HELMET.get(), QuietusItems.WEATHERED_IRON_HELMET.get());
+            WeatheringIronItems.registerWeathering(QuietusItems.WEATHERED_IRON_HELMET.get(), QuietusItems.OXIDIZED_IRON_HELMET.get());
+            // Register vanilla iron items into extra weather state correspondence
+            WeatheringItem.registerExtraItemWeatherstate(Items.IRON_BOOTS, new int[]{0}, WeatheringIronArmorItem.getOxidationChance());
+            WeatheringItem.registerExtraItemWeatherstate(Items.IRON_LEGGINGS, new int[]{0}, WeatheringIronArmorItem.getOxidationChance());
+            WeatheringItem.registerExtraItemWeatherstate(Items.IRON_CHESTPLATE, new int[]{0}, WeatheringIronArmorItem.getOxidationChance());
+            WeatheringItem.registerExtraItemWeatherstate(Items.IRON_HELMET, new int[]{0}, WeatheringIronArmorItem.getOxidationChance());
         });
     }
 
