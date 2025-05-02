@@ -13,7 +13,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 public class WeatheringIronArmorItem extends Item implements WeatheringIronItems {
 
     //public static final float OXIDATION_CHANCE = (float)128/(float)854 * (float)3/(float)4096;
-    private static final float OXIDATION_CHANCE = (float)128/(float)854 * 0.01F;
+    public static final float OXIDATION_CHANCE = (float)128/(float)854 * 0.01F;
 
     public static float getOxidationChance() {
         return OXIDATION_CHANCE;

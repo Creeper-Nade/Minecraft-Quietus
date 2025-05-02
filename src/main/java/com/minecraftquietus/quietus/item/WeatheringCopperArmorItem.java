@@ -13,7 +13,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 public class WeatheringCopperArmorItem extends Item implements WeatheringCopperItems {
 
     //private static final float OXIDATION_CHANCE = (float)64/(float)1125 * (float)3/(float)4096; // according to minecraft.wiki copper blocks 64/1125 chance into pre-oxidization state for every random tick (default to 3 per 4096 for every tick). 
-    private static final float OXIDATION_CHANCE = (float)64/(float)1125 * 0.01F; 
+    public static final float OXIDATION_CHANCE = (float)64/(float)1125 * 0.01F; 
 
     public static float getOxidationChance() {
         return OXIDATION_CHANCE;

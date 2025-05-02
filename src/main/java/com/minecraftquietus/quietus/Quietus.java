@@ -37,6 +37,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import com.minecraftquietus.quietus.block.QuietusBlocks;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.item.QuietusItems;
+import com.minecraftquietus.quietus.item.WeatheringCopperArmorItem;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems;
 import com.minecraftquietus.quietus.item.WeatheringIronArmorItem;
 import com.minecraftquietus.quietus.item.WeatheringIronItems;
@@ -133,11 +134,15 @@ public class Quietus
             WeatheringIronItems.registerWeathering(Items.IRON_HELMET, QuietusItems.EXPOSED_IRON_HELMET.get());
             WeatheringIronItems.registerWeathering(QuietusItems.EXPOSED_IRON_HELMET.get(), QuietusItems.WEATHERED_IRON_HELMET.get());
             WeatheringIronItems.registerWeathering(QuietusItems.WEATHERED_IRON_HELMET.get(), QuietusItems.OXIDIZED_IRON_HELMET.get());
-            // Register vanilla iron items into extra weather state correspondence
-            WeatheringItem.registerExtraItemWeatherstate(Items.IRON_BOOTS, new int[]{0}, WeatheringIronArmorItem.getOxidationChance());
-            WeatheringItem.registerExtraItemWeatherstate(Items.IRON_LEGGINGS, new int[]{0}, WeatheringIronArmorItem.getOxidationChance());
-            WeatheringItem.registerExtraItemWeatherstate(Items.IRON_CHESTPLATE, new int[]{0}, WeatheringIronArmorItem.getOxidationChance());
-            WeatheringItem.registerExtraItemWeatherstate(Items.IRON_HELMET, new int[]{0}, WeatheringIronArmorItem.getOxidationChance());
+            // Register vanilla iron items into ExtraWeatheringItem, so they will weather and is used in checking weathering process by other WeatheringItem: 
+            /* Arguments: 
+             *  the Item object, int array of possible WeatherStates(picked randomly from the array), float of oxidation chance, the Class<?> enumeration of WeatherState class this item should have (just take from existing classes as shown below)
+            */
+            Class<?> class_weathering_iron_armor_item_enum = WeatheringIronItems.IronWeatherState.class;
+            WeatheringItem.registerExtraWeatheringItem(Items.IRON_BOOTS, new int[]{0}, WeatheringIronArmorItem.OXIDATION_CHANCE, class_weathering_iron_armor_item_enum);
+            WeatheringItem.registerExtraWeatheringItem(Items.IRON_LEGGINGS, new int[]{0}, WeatheringIronArmorItem.OXIDATION_CHANCE, class_weathering_iron_armor_item_enum);
+            WeatheringItem.registerExtraWeatheringItem(Items.IRON_CHESTPLATE, new int[]{0}, WeatheringIronArmorItem.OXIDATION_CHANCE, class_weathering_iron_armor_item_enum);
+            WeatheringItem.registerExtraWeatheringItem(Items.IRON_HELMET, new int[]{0}, WeatheringIronArmorItem.OXIDATION_CHANCE, class_weathering_iron_armor_item_enum);
         });
     }
 

@@ -32,10 +32,10 @@ public interface WeatheringCopperItems extends WeatheringItem<WeatheringCopperIt
     public static Optional<Item> getPrevious(Item c) {
         return Optional.ofNullable((Item)((BiMap<Item,Item>)PREVIOUS_BY_ITEM.get()).get(c));
     }
-    /* 
+    
     public static boolean isWeatherable(Item item) {
         return OXIDATION_MAP.containsKey(item);
-    }*/
+    }
     public boolean isWeatherable();
 
 
