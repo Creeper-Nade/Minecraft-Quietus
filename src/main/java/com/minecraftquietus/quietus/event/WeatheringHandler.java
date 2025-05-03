@@ -1,9 +1,6 @@
 package com.minecraftquietus.quietus.event;
 
-import com.electronwill.nightconfig.core.NullObject;
-import com.minecraftquietus.quietus.item.WeatheringCopperArmorItem;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems;
-import com.minecraftquietus.quietus.item.WeatheringIronArmorItem;
 import com.minecraftquietus.quietus.item.WeatheringIronItems;
 import com.minecraftquietus.quietus.item.WeatheringItem;
 import com.mojang.logging.LogUtils;
