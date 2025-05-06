@@ -30,7 +30,7 @@ public class ManaComponent {
 
     // Default constructor
     public ManaComponent() {
-        this(40, 44);
+        this(40, 40);
         for(int i = 0; i < slotAnimOffsets.length; i++) {
             slotAnimOffsets[i] = i * 3; // Staggered animation
         }
