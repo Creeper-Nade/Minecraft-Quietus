@@ -8,6 +8,7 @@ import net.minecraft.Util;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAssets;
@@ -57,6 +58,52 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.BODY, 3);
         }),
         14, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_copper"))
+    );
+
+
+    public static final ArmorMaterial IRON = new ArmorMaterial( // same as vanilla (as of Minecraft 1.21.5 release; This ArmorMaterial is unused. Uses vanilla ArmorMaterial instead)
+        15,
+        Util.make(new EnumMap<>(ArmorType.class), map -> {
+            map.put(ArmorType.BOOTS, 2);
+            map.put(ArmorType.LEGGINGS, 5);
+            map.put(ArmorType.CHESTPLATE, 6);
+            map.put(ArmorType.HELMET, 2);
+            map.put(ArmorType.BODY, 5);
+        }),
+        9, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "iron"))
+    );
+    public static final ArmorMaterial EXPOSED_IRON = new ArmorMaterial(
+        15,
+        Util.make(new EnumMap<>(ArmorType.class), map -> {
+            map.put(ArmorType.BOOTS, 2);
+            map.put(ArmorType.LEGGINGS, 4);
+            map.put(ArmorType.CHESTPLATE, 6);
+            map.put(ArmorType.HELMET, 2);
+            map.put(ArmorType.BODY, 5);
+        }),
+        9, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "exposed_iron"))
+    );
+    public static final ArmorMaterial WEATHERED_IRON = new ArmorMaterial(
+        15,
+        Util.make(new EnumMap<>(ArmorType.class), map -> {
+            map.put(ArmorType.BOOTS, 1);
+            map.put(ArmorType.LEGGINGS, 4);
+            map.put(ArmorType.CHESTPLATE, 5);
+            map.put(ArmorType.HELMET, 1);
+            map.put(ArmorType.BODY, 4);
+        }),
+        10, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "weathered_iron"))
+    );
+    public static final ArmorMaterial OXIDIZED_IRON = new ArmorMaterial(
+        15,
+        Util.make(new EnumMap<>(ArmorType.class), map -> {
+            map.put(ArmorType.BOOTS, 1);
+            map.put(ArmorType.LEGGINGS, 3);
+            map.put(ArmorType.CHESTPLATE, 5);
+            map.put(ArmorType.HELMET, 1);
+            map.put(ArmorType.BODY, 4);
+        }),
+        11, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_iron"))
     );
 
 

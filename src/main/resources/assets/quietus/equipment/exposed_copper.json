@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "quietus:exposed_copper"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "quietus:exposed_copper"
+      }
+    ]
+  }
+}
