@@ -3,16 +3,19 @@ package com.minecraftquietus.quietus;
 
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.event.QuietusEvents;
+import com.minecraftquietus.quietus.util.mana.ManaComponent;
+import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.client.player.LocalPlayer;
 import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -66,6 +69,31 @@ public class Quietus
                 output.accept(QuietusItems.HARDENED_FUR.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
             }).build());
 
+
+
+    //MANA codec
+    /*private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
+            DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MODID);
+    private static final Codec<ManaComponent> MANA_CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("mana").forGetter(ManaComponent::getMana),
+                    Codec.INT.fieldOf("maxMana").forGetter(ManaComponent::getMaxMana)
+            ).apply(instance, ManaComponent::new)
+    );
+    private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
+            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
+
+    public static final Supplier<AttachmentType<ManaComponent>> MANA =
+            ATTACHMENTS.register("mana", () ->
+                    AttachmentType.builder(() -> new ManaComponent())
+                            .serialize(MANA_CODEC)
+                            .build()
+            );*/
+    private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
+            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
+
+
+
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public Quietus(IEventBus modEventBus, ModContainer modContainer)
@@ -89,6 +117,18 @@ public class Quietus
         NeoForge.EVENT_BUS.addListener(QuietusEvents::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(QuietusEvents::onBlockPlace);
         //NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
+
+// Register our mana attachment
+        ATTACHMENTS.register("mana", () -> ManaComponent.ATTACHMENT);
+        ATTACHMENTS.register(modEventBus);
+
+        // Register client-side HUD
+        NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onRenderGui);
+        NeoForge.EVENT_BUS.addListener((PlayerTickEvent.Post event) -> {
+            if (!event.getEntity().level().isClientSide()) return;
+            event.getEntity().getData(ManaComponent.ATTACHMENT).tick(event.getEntity());
+        });
+
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -187,6 +227,8 @@ public class Quietus
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
     }
+
+
 
     //for handling the spelunker render configuration
     public static class ConfigHandler {

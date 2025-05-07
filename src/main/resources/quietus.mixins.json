@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.minecraftquietus.quietus.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["GuiMixin"],
+  "client": [],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
