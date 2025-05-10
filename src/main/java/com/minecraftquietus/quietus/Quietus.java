@@ -2,7 +2,8 @@ package com.minecraftquietus.quietus;
 
 
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
-import com.minecraftquietus.quietus.event.QuietusEvents;
+import com.minecraftquietus.quietus.event.QuietusCommonEvents;
+import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.client.player.LocalPlayer;
@@ -21,7 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -40,7 +40,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import com.minecraftquietus.quietus.block.QuietusBlocks;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.item.QuietusItems;
-import com.minecraftquietus.quietus.item.WeatheringCopperArmorItem;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems;
 import com.minecraftquietus.quietus.item.WeatheringIronArmorItem;
 import com.minecraftquietus.quietus.item.WeatheringIronItems;
@@ -112,15 +111,17 @@ public class Quietus
         NeoForge.EVENT_BUS.register(Ore_Vision.class);
         modEventBus.addListener(this::registerPipeline);
 
-        NeoForge.EVENT_BUS.register(QuietusEvents.class);
-        NeoForge.EVENT_BUS.addListener(QuietusEvents::onPlayerTick);
-        NeoForge.EVENT_BUS.addListener(QuietusEvents::onBlockBreak);
-        NeoForge.EVENT_BUS.addListener(QuietusEvents::onBlockPlace);
+        NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
+        modEventBus.register(QuietusIModBusEvent.class);
+        NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockBreak);
+        NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockPlace);
         //NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
 
 // Register our mana attachment
         ATTACHMENTS.register("mana", () -> ManaComponent.ATTACHMENT);
         ATTACHMENTS.register(modEventBus);
+        //NeoForge.EVENT_BUS.addListener(QuietusIModBusEvent::PayloadHandlerRegistration);
 
         // Register client-side HUD
         NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onRenderGui);

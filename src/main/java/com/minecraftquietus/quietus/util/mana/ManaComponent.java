@@ -15,16 +15,17 @@ import java.util.List;
 import java.util.Map;
 
 public class ManaComponent {
-    private int mana;
-    private final int maxMana;
+    public static int mana=0;
+    public static int maxMana=20;
+    
     private long lastRegenTime;
-    private final int[] slotAnimOffsets = new int[40];
+    //private final int[] slotAnimOffsets = new int[40];
 
     private long globalBlinkEndTime; // Tick time when global blink should end
-
+    /*
     // Constructor for Codec
     public ManaComponent(int currentMana, int maxMana) {
-        this.mana = Math.min(mana, maxMana);
+        mana = Math.min(mana, maxMana);
         this.maxMana = maxMana;
     }
 
@@ -34,7 +35,7 @@ public class ManaComponent {
         for(int i = 0; i < slotAnimOffsets.length; i++) {
             slotAnimOffsets[i] = i * 3; // Staggered animation
         }
-    }
+    } */
 
 
     public void tick(Player player) {
@@ -47,15 +48,14 @@ public class ManaComponent {
 
     // Getters and setters
     public int getMana() { return mana; }
-    public int getMaxMana() { return maxMana; }
 
 
     public void setMana(int value) {
-        int prev = this.mana;
-        this.mana = Mth.clamp(value, 0, maxMana);
+        int prev = mana;
+        mana = Mth.clamp(value, 0, maxMana);
 
         // Trigger global blink when completing ANY slot
-        if ((prev / 4) < (this.mana / 4)) {
+        if ((prev / 4) < (mana / 4)) {
             globalBlinkEndTime = Minecraft.getInstance().player.tickCount + 2; // 0.2s blink
         }
     }
@@ -74,7 +74,7 @@ public class ManaComponent {
     public boolean isFull() {
         return mana >= maxMana;
     }
-
+    /*
     // Codec for serialization
     public static final Codec<ManaComponent> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
@@ -83,10 +83,15 @@ public class ManaComponent {
             ).apply(instance, ManaComponent::new)
     );
 
+     */
+
     // Attachment registration
     public static final AttachmentType<ManaComponent> ATTACHMENT =
             AttachmentType.builder(ManaComponent::new)
-                    .serialize(CODEC)
                     .build();
+
+
+
+
 }
 
