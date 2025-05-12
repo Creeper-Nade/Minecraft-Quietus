@@ -110,10 +110,11 @@ public class WeatheringHandler {
         // copying components from old item, all but attribute modifiers and item name
         ItemStack newStack = new ItemStack(newItemOptional.get());
         DataComponentPatch.Builder builder = DataComponentPatch.builder();
-        oldStack.getComponents().forEach((component) -> { // newStack does not inherit the attribute modifiers, item name and item model
+        oldStack.getComponents().forEach((component) -> { // newStack does not inherit the attribute modifiers, item name, item model adnd equippable (including equipment slots, equip sound and equipment entity model resource location)
             if (!component.type().equals(DataComponents.ATTRIBUTE_MODIFIERS) 
              && !component.type().equals(DataComponents.ITEM_NAME) 
-             && !component.type().equals(DataComponents.ITEM_MODEL)) {
+             && !component.type().equals(DataComponents.ITEM_MODEL)
+             && !component.type().equals(DataComponents.EQUIPPABLE)) {
                 builder.set((DataComponentType<Object>) component.type(), (Object) component.value());
             }
         });

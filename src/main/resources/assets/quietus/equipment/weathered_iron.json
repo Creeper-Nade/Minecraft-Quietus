@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "quietus:weathered_iron"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "quietus:weathered_iron"
+      }
+    ]
+  }
+}

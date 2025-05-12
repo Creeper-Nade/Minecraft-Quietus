@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "quietus:oxidized_iron"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "quietus:oxidized_iron"
+      }
+    ]
+  }
+}
