@@ -3,11 +3,16 @@ package com.minecraftquietus.quietus.event;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
+import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.util.mana.ManaComponent;
+import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
@@ -20,7 +25,9 @@ import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.slf4j.Logger;
 
 
@@ -28,6 +35,18 @@ import org.slf4j.Logger;
 public class QuietusCommonEvents {
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    public static ServerPlayer QuietusServerPlayer;
+
+    @SubscribeEvent
+    public static void OnLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        Player player = event.getEntity();
+        if (player instanceof ServerPlayer serverPlayer) {
+            //System.out.println(serverPlayer);
+            PlayerData.ManapackToPlayer(serverPlayer);
+            QuietusServerPlayer=serverPlayer;
+        }
+    }
 
     @SubscribeEvent
     public static void registerBrewingRecipe(RegisterBrewingRecipesEvent event)
@@ -64,12 +83,23 @@ public class QuietusCommonEvents {
 
     }
 
-    public static void onPlayerTick(ClientTickEvent.Post event) {
+    public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
 
         if (Minecraft.getInstance().player != null && Minecraft.getInstance().level != null &&player.hasEffect(QuietusEffects.SPELUNKING_EFFECT)) {
             Ore_Vision.IfPlayerMoved(player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event)
+    {
+        Player player=event.getEntity();
+        //if (event.getEntity().level().isClientSide()) return;
+        if(player instanceof ServerPlayer serverPlayer) {
+            event.getEntity().getData(ManaComponent.ATTACHMENT).tick(serverPlayer);
+            //ManaHudOverlay.SetTick(serverPlayer);
         }
     }
 

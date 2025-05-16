@@ -1,15 +1,12 @@
 package com.minecraftquietus.quietus.util.mana;
 
+import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
@@ -21,16 +18,23 @@ public class ManaHudOverlay {
     private static final int TEXTURE_WIDTH = 63;
     private static final int SLOTS_PER_ROW = 10;
 
+    public static int Display_Mana=0;
+    public static int Display_MaxMana=20;
+    //private static int currentTick;
+    //private static Player Hudplayer;
+    //private static int slots;
+
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Pre event) {
         GuiGraphics gui = event.getGuiGraphics();
         Minecraft mc = Minecraft.getInstance();
-        Player player = mc.player;
+        Player player = QuietusCommonEvents.QuietusServerPlayer;
+        int currentTick= player.tickCount;
 
         if (mc.player == null|| player.isCreative()) return;
 
-        ManaComponent mana = mc.player.getData(ManaComponent.ATTACHMENT);
-        int currentTick = player.tickCount;
+        ManaComponent mana = player.getData(ManaComponent.ATTACHMENT);
+        //int currentTick = player.tickCount;
 
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
@@ -46,9 +50,12 @@ public class ManaHudOverlay {
     }
 
 
+
+
+
     private static void renderContainers(GuiGraphics gui, int screenWidth,int yPos, int xStart,
                                          ManaComponent mana,int currentTick) {
-        int totalSlots = mana.getTotalSlots();
+        int totalSlots = mana.getTotalSlots(Display_MaxMana);
 
         for(int slot = 0; slot < totalSlots; slot++) {
             int row = slot / SLOTS_PER_ROW;
@@ -75,7 +82,7 @@ public class ManaHudOverlay {
 
     private static void renderFills(GuiGraphics gui, int screenWidth,int yPos, int xStart,
                                     ManaComponent mana) {
-        int totalSlots = mana.getTotalSlots();
+        int totalSlots = mana.getTotalSlots(Display_MaxMana);
 
         for(int slot = 0; slot < totalSlots; slot++) {
             int row = slot / SLOTS_PER_ROW;
@@ -85,7 +92,7 @@ public class ManaHudOverlay {
             int y = yPos - row * 10 ;
 
             // Calculate fill state
-            int slotMana = Math.min(mana.getMana(), (slot+1)*4) - slot*4;
+            int slotMana = Math.min(Display_Mana, (slot+1)*4) - slot*4;
             if(slotMana <= 0) continue;
 
             // Select texture column based on fill amount
