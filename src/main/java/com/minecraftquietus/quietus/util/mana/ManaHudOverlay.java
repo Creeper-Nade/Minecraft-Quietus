@@ -33,7 +33,7 @@ public class ManaHudOverlay {
 
         if (mc.player == null|| player.isCreative()) return;
 
-        ManaComponent mana = player.getData(ManaComponent.ATTACHMENT);
+        ManaComponent mana = player.getData(ManaComponent.MANA_ATTACHMENT);
         //int currentTick = player.tickCount;
 
         int screenWidth = mc.getWindow().getGuiScaledWidth();

@@ -5,7 +5,6 @@ import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
-import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
@@ -23,7 +22,9 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 
 
+import static com.minecraftquietus.quietus.Quietus.ATTACHMENTS;
 import static com.minecraftquietus.quietus.Quietus.MODID;
+import static com.minecraftquietus.quietus.util.mana.ManaComponent.MANA_ATTACHMENT;
 
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -57,6 +58,7 @@ public class QuietusCommonEvents {
         builder.addMix(QuietusPotions.SPELUNKING, Items.REDSTONE, QuietusPotions.LONG_SPELUNKING); // longer duration of potion of spelunking
         builder.addMix(QuietusPotions.SPELUNKING, Items.GLOW_INK_SAC, QuietusPotions.STRONG_SPELUNKING);
     }
+
 
     // event testing
     /* 
@@ -98,10 +100,11 @@ public class QuietusCommonEvents {
         Player player=event.getEntity();
         //if (event.getEntity().level().isClientSide()) return;
         if(player instanceof ServerPlayer serverPlayer) {
-            event.getEntity().getData(ManaComponent.ATTACHMENT).tick(serverPlayer);
+            event.getEntity().getData(MANA_ATTACHMENT).tick(serverPlayer);
             //ManaHudOverlay.SetTick(serverPlayer);
         }
     }
+
 
 
     /*

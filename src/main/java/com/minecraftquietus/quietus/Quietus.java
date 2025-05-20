@@ -4,13 +4,14 @@ package com.minecraftquietus.quietus;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
+import com.minecraftquietus.quietus.util.QuietusAttributes;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.slf4j.Logger;
 
@@ -119,8 +120,9 @@ public class Quietus
         //NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
 
 // Register our mana attachment
-        ATTACHMENTS.register("mana_component", () -> ManaComponent.ATTACHMENT);
+        ATTACHMENTS.register("mana_component", () -> ManaComponent.MANA_ATTACHMENT);
         ATTACHMENTS.register(modEventBus);
+        QuietusAttributes.QUIETUS_ATTRIBUTES.register(modEventBus);
         //NeoForge.EVENT_BUS.addListener(QuietusIModBusEvent::PayloadHandlerRegistration);
 
         // Register client-side HUD

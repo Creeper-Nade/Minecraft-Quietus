@@ -1,25 +1,21 @@
 package com.minecraftquietus.quietus.util.mana;
 
 import com.minecraftquietus.quietus.util.PlayerData;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 
-public class ManaComponent  {
-    public static int mana=0;
-    public static int maxMana=20;
-    public static int RegenCDTick=5;
+public class ManaComponent {
+    public int mana=0;
+    private int maxMana=20;
+    private int RegenCDTick=5;
     
     private long lastRegenTime;
     //private final int[] slotAnimOffsets = new int[40];
@@ -31,23 +27,47 @@ public class ManaComponent  {
     public ManaComponent(int currentMana, int maxMana) {
         mana = Math.min(mana, maxMana);
         this.maxMana = maxMana;
-    }
+    }*/
 
     // Default constructor
+    /*
     public ManaComponent() {
-        this(40, 40);
-        for(int i = 0; i < slotAnimOffsets.length; i++) {
-            slotAnimOffsets[i] = i * 3; // Staggered animation
-        }
-    } */
+        //LivingEntity livingEntity = QuietusCommonEvents.QuietusServerPlayer;
+        //AttributeMap attribute_map = livingEntity.getAttributes();
+        //this.maxMana= (int)attributes.getValue(MAX_MANA);
+        this.maxMana=15;
+    }*/
 
 
-    public void tick(Player player) {
+/*
+    @Override
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putInt("mana", mana);
+        boolean hasmana=nbt.contains("manahaha");
+        System.out.println(hasmana);
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        boolean hasmana=nbt.contains("mana");
+        System.out.println(hasmana);
+        this.mana = nbt.getIntOr("mana",10);
+    }
+*/
+
+    public void tick(ServerPlayer player) {
         if (player.isCreative()) return;
+
+        if(CheckMaxMana(player))
+            SetMaxMana(player);
         if (!isFull() && player.tickCount - lastRegenTime >= RegenCDTick) {
             setMana(mana + 1,player);
             lastRegenTime = player.tickCount;
         }
+        if(mana > maxMana)
+            setMana(maxMana,player);
         //System.out.println("global"+globalBlinkEndTime);
     }
 
@@ -55,16 +75,27 @@ public class ManaComponent  {
     public int getMana() { return mana; }
     public int getMaxMana() { return maxMana; }
 
+    private boolean CheckMaxMana(Player player)
+    {
+        AttributeMap attributeMap = player.getAttributes();
+        if(maxMana != (int)attributeMap.getValue(MAX_MANA))
+        {
+            return true;
+        }
+        return false;
+    }
+    public void SetMaxMana(ServerPlayer player)
+    {
+        AttributeMap attributeMap = player.getAttributes();
+        maxMana= (int)attributeMap.getValue(MAX_MANA);
+        PlayerData.ManapackToPlayer(player,this);
 
-    public void setMana(int value, Player player) {
+    }
+    public void setMana(int value, ServerPlayer player) {
         int prev = mana;
         mana = Mth.clamp(value, 0, maxMana);
 
-        if (player instanceof ServerPlayer serverPlayer) {
-
-
-            PlayerData.ManapackToPlayer(serverPlayer,this);
-        }
+            PlayerData.ManapackToPlayer(player,this);
 
         // Trigger global blink when completing ANY slot
         if ((prev / 4) < (mana / 4)) {
@@ -104,7 +135,7 @@ public class ManaComponent  {
      */
 
     // Attachment registration
-    public static final AttachmentType<ManaComponent> ATTACHMENT =
+    public static final AttachmentType<ManaComponent> MANA_ATTACHMENT =
             AttachmentType.builder(ManaComponent::new)
                     .build();
 

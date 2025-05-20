@@ -15,6 +15,6 @@ public class PlayerData {
     }
 
     public static void ManapackToPlayer(ServerPlayer serverPlayer) {
-        ManapackToPlayer(serverPlayer, serverPlayer.getData(ManaComponent.ATTACHMENT));
+        ManapackToPlayer(serverPlayer, serverPlayer.getData(ManaComponent.MANA_ATTACHMENT));
     }
 }
