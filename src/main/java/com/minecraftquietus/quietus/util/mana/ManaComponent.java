@@ -10,10 +10,12 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
+import java.util.function.Supplier;
+
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 
-public class ManaComponent {
-    public int mana=0;
+public class ManaComponent implements INBTSerializable<CompoundTag> {
+    public int mana;
     private int maxMana=20;
     private int RegenCDTick=5;
     
@@ -30,32 +32,28 @@ public class ManaComponent {
     }*/
 
     // Default constructor
-    /*
+
     public ManaComponent() {
         //LivingEntity livingEntity = QuietusCommonEvents.QuietusServerPlayer;
         //AttributeMap attribute_map = livingEntity.getAttributes();
         //this.maxMana= (int)attributes.getValue(MAX_MANA);
-        this.maxMana=15;
-    }*/
+        this.maxMana=0;
+    }
 
 
-/*
+
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag nbt = new CompoundTag();
         nbt.putInt("mana", mana);
-        boolean hasmana=nbt.contains("manahaha");
-        System.out.println(hasmana);
         return nbt;
     }
 
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        boolean hasmana=nbt.contains("mana");
-        System.out.println(hasmana);
         this.mana = nbt.getIntOr("mana",10);
     }
-*/
+
 
     public void tick(ServerPlayer player) {
         if (player.isCreative()) return;
@@ -135,9 +133,12 @@ public class ManaComponent {
      */
 
     // Attachment registration
+    /*
     public static final AttachmentType<ManaComponent> MANA_ATTACHMENT =
             AttachmentType.builder(ManaComponent::new)
-                    .build();
+                    .build();*/
+
+
 
 
 

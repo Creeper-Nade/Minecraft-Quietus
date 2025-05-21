@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.util.mana;
 
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
+import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -33,7 +34,7 @@ public class ManaHudOverlay {
 
         if (mc.player == null|| player.isCreative()) return;
 
-        ManaComponent mana = player.getData(ManaComponent.MANA_ATTACHMENT);
+        ManaComponent mana = player.getData(QuietusAttachments.MANA_ATTACHMENT);
         //int currentTick = player.tickCount;
 
         int screenWidth = mc.getWindow().getGuiScaledWidth();
