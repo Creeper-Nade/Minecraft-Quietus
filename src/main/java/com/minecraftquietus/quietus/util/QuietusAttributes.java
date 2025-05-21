@@ -22,4 +22,14 @@ public class QuietusAttributes {
             0,
             10000
     ));
+
+    public static final Holder<Attribute> MANA_REGEN_CD = QUIETUS_ATTRIBUTES.register("mana_regen_cd", () -> new RangedAttribute(
+            // The translation key to use.
+            "attributes.quietus.mana_regen_cd",
+            // The default value.
+            5,
+            // Min and max values.
+            -10000,
+            10000
+    ));
 }

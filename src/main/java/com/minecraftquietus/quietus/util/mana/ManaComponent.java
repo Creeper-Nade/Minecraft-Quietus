@@ -6,16 +6,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
-import java.util.function.Supplier;
-
+import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_CD;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 
 public class ManaComponent implements INBTSerializable<CompoundTag> {
-    public int mana;
+    private int mana;
     private int maxMana=20;
     private int RegenCDTick=5;
     
@@ -58,8 +55,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public void tick(ServerPlayer player) {
         if (player.isCreative()) return;
 
-        if(CheckMaxMana(player))
-            SetMaxMana(player);
+        CheckManaAttributes(player);
         if (!isFull() && player.tickCount - lastRegenTime >= RegenCDTick) {
             setMana(mana + 1,player);
             lastRegenTime = player.tickCount;
@@ -73,20 +69,28 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public int getMana() { return mana; }
     public int getMaxMana() { return maxMana; }
 
-    private boolean CheckMaxMana(Player player)
+    private void CheckManaAttributes(ServerPlayer player)
     {
         AttributeMap attributeMap = player.getAttributes();
         if(maxMana != (int)attributeMap.getValue(MAX_MANA))
         {
-            return true;
+            SetMaxMana(player);
         }
-        return false;
+        if(RegenCDTick != (int)attributeMap.getValue(MANA_REGEN_CD))
+            SetRegenCD(player);
+
     }
     public void SetMaxMana(ServerPlayer player)
     {
         AttributeMap attributeMap = player.getAttributes();
         maxMana= (int)attributeMap.getValue(MAX_MANA);
         PlayerData.ManapackToPlayer(player,this);
+
+    }
+    public void SetRegenCD(ServerPlayer player)
+    {
+        AttributeMap attributeMap = player.getAttributes();
+        RegenCDTick= (int)attributeMap.getValue(MANA_REGEN_CD);
 
     }
     public void setMana(int value, ServerPlayer player) {
