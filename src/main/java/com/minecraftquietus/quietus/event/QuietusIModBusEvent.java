@@ -30,7 +30,7 @@ public class QuietusIModBusEvent {
             event.add(EntityType.PLAYER, MAX_MANA,20);
         }
         if (!event.has(EntityType.PLAYER, MANA_REGEN_BONUS)) {
-            event.add(EntityType.PLAYER, MANA_REGEN_BONUS,5);
+            event.add(EntityType.PLAYER, MANA_REGEN_BONUS,0);
         }
     }
 }
