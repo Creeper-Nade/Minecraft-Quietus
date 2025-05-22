@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
-import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_CD;
+import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 
 @EventBusSubscriber(modid=MODID,bus = EventBusSubscriber.Bus.MOD)
@@ -29,8 +29,8 @@ public class QuietusIModBusEvent {
         if (!event.has(EntityType.PLAYER, MAX_MANA)) {
             event.add(EntityType.PLAYER, MAX_MANA,20);
         }
-        if (!event.has(EntityType.PLAYER, MANA_REGEN_CD)) {
-            event.add(EntityType.PLAYER, MANA_REGEN_CD,5);
+        if (!event.has(EntityType.PLAYER, MANA_REGEN_BONUS)) {
+            event.add(EntityType.PLAYER, MANA_REGEN_BONUS,5);
         }
     }
 }

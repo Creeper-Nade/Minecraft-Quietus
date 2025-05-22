@@ -23,11 +23,11 @@ public class QuietusAttributes {
             10000
     ));
 
-    public static final Holder<Attribute> MANA_REGEN_CD = QUIETUS_ATTRIBUTES.register("mana_regen_cd", () -> new RangedAttribute(
+    public static final Holder<Attribute> MANA_REGEN_BONUS = QUIETUS_ATTRIBUTES.register("mana_regen_bonus", () -> new RangedAttribute(
             // The translation key to use.
-            "attributes.quietus.mana_regen_cd",
+            "attributes.quietus.mana_regen_bonus",
             // The default value.
-            5,
+            0,
             // Min and max values.
             -10000,
             10000

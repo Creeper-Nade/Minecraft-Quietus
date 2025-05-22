@@ -8,13 +8,15 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
-import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_CD;
+import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
+import static java.lang.Math.abs;
 
 public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int mana;
     private int maxMana=20;
-    private int RegenCDTick=5;
+    private double mana_rate;
+    private int Regen_bonus=5;
     
     private long lastRegenTime;
     //private final int[] slotAnimOffsets = new int[40];
@@ -56,10 +58,11 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         if (player.isCreative()) return;
 
         CheckManaAttributes(player);
-        if (!isFull() && player.tickCount - lastRegenTime >= RegenCDTick) {
-            setMana(mana + 1,player);
-            lastRegenTime = player.tickCount;
+        if (!isFull()) {
+            SetManaRegen(player);
+            //lastRegenTime = player.tickCount;
         }
+        else mana_rate=0;
         if(mana > maxMana)
             setMana(maxMana,player);
         //System.out.println("global"+globalBlinkEndTime);
@@ -76,7 +79,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         {
             SetMaxMana(player);
         }
-        if(RegenCDTick != (int)attributeMap.getValue(MANA_REGEN_CD))
+        if(Regen_bonus != (int)attributeMap.getValue(MANA_REGEN_BONUS))
             SetRegenCD(player);
 
     }
@@ -90,8 +93,30 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public void SetRegenCD(ServerPlayer player)
     {
         AttributeMap attributeMap = player.getAttributes();
-        RegenCDTick= (int)attributeMap.getValue(MANA_REGEN_CD);
+        Regen_bonus= (int)attributeMap.getValue(MANA_REGEN_BONUS);
 
+    }
+
+    public void SetManaRegen(ServerPlayer player)
+    {
+        mana_rate+= (((double) maxMana /3 +1+ stationary_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2;
+        if(mana_rate>=40)
+        {
+            int added_mana=(int)Math.floor(mana_rate/40);
+            mana_rate-=40*(added_mana);
+            setMana(mana+added_mana,player);
+        }
+    }
+
+    public double stationary_bonus(ServerPlayer player)
+    {
+        if(abs(player.xCloak-player.xCloakO)<0.001)
+        {
+            //System.out.println(maxMana/3);
+            return (double) maxMana /3;
+        }
+        //System.out.println(0);
+        return 0;
     }
     public void setMana(int value, ServerPlayer player) {
         int prev = mana;
