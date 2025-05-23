@@ -4,13 +4,15 @@ package com.minecraftquietus.quietus;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
+import com.minecraftquietus.quietus.util.QuietusAttachments;
+import com.minecraftquietus.quietus.util.QuietusAttributes;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.slf4j.Logger;
 
@@ -88,8 +90,8 @@ public class Quietus
                             .serialize(MANA_CODEC)
                             .build()
             );*/
-    private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
-            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
+
+
 
 
 
@@ -113,22 +115,24 @@ public class Quietus
 
         NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
         modEventBus.register(QuietusIModBusEvent.class);
-        NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onClientTick);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockPlace);
         //NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
 
 // Register our mana attachment
-        ATTACHMENTS.register("mana", () -> ManaComponent.ATTACHMENT);
-        ATTACHMENTS.register(modEventBus);
+        //ATTACHMENTS.register("mana_component", () -> ManaComponent.MANA_ATTACHMENT);
+        QuietusAttachments.ATTACHMENTS.register(modEventBus);
+        QuietusAttributes.QUIETUS_ATTRIBUTES.register(modEventBus);
         //NeoForge.EVENT_BUS.addListener(QuietusIModBusEvent::PayloadHandlerRegistration);
 
         // Register client-side HUD
         NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onRenderGui);
-        NeoForge.EVENT_BUS.addListener((PlayerTickEvent.Post event) -> {
+
+        /*NeoForge.EVENT_BUS.addListener((PlayerTickEvent.Post event) -> {
             if (!event.getEntity().level().isClientSide()) return;
             event.getEntity().getData(ManaComponent.ATTACHMENT).tick(event.getEntity());
-        });
+        });*/
 
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);

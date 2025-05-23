@@ -25,5 +25,18 @@
   "item.quietus.oxidized_copper_boots": "Oxidized Copper Boots",
   "item.quietus.oxidized_copper_leggings": "Oxidized Copper Leggings",
   "item.quietus.oxidized_copper_chestplate": "Oxidized Copper Chestplate",
-  "item.quietus.oxidized_copper_helmet": "Oxidized Copper Helmet"
+  "item.quietus.oxidized_copper_helmet": "Oxidized Copper Helmet",
+
+  "item.quietus.exposed_iron_boots": "Exposed Iron Boots",
+  "item.quietus.exposed_iron_leggings": "Exposed Iron Leggings",
+  "item.quietus.exposed_iron_chestplate": "Exposed Iron Chestplate",
+  "item.quietus.exposed_iron_helmet": "Exposed Iron Helmet",
+  "item.quietus.weathered_iron_boots": "Weathered Iron Boots",
+  "item.quietus.weathered_iron_leggings": "Weathered Iron Leggings",
+  "item.quietus.weathered_iron_chestplate": "Weathered Iron Chestplate",
+  "item.quietus.weathered_iron_helmet": "Weathered Iron Helmet",
+  "item.quietus.oxidized_iron_boots": "Oxidized Iron Boots",
+  "item.quietus.oxidized_iron_leggings": "Oxidized Iron Leggings",
+  "item.quietus.oxidized_iron_chestplate": "Oxidized Iron Chestplate",
+  "item.quietus.oxidized_iron_helmet": "Oxidized Iron Helmet"
 }

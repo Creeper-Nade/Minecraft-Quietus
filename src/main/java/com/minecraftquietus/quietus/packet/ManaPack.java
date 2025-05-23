@@ -25,4 +25,5 @@ public record ManaPack(int MaxMana, int Mana) implements CustomPacketPayload {
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
+
 }

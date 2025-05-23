@@ -1,74 +1,150 @@
 package com.minecraftquietus.quietus.util.mana;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.component.DataComponentType;
+import com.minecraftquietus.quietus.util.PlayerData;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.attachment.AttachmentType;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
+import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
+import static java.lang.Math.abs;
 
-public class ManaComponent {
-    public static int mana=0;
-    public static int maxMana=20;
+public class ManaComponent implements INBTSerializable<CompoundTag> {
+    private int mana;
+    private int maxMana=20;
+    private double mana_rate;
+    private int Regen_bonus=5;
     
     private long lastRegenTime;
     //private final int[] slotAnimOffsets = new int[40];
 
     private long globalBlinkEndTime; // Tick time when global blink should end
+    private int slots;
     /*
     // Constructor for Codec
     public ManaComponent(int currentMana, int maxMana) {
         mana = Math.min(mana, maxMana);
         this.maxMana = maxMana;
-    }
+    }*/
 
     // Default constructor
+
     public ManaComponent() {
-        this(40, 40);
-        for(int i = 0; i < slotAnimOffsets.length; i++) {
-            slotAnimOffsets[i] = i * 3; // Staggered animation
-        }
-    } */
+        //LivingEntity livingEntity = QuietusCommonEvents.QuietusServerPlayer;
+        //AttributeMap attribute_map = livingEntity.getAttributes();
+        //this.maxMana= (int)attributes.getValue(MAX_MANA);
+        this.maxMana=0;
+    }
 
 
-    public void tick(Player player) {
+
+    @Override
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag nbt = new CompoundTag();
+        nbt.putInt("mana", mana);
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+        this.mana = nbt.getIntOr("mana",10);
+    }
+
+
+    public void tick(ServerPlayer player) {
         if (player.isCreative()) return;
-        if (!isFull() && player.tickCount - lastRegenTime >= 5) {
-            setMana(mana + 1);
-            lastRegenTime = player.tickCount;
+
+        CheckManaAttributes(player);
+        if (!isFull()) {
+            SetManaRegen(player);
+            //lastRegenTime = player.tickCount;
         }
+        else mana_rate=0;
+        if(mana > maxMana)
+            setMana(maxMana,player);
+        //System.out.println("global"+globalBlinkEndTime);
     }
 
     // Getters and setters
     public int getMana() { return mana; }
+    public int getMaxMana() { return maxMana; }
 
+    private void CheckManaAttributes(ServerPlayer player)
+    {
+        AttributeMap attributeMap = player.getAttributes();
+        if(maxMana != (int)attributeMap.getValue(MAX_MANA))
+        {
+            SetMaxMana(player);
+        }
+        if(Regen_bonus != (int)attributeMap.getValue(MANA_REGEN_BONUS))
+            SetRegenCD(player);
 
-    public void setMana(int value) {
-        int prev = mana;
-        mana = Mth.clamp(value, 0, maxMana);
+    }
+    public void SetMaxMana(ServerPlayer player)
+    {
+        AttributeMap attributeMap = player.getAttributes();
+        maxMana= (int)attributeMap.getValue(MAX_MANA);
+        PlayerData.ManapackToPlayer(player,this);
 
-        // Trigger global blink when completing ANY slot
-        if ((prev / 4) < (mana / 4)) {
-            globalBlinkEndTime = Minecraft.getInstance().player.tickCount + 2; // 0.2s blink
+    }
+    public void SetRegenCD(ServerPlayer player)
+    {
+        AttributeMap attributeMap = player.getAttributes();
+        Regen_bonus= (int)attributeMap.getValue(MANA_REGEN_BONUS);
+
+    }
+
+    public void SetManaRegen(ServerPlayer player)
+    {
+        mana_rate+= (((double) maxMana /3 +1+ stationary_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2;
+        if(mana_rate>=40)
+        {
+            int added_mana=(int)Math.floor(mana_rate/40);
+            mana_rate-=40*(added_mana);
+            setMana(mana+added_mana,player);
         }
     }
 
+    public double stationary_bonus(ServerPlayer player)
+    {
+        if(abs(player.xCloak-player.xCloakO)<0.001)
+        {
+            //System.out.println(maxMana/3);
+            return (double) maxMana /3;
+        }
+        //System.out.println(0);
+        return 0;
+    }
+    public void setMana(int value, ServerPlayer player) {
+        int prev = mana;
+        mana = Mth.clamp(value, 0, maxMana);
+
+            PlayerData.ManapackToPlayer(player,this);
+
+        // Trigger global blink when completing ANY slot
+        if ((prev / 4) < (mana / 4)) {
+            globalBlinkEndTime = player.tickCount + 2; // 0.2s blink
+
+        }
+        //System.out.println("global"+globalBlinkEndTime);
+    }
+
     public boolean shouldBlinkContainers( int currentTick) {
+        //System.out.println("global"+globalBlinkEndTime);
+
         return currentTick < globalBlinkEndTime;
     }
-    public int getTotalSlots() {
-        return (int) Math.ceil(maxMana / 4.0);
+    public int getTotalSlots(int MaxMana) {
+        slots=(int) Math.ceil(MaxMana / 4.0);
+        return slots;
     }
 
     public int getRowCount() {
-        return (int) Math.ceil((double) getTotalSlots() / 10);
+
+        return (int) Math.ceil((double)slots / 10);
     }
 
     public boolean isFull() {
@@ -86,9 +162,12 @@ public class ManaComponent {
      */
 
     // Attachment registration
-    public static final AttachmentType<ManaComponent> ATTACHMENT =
+    /*
+    public static final AttachmentType<ManaComponent> MANA_ATTACHMENT =
             AttachmentType.builder(ManaComponent::new)
-                    .build();
+                    .build();*/
+
+
 
 
 

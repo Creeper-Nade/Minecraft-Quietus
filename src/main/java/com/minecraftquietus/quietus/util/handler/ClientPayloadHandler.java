@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus.util.handler;
 
 import com.minecraftquietus.quietus.packet.ManaPack;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
+import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -24,8 +25,9 @@ public class ClientPayloadHandler {
         // 在Main 线程里面做一些什么，代码西在下面
         context.enqueueWork(() -> {
                     // 写在这里
-                    ManaComponent.maxMana = Mpack.MaxMana();
-                    ManaComponent.mana= Mpack.Mana();
+                    //System.out.println(Mpack.Mana());
+                    ManaHudOverlay.Display_MaxMana = Mpack.MaxMana();
+                    ManaHudOverlay.Display_Mana= Mpack.Mana();
                 })
                 .exceptionally(e -> {
                     // 处理异常
