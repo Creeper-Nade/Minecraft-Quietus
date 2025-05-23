@@ -88,7 +88,7 @@ public class QuietusCommonEvents {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
 
-        if (Minecraft.getInstance().player != null && Minecraft.getInstance().level != null &&player.hasEffect(QuietusEffects.SPELUNKING_EFFECT)) {
+        if (Minecraft.getInstance().player != null && Minecraft.getInstance().level != null && player.hasEffect(QuietusEffects.SPELUNKING_EFFECT)) {
             Ore_Vision.IfPlayerMoved(player);
         }
     }

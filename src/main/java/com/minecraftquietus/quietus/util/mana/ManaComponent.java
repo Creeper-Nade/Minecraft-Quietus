@@ -15,7 +15,7 @@ import static java.lang.Math.abs;
 public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int mana;
     private int maxMana=20;
-    private double mana_rate;
+    private double manaRate;
     private int Regen_bonus=5;
     
     private long lastRegenTime;
@@ -57,53 +57,53 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public void tick(ServerPlayer player) {
         if (player.isCreative()) return;
 
-        CheckManaAttributes(player);
-        if (!isFull()) {
-            SetManaRegen(player);
-            //lastRegenTime = player.tickCount;
-        }
-        else mana_rate=0;
-        if(mana > maxMana)
+        checkManaAttributes(player);
+        if (this.isFull()) {
+            this.manaRate = 0;
             setMana(maxMana,player);
+        } else {
+            setManaRegen(player);
+            //lastRegenTime = player.tickCount;
+        }   
         //System.out.println("global"+globalBlinkEndTime);
     }
 
-    // Getters and setters
+    // Getters
     public int getMana() { return mana; }
     public int getMaxMana() { return maxMana; }
 
-    private void CheckManaAttributes(ServerPlayer player)
+    private void checkManaAttributes(ServerPlayer player)
     {
         AttributeMap attributeMap = player.getAttributes();
         if(maxMana != (int)attributeMap.getValue(MAX_MANA))
         {
-            SetMaxMana(player);
+            setMaxMana(player);
         }
         if(Regen_bonus != (int)attributeMap.getValue(MANA_REGEN_BONUS))
-            SetRegenCD(player);
+            setRegenCD(player);
 
     }
-    public void SetMaxMana(ServerPlayer player)
+    public void setMaxMana(ServerPlayer player)
     {
         AttributeMap attributeMap = player.getAttributes();
         maxMana= (int)attributeMap.getValue(MAX_MANA);
         PlayerData.ManapackToPlayer(player,this);
 
     }
-    public void SetRegenCD(ServerPlayer player)
+    public void setRegenCD(ServerPlayer player)
     {
         AttributeMap attributeMap = player.getAttributes();
         Regen_bonus= (int)attributeMap.getValue(MANA_REGEN_BONUS);
 
     }
 
-    public void SetManaRegen(ServerPlayer player)
+    public void setManaRegen(ServerPlayer player)
     {
-        mana_rate+= (((double) maxMana /3 +1+ stationary_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2;
-        if(mana_rate>=40)
+        manaRate += (((double) maxMana /3 +1+ stationary_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2;
+        if(manaRate>=40)
         {
-            int added_mana=(int)Math.floor(mana_rate/40);
-            mana_rate-=40*(added_mana);
+            int added_mana=(int)Math.floor(manaRate/40);
+            manaRate-=40*(added_mana);
             setMana(mana+added_mana,player);
         }
     }
@@ -121,9 +121,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public void setMana(int value, ServerPlayer player) {
         int prev = mana;
         mana = Mth.clamp(value, 0, maxMana);
-
-            PlayerData.ManapackToPlayer(player,this);
-
+        PlayerData.ManapackToPlayer(player,this);
         // Trigger global blink when completing ANY slot
         if ((prev / 4) < (mana / 4)) {
             globalBlinkEndTime = player.tickCount + 2; // 0.2s blink
@@ -148,7 +146,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }
 
     public boolean isFull() {
-        return mana >= maxMana;
+        return this.mana >= this.maxMana;
     }
     /*
     // Codec for serialization
