@@ -3,11 +3,9 @@ package com.minecraftquietus.quietus.event;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems;
 import com.minecraftquietus.quietus.item.WeatheringIronItems;
 import com.minecraftquietus.quietus.item.WeatheringItem;
-import com.mojang.logging.LogUtils;
 
 import java.util.Optional;
 
-import org.slf4j.Logger;
 
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
@@ -29,7 +27,6 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 @EventBusSubscriber(modid=MODID)
 public class WeatheringHandler {
-    private static final Logger LOGGER = LogUtils.getLogger();
 
 
     @SubscribeEvent
