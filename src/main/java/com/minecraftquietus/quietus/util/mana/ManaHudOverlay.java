@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.util.mana;
 
+import com.minecraftquietus.quietus.event.ManaHandler;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.client.Minecraft;
@@ -26,11 +27,10 @@ public class ManaHudOverlay {
     //private static Player Hudplayer;
     //private static int slots;
 
-    @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Pre event) {
         GuiGraphics gui = event.getGuiGraphics();
         Minecraft mc = Minecraft.getInstance();
-        Player player = QuietusCommonEvents.QuietusServerPlayer;
+        Player player = mc.player;
         int currentTick= player.tickCount;
 
         if (mc.options.hideGui || mc.player == null|| player.isCreative()) return;

@@ -36,17 +36,6 @@ public class QuietusCommonEvents {
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static ServerPlayer QuietusServerPlayer;
-
-    @SubscribeEvent
-    public static void OnLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        Player player = event.getEntity();
-        if (player instanceof ServerPlayer serverPlayer) {
-            //System.out.println(serverPlayer);
-            PlayerData.ManapackToPlayer(serverPlayer);
-            QuietusServerPlayer=serverPlayer;
-        }
-    }
 
     @SubscribeEvent
     public static void registerBrewingRecipe(RegisterBrewingRecipesEvent event)
@@ -71,12 +60,14 @@ public class QuietusCommonEvents {
     }
     */
 
+    @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         if (event.getState().is(Tags.Blocks.ORES)) {
             Ore_Vision.RemoveSingleBlock(event);
         }
     }
 
+    @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (event.getState().is(Tags.Blocks.ORES)) {
             Ore_Vision.AddSingleBlock(event);
@@ -84,6 +75,7 @@ public class QuietusCommonEvents {
 
     }
 
+    @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
@@ -96,7 +88,7 @@ public class QuietusCommonEvents {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event)
     {
-        Player player=event.getEntity();
+        Player player = event.getEntity();
         //if (event.getEntity().level().isClientSide()) return;
         if(player instanceof ServerPlayer serverPlayer) {
             event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);

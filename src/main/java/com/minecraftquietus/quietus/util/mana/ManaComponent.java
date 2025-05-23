@@ -14,9 +14,11 @@ import static java.lang.Math.abs;
 
 public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int mana;
-    private int maxMana=20;
+    private int maxMana = 20;
     private double manaRate;
-    private int Regen_bonus=5;
+    private int Regen_bonus = 5;
+
+    private ServerPlayer player;
     
     private long lastRegenTime;
     //private final int[] slotAnimOffsets = new int[40];
@@ -69,8 +71,8 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }
 
     // Getters
-    public int getMana() { return mana; }
-    public int getMaxMana() { return maxMana; }
+    public int getMana() { return this.mana; }
+    public int getMaxMana() { return this.maxMana; }
 
     private void checkManaAttributes(ServerPlayer player)
     {
@@ -119,15 +121,31 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         return 0;
     }
     public void setMana(int value, ServerPlayer player) {
-        int prev = mana;
-        mana = Mth.clamp(value, 0, maxMana);
+        int prev = this.mana;
+        this.mana = Mth.clamp(value, 0, this.maxMana);
         PlayerData.ManapackToPlayer(player,this);
         // Trigger global blink when completing ANY slot
-        if ((prev / 4) < (mana / 4)) {
+        if ((prev / 4) < (this.mana / 4)) {
             globalBlinkEndTime = player.tickCount + 2; // 0.2s blink
 
         }
         //System.out.println("global"+globalBlinkEndTime);
+    }
+    public boolean consumeMana(int value, ServerPlayer player, boolean blink) {
+        if (value < 0) {
+            return false;
+        }
+        if (this.mana >= value) {
+            this.mana -= value;
+            PlayerData.ManapackToPlayer(player,this);
+            if (blink) {
+                globalBlinkEndTime = player.tickCount + 2; // 0.2s blink
+            }
+        }
+        return false;
+    }
+    public boolean consumeMana(int value, ServerPlayer player) {
+        return consumeMana(value, player, false);
     }
 
     public boolean shouldBlinkContainers( int currentTick) {
@@ -141,7 +159,6 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }
 
     public int getRowCount() {
-
         return (int) Math.ceil((double)slots / 10);
     }
 

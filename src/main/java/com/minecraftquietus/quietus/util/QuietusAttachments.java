@@ -13,5 +13,5 @@ public class QuietusAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
             DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
 
-    public static final Supplier<AttachmentType<ManaComponent>> MANA_ATTACHMENT = ATTACHMENTS.register("mana_component", () -> AttachmentType.serializable(ManaComponent::new).copyOnDeath().build());
+    public static final Supplier<AttachmentType<ManaComponent>> MANA_ATTACHMENT = ATTACHMENTS.register("mana_component", () -> AttachmentType.serializable(()->new ManaComponent()).copyOnDeath().build());
 }

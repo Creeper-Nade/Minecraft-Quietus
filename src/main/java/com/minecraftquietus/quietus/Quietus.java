@@ -102,7 +102,6 @@ public class Quietus
         modEventBus.addListener(this::commonSetup);
 
 
-        //ITEMS.register(modEventBus);
         QuietusItems.register(modEventBus);
         QuietusBlocks.register(modEventBus);
         QuietusPotions.register(modEventBus);
@@ -114,12 +113,9 @@ public class Quietus
 
         NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
         modEventBus.register(QuietusIModBusEvent.class);
-        NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onClientTick);
-        NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockBreak);
-        NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockPlace);
         //NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
 
-// Register our mana attachment
+        // Register our mana attachment
         //ATTACHMENTS.register("mana_component", () -> ManaComponent.MANA_ATTACHMENT);
         QuietusAttachments.ATTACHMENTS.register(modEventBus);
         QuietusAttributes.QUIETUS_ATTRIBUTES.register(modEventBus);
