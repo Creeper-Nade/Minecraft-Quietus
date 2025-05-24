@@ -20,7 +20,10 @@ public class ManaHudOverlay {
     private static final int SLOTS_PER_ROW = 10;
 
     public static int Display_Mana=0;
+    private static int prev_mana;
+    private static long globalBlinkEndTime;
     public static int Display_MaxMana=20;
+    private static int slots;
     public static int row_space;
     //private static int currentTick;
     //private static Player Hudplayer;
@@ -30,12 +33,12 @@ public class ManaHudOverlay {
     public static void onRenderGui(RenderGuiEvent.Pre event) {
         GuiGraphics gui = event.getGuiGraphics();
         Minecraft mc = Minecraft.getInstance();
-        Player player = QuietusCommonEvents.QuietusServerPlayer;
+        Player player = mc.player;
         int currentTick= player.tickCount;
 
         if (mc.options.hideGui || mc.player == null|| player.isCreative()) return;
 
-        ManaComponent mana = player.getData(QuietusAttachments.MANA_ATTACHMENT);
+        //ManaComponent mana = player.getData(QuietusAttachments.MANA_ATTACHMENT);
         //int currentTick = player.tickCount;
 
         int screenWidth = mc.getWindow().getGuiScaledWidth();
@@ -45,11 +48,11 @@ public class ManaHudOverlay {
         int xStart = screenWidth / 2 +10 ;
         int yPos = screenHeight - 49;
 
-        int totalSlots = mana.getTotalSlots(Display_MaxMana);
+        int totalSlots = getTotalSlots();
         row_space= Math.clamp(totalSlots/SLOTS_PER_ROW, 0, 7);
 
 
-        renderSlots(gui, screenWidth, yPos,xStart, mana, currentTick,totalSlots,row_space);
+        renderSlots(gui, player, yPos,xStart, currentTick,totalSlots,row_space);
         //renderFills(gui, screenWidth, yPos, xStart,mana,totalSlots,row_space);
 
     }
@@ -58,8 +61,12 @@ public class ManaHudOverlay {
 
 
 
-    private static void renderSlots(GuiGraphics gui, int screenWidth,int yPos, int xStart,
-                                         ManaComponent mana,int currentTick, int totalSlots, int row_space) {
+    private static void renderSlots(GuiGraphics gui, Player player,int yPos, int xStart,int currentTick, int totalSlots, int row_space) {
+
+        if ((prev_mana / 4) < (Display_Mana / 4)) {
+            globalBlinkEndTime = currentTick + 2; // 0.2s blink
+
+        }
 
         for(int slot = totalSlots-1; slot >=0; slot--) {
             int row = slot / SLOTS_PER_ROW;
@@ -70,7 +77,7 @@ public class ManaHudOverlay {
             int y = yPos - row * (10-row_space);
 
             // Blink all containers when any slot completes
-            boolean blink = mana.shouldBlinkContainers(currentTick);
+            boolean blink = shouldBlinkContainers(currentTick);
             int texCol = blink ? 1 : 0; // 0=normal, 1=blinking container
 
             gui.blit(
@@ -104,6 +111,7 @@ public class ManaHudOverlay {
                     TEXTURE_WIDTH, ICON_SIZE
             );
         }
+        prev_mana= Display_Mana;
     }
 
     private static void renderFills(GuiGraphics gui, int screenWidth,int yPos, int xStart,
@@ -140,4 +148,21 @@ public class ManaHudOverlay {
             );
         }
     }
+
+    public static boolean shouldBlinkContainers(int currentTick) {
+        //System.out.println("global"+globalBlinkEndTime);
+
+        return currentTick < globalBlinkEndTime;
+    }
+    public static int getTotalSlots() {
+        slots=(int) Math.ceil(Display_MaxMana / 4.0);
+        return slots;
+    }
+
+    public static int getRowCount() {
+
+        return (int) Math.ceil((double)slots / 10);
+    }
+
+
 }

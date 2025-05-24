@@ -37,7 +37,6 @@ public class QuietusCommonEvents {
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static ServerPlayer QuietusServerPlayer;
 
     @SubscribeEvent
     public static void OnLogin(PlayerEvent.PlayerLoggedInEvent event) {
@@ -45,7 +44,6 @@ public class QuietusCommonEvents {
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
             PlayerData.ManapackToPlayer(serverPlayer);
-            QuietusServerPlayer=serverPlayer;
         }
     }
 
