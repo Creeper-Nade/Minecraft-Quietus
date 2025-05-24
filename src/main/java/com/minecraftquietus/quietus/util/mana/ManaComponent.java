@@ -28,13 +28,13 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }*/
 
     // Default constructor
-
+    /*
     public ManaComponent() {
         //LivingEntity livingEntity = QuietusCommonEvents.QuietusServerPlayer;
         //AttributeMap attribute_map = livingEntity.getAttributes();
         //this.maxMana= (int)attributes.getValue(MAX_MANA);
         this.maxMana=0;
-    }
+    }*/
 
 
 
