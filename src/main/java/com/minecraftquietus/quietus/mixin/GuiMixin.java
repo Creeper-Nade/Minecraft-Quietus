@@ -4,6 +4,7 @@ import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,12 +23,11 @@ public abstract class GuiMixin {
             index = 3 // Y position parameter index
     )
     private int adjustOxygenBarY(int originalY) {
-        Player player = QuietusCommonEvents.QuietusServerPlayer;
-        if (player != null && player.getData(QuietusAttachments.MANA_ATTACHMENT) != null) {
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
             //System.out.println(1);
-            ManaComponent mana = player.getData(QuietusAttachments.MANA_ATTACHMENT);
 
-            int rows = mana.getRowCount();
+            int rows = ManaHudOverlay.getRowCount();
             //System.out.println(rows);
             return originalY - ((rows-1) * (10- ManaHudOverlay.row_space))-10; // 10px per row + 5px buffer
         }

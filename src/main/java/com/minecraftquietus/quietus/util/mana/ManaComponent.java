@@ -17,12 +17,9 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int maxMana=20;
     private double manaRate;
     private int Regen_bonus=5;
-    
-    private long lastRegenTime;
+
     //private final int[] slotAnimOffsets = new int[40];
 
-    private long globalBlinkEndTime; // Tick time when global blink should end
-    private int slots;
     /*
     // Constructor for Codec
     public ManaComponent(int currentMana, int maxMana) {
@@ -57,14 +54,16 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public void tick(ServerPlayer player) {
         if (player.isCreative()) return;
 
-        checkManaAttributes(player);
-        if (this.isFull()) {
-            this.manaRate = 0;
-            setMana(maxMana,player);
-        } else {
-            setManaRegen(player);
+        CheckManaAttributes(player);
+        if (!isFull()) {
+            SetManaRegen(player);
             //lastRegenTime = player.tickCount;
-        }   
+        }
+        else mana_rate=0;
+        if(mana > maxMana) {
+            mana=maxMana;
+            PlayerData.ManapackToPlayer(player,this);
+        }
         //System.out.println("global"+globalBlinkEndTime);
     }
 
@@ -102,9 +101,9 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         manaRate += (((double) maxMana /3 +1+ stationary_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2;
         if(manaRate>=40)
         {
-            int added_mana=(int)Math.floor(manaRate/40);
-            manaRate-=40*(added_mana);
-            setMana(mana+added_mana,player);
+            int added_mana=(int)Math.floor(mana_rate/40);
+            mana_rate-=40*(added_mana);
+            addMana(added_mana,player);
         }
     }
 
@@ -118,32 +117,28 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         //System.out.println(0);
         return 0;
     }
-    public void setMana(int value, ServerPlayer player) {
+    public void addMana(int value, ServerPlayer player) {
         int prev = mana;
-        mana = Mth.clamp(value, 0, maxMana);
-        PlayerData.ManapackToPlayer(player,this);
+        mana +=value;
+
+            PlayerData.ManapackToPlayer(player,this);
+
         // Trigger global blink when completing ANY slot
+        /*
         if ((prev / 4) < (mana / 4)) {
             globalBlinkEndTime = player.tickCount + 2; // 0.2s blink
 
-        }
+        }*/
         //System.out.println("global"+globalBlinkEndTime);
     }
 
-    public boolean shouldBlinkContainers( int currentTick) {
-        //System.out.println("global"+globalBlinkEndTime);
-
-        return currentTick < globalBlinkEndTime;
-    }
-    public int getTotalSlots(int MaxMana) {
-        slots=(int) Math.ceil(MaxMana / 4.0);
-        return slots;
+    public void RemoveMana(int value, ServerPlayer player)
+    {
+        mana-=value;
+        PlayerData.ManapackToPlayer(player,this);
     }
 
-    public int getRowCount() {
 
-        return (int) Math.ceil((double)slots / 10);
-    }
 
     public boolean isFull() {
         return this.mana >= this.maxMana;
