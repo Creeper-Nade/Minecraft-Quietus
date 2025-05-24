@@ -54,12 +54,12 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public void tick(ServerPlayer player) {
         if (player.isCreative()) return;
 
-        CheckManaAttributes(player);
+        checkManaAttributes(player);
         if (!isFull()) {
-            SetManaRegen(player);
+            setManaRegen(player);
             //lastRegenTime = player.tickCount;
         }
-        else mana_rate=0;
+        else manaRate=0;
         if(mana > maxMana) {
             mana=maxMana;
             PlayerData.ManapackToPlayer(player,this);
@@ -101,8 +101,8 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         manaRate += (((double) maxMana /3 +1+ stationary_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2;
         if(manaRate>=40)
         {
-            int added_mana=(int)Math.floor(mana_rate/40);
-            mana_rate-=40*(added_mana);
+            int added_mana=(int)Math.floor(manaRate/40);
+            manaRate-=40*(added_mana);
             addMana(added_mana,player);
         }
     }
