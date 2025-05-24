@@ -36,7 +36,7 @@ public class ManaHudOverlay {
         Player player = mc.player;
         int currentTick= player.tickCount;
 
-        if (mc.options.hideGui || mc.player == null|| player.isCreative()) return;
+        if (mc.options.hideGui || mc.player == null|| player.isCreative() || player.isSpectator()) return;
 
         //ManaComponent mana = player.getData(QuietusAttachments.MANA_ATTACHMENT);
         //int currentTick = player.tickCount;

@@ -52,7 +52,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
 
 
     public void tick(ServerPlayer player) {
-        if (player.isCreative()) return;
+        if (player.isCreative() || player.isSpectator()) return;
 
         checkManaAttributes(player);
         if (!isFull()) {
