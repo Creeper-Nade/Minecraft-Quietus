@@ -94,6 +94,7 @@ public class VolleyAttackGoal<T extends net.minecraft.world.entity.Mob & VolleyR
                 this.seeTime++;
             } else {
                 this.seeTime--;
+                this.mob.setVolley(0);
             }
 
             if (!(dist_target > this.attackRadiusSqr) && this.seeTime >= 20) {
