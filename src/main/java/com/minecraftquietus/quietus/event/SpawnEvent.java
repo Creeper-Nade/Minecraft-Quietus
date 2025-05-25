@@ -49,7 +49,7 @@ public class SpawnEvent {
         Vec3i pos_i = new Vec3i((int)event.getX(), (int)event.getY(), (int)event.getZ());
         EntitySpawnReason spawnReason = event.getSpawnType();
         
-        /* TODO: maybe serialize maxExtraZombies a codec (named maxExtraSpawn global for every EntityType)? */
+        /* TODO: #3 maybe serialize maxExtraZombies a codec (named maxExtraSpawn global for every EntityType)? */
         if (spawnReason == EntitySpawnReason.NATURAL) { // ONLY natural spawning interferred
             if (entity.getType() == EntityType.ZOMBIE) { // zombies
                 float random_magic_number = random.nextFloat();

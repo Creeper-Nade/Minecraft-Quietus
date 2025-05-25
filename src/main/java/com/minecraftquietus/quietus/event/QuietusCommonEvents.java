@@ -58,19 +58,6 @@ public class QuietusCommonEvents {
         builder.addMix(QuietusPotions.SPELUNKING, Items.GLOW_INK_SAC, QuietusPotions.STRONG_SPELUNKING);
     }
 
-
-    // event testing
-    /* 
-    @SubscribeEvent
-    public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
-        LivingEntity entity = event.getEntity();
-        if (!entity.level().isClientSide() && entity.getType() == EntityType.PLAYER) {
-            entity.heal(1);
-            LOGGER.info("test!" + " " + entity.getType());
-        }
-    }
-    */
-
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         if (event.getState().is(Tags.Blocks.ORES)) {
             Ore_Vision.RemoveSingleBlock(event);
