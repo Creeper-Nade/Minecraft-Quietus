@@ -2,7 +2,6 @@ package com.minecraftquietus.quietus.event;
 
 import com.minecraftquietus.quietus.packet.ManaPack;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
-import com.minecraftquietus.quietus.util.renderer.BowslingerRenderer;
 
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -17,6 +16,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 
+import com.minecraftquietus.quietus.client.renderer.BowslingerRenderer;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.monster.Bowslinger;
 

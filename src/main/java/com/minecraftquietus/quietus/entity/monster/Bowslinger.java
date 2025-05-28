@@ -178,7 +178,7 @@ public class Bowslinger extends Skeleton implements VolleyRangedAttackMob {
         double d3 = Math.sqrt(d0 * d0 + d2 * d2);
         if (this.level() instanceof ServerLevel serverlevel) {
             Projectile.spawnProjectileUsingShoot(
-                abstractarrow, serverlevel, itemstack1, d0, d1 + d3 * 0.19f, d2, 1.6F, 15
+                abstractarrow, serverlevel, itemstack1, d0, d1 + d3 * 0.19f, d2, 1.6F, 12
             );
         }
 

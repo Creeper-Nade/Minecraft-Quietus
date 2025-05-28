@@ -1,4 +1,14 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable"
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
+    "workbench.colorCustomizations": {
+        "[Default Dark+]": {
+            "editorInlayHint.parameterForeground":"#969696",
+            "editorInlayHint.parameterBackground":"#969696"
+        }
+    },
+    "workbench.colorTheme": "Default Dark+",
+    "workbench.editor.decorations.colors": true,
+    "workbench.preferredDarkColorTheme": "Default Dark+",
+    "workbench.preferredLightColorTheme": "Default Light Modern"
 }

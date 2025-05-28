@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.util.renderer;
+package com.minecraftquietus.quietus.client.renderer;
 
 import com.minecraftquietus.quietus.entity.monster.Bowslinger;
 import com.mojang.blaze3d.vertex.PoseStack;
