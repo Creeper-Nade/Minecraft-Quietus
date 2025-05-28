@@ -1,10 +1,12 @@
 package com.minecraftquietus.quietus.event;
 
+import com.minecraftquietus.quietus.client.model.projectile.magic.amethyst_projectile_model;
 import com.minecraftquietus.quietus.packet.ManaPack;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -19,6 +21,11 @@ public class QuietusIModBusEvent {
     public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar(MODID);
         registrar.playToClient(ManaPack.TYPE, ManaPack.MANA_PACK_STREAM_CODEC, ClientPayloadHandler::ManaHandler);
+    }
+
+    @SubscribeEvent
+    public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(amethyst_projectile_model.LAYER_LOCATION, amethyst_projectile_model::createBodyLayer);
     }
 
 

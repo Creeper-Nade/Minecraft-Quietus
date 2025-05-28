@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus;
 
 
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
+import com.minecraftquietus.quietus.entity.projectiles.magic.MagicProjRegistration;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
@@ -9,6 +10,7 @@ import com.minecraftquietus.quietus.util.QuietusAttributes;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
@@ -46,6 +48,7 @@ import com.minecraftquietus.quietus.item.WeatheringIronArmorItem;
 import com.minecraftquietus.quietus.item.WeatheringIronItems;
 import com.minecraftquietus.quietus.item.WeatheringItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
+import com.minecraftquietus.quietus.client.model.projectile.magic.amethyst_projectile_renderer;
 
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -107,6 +110,8 @@ public class Quietus
         QuietusBlocks.register(modEventBus);
         QuietusPotions.register(modEventBus);
         QuietusEffects.register(modEventBus);
+
+        MagicProjRegistration.register(modEventBus);
         //register renderer
         modEventBus.register(ConfigHandler.class);
         NeoForge.EVENT_BUS.register(Ore_Vision.class);
@@ -225,6 +230,7 @@ public class Quietus
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+            EntityRenderers.register(MagicProjRegistration.AMETHYST_PROJECTILE.get(), amethyst_projectile_renderer::new);
         }
     }
 

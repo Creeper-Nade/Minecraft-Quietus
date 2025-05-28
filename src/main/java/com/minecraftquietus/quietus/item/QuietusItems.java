@@ -1,7 +1,12 @@
 package com.minecraftquietus.quietus.item;
 
+import com.minecraftquietus.quietus.entity.projectiles.magic.MagicProjRegistration;
+import com.minecraftquietus.quietus.entity.projectiles.magic.MagicalProjectile;
+import com.minecraftquietus.quietus.entity.projectiles.magic.amethystProjectile;
+import com.minecraftquietus.quietus.item.weapons.MagicalWeapon;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -17,6 +22,8 @@ import static com.minecraftquietus.quietus.block.QuietusBlocks.EXAMPLE_BLOCK;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems.CopperWeatherState;
 import com.minecraftquietus.quietus.item.WeatheringIronItems.IronWeatherState;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
+
+import java.util.function.Supplier;
 
 
 public class QuietusItems {
@@ -63,7 +70,13 @@ public class QuietusItems {
     public static final DeferredItem<Item> OXIDIZED_IRON_LEGGINGS = registerIronArmor("oxidized_iron_leggings", IronWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_IRON, ArmorType.LEGGINGS);
     public static final DeferredItem<Item> OXIDIZED_IRON_CHESTPLATE = registerIronArmor("oxidized_iron_chestplate", IronWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_IRON, ArmorType.CHESTPLATE);
     public static final DeferredItem<Item> OXIDIZED_IRON_HELMET = registerIronArmor("oxidized_iron_helmet", IronWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_IRON, ArmorType.HELMET);
-    
+
+    //MAGIC ✨
+    public static final DeferredItem<MagicalWeapon<amethystProjectile>> AMETHYST_STAFF =
+            ITEMS.register("amethyst_staff", () ->new MagicalWeapon<>(
+                    new Item.Properties().useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))),
+                    MagicProjRegistration.AMETHYST_PROJECTILE, // Direct RegistryObject reference
+                    5, 20, 1.5f, 0.02f, 0.8f, 2, 200));
     
     private static DeferredItem<Item> registerCopperArmor(String name, CopperWeatherState weatherState, ArmorMaterial armorMaterial, ArmorType armorType) {
         return ITEMS.registerItem(name, (properties -> new WeatheringCopperArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))), new Item.Properties());
