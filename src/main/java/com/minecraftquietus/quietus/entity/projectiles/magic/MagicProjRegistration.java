@@ -30,7 +30,7 @@ public class MagicProjRegistration {
     // Base Projectile Type
 
     public static final Supplier<EntityType<amethystProjectile>> AMETHYST_PROJECTILE =
-            registerProj("amethyst_projectile",createKey("amethyst_projectile_key"), amethystProjectile::new, 0.5F);
+            registerProj("amethyst_projectile",createKey("amethyst_projectile_key"), amethystProjectile::new, 0.4F, 0.4f);
     /*
 
     public static final Supplier<EntityType<MagicalProjectile>> MAGIC_PROJECTILE =
@@ -54,11 +54,11 @@ public class MagicProjRegistration {
             String name,
             ResourceKey<EntityType<?>> key,
             EntityType.EntityFactory<T> factory,
-            float size
+            float width, float height
     ) {
         return PROJECTILE_ENTITIES.register(name, () ->
                 EntityType.Builder.of(factory, MobCategory.MISC)
-                        .sized(size, size)
+                        .sized(width, height)
                         .clientTrackingRange(4)
                         .updateInterval(10)
                         .build(key)

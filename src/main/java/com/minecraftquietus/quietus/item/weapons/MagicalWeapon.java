@@ -73,7 +73,7 @@ public class MagicalWeapon<T extends MagicalProjectile> extends Item {
         T projectile = projectileType.get().create(level, EntitySpawnReason.LOAD);
         projectile.setOwner(shooter);
         projectile.setPos(shooter.getEyePosition());
-        projectile.ConfigProjectile(gravity,knockback,velocity,base_damage,life_span);
+        projectile.ConfigProjectile(gravity,knockback,base_damage,life_span);
         //projectile.setDamage(damage);
         return projectile;
     }

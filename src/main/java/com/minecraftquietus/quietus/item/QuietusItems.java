@@ -76,7 +76,7 @@ public class QuietusItems {
             ITEMS.register("amethyst_staff", () ->new MagicalWeapon<>(
                     new Item.Properties().useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))),
                     MagicProjRegistration.AMETHYST_PROJECTILE, // Direct RegistryObject reference
-                    5, 20, 1.5f, 0.02f, 0.8f, 2, 200));
+                    5, 15, 1.5f, 0.0f, 0.4f, 5, 200));
     
     private static DeferredItem<Item> registerCopperArmor(String name, CopperWeatherState weatherState, ArmorMaterial armorMaterial, ArmorType armorType) {
         return ITEMS.registerItem(name, (properties -> new WeatheringCopperArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))), new Item.Properties());

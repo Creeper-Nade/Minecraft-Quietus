@@ -109,11 +109,13 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
 
     public double stationary_bonus(ServerPlayer player)
     {
+        if(player.isShiftKeyDown()) return maxMana/3;
+        /*
         if(abs(player.xCloak-player.xCloakO)<0.001)
         {
             //System.out.println(maxMana/3);
             return (double) maxMana /3;
-        }
+        }*/
         //System.out.println(0);
         return 0;
     }
