@@ -162,7 +162,7 @@ public class SpawnEvent {
         if (level.getServer().getLevel(level.dimension()) == null) {return Optional.empty();}
         List<? extends Entity> entities_in_distance = level.getServer().getLevel(level.dimension()).getNearbyEntities(mobClass, TargetingConditions.forNonCombat(), sourceEntity, new AABB(sourceEntity.position().x-distance, sourceEntity.position().y-distance, sourceEntity.position().z-distance, sourceEntity.position().x+distance, sourceEntity.position().y+distance, sourceEntity.position().z+distance));
         if (entities_in_distance.isEmpty()) {return Optional.empty();}
-        List<Entity> entities_in_absolute_distance = new ArrayList<>();
+        List<Entity> entities_in_absolute_distance = new ArrayList<>(entities_in_distance.size());
         for (Entity entity : entities_in_distance) {
             Vec3 entity_position = entity.position();
             if (entity_position.distanceToSqr(entity_position) <= distance*distance) {

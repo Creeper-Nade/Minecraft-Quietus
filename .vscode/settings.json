@@ -1,0 +1,34 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
+    "editor.tokenColorCustomizations": {
+        "[Default Dark+]": {
+            "textMateRules": [
+            ],
+        }
+    },
+    "editor.semanticTokenColorCustomizations": {
+        "[Default Dark+]": {
+                "rules": {
+                "vector": {
+                    "underline": true
+                },
+                "property": "#9CDCFE",
+                "property.readonly": "#4FC1FF",
+                "parameter": {"foreground": "#9CDCFE", "bold": true}
+            }
+        },
+        "[Default Light Modern]": {
+                "rules": {
+                "vector": {
+                    "underline": true
+                },
+                "property": "#001080",
+                "property.readonly": "#0070C1",
+                "parameter": {"foreground": "#001080", "bold": true}
+            }
+        }
+    },
+    "workbench.preferredDarkColorTheme": "Default Dark+",
+    "workbench.preferredLightColorTheme": "Default Light Modern"
+}
