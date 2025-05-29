@@ -39,9 +39,10 @@ import com.minecraftquietus.quietus.entity.ai.goal.VolleyAttackGoal;
 
 public class Bowslinger extends Skeleton implements VolleyRangedAttackMob {
 
-    private RangedBowAttackGoal<AbstractSkeleton> bowGoal;
-    private VolleyAttackGoal<Bowslinger> gunslingerBowGoal;
-    private MeleeAttackGoal meleeGoal;
+    private final RangedBowAttackGoal<AbstractSkeleton> bowGoal;
+    private final VolleyAttackGoal<Bowslinger> bowslingerBowGoal;
+    private final MeleeAttackGoal meleeGoal;
+    
     private static final EntityDataAccessor<Integer> DATA_BOWSLINGER_VOLLEY = SynchedEntityData.defineId(Bowslinger.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_BOWSLINGER_VOLLEY_MAX = SynchedEntityData.defineId(Bowslinger.class, EntityDataSerializers.INT);
     public static final String VOLLEY_TAG = "BowslingerVolley";
@@ -55,6 +56,21 @@ public class Bowslinger extends Skeleton implements VolleyRangedAttackMob {
 
     public Bowslinger(EntityType<? extends Skeleton> type, Level level) {
         super(type, level);
+        this.bowGoal = new RangedBowAttackGoal<>(this, 1.25, 40, 20.0F);
+        this.bowslingerBowGoal = new VolleyAttackGoal<>(this, 1.25, 4, 17.0F);
+        this.meleeGoal = new MeleeAttackGoal(this, 1.2, false) {
+                @Override
+                public void stop() {
+                    super.stop();
+                    Bowslinger.this.setAggressive(false);
+                }
+
+                @Override
+                public void start() {
+                    super.start();
+                    Bowslinger.this.setAggressive(true);
+                }
+            };
         this.reassessWeaponGoal();
     }
 
@@ -156,25 +172,12 @@ public class Bowslinger extends Skeleton implements VolleyRangedAttackMob {
 
     @Override
     public void reassessWeaponGoal() {
+        if (bowGoal == null || bowslingerBowGoal == null || meleeGoal == null) {
+            return; // stop if goals are not yet initialzed (expected to stop the call on this method by super constructor AbstractSkeleton)
+        }
         if (this.level() != null && !this.level().isClientSide) {
-            // D for dynamic objects; made dynamic to avoid goals not initialized before putting into goal selector.
-            RangedBowAttackGoal<AbstractSkeleton> bowGoalD = new RangedBowAttackGoal<>(this, 1.25, 40, 20.0F);
-            VolleyAttackGoal<Bowslinger> gunslingerBowGoalD = new VolleyAttackGoal<>(this, 1.25, 4, 17.0F);
-            MeleeAttackGoal meleeGoalD = new MeleeAttackGoal(this, 1.2, false) {
-                @Override
-                public void stop() {
-                    super.stop();
-                    Bowslinger.this.setAggressive(false);
-                }
-
-                @Override
-                public void start() {
-                    super.start();
-                    Bowslinger.this.setAggressive(true);
-                }
-            };
             // removal of actual goals
-            this.goalSelector.removeGoal(this.gunslingerBowGoal);
+            this.goalSelector.removeGoal(this.bowslingerBowGoal);
             this.goalSelector.removeGoal(this.bowGoal);
             this.goalSelector.removeGoal(this.meleeGoal);
             
@@ -189,17 +192,15 @@ public class Bowslinger extends Skeleton implements VolleyRangedAttackMob {
                     i = this.getAttackInterval();
                 }
                 if (hasDuelBow) {
-                    gunslingerBowGoalD.setMinAttackInterval(i);
-                    this.gunslingerBowGoal = gunslingerBowGoalD;
-                    this.goalSelector.addGoal(4, this.gunslingerBowGoal);
+                    this.bowslingerBowGoal.setMinAttackInterval(i);
+                    this.goalSelector.addGoal(4, this.bowslingerBowGoal);
                 } else {
-                    bowGoalD.setMinAttackInterval(i);
-                    this.bowGoal = bowGoalD;
+                    this.bowGoal.setMinAttackInterval(i);
                     this.goalSelector.addGoal(4, this.bowGoal);
                 }
             } else { // melee attack; same as normal skeleton
                 this.setAttackInterval(true);
-                this.goalSelector.addGoal(4, meleeGoalD);
+                this.goalSelector.addGoal(4, this.meleeGoal);
             }
         }
     }
@@ -237,5 +238,4 @@ public class Bowslinger extends Skeleton implements VolleyRangedAttackMob {
     protected SoundEvent getStepSound() {
         return SoundEvents.SKELETON_STEP;
     }
-    
 }

@@ -47,6 +47,7 @@ import com.minecraftquietus.quietus.item.WeatheringIronItems;
 import com.minecraftquietus.quietus.item.WeatheringItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
+import com.minecraftquietus.quietus.entity.monster.Bowslinger;
 
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -155,6 +156,7 @@ public class Quietus
     {
         event.enqueueWork(() -> {
             QuietusItems.registerWeatheringMappings();
+
         });
     }
 
@@ -193,6 +195,14 @@ public class Quietus
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+            LOGGER.info("    ########    ");
+            LOGGER.info("  ##        ##  ");
+            LOGGER.info(" #    oo     # ");
+            LOGGER.info("#            #");
+            LOGGER.info("#   ------   #");
+            LOGGER.info(" #  \\__/  # ");
+            LOGGER.info("  ##        ##  ");
+            LOGGER.info("    ########    ");
         }
     }
 
