@@ -1,8 +1,6 @@
 package com.minecraftquietus.quietus.util.handler;
 
 import com.minecraftquietus.quietus.packet.ManaPack;
-import com.minecraftquietus.quietus.util.mana.ManaComponent;
-import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -16,6 +14,9 @@ public class ClientPayloadHandler {
         return INSTANCE;
     }
 
+    private static int MaxMana;
+    private static int Mana;
+
 
     public static void ManaHandler(final ManaPack Mpack, final IPayloadContext context) {
         // Do something with the data, on the network thread
@@ -26,8 +27,8 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
                     // 写在这里
                     //System.out.println(Mpack.Mana());
-                    ManaHudOverlay.Display_MaxMana = Mpack.MaxMana();
-                    ManaHudOverlay.Display_Mana= Mpack.Mana();
+                    MaxMana = Mpack.MaxMana();
+                    Mana = Mpack.Mana();
                 })
                 .exceptionally(e -> {
                     // 处理异常
@@ -35,5 +36,13 @@ public class ClientPayloadHandler {
                     context.disconnect(Component.translatable("my_mod.networking.failed", e.getMessage()));
                     return null;
                 });
+    }
+    public int GetMaxManaFromPack()
+    {
+        return MaxMana;
+    }
+    public int GetManaFromPack()
+    {
+        return Mana;
     }
 }

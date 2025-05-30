@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.event;
 
+import com.minecraftquietus.quietus.client.model.projectile.magic.amethyst_projectile_model;
 import com.minecraftquietus.quietus.packet.ManaPack;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.util.renderer.BowslingerRenderer;
@@ -26,6 +27,11 @@ public class QuietusIModBusEvent {
     public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar(MODID);
         registrar.playToClient(ManaPack.TYPE, ManaPack.MANA_PACK_STREAM_CODEC, ClientPayloadHandler::ManaHandler);
+    }
+
+    @SubscribeEvent
+    public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(amethyst_projectile_model.LAYER_LOCATION, amethyst_projectile_model::createBodyLayer);
     }
 
 

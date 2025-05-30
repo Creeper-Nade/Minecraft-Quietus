@@ -4,6 +4,14 @@
   "item.quietus.example_item": "Example Item",
   "item.quietus.hardened_fur": "Hardened Fur",
 
+  "item.quietus.amethyst_staff": "Amethyst Staff",
+  "tooltip.quietus.amethyst_staff.1": "§2 5 Magic Damage",
+  "tooltip.quietus.amethyst_staff.2": "§2 5% Crit. Chance",
+  "tooltip.quietus.amethyst_staff.3": "§6§lRIGHT CLICK§r §eto shoot",
+  "tooltip.quietus.amethyst_staff.4": "§ean amethyst bolt",
+  "tooltip.quietus.amethyst_staff.5": "§7 Mana Cost§r: §35",
+  "tooltip.quietus.amethyst_staff.6": "§7 CoolDown§r: §30.75s",
+
   "effect.quietus.spelunking": "Spelunking",
   "item.minecraft.potion.effect.spelunking": "Potion of Spelunking",
   "item.minecraft.splash_potion.effect.spelunking": "Splash Potion of Spelunking",

@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "quietus:item/combat/magic_weapon/amethyst_staff"
+  },
+  "properties": {
+    "hand_animation_on_swap": true
+  }
+}

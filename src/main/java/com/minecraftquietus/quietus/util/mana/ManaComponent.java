@@ -17,6 +17,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int maxMana=20;
     private double manaRate;
     private int Regen_bonus=5;
+    private int Regen_delay=0;
 
     //private final int[] slotAnimOffsets = new int[40];
 
@@ -28,13 +29,13 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }*/
 
     // Default constructor
-
+    /*
     public ManaComponent() {
         //LivingEntity livingEntity = QuietusCommonEvents.QuietusServerPlayer;
         //AttributeMap attribute_map = livingEntity.getAttributes();
         //this.maxMana= (int)attributes.getValue(MAX_MANA);
         this.maxMana=0;
-    }
+    }*/
 
 
 
@@ -52,10 +53,11 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
 
 
     public void tick(ServerPlayer player) {
-        if (player.isCreative()) return;
+        if (player.isCreative() || player.isSpectator()) return;
 
         checkManaAttributes(player);
-        if (!isFull()) {
+        if(Regen_delay>0) Regen_delay--;
+        if (!isFull() && Regen_delay<=0 && !player.isDeadOrDying()) {
             setManaRegen(player);
             //lastRegenTime = player.tickCount;
         }
@@ -98,7 +100,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
 
     public void setManaRegen(ServerPlayer player)
     {
-        manaRate += (((double) maxMana /3 +1+ stationary_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2;
+        manaRate += (((double) maxMana /3 +1+ sneak_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2.5;
         if(manaRate>=40)
         {
             int added_mana=(int)Math.floor(manaRate/40);
@@ -107,13 +109,15 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         }
     }
 
-    public double stationary_bonus(ServerPlayer player)
+    public double sneak_bonus(ServerPlayer player)
     {
+        if(player.isShiftKeyDown()) return maxMana/3;
+        /*
         if(abs(player.xCloak-player.xCloakO)<0.001)
         {
             //System.out.println(maxMana/3);
             return (double) maxMana /3;
-        }
+        }*/
         //System.out.println(0);
         return 0;
     }
@@ -135,6 +139,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public void RemoveMana(int value, ServerPlayer player)
     {
         mana-=value;
+        Regen_delay= (int)(0.7*((1- (double) mana /maxMana)*120+45))/3;
         PlayerData.ManapackToPlayer(player,this);
     }
 
