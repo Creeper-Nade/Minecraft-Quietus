@@ -5,6 +5,7 @@ import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.entity.projectiles.magic.MagicProjRegistration;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
+import com.minecraftquietus.quietus.event.SpawnEvent;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
@@ -120,6 +121,8 @@ public class Quietus
         modEventBus.addListener(this::registerPipeline);
 
         NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
+        // CreeperNade: The SpawnEvent class is never registered, so I'm adding it here for you 👀
+        NeoForge.EVENT_BUS.register(SpawnEvent.class);
         modEventBus.register(QuietusIModBusEvent.class);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onClientTick);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockBreak);
