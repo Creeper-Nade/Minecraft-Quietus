@@ -5,11 +5,18 @@ import com.minecraftquietus.quietus.entity.projectiles.magic.MagicalProjectile;
 import com.minecraftquietus.quietus.entity.projectiles.magic.amethystProjectile;
 import com.minecraftquietus.quietus.item.weapons.MagicalWeapon;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.neoforged.bus.api.IEventBus;
@@ -23,6 +30,7 @@ import com.minecraftquietus.quietus.item.WeatheringCopperItems.CopperWeatherStat
 import com.minecraftquietus.quietus.item.WeatheringIronItems.IronWeatherState;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 
@@ -74,9 +82,20 @@ public class QuietusItems {
     //MAGIC ✨
     public static final DeferredItem<MagicalWeapon<amethystProjectile>> AMETHYST_STAFF =
             ITEMS.register("amethyst_staff", () ->new MagicalWeapon<>(
-                    new Item.Properties().useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))),
+                    new Item.Properties().useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1),
                     MagicProjRegistration.AMETHYST_PROJECTILE, // Direct RegistryObject reference
-                    5, 15, 1.5f, 0.0f, 0.4f, 5, 200));
+                    5, 15, 1.5f, 0.0f, 0.4f, 5, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
+                @Override
+                public void appendHoverText(ItemStack pStack, TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
+                    components.accept(CommonComponents.EMPTY);
+                    for(int i=1; i<=6;i++)
+                    {
+                        components.accept(Component.translatable("tooltip.quietus.amethyst_staff."+i));
+                    }
+                    super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
+                }
+
+            });
     
     private static DeferredItem<Item> registerCopperArmor(String name, CopperWeatherState weatherState, ArmorMaterial armorMaterial, ArmorType armorType) {
         return ITEMS.registerItem(name, (properties -> new WeatheringCopperArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))), new Item.Properties());

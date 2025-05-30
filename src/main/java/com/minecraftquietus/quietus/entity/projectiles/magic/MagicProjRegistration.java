@@ -30,7 +30,7 @@ public class MagicProjRegistration {
     // Base Projectile Type
 
     public static final Supplier<EntityType<amethystProjectile>> AMETHYST_PROJECTILE =
-            registerProj("amethyst_projectile",createKey("amethyst_projectile_key"), amethystProjectile::new, 0.4F, 0.4f);
+            registerProj("amethyst_projectile",createKey("amethyst_projectile_key"), amethystProjectile::new, 0.5F, 0.5f);
     /*
 
     public static final Supplier<EntityType<MagicalProjectile>> MAGIC_PROJECTILE =

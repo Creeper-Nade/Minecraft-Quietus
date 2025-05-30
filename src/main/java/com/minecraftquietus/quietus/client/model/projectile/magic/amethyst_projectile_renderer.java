@@ -53,7 +53,9 @@ public class amethyst_projectile_renderer extends EntityRenderer<MagicalProjecti
         poseStack.mulPose(Axis.XP.rotationDegrees(-state.xRot));
 
         VertexConsumer vertexconsumer = ItemRenderer.getFoilBuffer(
-                buffer, this.model.renderType(this.getTextureLocation()),false, false);
+                buffer, this.model.renderType(this.getTextureLocation()),false, true);
+
+
         this.model.renderToBuffer(poseStack, vertexconsumer, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
         super.render(state, poseStack, buffer, packedLight);

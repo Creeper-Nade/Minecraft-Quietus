@@ -7,6 +7,7 @@ import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
+import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;

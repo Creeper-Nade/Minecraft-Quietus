@@ -132,6 +132,8 @@ public class Quietus
 
         // Register client-side HUD
         NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onRenderGui);
+        NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onLogin);
+        NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onPlayerClone);
 
         /*NeoForge.EVENT_BUS.addListener((PlayerTickEvent.Post event) -> {
             if (!event.getEntity().level().isClientSide()) return;
@@ -209,6 +211,8 @@ public class Quietus
             event.accept(QuietusItems.COPPER_CHESTPLATE);
             event.accept(QuietusItems.COPPER_LEGGINGS);
             event.accept(QuietusItems.COPPER_BOOTS);
+
+            event.accept(QuietusItems.AMETHYST_STAFF);
         }
     }
 

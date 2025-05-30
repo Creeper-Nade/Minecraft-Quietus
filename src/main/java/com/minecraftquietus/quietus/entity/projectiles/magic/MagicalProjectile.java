@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.entity.projectiles.magic;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,23 +15,28 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Random;
+
 public abstract class MagicalProjectile extends Projectile {
     protected float gravity = 0.05f;
     protected float knockback = 0.4f;
     protected float base_damage = 5.0f;
     protected int lifespan = 200;
+    protected double crit_chance;
+    protected double crit_dmg=0.5;
 
     public MagicalProjectile(EntityType<? extends MagicalProjectile> type, Level level) {
         super(type, level);
     }
 
-    public void ConfigProjectile(float gravity, float knockback, float base_damage, int lifespan)
+    public void ConfigProjectile(float gravity, float knockback, float base_damage, int lifespan,double base_crit_chance)
     {
         this.gravity=gravity;
         setNoGravity(gravity <= 0.0);
         this.knockback=knockback;
         this.base_damage=base_damage;
         this.lifespan=lifespan;
+        this.crit_chance=base_crit_chance;
     }
 
     @Override
@@ -42,11 +48,12 @@ public abstract class MagicalProjectile extends Projectile {
 
         }
         applyInertia();
+        spawnTrailParticles();
 
         HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
 
 
-        if (hitresult.getType() == HitResult.Type.BLOCK || tickCount>lifespan) {
+        if ((hitresult.getType() == HitResult.Type.BLOCK) && !level().isClientSide) {
             DiscardAction();
             return;
         }
@@ -60,38 +67,65 @@ public abstract class MagicalProjectile extends Projectile {
 
         setPos(this.position().add(this.getDeltaMovement()));
         this.updateRotation();
-
+        if(tickCount>lifespan) DiscardAction();
 
 
     }
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        if (!level().isClientSide && result.getEntity() != getOwner()) {
-            float damage= base_damage * (1+ ManaAtkMultiplier());
-                applyImpactEffects(result.getEntity(), damage);
-            spawnImpactParticles();
-            discard();
+        if (!level().isClientSide && result.getEntity() != getOwner() &&result.getEntity() instanceof LivingEntity livingEntity ) {
+            boolean is_crit= crit_checker();
+            float damage= base_damage * (1+ ManaAtkMultiplier(is_crit));
+                applyImpactEffects(livingEntity, damage,is_crit);
+            DiscardAction();
         }
+    }
+    private boolean crit_checker()
+    {
+        Random r=new Random();
+        return r.nextDouble() <= getCrit_chance();
     }
 
 
-    public float ManaAtkMultiplier()
+    public float ManaAtkMultiplier(boolean is_crit)
     {
-        return 0;
+        float multiplier_total=0.0f;
+
+        if(is_crit)
+        {
+            //crit dmg is a percentage, 1= 100%, 0.5= 50%
+            multiplier_total += (float) crit_dmg;
+        }
+        //add some other additional mana dmg here
+
+
+        return multiplier_total;
+    }
+    public double getCrit_chance()
+    {
+        //crit chance is a percentage, 1= 100%, 0.5= 50%
+        //reserved for addition of crit chance
+        return crit_chance;
     }
     public float KBMultiplier()
     {
+        //reserved for addition of knockback, such as enchantment
         return 0;
     }
 
-    protected void applyImpactEffects(Entity target, float damage) {
-        if (target instanceof LivingEntity livingTarget) {
-            livingTarget.hurt(damageSources().indirectMagic(getOwner(),this), damage);
+    protected void applyImpactEffects(LivingEntity livingTarget, float damage, boolean is_crit) {
+
+            Vec3 vec31 = livingTarget.position();
+            livingTarget.hurt(damageSources().indirectMagic(this,getOwner()), damage);
             applyKnockback(livingTarget);
-        }
+            if(is_crit) ((ServerLevel)this.level()).sendParticles(ParticleTypes.CRIT,vec31.x, vec31.y,vec31.z, 50, 0,0.5,0,0.5);
+
     }
-    protected void DiscardAction(){ discard();}
+    protected void DiscardAction(){
+        spawnImpactParticles();
+        discard();
+    }
 
     protected void applyKnockback(LivingEntity target) {
         float finalKnockback= knockback *(1+ KBMultiplier());
@@ -105,17 +139,17 @@ public abstract class MagicalProjectile extends Projectile {
     private void applyInertia() {
         Vec3 vec3 = this.getDeltaMovement();
         Vec3 vec31 = this.position();
-        float f;
+        float f = 1;
         if (this.isInWater()) {
             for(int i = 0; i < 4; ++i) {
                 float f1 = 0.25F;
                 this.level().addParticle(ParticleTypes.BUBBLE, vec31.x - vec3.x * (double)0.25F, vec31.y - vec3.y * (double)0.25F, vec31.z - vec3.z * (double)0.25F, vec3.x, vec3.y, vec3.z);
             }
-
-            f = 0.9F;
-        } else {
+            if(!this.isNoGravity()) f = 0.9F;
+        } else if(!this.isNoGravity()) {
             f = 0.99F;
         }
+        else f=1;
 
         this.setDeltaMovement(vec3.scale((double)f));
     }
@@ -126,5 +160,6 @@ public abstract class MagicalProjectile extends Projectile {
     }
 
     protected abstract void spawnImpactParticles();
+    protected abstract void spawnTrailParticles();
 }
 
