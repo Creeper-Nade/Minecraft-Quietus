@@ -103,7 +103,7 @@ public class QuietusItems {
         );
         public static final DeferredItem<MagicalWeapon<amethystProjectile>> AMETHYST_STAFF =
             ITEMS.register("amethyst_staff", () ->new MagicalWeapon<>(
-                    new Item.Properties().useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1),
+                    new Item.Properties().useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(10.0f),
                     MagicProjRegistration.AMETHYST_PROJECTILE, // Direct RegistryObject reference
                     5, 15, 1.5f, 0.0f, 0.4f, 5, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
                 @Override

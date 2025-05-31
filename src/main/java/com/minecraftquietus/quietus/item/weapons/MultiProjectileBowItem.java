@@ -110,18 +110,18 @@ public class MultiProjectileBowItem extends ProjectileWeaponItem {
         float f2 = (projectileItems.size() - 1) % 2 * f1 / 2.0F;
         float f3 = 1.0F;
         for (int i = 0; i < projectileItems.size(); i++) {
-            ItemStack itemstack = projectileItems.get(i);
-            if (!itemstack.isEmpty()) {
+            ItemStack projectileItem = projectileItems.get(i);
+            if (!projectileItem.isEmpty()) {
                 float f4 = f2 + f3 * ((i + 1) / 2) * f1;
                 f3 = -f3;
                 int index = i;
                 Projectile.spawnProjectile(
-                    this.createProjectile(level, shooter, weapon, itemstack, isCrit),
+                    this.createProjectile(level, shooter, weapon, projectileItem, isCrit),
                     level,
-                    itemstack,
+                    projectileItem,
                     projectile -> this.shootProjectile(shooter, projectile, index, velocity, inaccuracy, f4, target)
                 );
-                weapon.hurtAndBreak(this.getDurabilityUse(itemstack), shooter, LivingEntity.getSlotForHand(hand));
+                weapon.hurtAndBreak(this.getDurabilityUse(projectileItem), shooter, LivingEntity.getSlotForHand(hand));
                 if (weapon.isEmpty()) {
                     break;
                 }
