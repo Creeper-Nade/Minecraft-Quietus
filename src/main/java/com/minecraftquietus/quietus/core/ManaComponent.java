@@ -5,8 +5,10 @@ import com.minecraftquietus.quietus.util.mana.Mana;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerEntityGetter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.vault.VaultBlockEntity.Server;
@@ -27,8 +29,10 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int Regen_bonus=5;
     private int Regen_delay=0;
 
-    private Player player;
-    private ServerPlayer serverPlayer;
+    private final LivingEntity entity;
+    @Nullable
+    private final ServerPlayer serverPlayer;
+    
 
     //private final int[] slotAnimOffsets = new int[40];
 
@@ -40,6 +44,14 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }*/
 
     // Default constructor
+    public ManaComponent(LivingEntity entity) {
+        this.entity = entity;
+        if (entity instanceof ServerPlayer serverPlayer) {
+            this.serverPlayer = serverPlayer;
+        } else {
+            this.serverPlayer = null;
+        }
+    }
     /*
     public ManaComponent() {
         //LivingEntity livingEntity = QuietusCommonEvents.QuietusServerPlayer;
@@ -48,10 +60,10 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         this.maxMana=0;
     }*/
 
-    public void initializePlayer(Player player, @Nullable ServerPlayer serverPlayer) {
-        this.player = player;
+    /*public void initializePlayer(Player player, @Nullable ServerPlayer serverPlayer) {
+        this.entity = player;
         if (serverPlayer != null) this.serverPlayer = serverPlayer;
-    }
+    }*/
 
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
@@ -66,68 +78,59 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }
 
 
-    public void tick(ServerPlayer player) {
-        if (player.isCreative() || player.isSpectator()) return;
-
-        checkManaAttributes(player);
-        if(Regen_delay>0) Regen_delay--;
-        if (!isFull() && Regen_delay<=0 && !player.isDeadOrDying()) {
-            setManaRegen(player);
-            //lastRegenTime = player.tickCount;
+    public void tick() {
+            if (this.serverPlayer != null) {if (this.serverPlayer.isCreative() || this.serverPlayer.isSpectator()) return;}
+            checkManaAttributes();
+            if(Regen_delay>0) Regen_delay--;
+            if (!isFull() && Regen_delay<=0 && !entity.isDeadOrDying()) {
+                setManaRegen();
+                //lastRegenTime = player.tickCount;
+            }
+            else manaRate=0;
+            if(mana > maxMana) {
+                mana=maxMana;
+                if (this.serverPlayer != null) PlayerData.ManapackToPlayer(serverPlayer,this);
+            }
+            //System.out.println("global"+globalBlinkEndTime);
         }
-        else manaRate=0;
-        if(mana > maxMana) {
-            mana=maxMana;
-            PlayerData.ManapackToPlayer(player,this);
-        }
-        //System.out.println("global"+globalBlinkEndTime);
-    }
 
     // Getters
     public int getMana() { return mana;}
     public int getMaxMana() { return maxMana;}
-    public Player getPlayer() {return this.player;}
+    public LivingEntity getEntity() {return this.entity;}
     public Optional<ServerPlayer> getServerPlayer() {return Optional.of(this.serverPlayer);}
 
-    private void checkManaAttributes(ServerPlayer player)
+    private void checkManaAttributes()
     {
-        AttributeMap attributeMap = player.getAttributes();
-        if(maxMana != (int)attributeMap.getValue(MAX_MANA))
-        {
-            setMaxMana(player);
+        
+        int attributeMaxMana = (int)this.entity.getAttributes().getValue(MAX_MANA);
+        int attributeManaRegen = (int)this.entity.getAttributes().getValue(MANA_REGEN_BONUS);
+        if(maxMana != attributeMaxMana) {
+            this.maxMana= attributeMaxMana;
+            if (this.serverPlayer != null) PlayerData.ManapackToPlayer(this.serverPlayer,this);
         }
-        if(Regen_bonus != (int)attributeMap.getValue(MANA_REGEN_BONUS))
-            setRegenCD(player);
-
+        if(Regen_bonus != attributeManaRegen) {
+            Regen_bonus= attributeManaRegen;
+        }
     }
-    public void setMaxMana(ServerPlayer player)
-    {
-        AttributeMap attributeMap = player.getAttributes();
-        maxMana= (int)attributeMap.getValue(MAX_MANA);
-        PlayerData.ManapackToPlayer(player,this);
+        
+        
 
-    }
-    public void setRegenCD(ServerPlayer player)
-    {
-        AttributeMap attributeMap = player.getAttributes();
-        Regen_bonus= (int)attributeMap.getValue(MANA_REGEN_BONUS);
 
-    }
-
-    public void setManaRegen(ServerPlayer player)
+    public void setManaRegen()
     {
-        manaRate += (((double) maxMana /3 +1+ sneak_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2.5;
+        manaRate += (((double) maxMana /3 + 1 + getSneakBonus()+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2.5;
         if(manaRate>=40)
         {
             int added_mana=(int)Math.floor(manaRate/40);
             manaRate-=40*(added_mana);
-            addMana(added_mana,player);
+            addMana(added_mana);
         }
     }
 
-    public double sneak_bonus(ServerPlayer player)
+    public double getSneakBonus()
     {
-        if(player.isShiftKeyDown()) return maxMana/3;
+        if(this.entity.isShiftKeyDown()) return maxMana/3;
         /*
         if(abs(player.xCloak-player.xCloakO)<0.001)
         {
@@ -137,10 +140,12 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         //System.out.println(0);
         return 0;
     }
-    public void addMana(int value, ServerPlayer player) {
-        int prev = mana;
+    public void addMana(int value) {
+        //int prev = mana;
         mana +=value;
-        PlayerData.ManapackToPlayer(player,this);
+        if (this.serverPlayer != null) {
+            PlayerData.ManapackToPlayer(this.serverPlayer,this);
+        }
 
         // Trigger global blink when completing ANY slot
         /*

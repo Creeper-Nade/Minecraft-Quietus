@@ -15,7 +15,7 @@ public class Mana {
     }
 
     public static Player getPlayer(ManaComponent component) {
-        return component.getPlayer();
+        return component.getEntity();
     }
     
     public static int getMana(Player player) {
