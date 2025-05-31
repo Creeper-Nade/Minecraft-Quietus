@@ -7,14 +7,11 @@ import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
-import com.minecraftquietus.quietus.util.mana.ManaComponent;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.fml.event.config.ModConfigEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -24,7 +21,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -42,14 +38,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import com.minecraftquietus.quietus.block.QuietusBlocks;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
+import com.minecraftquietus.quietus.item.QuietusComponentTypes;
 import com.minecraftquietus.quietus.item.QuietusItems;
-import com.minecraftquietus.quietus.item.WeatheringCopperItems;
-import com.minecraftquietus.quietus.item.WeatheringIronArmorItem;
-import com.minecraftquietus.quietus.item.WeatheringIronItems;
-import com.minecraftquietus.quietus.item.WeatheringItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
-import com.minecraftquietus.quietus.entity.monster.Bowslinger;
 import com.minecraftquietus.quietus.client.model.projectile.magic.amethyst_projectile_renderer;
 
 
@@ -109,6 +101,7 @@ public class Quietus
 
         //ITEMS.register(modEventBus);
         QuietusItems.register(modEventBus);
+        QuietusComponentTypes.register(modEventBus);
         QuietusBlocks.register(modEventBus);
         QuietusPotions.register(modEventBus);
         QuietusEffects.register(modEventBus);

@@ -1,7 +1,8 @@
 package com.minecraftquietus.quietus.util;
 
+import com.minecraftquietus.quietus.core.ManaComponent;
 import com.minecraftquietus.quietus.packet.ManaPack;
-import com.minecraftquietus.quietus.util.mana.ManaComponent;
+
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 

@@ -1,22 +1,25 @@
 package com.minecraftquietus.quietus.event;
 
+import com.minecraftquietus.quietus.core.ManaComponent;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.entity.projectiles.magic.MagicalProjectile;
+import com.minecraftquietus.quietus.item.QuietusComponentTypes;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
-import com.minecraftquietus.quietus.util.mana.ManaComponent;
+import com.minecraftquietus.quietus.util.mana.Mana;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.player.LocalPlayer;
-
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
@@ -29,8 +32,11 @@ import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-
+import net.neoforged.neoforge.event.entity.item.ItemEvent;
+import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.slf4j.Logger;
@@ -42,13 +48,29 @@ public class QuietusCommonEvents {
     private static final Logger LOGGER = LogUtils.getLogger();
 
 
+    @SubscribeEvent
+    public static void onUse(PlayerInteractEvent.RightClickItem event) {
+        if (!event.getLevel().isClientSide()) { // Not client side
+            if (!event.getItemStack().has(QuietusComponentTypes.MANA_USE.get())) {
+                return;
+            } else {
+                if (event.getItemStack().get(QuietusComponentTypes.MANA_USE.get()) == 0) return;
+                else {
+                    
+                }
+            }
+        }
+    }
 
     @SubscribeEvent
-    public static void OnLogin(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
+            Mana.get(player).initializePlayer(player, serverPlayer);
             PlayerData.ManapackToPlayer(serverPlayer);
+        } else {
+            Mana.get(player).initializePlayer(player, null);
         }
     }
 

@@ -95,7 +95,7 @@ public class MagicalWeapon<T extends MagicalProjectile> extends Item {
     }
 
     protected void postFireActions(ServerPlayer player, ItemStack stack) {
-        player.getData(QuietusAttachments.MANA_ATTACHMENT).RemoveMana(manaCost, player);
+        // /player.getData(QuietusAttachments.MANA_ATTACHMENT).removeMana(manaCost, player);
         player.getCooldowns().addCooldown(stack, cooldown);
 
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),

@@ -1,16 +1,24 @@
-package com.minecraftquietus.quietus.util.mana;
+package com.minecraftquietus.quietus.core;
 
 import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.util.mana.Mana;
+
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.vault.VaultBlockEntity.Server;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 import static java.lang.Math.abs;
+
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int mana;
@@ -18,6 +26,9 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     private double manaRate;
     private int Regen_bonus=5;
     private int Regen_delay=0;
+
+    private Player player;
+    private ServerPlayer serverPlayer;
 
     //private final int[] slotAnimOffsets = new int[40];
 
@@ -37,7 +48,10 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         this.maxMana=0;
     }*/
 
-
+    public void initializePlayer(Player player, @Nullable ServerPlayer serverPlayer) {
+        this.player = player;
+        if (serverPlayer != null) this.serverPlayer = serverPlayer;
+    }
 
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
@@ -70,8 +84,10 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }
 
     // Getters
-    public int getMana() { return mana; }
-    public int getMaxMana() { return maxMana; }
+    public int getMana() { return mana;}
+    public int getMaxMana() { return maxMana;}
+    public Player getPlayer() {return this.player;}
+    public Optional<ServerPlayer> getServerPlayer() {return Optional.of(this.serverPlayer);}
 
     private void checkManaAttributes(ServerPlayer player)
     {
@@ -124,8 +140,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public void addMana(int value, ServerPlayer player) {
         int prev = mana;
         mana +=value;
-
-            PlayerData.ManapackToPlayer(player,this);
+        PlayerData.ManapackToPlayer(player,this);
 
         // Trigger global blink when completing ANY slot
         /*
@@ -136,13 +151,16 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         //System.out.println("global"+globalBlinkEndTime);
     }
 
-    public void RemoveMana(int value, ServerPlayer player)
-    {
-        mana-=value;
-        Regen_delay= (int)(0.7*((1- (double) mana /maxMana)*120+45))/3;
-        PlayerData.ManapackToPlayer(player,this);
-    }
+    /* TODO
+    public boolean consumeMana(int value, ServerPlayer player) { 
+        if (value > Mana.getMana(player)) {
+            return false;
+        }
+        else {
 
+        }
+
+    }*/
 
 
     public boolean isFull() {

@@ -40,12 +40,12 @@ import com.minecraftquietus.quietus.item.weapons.MultiProjectileBowItem;
 
 public class QuietusItems {
     // Create a Deferred Register to hold Items which will all be registered under the "quietus" namespace
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
+    public static final DeferredRegister.Items REGISTRAR = DeferredRegister.createItems(MODID);
     
     //#region MISCELLANEOUS
-    public static final DeferredItem<Item> HARDENED_FUR = ITEMS.registerItem("hardened_fur",Item::new,new Item.Properties());
-    public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
-    public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", new Item.Properties().food(new FoodProperties.Builder()
+    public static final DeferredItem<Item> HARDENED_FUR = REGISTRAR.registerItem("hardened_fur",Item::new,new Item.Properties());
+    public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = REGISTRAR.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
+    public static final DeferredItem<Item> EXAMPLE_ITEM = REGISTRAR.registerSimpleItem("example_item", new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
     //#endregion
 
@@ -68,7 +68,7 @@ public class QuietusItems {
         public static final DeferredItem<Item> OXIDIZED_COPPER_CHESTPLATE = registerCopperArmor("oxidized_copper_chestplate", CopperWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_COPPER, ArmorType.CHESTPLATE);
         public static final DeferredItem<Item> OXIDIZED_COPPER_HELMET = registerCopperArmor("oxidized_copper_helmet", CopperWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_COPPER, ArmorType.HELMET);
         private static DeferredItem<Item> registerCopperArmor(String name, CopperWeatherState weatherState, ArmorMaterial armorMaterial, ArmorType armorType) {
-            return ITEMS.registerItem(name, (properties -> new WeatheringCopperArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))), new Item.Properties());
+            return REGISTRAR.registerItem(name, (properties -> new WeatheringCopperArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))), new Item.Properties());
         }
         // iron armor & variants<-(exposed,weathered,oxidized)
         public static final DeferredItem<Item> EXPOSED_IRON_BOOTS = registerIronArmor("exposed_iron_boots", IronWeatherState.EXPOSED, QuietusArmorMaterials.EXPOSED_IRON, ArmorType.BOOTS);
@@ -84,25 +84,25 @@ public class QuietusItems {
         public static final DeferredItem<Item> OXIDIZED_IRON_CHESTPLATE = registerIronArmor("oxidized_iron_chestplate", IronWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_IRON, ArmorType.CHESTPLATE);
         public static final DeferredItem<Item> OXIDIZED_IRON_HELMET = registerIronArmor("oxidized_iron_helmet", IronWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_IRON, ArmorType.HELMET);
         private static DeferredItem<Item> registerIronArmor(String name, IronWeatherState weatherState, ArmorMaterial armorMaterial, ArmorType armorType) {
-            return ITEMS.registerItem(name, (properties -> new WeatheringIronArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))), new Item.Properties());
+            return REGISTRAR.registerItem(name, (properties -> new WeatheringIronArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))), new Item.Properties());
         }
     //#endregion
 
     //#region WEAPONS
-        public static final DeferredItem<Item> TRIPLEBOW = ITEMS.registerItem("triple_bow", MultiProjectileBowItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> TRIPLEBOW = REGISTRAR.registerItem("triple_bow", MultiProjectileBowItem::new, new QuietusItemProperties()
             .projectilesPerShot(3)
             .rotOffsetCalc((xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f))
             .durability(384)
             .enchantable(1)
         );
-        public static final DeferredItem<Item> INFINIBOW = ITEMS.registerItem("infini_bow", MultiProjectileBowItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> INFINIBOW = REGISTRAR.registerItem("infini_bow", MultiProjectileBowItem::new, new QuietusItemProperties()
             .projectilesPerShot(50)
             .rotOffsetCalc((xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f))
             .durability(384)
             .enchantable(1)
         );
         public static final DeferredItem<MagicalWeapon<amethystProjectile>> AMETHYST_STAFF =
-            ITEMS.register("amethyst_staff", () ->new MagicalWeapon<>(
+            REGISTRAR.register("amethyst_staff", () ->new MagicalWeapon<>(
                     new Item.Properties().useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(10.0f),
                     MagicProjRegistration.AMETHYST_PROJECTILE, // Direct RegistryObject reference
                     5, 15, 1.5f, 0.0f, 0.4f, 5, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
@@ -161,6 +161,6 @@ public class QuietusItems {
 
     public static void register(IEventBus eventBus)
     {
-        ITEMS.register(eventBus);
+        REGISTRAR.register(eventBus);
     }
 }
