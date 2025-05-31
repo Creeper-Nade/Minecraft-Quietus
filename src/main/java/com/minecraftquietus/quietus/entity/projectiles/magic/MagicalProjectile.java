@@ -54,6 +54,7 @@ public abstract class MagicalProjectile extends Projectile {
 
 
         if ((hitresult.getType() == HitResult.Type.BLOCK) && !level().isClientSide) {
+            onHitBlock((BlockHitResult) hitresult);
             DiscardAction();
             return;
         }

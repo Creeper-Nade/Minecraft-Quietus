@@ -15,6 +15,7 @@ import static java.lang.Math.abs;
 public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int mana;
     private int maxMana=20;
+    private boolean is_fast_charging=false;
     private double manaRate;
     private int Regen_bonus=5;
     private int Regen_delay=0;
@@ -61,17 +62,24 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             setManaRegen(player);
             //lastRegenTime = player.tickCount;
         }
-        else manaRate=0;
+        else
+        {
+            manaRate=0;
+            is_fast_charging=false;
+        }
         if(mana > maxMana) {
             mana=maxMana;
-            PlayerData.ManapackToPlayer(player,this);
+            //PlayerData.ManapackToPlayer(player,this);
         }
+
+        PlayerData.ManapackToPlayer(player,this);
         //System.out.println("global"+globalBlinkEndTime);
     }
 
     // Getters
     public int getMana() { return mana; }
     public int getMaxMana() { return maxMana; }
+    public boolean getSpeedChargeStatus() {return is_fast_charging;}
 
     private void checkManaAttributes(ServerPlayer player)
     {
@@ -88,7 +96,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     {
         AttributeMap attributeMap = player.getAttributes();
         maxMana= (int)attributeMap.getValue(MAX_MANA);
-        PlayerData.ManapackToPlayer(player,this);
+        //PlayerData.ManapackToPlayer(player,this);
 
     }
     public void setRegenCD(ServerPlayer player)
@@ -111,7 +119,10 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
 
     public double sneak_bonus(ServerPlayer player)
     {
-        if(player.isShiftKeyDown()) return maxMana/3;
+        if(player.isShiftKeyDown()) {
+            is_fast_charging=true;
+            return maxMana / 3;
+        }
         /*
         if(abs(player.xCloak-player.xCloakO)<0.001)
         {
@@ -119,13 +130,14 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             return (double) maxMana /3;
         }*/
         //System.out.println(0);
+        is_fast_charging=false;
         return 0;
     }
     public void addMana(int value, ServerPlayer player) {
         int prev = mana;
         mana +=value;
 
-            PlayerData.ManapackToPlayer(player,this);
+            //PlayerData.ManapackToPlayer(player,this);
 
         // Trigger global blink when completing ANY slot
         /*
@@ -140,7 +152,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     {
         mana-=value;
         Regen_delay= (int)(0.7*((1- (double) mana /maxMana)*120+45))/3;
-        PlayerData.ManapackToPlayer(player,this);
+        //PlayerData.ManapackToPlayer(player,this);
     }
 
 

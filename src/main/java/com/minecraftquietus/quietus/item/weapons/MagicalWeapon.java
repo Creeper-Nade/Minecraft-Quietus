@@ -90,7 +90,7 @@ public class MagicalWeapon<T extends MagicalProjectile> extends Item {
 
     protected void fireProjectile(Level level,T projectile, LivingEntity shooter) {
         projectile.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot(),
-                0.0F, velocity, 1.0F);
+                0.0F, velocity, 0.5F);
         level.addFreshEntity(projectile);
     }
 
