@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus;
 
 
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
+import com.minecraftquietus.quietus.entity.projectiles.magic.MagicProjRegistration;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
@@ -9,6 +10,7 @@ import com.minecraftquietus.quietus.util.QuietusAttributes;
 import com.minecraftquietus.quietus.util.mana.ManaComponent;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
@@ -48,6 +50,7 @@ import com.minecraftquietus.quietus.item.WeatheringItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.monster.Bowslinger;
+import com.minecraftquietus.quietus.client.model.projectile.magic.amethyst_projectile_renderer;
 
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -110,6 +113,8 @@ public class Quietus
         QuietusPotions.register(modEventBus);
         QuietusEffects.register(modEventBus);
         QuietusEntityTypes.register(modEventBus);
+
+        MagicProjRegistration.register(modEventBus);
         //register renderer
         modEventBus.register(ConfigHandler.class);
         NeoForge.EVENT_BUS.register(Ore_Vision.class);
@@ -130,6 +135,8 @@ public class Quietus
 
         // Register client-side HUD
         NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onRenderGui);
+        NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onLogin);
+        NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onPlayerClone);
 
         /*NeoForge.EVENT_BUS.addListener((PlayerTickEvent.Post event) -> {
             if (!event.getEntity().level().isClientSide()) return;
@@ -174,6 +181,8 @@ public class Quietus
             event.accept(QuietusItems.COPPER_CHESTPLATE);
             event.accept(QuietusItems.COPPER_LEGGINGS);
             event.accept(QuietusItems.COPPER_BOOTS);
+
+            event.accept(QuietusItems.AMETHYST_STAFF);
         }
     }
 
@@ -203,6 +212,7 @@ public class Quietus
             LOGGER.info(" #  \\__/  # ");
             LOGGER.info("  ##        ##  ");
             LOGGER.info("    ########    ");
+            EntityRenderers.register(MagicProjRegistration.AMETHYST_PROJECTILE.get(), amethyst_projectile_renderer::new);
         }
     }
 
