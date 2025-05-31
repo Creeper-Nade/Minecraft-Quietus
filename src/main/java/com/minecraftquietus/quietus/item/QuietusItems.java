@@ -15,25 +15,24 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import static com.minecraftquietus.quietus.Quietus.MODID;
 import static com.minecraftquietus.quietus.block.QuietusBlocks.EXAMPLE_BLOCK;
 
+import org.joml.Random;
+
 import com.minecraftquietus.quietus.item.WeatheringCopperItems.CopperWeatherState;
 import com.minecraftquietus.quietus.item.WeatheringIronItems.IronWeatherState;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
-import com.minecraftquietus.quietus.item.weapons.TripleBowItem;
+import com.minecraftquietus.quietus.item.weapons.MultiProjectileBowItem;
 
 
 public class QuietusItems {
     // Create a Deferred Register to hold Items which will all be registered under the "quietus" namespace
-    //CreeperNade: 1.21.2+ has changed register, use registerItem method in the format as below if you are to create an item
-
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     
-    
-    //public static final DeferredItem<Item> SPELUNKER_POTION = ITEMS.registerItem("spelunker_potion",Item::new,new Item.Properties());
+    //#region MISCELLANEOUS
     public static final DeferredItem<Item> HARDENED_FUR = ITEMS.registerItem("hardened_fur",Item::new,new Item.Properties());
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
     public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
-
+    //#endregion
 
     //#region EQUIPMENTS
         // copper armor & variants<-((normal),exposed,weathered,oxidized)
@@ -75,7 +74,18 @@ public class QuietusItems {
     //#endregion
 
     //#region WEAPONS
-        public static final DeferredItem<Item> TRIPLEBOW = ITEMS.registerItem("triple_bow", TripleBowItem::new, new Item.Properties().durability(384).enchantable(1));
+        public static final DeferredItem<Item> TRIPLEBOW = ITEMS.registerItem("triple_bow", MultiProjectileBowItem::new, new QuietusItemProperties()
+            .projectilesPerShot(3)
+            .rotOffsetCalc((xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f))
+            .durability(384)
+            .enchantable(1)
+        );
+        public static final DeferredItem<Item> INFINIBOW = ITEMS.registerItem("infini_bow", MultiProjectileBowItem::new, new QuietusItemProperties()
+            .projectilesPerShot(50)
+            .rotOffsetCalc((xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f))
+            .durability(384)
+            .enchantable(1)
+        );
 
     //#endregion
 
@@ -109,7 +119,7 @@ public class QuietusItems {
         WeatheringIronItems.registerWeathering(QuietusItems.WEATHERED_IRON_HELMET.get(), QuietusItems.OXIDIZED_IRON_HELMET.get());
         // Register vanilla iron items into ExtraWeatheringItem, so they will weather and is used in checking weathering process by other WeatheringItem: 
         /* Arguments: 
-            *  the Item object, int array of possible WeatherStates(picked randomly from the array), float of oxidation chance, the Class<?> enumeration of WeatherState class this item should have (just take from existing classes as shown below)
+         *  the Item object, int array of possible WeatherStates(picked randomly from the array), float of oxidation chance, the Class<?> enumeration of WeatherState class this item should have (just take from existing classes as shown below)
         */
         Class<?> class_weathering_iron_armor_item_enum = WeatheringIronItems.IronWeatherState.class;
         WeatheringItem.registerExtraWeatheringItem(Items.IRON_BOOTS, new int[]{0}, WeatheringIronArmorItem.OXIDATION_CHANCE * 0.9f, class_weathering_iron_armor_item_enum);

@@ -15,7 +15,7 @@
                 },
                 "property": "#9CDCFE",
                 "property.readonly": "#4FC1FF",
-                "parameter": {"foreground": "#9CDCFE", "bold": true}
+                "parameter": {"foreground": "#9CDCFE", "italic": true}
             }
         },
         "[Default Light Modern]": {
@@ -25,7 +25,7 @@
                 },
                 "property": "#001080",
                 "property.readonly": "#0070C1",
-                "parameter": {"foreground": "#001080", "bold": true}
+                "parameter": {"foreground": "#001080", "italic": true}
             }
         }
     },
