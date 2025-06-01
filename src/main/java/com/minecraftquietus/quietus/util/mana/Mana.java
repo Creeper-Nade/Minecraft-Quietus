@@ -18,6 +18,9 @@ public class Mana {
     public static int getMana(LivingEntity entity) {
         return get(entity).getMana();
     }
+    public static int getMaxMana(LivingEntity entity) {
+        return get(entity).getMaxMana();
+    }
     
 
 }

@@ -19,6 +19,7 @@ import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int mana;
     private int maxMana = 20;
+    private boolean is_fast_charging=false;
     private double manaRate;
     private int regenBonus = 5;
     private int regenDelay = 0;
@@ -63,11 +64,19 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
                 regenMana(entity);
                 //lastRegenTime = player.tickCount;
             }
-            else this.manaRate = 0;
+            else {
+                manaRate=0;
+                if (is_fast_charging) {
+                    is_fast_charging=false;
+                    if (entity instanceof ServerPlayer serverPlayer) {
+                        PlayerData.manapackToPlayer(serverPlayer,this);
+                    }
+                }
+            }
         }
         if(this.mana > this.maxMana) {
             this.mana = this.maxMana;
-            if (entity instanceof ServerPlayer serverPlayer) PlayerData.ManapackToPlayer(serverPlayer,this);
+            if (entity instanceof ServerPlayer serverPlayer) PlayerData.manapackToPlayer(serverPlayer,this);
         }
         //System.out.println("global"+globalBlinkEndTime);
     }
@@ -79,7 +88,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         if(this.maxMana != attribute_max_mana)
         {
             this.maxMana = attribute_max_mana;
-            if (entity instanceof ServerPlayer serverPlayer) PlayerData.ManapackToPlayer(serverPlayer,this);
+            if (entity instanceof ServerPlayer serverPlayer) PlayerData.manapackToPlayer(serverPlayer,this);
         }
         if(regenBonus != attribute_mana_regen_bonus) {
             regenBonus = attribute_mana_regen_bonus;
@@ -100,7 +109,17 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
 
     public double getSneakBonus(LivingEntity entity)
     {
-        if(entity.isShiftKeyDown()) return this.maxMana/3;
+        if(entity.isShiftKeyDown()) {
+            if(!is_fast_charging)
+            {
+                is_fast_charging=true;
+                if (entity instanceof ServerPlayer serverPlayer) {
+                    PlayerData.manapackToPlayer(serverPlayer,this);
+                }
+            }
+
+            return maxMana / 3;
+        }
         else return 0;
         /* Check for movement
         if(abs(player.xCloak-player.xCloakO)<0.001)
@@ -117,7 +136,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         }
         this.mana += value;
         if (this.mana < 0) this.mana = 0;
-        if (entity instanceof ServerPlayer serverPlayer) PlayerData.ManapackToPlayer(serverPlayer, this);
+        if (entity instanceof ServerPlayer serverPlayer) PlayerData.manapackToPlayer(serverPlayer, this);
     }
 
     public boolean consumeMana(int value, LivingEntity entity) { 
@@ -157,6 +176,9 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }
     public int getMaxMana() {
         return this.maxMana;
+    }
+    public boolean getSpeedChargeStatus() {
+        return is_fast_charging;
     }
 
 

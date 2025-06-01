@@ -14,8 +14,8 @@ public class ClientPayloadHandler {
         return INSTANCE;
     }
 
-    private static int MaxMana;
-    private static int Mana;
+    private static int maxMana;
+    private static int mana;
     private static boolean Mana_Speed_Charging;
 
 
@@ -28,8 +28,8 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
                     // 写在这里
                     //System.out.println(Mpack.Mana());
-                    MaxMana = Mpack.MaxMana();
-                    Mana = Mpack.Mana();
+                    maxMana = Mpack.MaxMana();
+                    mana = Mpack.Mana();
                     Mana_Speed_Charging=Mpack.fast_charging();
                 })
                 .exceptionally(e -> {

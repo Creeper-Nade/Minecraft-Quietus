@@ -182,6 +182,7 @@ public class ManaHudOverlay {
     }
 
     public static int getTotalSlots() {
+        return (int) Math.ceil(Display_MaxMana / 4.0);
     }
 
     public static int getRowCount() {

@@ -8,7 +8,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 
 public class PlayerData {
-    public static void ManapackToPlayer(ServerPlayer serverPlayer, ManaComponent manaComponent) {
+    public static void manapackToPlayer(ServerPlayer serverPlayer, ManaComponent manaComponent) {
         PacketDistributor.sendToPlayer(serverPlayer, new ManaPack(manaComponent.getMaxMana(), manaComponent.getMana(),manaComponent.getSpeedChargeStatus()));
         //System.out.println("mana"+manaComponent.getMana());
         //System.out.println(serverPlayer);
@@ -16,6 +16,6 @@ public class PlayerData {
     }
 
     public static void ManapackToPlayer(ServerPlayer serverPlayer) {
-        ManapackToPlayer(serverPlayer, serverPlayer.getData(QuietusAttachments.MANA_ATTACHMENT));
+        manapackToPlayer(serverPlayer, serverPlayer.getData(QuietusAttachments.MANA_ATTACHMENT));
     }
 }

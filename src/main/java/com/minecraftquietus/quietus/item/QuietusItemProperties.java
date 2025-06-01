@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.item;
 
-import com.minecraftquietus.quietus.item.component.ManaModifier;
+import com.minecraftquietus.quietus.item.component.ManaOperating;
 import com.minecraftquietus.quietus.util.TriFunction;
 
 import net.minecraft.util.RandomSource;
@@ -22,8 +22,8 @@ public class QuietusItemProperties extends Item.Properties {
         return this;
     }
 
-    public QuietusItemProperties manaUse(int value, ManaModifier.Operation operation, int minAmount) {
-        this.component(QuietusComponents.USES_MANA.get(), new ManaModifier.Builder().amount(value).operation(operation).minAmount(minAmount).build());
+    public QuietusItemProperties manaUse(int value, ManaOperating.Operation operation, int minAmount) {
+        this.component(QuietusComponents.MANA_OPERATING.get(), new ManaOperating.Builder().amount(value).operation(operation).minAmount(minAmount).build());
         return this;
     }
    
