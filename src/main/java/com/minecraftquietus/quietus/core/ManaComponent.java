@@ -178,7 +178,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         return this.maxMana;
     }
     public boolean getSpeedChargeStatus() {
-        return is_fast_charging;
+        return this.is_fast_charging;
     }
 
 

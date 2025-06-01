@@ -2,7 +2,7 @@ package com.minecraftquietus.quietus.item;
 
 import java.util.function.Supplier;
 
-import com.minecraftquietus.quietus.item.component.ManaOperating;
+import com.minecraftquietus.quietus.item.component.UsesMana;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -20,7 +20,7 @@ public class QuietusComponents {
     /**
      * Mana consumed 
      */
-    public static final Supplier<DataComponentType<ManaOperating>> MANA_OPERATING = REGISTRAR.registerComponentType("mana_operating", builder -> builder.persistent(ManaOperating.CODEC).networkSynchronized(ManaOperating.STREAM_CODEC));
+    public static final Supplier<DataComponentType<UsesMana>> USES_MANA = REGISTRAR.registerComponentType("uses_mana", builder -> builder.persistent(UsesMana.CODEC).networkSynchronized(UsesMana.STREAM_CODEC));
 
 
 

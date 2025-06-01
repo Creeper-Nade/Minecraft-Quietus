@@ -14,28 +14,28 @@ import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
-public record ManaOperating(
+public record UsesMana(
     int amount,
     Operation operation,
     int minAmount
 ) {
     // Serialization Codec
-    public static final Codec<ManaOperating> CODEC = RecordCodecBuilder.create(instance ->
+    public static final Codec<UsesMana> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
-            Codec.INT.fieldOf("amount").forGetter(ManaOperating::amount),
-            ManaOperating.Operation.CODEC.optionalFieldOf("operation", Operation.ADDITION).forGetter(ManaOperating::operation), 
-            Codec.INT.optionalFieldOf("minimum_amount", 0).forGetter(ManaOperating::minAmount)
-        ).apply(instance, ManaOperating::new)
+            Codec.INT.fieldOf("amount").forGetter(UsesMana::amount),
+            UsesMana.Operation.CODEC.optionalFieldOf("operation", Operation.ADDITION).forGetter(UsesMana::operation), 
+            Codec.INT.optionalFieldOf("minimum_amount", 0).forGetter(UsesMana::minAmount)
+        ).apply(instance, UsesMana::new)
     );
     // Serialization Codec for network
-    public static final StreamCodec<ByteBuf, ManaOperating> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.INT, ManaOperating::amount,
-        Operation.STREAM_CODEC, ManaOperating::operation,
-        ByteBufCodecs.INT, ManaOperating::minAmount,
-        ManaOperating::new
+    public static final StreamCodec<ByteBuf, UsesMana> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.INT, UsesMana::amount,
+        Operation.STREAM_CODEC, UsesMana::operation,
+        ByteBufCodecs.INT, UsesMana::minAmount,
+        UsesMana::new
     );
 
-    public int calculate(int mana, int maxMana) {
+    public int calculateConsumption(int mana, int maxMana) {
         return this.operation.apply(mana, maxMana, this.amount, this.minAmount);
     }
 
@@ -44,21 +44,21 @@ public record ManaOperating(
         private Operation operation = Operation.ADDITION; // default addition
         private int minAmount = 0; // deafult 0
 
-        public ManaOperating.Builder amount(int amount) {
+        public UsesMana.Builder amount(int amount) {
             this.amount = amount;
             return this;
         }
-        public ManaOperating.Builder operation(Operation operation) {
+        public UsesMana.Builder operation(Operation operation) {
             this.operation = operation;
             return this;
         }
-        public ManaOperating.Builder minAmount(int minAmount) {
+        public UsesMana.Builder minAmount(int minAmount) {
             this.minAmount = minAmount;
             return this;
         }
 
-        public ManaOperating build() {
-            return new ManaOperating(this.amount, this.operation, this.minAmount);
+        public UsesMana build() {
+            return new UsesMana(this.amount, this.operation, this.minAmount);
         }
     }
 
@@ -66,23 +66,23 @@ public record ManaOperating(
     public enum Operation implements StringRepresentable {
         
         ADDITION("addition", (byte)0, 
-            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, mana + amount)
+            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, amount)
         ),
         PERCENTAGE_MULT("percentage_multiply", (byte)1, 
-            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, (int)Math.round(mana * amount/100.0d))
+            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, (int)Math.round(mana * ((double)amount/100.0d)))
         ),
         PERCENTAGE_MULT_OF_MAX("percentage_multiply_by_max", (byte)2, 
-            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, (int)Math.round(maxMana * amount/100.0d))
+            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, (int)Math.round(maxMana * ((double)amount/100.0d)))
         ),
         SET_TO("set_to", (byte)3, 
-            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, amount)
+            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, mana - amount)
         );
 
-        public static final IntFunction<ManaOperating.Operation> BY_ID = ByIdMap.continuous(
-            ManaOperating.Operation::getIndex, values(), ByIdMap.OutOfBoundsStrategy.ZERO
+        public static final IntFunction<UsesMana.Operation> BY_ID = ByIdMap.continuous(
+            UsesMana.Operation::getIndex, values(), ByIdMap.OutOfBoundsStrategy.ZERO
         );
-        public static final StreamCodec<ByteBuf, ManaOperating.Operation> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, ManaOperating.Operation::getIndex);
-        public static final Codec<ManaOperating.Operation> CODEC = StringRepresentable.fromEnum(ManaOperating.Operation::values);
+        public static final StreamCodec<ByteBuf, UsesMana.Operation> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, UsesMana.Operation::getIndex);
+        public static final Codec<UsesMana.Operation> CODEC = StringRepresentable.fromEnum(UsesMana.Operation::values);
 
         private String name;
         private byte index;
