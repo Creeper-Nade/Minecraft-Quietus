@@ -65,14 +65,17 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         else
         {
             manaRate=0;
-            is_fast_charging=false;
+            if(is_fast_charging)
+            {
+                is_fast_charging=false;
+                PlayerData.ManapackToPlayer(player,this);
+            }
+
         }
         if(mana > maxMana) {
             mana=maxMana;
-            //PlayerData.ManapackToPlayer(player,this);
+            PlayerData.ManapackToPlayer(player,this);
         }
-
-        PlayerData.ManapackToPlayer(player,this);
         //System.out.println("global"+globalBlinkEndTime);
     }
 
@@ -96,7 +99,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     {
         AttributeMap attributeMap = player.getAttributes();
         maxMana= (int)attributeMap.getValue(MAX_MANA);
-        //PlayerData.ManapackToPlayer(player,this);
+        PlayerData.ManapackToPlayer(player,this);
 
     }
     public void setRegenCD(ServerPlayer player)
@@ -120,7 +123,12 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     public double sneak_bonus(ServerPlayer player)
     {
         if(player.isShiftKeyDown()) {
-            is_fast_charging=true;
+            if(!is_fast_charging)
+            {
+                is_fast_charging=true;
+                PlayerData.ManapackToPlayer(player,this);
+            }
+
             return maxMana / 3;
         }
         /*
@@ -130,29 +138,24 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             return (double) maxMana /3;
         }*/
         //System.out.println(0);
-        is_fast_charging=false;
+        if(is_fast_charging)
+        {
+            is_fast_charging=false;
+            PlayerData.ManapackToPlayer(player,this);
+        }
         return 0;
     }
     public void addMana(int value, ServerPlayer player) {
         int prev = mana;
         mana +=value;
-
-            //PlayerData.ManapackToPlayer(player,this);
-
-        // Trigger global blink when completing ANY slot
-        /*
-        if ((prev / 4) < (mana / 4)) {
-            globalBlinkEndTime = player.tickCount + 2; // 0.2s blink
-
-        }*/
-        //System.out.println("global"+globalBlinkEndTime);
+        PlayerData.ManapackToPlayer(player,this);
     }
 
     public void RemoveMana(int value, ServerPlayer player)
     {
         mana-=value;
         Regen_delay= (int)(0.7*((1- (double) mana /maxMana)*120+45))/3;
-        //PlayerData.ManapackToPlayer(player,this);
+        PlayerData.ManapackToPlayer(player,this);
     }
 
 
