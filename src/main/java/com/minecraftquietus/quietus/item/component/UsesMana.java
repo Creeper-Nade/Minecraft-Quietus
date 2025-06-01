@@ -2,8 +2,6 @@ package com.minecraftquietus.quietus.item.component;
 
 import java.util.function.IntFunction;
 
-import org.checkerframework.checker.units.qual.min;
-
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -12,7 +10,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 public record UsesMana(
     int amount,
