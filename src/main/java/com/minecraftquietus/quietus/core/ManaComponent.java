@@ -2,33 +2,26 @@ package com.minecraftquietus.quietus.core;
 
 import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.mana.Mana;
+import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.vault.VaultBlockEntity.Server;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
-import static java.lang.Math.abs;
 
-import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 public class ManaComponent implements INBTSerializable<CompoundTag> {
     private int mana;
-    private int maxMana=20;
+    private int maxMana = 20;
     private double manaRate;
-    private int Regen_bonus=5;
-    private int Regen_delay=0;
-
-    private Player player;
-    private ServerPlayer serverPlayer;
+    private int regenBonus = 5;
+    private int regenDelay = 0;
 
     //private final int[] slotAnimOffsets = new int[40];
 
@@ -48,15 +41,10 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         this.maxMana=0;
     }*/
 
-    public void initializePlayer(Player player, @Nullable ServerPlayer serverPlayer) {
-        this.player = player;
-        if (serverPlayer != null) this.serverPlayer = serverPlayer;
-    }
-
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag nbt = new CompoundTag();
-        nbt.putInt("mana", mana);
+        nbt.putInt("mana", this.mana);
         return nbt;
     }
 
@@ -66,101 +54,81 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }
 
 
-    public void tick(ServerPlayer player) {
-        if (player.isCreative() || player.isSpectator()) return;
+    public void tick(LivingEntity entity) {
 
-        checkManaAttributes(player);
-        if(Regen_delay>0) Regen_delay--;
-        if (!isFull() && Regen_delay<=0 && !player.isDeadOrDying()) {
-            setManaRegen(player);
-            //lastRegenTime = player.tickCount;
+        checkManaAttributes(entity);
+        if (!entity.level().isClientSide()) {
+            if (this.regenDelay>0) this.regenDelay--;
+            if (!isFull() && regenDelay<=0 && !entity.isDeadOrDying()) {
+                regenMana(entity);
+                //lastRegenTime = player.tickCount;
+            }
+            else this.manaRate = 0;
         }
-        else manaRate=0;
-        if(mana > maxMana) {
-            mana=maxMana;
-            PlayerData.ManapackToPlayer(player,this);
+        if(this.mana > this.maxMana) {
+            this.mana = this.maxMana;
+            if (entity instanceof ServerPlayer serverPlayer) PlayerData.ManapackToPlayer(serverPlayer,this);
         }
         //System.out.println("global"+globalBlinkEndTime);
     }
 
-    // Getters
-    public int getMana() { return mana;}
-    public int getMaxMana() { return maxMana;}
-    public Player getPlayer() {return this.player;}
-    public Optional<ServerPlayer> getServerPlayer() {return Optional.of(this.serverPlayer);}
-
-    private void checkManaAttributes(ServerPlayer player)
+    private void checkManaAttributes(LivingEntity entity)
     {
-        AttributeMap attributeMap = player.getAttributes();
-        if(maxMana != (int)attributeMap.getValue(MAX_MANA))
+        int attribute_max_mana = (int)entity.getAttributes().getValue(MAX_MANA);
+        int attribute_mana_regen_bonus = (int)entity.getAttributes().getValue(MANA_REGEN_BONUS);
+        if(this.maxMana != attribute_max_mana)
         {
-            setMaxMana(player);
+            this.maxMana = attribute_max_mana;
+            if (entity instanceof ServerPlayer serverPlayer) PlayerData.ManapackToPlayer(serverPlayer,this);
         }
-        if(Regen_bonus != (int)attributeMap.getValue(MANA_REGEN_BONUS))
-            setRegenCD(player);
-
-    }
-    public void setMaxMana(ServerPlayer player)
-    {
-        AttributeMap attributeMap = player.getAttributes();
-        maxMana= (int)attributeMap.getValue(MAX_MANA);
-        PlayerData.ManapackToPlayer(player,this);
-
-    }
-    public void setRegenCD(ServerPlayer player)
-    {
-        AttributeMap attributeMap = player.getAttributes();
-        Regen_bonus= (int)attributeMap.getValue(MANA_REGEN_BONUS);
-
+        if(regenBonus != attribute_mana_regen_bonus) {
+            regenBonus = attribute_mana_regen_bonus;
+        }
+            
     }
 
-    public void setManaRegen(ServerPlayer player)
+    public void regenMana(LivingEntity entity)
     {
-        manaRate += (((double) maxMana /3 +1+ sneak_bonus(player)+Regen_bonus) * ((mana/maxMana)*0.8+0.2)*1.15)*2.5;
-        if(manaRate>=40)
+        this.manaRate += (((double) this.maxMana /3 + 1 + getSneakBonus(entity)+this.regenBonus) * ((this.mana/this.maxMana)*0.8+0.2)*1.15)*2.5;
+        if (this.manaRate >= 40)
         {
-            int added_mana=(int)Math.floor(manaRate/40);
-            manaRate-=40*(added_mana);
-            addMana(added_mana,player);
+            int added_mana= (int)Math.floor(this.manaRate/40);
+            this.manaRate -= 40*(added_mana);
+            addMana(added_mana, entity, 0);
         }
     }
 
-    public double sneak_bonus(ServerPlayer player)
+    public double getSneakBonus(LivingEntity entity)
     {
-        if(player.isShiftKeyDown()) return maxMana/3;
-        /*
+        if(entity.isShiftKeyDown()) return this.maxMana/3;
+        else return 0;
+        /* Check for movement
         if(abs(player.xCloak-player.xCloakO)<0.001)
         {
             //System.out.println(maxMana/3);
             return (double) maxMana /3;
         }*/
-        //System.out.println(0);
-        return 0;
-    }
-    public void addMana(int value, ServerPlayer player) {
-        int prev = mana;
-        mana +=value;
-        PlayerData.ManapackToPlayer(player,this);
-
-        // Trigger global blink when completing ANY slot
-        /*
-        if ((prev / 4) < (mana / 4)) {
-            globalBlinkEndTime = player.tickCount + 2; // 0.2s blink
-
-        }*/
-        //System.out.println("global"+globalBlinkEndTime);
     }
 
-    /* TODO
-    public boolean consumeMana(int value, ServerPlayer player) { 
-        if (value > Mana.getMana(player)) {
+    public void addMana(int value, LivingEntity entity, int blinkTicks) {
+        if (entity instanceof Player player) {
+            boolean flagBlink = (blinkTicks > 0);
+            if (entity instanceof Player && flagBlink) ManaHudOverlay.blinkContainers(blinkTicks, player);
+        }
+        this.mana += value;
+        if (this.mana < 0) this.mana = 0;
+        if (entity instanceof ServerPlayer serverPlayer) PlayerData.ManapackToPlayer(serverPlayer, this);
+    }
+
+    public boolean consumeMana(int value, LivingEntity entity) { 
+        if (value > Mana.getMana(entity)) {
             return false;
         }
         else {
-
+            this.addMana(-value, entity, 4);
+            return true;
         }
-
-    }*/
+    }
 
 
     public boolean isFull() {
@@ -183,7 +151,13 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             AttachmentType.builder(ManaComponent::new)
                     .build();*/
 
-
+    // Getters
+    public int getMana() {
+        return this.mana;
+    }
+    public int getMaxMana() {
+        return this.maxMana;
+    }
 
 
 

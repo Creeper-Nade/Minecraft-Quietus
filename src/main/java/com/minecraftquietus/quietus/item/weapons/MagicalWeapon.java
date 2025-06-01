@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.item.weapons;
 
 import com.minecraftquietus.quietus.entity.projectiles.magic.MagicalProjectile;
+import com.minecraftquietus.quietus.item.QuietusItemProperties;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -33,11 +34,11 @@ public class MagicalWeapon<T extends MagicalProjectile> extends Item {
     private final SoundEvent sound;
 
 
-    public MagicalWeapon(Properties properties, Supplier<EntityType<T>> projectileType,
+    public MagicalWeapon(Item.Properties properties, Supplier<EntityType<T>> projectileType,
                          int manaCost, int cooldown, float velocity,
                          float gravity, float knockback, float base_damage,
                          int life_span, double base_crit_chance, SoundEvent sound) {
-        super(properties);
+        super((Item.Properties)properties);
         this.projectileType = projectileType;
         this.manaCost = manaCost;
         this.cooldown = cooldown;
@@ -64,9 +65,6 @@ public class MagicalWeapon<T extends MagicalProjectile> extends Item {
         // Server-side logic
         if(player instanceof ServerPlayer serverPlayer)
         {
-            if (player.getCooldowns().isOnCooldown(stack) || !hasEnoughMana(player)) {
-                return InteractionResult.FAIL;
-            }
             // Spawn projectile
             T projectile = createProjectile(level, player);
             fireProjectile(level, projectile, player);
@@ -96,7 +94,7 @@ public class MagicalWeapon<T extends MagicalProjectile> extends Item {
 
     protected void postFireActions(ServerPlayer player, ItemStack stack) {
         // /player.getData(QuietusAttachments.MANA_ATTACHMENT).removeMana(manaCost, player);
-        player.getCooldowns().addCooldown(stack, cooldown);
+        //player.getCooldowns().addCooldown(stack, cooldown);
 
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 sound, SoundSource.PLAYERS, 1.0F, 1.0F);

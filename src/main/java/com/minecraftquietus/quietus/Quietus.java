@@ -38,7 +38,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import com.minecraftquietus.quietus.block.QuietusBlocks;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
-import com.minecraftquietus.quietus.item.QuietusComponentTypes;
+import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
@@ -101,7 +101,7 @@ public class Quietus
 
         //ITEMS.register(modEventBus);
         QuietusItems.register(modEventBus);
-        QuietusComponentTypes.register(modEventBus);
+        QuietusComponents.register(modEventBus);
         QuietusBlocks.register(modEventBus);
         QuietusPotions.register(modEventBus);
         QuietusEffects.register(modEventBus);

@@ -2,6 +2,8 @@ package com.minecraftquietus.quietus.item;
 
 import java.util.function.Supplier;
 
+import com.minecraftquietus.quietus.item.component.ManaModifier;
+
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -12,13 +14,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
 
-public class QuietusComponentTypes {
+public class QuietusComponents {
     public static final DeferredRegister.DataComponents REGISTRAR = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
 
     /**
      * Mana consumed 
      */
-    public static final Supplier<DataComponentType<Integer>> MANA_USE = REGISTRAR.registerComponentType("mana_use", builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+    public static final Supplier<DataComponentType<ManaModifier>> USES_MANA = REGISTRAR.registerComponentType("uses_mana", builder -> builder.persistent(ManaModifier.CODEC).networkSynchronized(ManaModifier.STREAM_CODEC));
 
 
 

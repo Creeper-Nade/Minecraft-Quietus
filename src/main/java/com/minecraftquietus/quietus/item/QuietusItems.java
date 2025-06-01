@@ -31,6 +31,7 @@ import org.joml.Random;
 
 import com.minecraftquietus.quietus.item.WeatheringCopperItems.CopperWeatherState;
 import com.minecraftquietus.quietus.item.WeatheringIronItems.IronWeatherState;
+import com.minecraftquietus.quietus.item.component.ManaModifier;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
 
 import java.util.function.Consumer;
@@ -103,7 +104,7 @@ public class QuietusItems {
         );
         public static final DeferredItem<MagicalWeapon<amethystProjectile>> AMETHYST_STAFF =
             REGISTRAR.register("amethyst_staff", () ->new MagicalWeapon<>(
-                    new Item.Properties().useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(10.0f),
+                    new QuietusItemProperties().manaUse(5, ManaModifier.Operation.ADDITION, 0).useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(0.75f),
                     MagicProjRegistration.AMETHYST_PROJECTILE, // Direct RegistryObject reference
                     5, 15, 1.5f, 0.0f, 0.4f, 5, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
                 @Override

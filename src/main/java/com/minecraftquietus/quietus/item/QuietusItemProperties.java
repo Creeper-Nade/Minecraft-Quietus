@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.item;
 
+import com.minecraftquietus.quietus.item.component.ManaModifier;
 import com.minecraftquietus.quietus.util.TriFunction;
 
 import net.minecraft.util.RandomSource;
@@ -18,6 +19,11 @@ public class QuietusItemProperties extends Item.Properties {
     @SuppressWarnings("unchecked")
     public QuietusItemProperties rotOffsetCalc(TriFunction<Float,Integer,RandomSource,Float> funcX, TriFunction<Float,Integer,RandomSource,Float> funcY) {
         this.rotOffsetCalc = new TriFunction[] {funcX,funcY};
+        return this;
+    }
+
+    public QuietusItemProperties manaUse(int value, ManaModifier.Operation operation, int minAmount) {
+        this.component(QuietusComponents.USES_MANA.get(), new ManaModifier.Builder().amount(value).operation(operation).minAmount(minAmount).build());
         return this;
     }
    

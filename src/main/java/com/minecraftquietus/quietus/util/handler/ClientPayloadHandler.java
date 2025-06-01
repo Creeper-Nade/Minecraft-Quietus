@@ -14,8 +14,8 @@ public class ClientPayloadHandler {
         return INSTANCE;
     }
 
-    private static int MaxMana;
-    private static int Mana;
+    private static int maxMana;
+    private static int mana;
 
 
     public static void ManaHandler(final ManaPack Mpack, final IPayloadContext context) {
@@ -27,8 +27,8 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
                     // 写在这里
                     //System.out.println(Mpack.Mana());
-                    MaxMana = Mpack.MaxMana();
-                    Mana = Mpack.Mana();
+                    maxMana = Mpack.MaxMana();
+                    mana = Mpack.Mana();
                 })
                 .exceptionally(e -> {
                     // 处理异常
@@ -39,10 +39,10 @@ public class ClientPayloadHandler {
     }
     public int GetMaxManaFromPack()
     {
-        return MaxMana;
+        return maxMana;
     }
     public int GetManaFromPack()
     {
-        return Mana;
+        return mana;
     }
 }

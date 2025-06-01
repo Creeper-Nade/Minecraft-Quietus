@@ -35,16 +35,16 @@ public class ManaHudOverlay {
 
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        globalBlinkEndTime=0;
+        globalBlinkEndTime = 0;
     }
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
-        globalBlinkEndTime=0;
+        globalBlinkEndTime = 0;
     }
 
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Pre event) {
-        if(event.isCanceled()) globalBlinkEndTime=0;
+        if(event.isCanceled()) globalBlinkEndTime = 0;
         GuiGraphics gui = event.getGuiGraphics();
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
@@ -80,12 +80,11 @@ public class ManaHudOverlay {
 
     private static void renderSlots(GuiGraphics gui, Player player,int yPos, int xStart,int currentTick, int totalSlots, int row_space) {
 
-        if ((prev_mana / 4) < (Display_Mana / 4)) {
-            globalBlinkEndTime = currentTick + 2; // 0.2s blink
-
-
-        }
-        System.out.println(globalBlinkEndTime);
+        // Blink all containers when any slot completes?
+        /*if ((prev_mana / 4) < (Display_Mana / 4)) {
+            blinkContainers(4, player); // 0.2s blink
+        }*/
+        //System.out.println("blink: "+globalBlinkEndTime);
 
         for(int slot = totalSlots-1; slot >=0; slot--) {
             int row = slot / SLOTS_PER_ROW;
@@ -95,7 +94,7 @@ public class ManaHudOverlay {
             int x = xStart + col * 8;
             int y = yPos - row * (10-row_space);
 
-            // Blink all containers when any slot completes
+            
             boolean blink = shouldBlinkContainers(currentTick);
 
             int texCol = blink ? 1 : 0; // 0=normal, 1=blinking container
@@ -134,12 +133,15 @@ public class ManaHudOverlay {
         prev_mana= Display_Mana;
     }
 
+    public static void blinkContainers(int ticks, Player player) {
+        globalBlinkEndTime = player.tickCount + ticks;
+    }
 
     public static boolean shouldBlinkContainers(int currentTick) {
         //System.out.println("global"+globalBlinkEndTime);
-
         return currentTick < globalBlinkEndTime;
     }
+
     public static int getTotalSlots() {
         slots=(int) Math.ceil(Display_MaxMana / 4.0);
         return slots;
