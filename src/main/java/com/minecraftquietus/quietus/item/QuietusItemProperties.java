@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.item;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -17,11 +18,10 @@ import net.minecraft.world.item.ItemStack;
 
 public class QuietusItemProperties extends Item.Properties {
 
-    public List<SoundAsset> sounds = new ArrayList<SoundAsset>();
-    public QuietusItemProperties sound(String identifier, SoundEvent soundEvent, SoundSource soundSource) {
-        this.sounds.add(
-            new SoundAsset.Builder().name(identifier).event(soundEvent).source(soundSource).build()
-        );
+    //public List<SoundAsset> sounds = new ArrayList<SoundAsset>();
+    public HashMap<String,SoundAsset> sounds = new HashMap<>();
+    public QuietusItemProperties addSound(String key, SoundEvent soundEvent, SoundSource soundSource) {
+        this.sounds.put(key, new SoundAsset.Builder().event(soundEvent).source(soundSource).build());
         return this;
     }
 

@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -97,6 +98,7 @@ public class QuietusItems {
             .projectileCritChance(0.2)
             .supportedProjectiles(ProjectileWeaponItem.ARROW_ONLY)
             .rotOffsetCalc((xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f))
+            .addSound(AmmoProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT,SoundEvents.ALLAY_DEATH,SoundSource.PLAYERS)
             .durability(384)
             .enchantable(1)
         );

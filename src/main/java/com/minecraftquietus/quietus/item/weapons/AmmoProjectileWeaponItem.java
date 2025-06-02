@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus.item.weapons;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -10,6 +11,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.minecraftquietus.quietus.item.QuietusItemProperties;
+import com.minecraftquietus.quietus.item.property.SoundAsset;
 import com.minecraftquietus.quietus.util.TriFunction;
 
 import net.minecraft.server.level.ServerLevel;
@@ -44,6 +46,9 @@ public class AmmoProjectileWeaponItem extends ProjectileWeaponItem {
     protected final Predicate<ItemStack> supportedProjectile;
     protected final TriFunction<Float,Integer,RandomSource,Float> xRotCalc;
     protected final TriFunction<Float,Integer,RandomSource,Float> yRotCalc;
+    protected final Map<String, SoundAsset> soundMap;
+
+    public static final String MAPKEY_SOUND_PLAYER_SHOOT = "player_shoot";
 
     public AmmoProjectileWeaponItem(Item.Properties property) {
         super(property);
@@ -55,6 +60,9 @@ public class AmmoProjectileWeaponItem extends ProjectileWeaponItem {
             this.xRotCalc = prop.rotOffsetCalc[0];
             this.yRotCalc = prop.rotOffsetCalc[1];
             this.attackRange = Objects.requireNonNullElse(prop.attackRange, 8);
+            this.soundMap = prop.sounds.isEmpty() ? 
+                Map.of(MAPKEY_SOUND_PLAYER_SHOOT, new SoundAsset.Builder().event(SoundEvents.ARROW_SHOOT).source(SoundSource.PLAYERS).build())
+                 : Map.copyOf(prop.sounds);
         } else {
             this.projectilesPerShot = 1;
             this.shootVelocity = 3.0f;
@@ -63,6 +71,9 @@ public class AmmoProjectileWeaponItem extends ProjectileWeaponItem {
             this.xRotCalc = (rotX, index, random) -> rotX;
             this.yRotCalc = (rotY, index, random) -> rotY;
             this.attackRange = 15;
+            this.soundMap = Map.of(
+                MAPKEY_SOUND_PLAYER_SHOOT, new SoundAsset.Builder().event(SoundEvents.ARROW_SHOOT).source(SoundSource.PLAYERS).build()
+            );
         }
     }
 
@@ -262,8 +273,8 @@ public class AmmoProjectileWeaponItem extends ProjectileWeaponItem {
                     player.getX(),
                     player.getY(),
                     player.getZ(),
-                    SoundEvents.ARROW_SHOOT,
-                    SoundSource.PLAYERS,
+                    this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundEvent(),
+                    this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundSource(),
                     1.0F,
                     1.0F / (level.getRandom().nextFloat() * 0.4F + 1.2F) + shootVelocity * 0.5F
                 );
