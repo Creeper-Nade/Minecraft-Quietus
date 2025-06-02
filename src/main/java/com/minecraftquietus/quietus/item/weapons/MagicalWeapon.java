@@ -23,10 +23,8 @@ import java.util.function.Supplier;
 
 public class MagicalWeapon<T extends MagicalProjectile> extends Item {
     private final Supplier<EntityType<T>> projectileType;
-    private final int manaCost;
-    private final int cooldown;
     private final float velocity;
-    private final float gravity ;
+    private final float gravity;
     private final float knockback;
     private final float base_damage;
     private final double base_crit_chance;
@@ -35,13 +33,11 @@ public class MagicalWeapon<T extends MagicalProjectile> extends Item {
 
 
     public MagicalWeapon(Item.Properties properties, Supplier<EntityType<T>> projectileType,
-                         int manaCost, int cooldown, float velocity,
+                         float velocity,
                          float gravity, float knockback, float base_damage,
                          int life_span, double base_crit_chance, SoundEvent sound) {
         super((Item.Properties)properties);
         this.projectileType = projectileType;
-        this.manaCost = manaCost;
-        this.cooldown = cooldown;
         this.velocity = velocity;
         this.gravity = gravity;
         this.knockback = knockback;
@@ -101,9 +97,5 @@ public class MagicalWeapon<T extends MagicalProjectile> extends Item {
     }
 
 
-    private boolean hasEnoughMana(Player player) {
-        // Access your mana capability here
-        return  player.getData(QuietusAttachments.MANA_ATTACHMENT).getMana() >= manaCost;
-    }
 
 }

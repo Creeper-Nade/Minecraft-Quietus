@@ -4,7 +4,7 @@ import com.minecraftquietus.quietus.core.ManaComponent;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.item.QuietusComponents;
-import com.minecraftquietus.quietus.item.weapons.MultiProjectileBowItem;
+import com.minecraftquietus.quietus.item.weapons.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
@@ -39,6 +39,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -49,8 +50,7 @@ import org.slf4j.Logger;
 public class QuietusCommonEvents {
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
-
-
+    
     @SubscribeEvent
     public static void onInteract(PlayerInteractEvent.RightClickItem event) {
         if (!event.getItemStack().has(QuietusComponents.USES_MANA.get())) { // Item does not use mana
@@ -98,7 +98,7 @@ public class QuietusCommonEvents {
         } else {
             if (!entity.level().isClientSide()) {
                 int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(entity), Mana.getMaxMana(entity));
-                if (itemstack.getItem() instanceof BowItem || itemstack.getItem() instanceof MultiProjectileBowItem) {
+                if (itemstack.getItem() instanceof BowItem || itemstack.getItem() instanceof AmmoProjectileWeaponItem) {
                     Mana.get(entity).consumeMana(mana_consume, entity);
                 }
             }

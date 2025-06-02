@@ -5,6 +5,7 @@ import com.minecraftquietus.quietus.packet.ManaPack;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -16,6 +17,8 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import static com.minecraftquietus.quietus.Quietus.MODID;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
+
+import javax.swing.text.html.parser.Entity;
 
 import com.minecraftquietus.quietus.client.renderer.BowslingerRenderer;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
