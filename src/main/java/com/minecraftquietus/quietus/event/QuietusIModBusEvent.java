@@ -18,6 +18,8 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 
+import javax.swing.text.html.parser.Entity;
+
 import com.minecraftquietus.quietus.client.renderer.BowslingerRenderer;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.monster.Bowslinger;

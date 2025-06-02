@@ -15,6 +15,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
@@ -36,7 +37,7 @@ import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import com.minecraftquietus.quietus.item.weapons.MultiProjectileBowItem;
+import com.minecraftquietus.quietus.item.weapons.AmmoProjectileWeaponItem;
 
 
 public class QuietusItems {
@@ -90,14 +91,20 @@ public class QuietusItems {
     //#endregion
 
     //#region WEAPONS
-        public static final DeferredItem<Item> TRIPLEBOW = REGISTRAR.registerItem("triple_bow", MultiProjectileBowItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> TRIPLEBOW = REGISTRAR.registerItem("triple_bow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
             .projectilesPerShot(3)
+            .shootVelocity(3.0f)
+            .projectileCritChance(0.2)
+            .supportedProjectiles(ProjectileWeaponItem.ARROW_ONLY)
             .rotOffsetCalc((xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f))
             .durability(384)
             .enchantable(1)
         );
-        public static final DeferredItem<Item> INFINIBOW = REGISTRAR.registerItem("infini_bow", MultiProjectileBowItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> INFINIBOW = REGISTRAR.registerItem("infini_bow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
             .projectilesPerShot(50)
+            .shootVelocity(3.0f)
+            .projectileCritChance(0.2)
+            .supportedProjectiles(ProjectileWeaponItem.ARROW_ONLY)
             .rotOffsetCalc((xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f))
             .durability(384)
             .enchantable(1)
@@ -106,7 +113,7 @@ public class QuietusItems {
             REGISTRAR.register("amethyst_staff", () ->new MagicalWeapon<>(
                     new QuietusItemProperties().manaUse(5, UsesMana.Operation.ADDITION, 0).useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(0.75f),
                     MagicProjRegistration.AMETHYST_PROJECTILE, // Direct RegistryObject reference
-                    5, 15, 1.5f, 0.0f, 0.4f, 5, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
+                    1.5f, 0.0f, 0.4f, 5f, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
                 @Override
                 public void appendHoverText(ItemStack pStack, TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
 

@@ -33,7 +33,7 @@ public record UsesMana(
     );
 
     public int calculateConsumption(int mana, int maxMana) {
-        return this.operation.apply(mana, maxMana, this.amount, this.minAmount);
+        return this.operation.apply(mana, maxMana, this.amount(), this.minAmount());
     }
 
     public static class Builder {
