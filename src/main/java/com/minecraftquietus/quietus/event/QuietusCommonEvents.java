@@ -20,6 +20,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BowItem;
@@ -41,6 +42,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.slf4j.Logger;
 
@@ -178,15 +180,17 @@ public class QuietusCommonEvents {
     }
 
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Post event)
-    {
-        Player player=event.getEntity();
+    public static void onEntityTick(EntityTickEvent.Post event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof LocalPlayer localPlayer) return;
         //if (event.getEntity().level().isClientSide()) return;
-        if(player instanceof ServerPlayer serverPlayer) {
-            event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);
-            //ManaHudOverlay.SetTick(serverPlayer);
+        if (entity instanceof LivingEntity living_entity) {
+            event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(living_entity);
+
         }
     }
+
+
 
 
 

@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 public class MagicalWeapon<T extends MagicalProjectile> extends Item {
     private final Supplier<EntityType<T>> projectileType;
     private final int manaCost;
-    private final int cooldown;
+    //private final int cooldown;
     private final float velocity;
     private final float gravity ;
     private final float knockback;
@@ -41,7 +41,7 @@ public class MagicalWeapon<T extends MagicalProjectile> extends Item {
         super((Item.Properties)properties);
         this.projectileType = projectileType;
         this.manaCost = manaCost;
-        this.cooldown = cooldown;
+        //this.cooldown = cooldown;
         this.velocity = velocity;
         this.gravity = gravity;
         this.knockback = knockback;

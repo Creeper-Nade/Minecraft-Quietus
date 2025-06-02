@@ -68,15 +68,13 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
                 manaRate=0;
                 if (is_fast_charging) {
                     is_fast_charging=false;
-                    if (entity instanceof ServerPlayer serverPlayer) {
-                        PlayerData.manapackToPlayer(serverPlayer,this);
-                    }
+                    SendPacketToPlayer(entity);
                 }
             }
         }
         if(this.mana > this.maxMana) {
             this.mana = this.maxMana;
-            if (entity instanceof ServerPlayer serverPlayer) PlayerData.manapackToPlayer(serverPlayer,this);
+            SendPacketToPlayer(entity);
         }
         //System.out.println("global"+globalBlinkEndTime);
     }
@@ -88,7 +86,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         if(this.maxMana != attribute_max_mana)
         {
             this.maxMana = attribute_max_mana;
-            if (entity instanceof ServerPlayer serverPlayer) PlayerData.manapackToPlayer(serverPlayer,this);
+            SendPacketToPlayer(entity);
         }
         if(regenBonus != attribute_mana_regen_bonus) {
             regenBonus = attribute_mana_regen_bonus;
@@ -103,7 +101,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         {
             int added_mana= (int)Math.floor(this.manaRate/40);
             this.manaRate -= 40*(added_mana);
-            addMana(added_mana, entity, 0);
+            addMana(added_mana, entity);
         }
     }
 
@@ -113,14 +111,21 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             if(!is_fast_charging)
             {
                 is_fast_charging=true;
-                if (entity instanceof ServerPlayer serverPlayer) {
-                    PlayerData.manapackToPlayer(serverPlayer,this);
-                }
+                SendPacketToPlayer(entity);
             }
 
             return maxMana / 3;
         }
-        else return 0;
+
+        else
+        {
+            if(is_fast_charging)
+            {
+                is_fast_charging=false;
+                SendPacketToPlayer(entity);
+            }
+            return 0;
+        }
         /* Check for movement
         if(abs(player.xCloak-player.xCloakO)<0.001)
         {
@@ -129,14 +134,16 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         }*/
     }
 
-    public void addMana(int value, LivingEntity entity, int blinkTicks) {
+    public void addMana(int value, LivingEntity entity) {
+        /* CreeperNade:This is Unnecessary there is already a method in ManaHUDOverlay that detects this 👀, and as
+        we said earlier do not directly link ManaComponent to ManaHudOverlay
         if (entity instanceof Player player) {
             boolean flagBlink = (blinkTicks > 0);
             if (entity instanceof Player && flagBlink) ManaHudOverlay.blinkContainers(blinkTicks, player);
-        }
+        }*/
         this.mana += value;
         if (this.mana < 0) this.mana = 0;
-        if (entity instanceof ServerPlayer serverPlayer) PlayerData.manapackToPlayer(serverPlayer, this);
+        SendPacketToPlayer(entity);
     }
 
     public boolean consumeMana(int value, LivingEntity entity) { 
@@ -144,7 +151,8 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             return false;
         }
         else {
-            this.addMana(-value, entity, 4);
+            this.addMana(-value, entity);
+            regenDelay= (int)(0.7*((1- (double) mana /maxMana)*120+45))/3;
             return true;
         }
     }
@@ -179,6 +187,13 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }
     public boolean getSpeedChargeStatus() {
         return this.is_fast_charging;
+    }
+
+    private void SendPacketToPlayer(LivingEntity entity)
+    {
+        if (entity instanceof ServerPlayer serverPlayer) {
+            PlayerData.manapackToPlayer(serverPlayer,this);
+        }
     }
 
 
