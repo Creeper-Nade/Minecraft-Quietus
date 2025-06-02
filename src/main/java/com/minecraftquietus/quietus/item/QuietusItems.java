@@ -118,6 +118,8 @@ public class QuietusItems {
                     1.5f, 0.0f, 0.4f, 5f, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
                 @Override
                 public void appendHoverText(ItemStack pStack, TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
+
+
                     components.accept(CommonComponents.EMPTY);
                     for(int i=1; i<=6;i++)
                     {

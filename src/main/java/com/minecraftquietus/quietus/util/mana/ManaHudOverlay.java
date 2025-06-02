@@ -100,7 +100,7 @@ public class ManaHudOverlay {
     private static void renderSlots(GuiGraphics gui, Player player,int yPos, int xStart,int currentTick, int totalSlots, int row_space,boolean shouldShake,boolean is_speed_charging) {
 
         if (Display_Mana<prev_mana || (Display_Mana==Display_MaxMana && prev_mana < Display_Mana)) {
-            blinkContainers(4, player);
+            blinkContainers(2, player);
         }
 
 

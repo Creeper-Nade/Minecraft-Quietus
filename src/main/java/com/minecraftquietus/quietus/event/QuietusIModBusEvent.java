@@ -41,13 +41,16 @@ public class QuietusIModBusEvent {
     @SubscribeEvent
     public static void modifyDefaultAttributes(EntityAttributeModificationEvent event) {
         // We can also check if a given EntityType already has a given attribute.
-        // In this example, if villagers don't have the armor attribute already, we add it.
-        if (!event.has(EntityType.PLAYER, MAX_MANA)) {
-            event.add(EntityType.PLAYER, MAX_MANA,20);
+        // In this example, if villagers don't have the armor attribute already, we add it.\
+        for (EntityType<? extends LivingEntity> entityType : event.getTypes()){
+            if (!event.has(entityType, MAX_MANA)) {
+                event.add(entityType, MAX_MANA,20);
+            }
+            if (!event.has(entityType, MANA_REGEN_BONUS)) {
+                event.add(entityType, MANA_REGEN_BONUS,0);
+            }
         }
-        if (!event.has(EntityType.PLAYER, MANA_REGEN_BONUS)) {
-            event.add(EntityType.PLAYER, MANA_REGEN_BONUS,0);
-        }
+
     }
     @SubscribeEvent
     public static void initiateAttributes(EntityAttributeCreationEvent event) {
