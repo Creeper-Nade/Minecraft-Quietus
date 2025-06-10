@@ -2,7 +2,6 @@ package com.minecraftquietus.quietus;
 
 
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
-import com.minecraftquietus.quietus.entity.projectiles.magic.MagicProjRegistration;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.event.SpawnEvent;
@@ -43,6 +42,7 @@ import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
+import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.client.model.projectile.magic.amethyst_projectile_renderer;
 
 
@@ -108,7 +108,7 @@ public class Quietus
         QuietusEffects.register(modEventBus);
         QuietusEntityTypes.register(modEventBus);
 
-        MagicProjRegistration.register(modEventBus);
+        QuietusProjectiles.register(modEventBus);
         //register renderer
         modEventBus.register(ConfigHandler.class);
         NeoForge.EVENT_BUS.register(Ore_Vision.class);
@@ -208,7 +208,7 @@ public class Quietus
             LOGGER.info(" #  \\__/  # ");
             LOGGER.info("  ##        ##  ");
             LOGGER.info("    ########    ");
-            EntityRenderers.register(MagicProjRegistration.AMETHYST_PROJECTILE.get(), amethyst_projectile_renderer::new);
+            EntityRenderers.register(QuietusProjectiles.AMETHYST_PROJECTILE.get(), amethyst_projectile_renderer::new);
         }
     }
 

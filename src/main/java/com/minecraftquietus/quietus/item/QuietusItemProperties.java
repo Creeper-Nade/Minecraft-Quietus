@@ -3,16 +3,21 @@ package com.minecraftquietus.quietus.item;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.minecraftquietus.quietus.item.component.UsesMana;
 import com.minecraftquietus.quietus.item.property.SoundAsset;
 import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
+import com.minecraftquietus.quietus.item.property.WeaponProperty;
 import com.minecraftquietus.quietus.util.TriFunction;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -25,7 +30,13 @@ public class QuietusItemProperties extends Item.Properties {
         return this;
     }
 
-    public int projectilesPerShot;
+    public WeaponProperty weaponProperty;
+    public QuietusItemProperties setWeaponProperty(int projectilePerShot, TriFunction<Float,Integer,RandomSource,Float> xRotOffsetCalc, TriFunction<Float,Integer,RandomSource,Float> yRotOffsetCalc, float shootVelocity, Predicate<ItemStack> supportedProjectiles, int attackRange) {
+        this.weaponProperty = new WeaponProperty.Builder().projectilesPerShot(projectilePerShot).xRotOffsetFunc(xRotOffsetCalc).yRotOffsetFunc(yRotOffsetCalc).shootVelocity(shootVelocity).supportedProjectiles(supportedProjectiles).attackRange(attackRange).build();
+        return this;
+    }
+
+    /* public int projectilesPerShot;
     public QuietusItemProperties projectilesPerShot(int value) {
         if (value < 0) throw new IllegalArgumentException("QuietusItemProperties: projectiles per shot must ≥ 0");
         this.projectilesPerShot = value;
@@ -55,23 +66,27 @@ public class QuietusItemProperties extends Item.Properties {
     public QuietusItemProperties shootVelocity(float value) {
         this.shootVelocity = value;
         return this;
-    }
+    } */
 
-    public WeaponProjectileProperty projectileProperties;
-    public QuietusItemProperties projectileProperties(float damage, double critChance, float knockback, float gravity, int persistanceTicks) {
-        this.projectileProperties = new WeaponProjectileProperty.Builder()
+    public HashMap<Integer,WeaponProjectileProperty> projectileProperties = new HashMap<>();
+    public QuietusItemProperties addProjectile(int key, float damage, double critChance, Function<Float,Float> func, float knockback, float gravity, int persistanceTicks, EntityType<? extends Projectile> projectileType) {
+        this.projectileProperties.put(key, new WeaponProjectileProperty.Builder()
             .damage(damage)
             .critChance(critChance)
+            .critOperation(func)
             .knockback(knockback)
             .gravity(gravity)
             .persistanceTicks(persistanceTicks)
-            .build();
+            .projectileType(projectileType)
+            .build()
+        );
         return this;
     }
-    public QuietusItemProperties projectileCritChance(double critChance) {
-        this.projectileProperties = new WeaponProjectileProperty.Builder()
+    public QuietusItemProperties addProjectileCritChance(int key, double critChance) {
+        this.projectileProperties.put(key, new WeaponProjectileProperty.Builder()
             .critChance(critChance)
-            .build();
+            .build()
+        );
         return this;
     }
 

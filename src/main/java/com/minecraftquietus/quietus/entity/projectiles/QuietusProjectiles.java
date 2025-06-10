@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.entity.projectiles.magic;
+package com.minecraftquietus.quietus.entity.projectiles;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -11,12 +11,14 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
-import static com.minecraftquietus.quietus.Quietus.MODID;
-import static net.minecraft.data.worldgen.Pools.createKey;
-import static net.minecraft.resources.ResourceKey.createRegistryKey;
+import com.minecraftquietus.quietus.entity.projectiles.magic.AmethystShardProjectile;
 
-public class MagicProjRegistration {
-    public static final DeferredRegister<EntityType<?>> PROJECTILE_ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE,MODID);
+import static com.minecraftquietus.quietus.Quietus.MODID;
+/* import static net.minecraft.data.worldgen.Pools.createKey;
+import static net.minecraft.resources.ResourceKey.createRegistryKey; */
+
+public class QuietusProjectiles {
+    public static final DeferredRegister<EntityType<?>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE,MODID);
 
     // ResourceKeys for projectiles
     /*
@@ -29,8 +31,8 @@ public class MagicProjRegistration {
 
     // Base Projectile Type
 
-    public static final Supplier<EntityType<amethystProjectile>> AMETHYST_PROJECTILE =
-            registerProj("amethyst_projectile",createKey("amethyst_projectile_key"), amethystProjectile::new, 0.5F, 0.5f);
+    public static final Supplier<EntityType<AmethystShardProjectile>> AMETHYST_PROJECTILE =
+            registerProjectile("amethyst_projectile", createKey("amethyst_projectile"), AmethystShardProjectile::new, 0.5F, 0.5f);
     /*
 
     public static final Supplier<EntityType<MagicalProjectile>> MAGIC_PROJECTILE =
@@ -50,13 +52,13 @@ public class MagicProjRegistration {
         );
     }
 
-    private static <T extends MagicalProjectile> Supplier<EntityType<T>> registerProj(
+    private static <T extends QuietusProjectile> Supplier<EntityType<T>> registerProjectile(
             String name,
             ResourceKey<EntityType<?>> key,
             EntityType.EntityFactory<T> factory,
             float width, float height
     ) {
-        return PROJECTILE_ENTITIES.register(name, () ->
+        return REGISTRAR.register(name, () ->
                 EntityType.Builder.of(factory, MobCategory.MISC)
                         .sized(width, height)
                         .clientTrackingRange(4)
@@ -66,6 +68,6 @@ public class MagicProjRegistration {
     }
 
     public static void register(IEventBus bus) {
-        PROJECTILE_ENTITIES.register(bus);
+        REGISTRAR.register(bus);
     }
 }

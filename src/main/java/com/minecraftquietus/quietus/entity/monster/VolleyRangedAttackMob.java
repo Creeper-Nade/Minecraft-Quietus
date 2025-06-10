@@ -1,6 +1,5 @@
 package com.minecraftquietus.quietus.entity.monster;
 
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 
 public interface VolleyRangedAttackMob extends RangedAttackMob{

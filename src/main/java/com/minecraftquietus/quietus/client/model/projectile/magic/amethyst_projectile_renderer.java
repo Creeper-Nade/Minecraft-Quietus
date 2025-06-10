@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.client.model.projectile.magic;
 
-import com.minecraftquietus.quietus.entity.projectiles.magic.MagicalProjectile;
+import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -16,7 +16,7 @@ import net.minecraft.world.entity.Entity;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public class amethyst_projectile_renderer extends EntityRenderer<MagicalProjectile, magic_projectile_renderState> {
+public class amethyst_projectile_renderer extends EntityRenderer<QuietusProjectile, magic_projectile_renderState> {
 
     private amethyst_projectile_model model;
 
@@ -35,7 +35,7 @@ public class amethyst_projectile_renderer extends EntityRenderer<MagicalProjecti
     // Both Entity and EntityRenderState may be replaced with more concrete types,
     // based on the generic types that have been passed to the supertype.
     @Override
-    public void extractRenderState(MagicalProjectile entity, magic_projectile_renderState state, float partialTick) {
+    public void extractRenderState(QuietusProjectile entity, magic_projectile_renderState state, float partialTick) {
         super.extractRenderState(entity, state, partialTick);
         state.xRot = entity.getXRot(partialTick);
         state.yRot = entity.getYRot(partialTick);

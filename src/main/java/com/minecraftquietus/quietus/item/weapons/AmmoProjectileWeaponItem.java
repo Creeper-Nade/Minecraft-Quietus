@@ -37,6 +37,9 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 
+/**
+ * Class for weapons consuming ammo. The projectile is hence spawned directly from the ammo class.
+ */
 public class AmmoProjectileWeaponItem extends ProjectileWeaponItem {
 
     protected final int projectilesPerShot;
@@ -49,17 +52,18 @@ public class AmmoProjectileWeaponItem extends ProjectileWeaponItem {
     protected final Map<String, SoundAsset> soundMap;
 
     public static final String MAPKEY_SOUND_PLAYER_SHOOT = "player_shoot";
+    public static final int MAPKEY_PROJECTILE_DEFAULT_CRITCHANCE = 0;
 
     public AmmoProjectileWeaponItem(Item.Properties property) {
         super(property);
         if (property instanceof QuietusItemProperties prop) {
-            this.projectilesPerShot = prop.projectilesPerShot;
-            this.projectileCritChance = prop.projectileProperties.critChance();
-            this.shootVelocity = prop.shootVelocity;
-            this.supportedProjectile = prop.supportedProjectiles;
-            this.xRotCalc = prop.rotOffsetCalc[0];
-            this.yRotCalc = prop.rotOffsetCalc[1];
-            this.attackRange = Objects.requireNonNullElse(prop.attackRange, 8);
+            this.projectilesPerShot = prop.weaponProperty.projectilesPerShot();
+            this.projectileCritChance = prop.projectileProperties.get(MAPKEY_PROJECTILE_DEFAULT_CRITCHANCE).critChance();
+            this.shootVelocity = prop.weaponProperty.shootVelocity();
+            this.supportedProjectile = prop.weaponProperty.supportedProjectiles();
+            this.xRotCalc = prop.weaponProperty.xRotOffsetCalc();
+            this.yRotCalc = prop.weaponProperty.yRotOffsetCalc();
+            this.attackRange = Objects.requireNonNullElse(prop.weaponProperty.attackRange(), 8);
             this.soundMap = prop.sounds.isEmpty() ? 
                 Map.of(MAPKEY_SOUND_PLAYER_SHOOT, new SoundAsset.Builder().event(SoundEvents.ARROW_SHOOT).source(SoundSource.PLAYERS).build())
                  : Map.copyOf(prop.sounds);
@@ -213,6 +217,11 @@ public class AmmoProjectileWeaponItem extends ProjectileWeaponItem {
         }
 
         return customArrow(abstractarrow, ammo, weapon);
+    }
+
+    @Override
+    public AbstractArrow customArrow(AbstractArrow arrow, ItemStack projectileStack, ItemStack weaponStack) {
+        return arrow;
     }
 
     
