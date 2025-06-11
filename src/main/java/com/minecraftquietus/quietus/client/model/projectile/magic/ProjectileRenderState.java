@@ -5,7 +5,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 
-public class magic_projectile_renderState extends EntityRenderState {
+public class ProjectileRenderState extends EntityRenderState {
     public float xRot;
     public float yRot;
 }

@@ -16,26 +16,26 @@ import net.minecraft.world.entity.Entity;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public class amethyst_projectile_renderer extends EntityRenderer<QuietusProjectile, magic_projectile_renderState> {
+public class AmethystProjectileRenderer extends EntityRenderer<QuietusProjectile, ProjectileRenderState> {
 
-    private amethyst_projectile_model model;
+    private AmethystProjectileModel model;
 
-    public amethyst_projectile_renderer(EntityRendererProvider.Context context) {
+    public AmethystProjectileRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.model= new amethyst_projectile_model(context.bakeLayer(amethyst_projectile_model.LAYER_LOCATION));
+        this.model= new AmethystProjectileModel(context.bakeLayer(AmethystProjectileModel.LAYER_LOCATION));
     }
 
     // Tell the render engine how to create a new entity render state.
     @Override
-    public magic_projectile_renderState createRenderState() {
-        return new magic_projectile_renderState();
+    public ProjectileRenderState createRenderState() {
+        return new ProjectileRenderState();
     }
 
     // Update the render state by copying the needed values from the passed entity to the passed state.
     // Both Entity and EntityRenderState may be replaced with more concrete types,
     // based on the generic types that have been passed to the supertype.
     @Override
-    public void extractRenderState(QuietusProjectile entity, magic_projectile_renderState state, float partialTick) {
+    public void extractRenderState(QuietusProjectile entity, ProjectileRenderState state, float partialTick) {
         super.extractRenderState(entity, state, partialTick);
         state.xRot = entity.getXRot(partialTick);
         state.yRot = entity.getYRot(partialTick);
@@ -46,7 +46,7 @@ public class amethyst_projectile_renderer extends EntityRenderer<QuietusProjecti
     // Actually render the entity. The first parameter matches the render state's generic type.
     // Calling super will handle leash and name tag rendering for you, if applicable.
     @Override
-    public void render(magic_projectile_renderState state, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+    public void render(ProjectileRenderState state, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
         //poseStack.translate(0.0F, -0.1F, 0.0F);
         poseStack.mulPose(Axis.YP.rotationDegrees(state.yRot));

@@ -13,15 +13,21 @@ public record WeaponProperty(
     TriFunction<Float,Integer,RandomSource,Float> xRotOffsetCalc, // function for calculating x rotation offsets when shooting
     TriFunction<Float,Integer,RandomSource,Float> yRotOffsetCalc, // function for calculating y rotation offsets when shooting
     float shootVelocity, // function for calculating velocity multiplier when shooting
+    float shootInaccuracy, // function for calculating velocity multiplier when shooting
     Predicate<ItemStack> supportedProjectiles, // supported projectile items by this weapon
     int attackRange // attack range of this weapon. Used for AI to determine range
 ) {
+
+    public static WeaponProperty.Builder builder() {
+        return new WeaponProperty.Builder();
+    }
     
     public static class Builder {
         int projectilesPerShot;
         TriFunction<Float,Integer,RandomSource,Float> xRotOffsetCalc;
         TriFunction<Float,Integer,RandomSource,Float> yRotOffsetCalc;
         float shootVelocity;
+        float shootInaccuracy;
         Predicate<ItemStack> supportedProjectiles;
         int attackRange;
 
@@ -41,6 +47,10 @@ public record WeaponProperty(
             this.shootVelocity = value;
             return this;
         }
+        public WeaponProperty.Builder shootInaccuracy(float value) {
+            this.shootInaccuracy = value;
+            return this;
+        }
         public WeaponProperty.Builder supportedProjectiles(Predicate<ItemStack> func) {
             this.supportedProjectiles = func;
             return this;
@@ -51,7 +61,7 @@ public record WeaponProperty(
         }
 
         public WeaponProperty build() {
-            return new WeaponProperty(this.projectilesPerShot, this.xRotOffsetCalc, this.yRotOffsetCalc, this.shootVelocity, this.supportedProjectiles, this.attackRange);
+            return new WeaponProperty(this.projectilesPerShot, this.xRotOffsetCalc, this.yRotOffsetCalc, this.shootVelocity, this.shootInaccuracy, this.supportedProjectiles, this.attackRange);
         }
     }
 }

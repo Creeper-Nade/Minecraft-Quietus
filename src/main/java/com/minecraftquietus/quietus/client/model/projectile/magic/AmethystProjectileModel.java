@@ -11,12 +11,12 @@ import net.minecraft.resources.ResourceLocation;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public class amethyst_projectile_model<T extends EntityRenderState> extends EntityModel<T> {
+public class AmethystProjectileModel<T extends EntityRenderState> extends EntityModel<T> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(MODID, "amethyst_projectile"), "main");
 	private final ModelPart bb_main;
 
-	public amethyst_projectile_model(ModelPart root) {
+	public AmethystProjectileModel(ModelPart root) {
         super(root);
         this.bb_main = root.getChild("bb_main");
 	}

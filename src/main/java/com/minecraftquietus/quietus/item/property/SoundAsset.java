@@ -7,6 +7,10 @@ public record SoundAsset(
     SoundEvent soundEvent,
     SoundSource soundSource
 ) {
+
+    public static SoundAsset.Builder builder() {
+        return new SoundAsset.Builder();
+    }
     
 
     public static class Builder{

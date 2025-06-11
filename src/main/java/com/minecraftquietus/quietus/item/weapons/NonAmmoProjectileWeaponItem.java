@@ -53,6 +53,7 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
     protected final int attackRange;
     protected final Map<Integer,WeaponProjectileProperty> projectilePropertyMap;
     protected final float shootVelocity;
+    protected final float shootInaccuracy;
     protected final TriFunction<Float,Integer,RandomSource,Float> xRotCalc;
     protected final TriFunction<Float,Integer,RandomSource,Float> yRotCalc;
     protected final Map<String,SoundAsset> soundMap;
@@ -68,6 +69,7 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
             this.projectilesPerShot = prop.weaponProperty.projectilesPerShot();
             this.projectilePropertyMap = Map.copyOf(prop.projectileProperties);
             this.shootVelocity = prop.weaponProperty.shootVelocity();
+            this.shootInaccuracy = prop.weaponProperty.shootInaccuracy();
             this.xRotCalc = prop.weaponProperty.xRotOffsetCalc();
             this.yRotCalc = prop.weaponProperty.yRotOffsetCalc();
             this.attackRange = Objects.requireNonNullElse(prop.weaponProperty.attackRange(), 8);
@@ -77,6 +79,7 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
         } else {
             this.projectilesPerShot = 1;
             this.shootVelocity = 1.5f;
+            this.shootInaccuracy = 0.0f;
             this.projectilePropertyMap = MAP_DEFAULT_PROJECTILE_PROPERTY;
             this.xRotCalc = (rotX, index, random) -> rotX;
             this.yRotCalc = (rotY, index, random) -> rotY;
@@ -231,8 +234,8 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
                 this.shoot(
                     serverlevel, player, player.getUsedItemHand(), itemstack, 
                     list, 
-                    shootVelocity, 
-                    0.0F, 
+                    this.shootVelocity, 
+                    this.shootInaccuracy, 
                     false, // not taken in account
                     null
                 );

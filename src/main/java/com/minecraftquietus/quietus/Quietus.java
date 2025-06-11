@@ -43,7 +43,7 @@ import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
-import com.minecraftquietus.quietus.client.model.projectile.magic.amethyst_projectile_renderer;
+import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileRenderer;
 
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -177,6 +177,10 @@ public class Quietus
             event.accept(QuietusItems.COPPER_CHESTPLATE);
             event.accept(QuietusItems.COPPER_LEGGINGS);
             event.accept(QuietusItems.COPPER_BOOTS);
+            event.accept(QuietusItems.AMETHYST_HELMET);
+            event.accept(QuietusItems.AMETHYST_CHESTPLATE);
+            event.accept(QuietusItems.AMETHYST_LEGGINGS);
+            event.accept(QuietusItems.AMETHYST_BOOTS);
 
             event.accept(QuietusItems.AMETHYST_STAFF);
         }
@@ -208,7 +212,7 @@ public class Quietus
             LOGGER.info(" #  \\__/  # ");
             LOGGER.info("  ##        ##  ");
             LOGGER.info("    ########    ");
-            EntityRenderers.register(QuietusProjectiles.AMETHYST_PROJECTILE.get(), amethyst_projectile_renderer::new);
+            EntityRenderers.register(QuietusProjectiles.AMETHYST_PROJECTILE.get(), AmethystProjectileRenderer::new);
         }
     }
 

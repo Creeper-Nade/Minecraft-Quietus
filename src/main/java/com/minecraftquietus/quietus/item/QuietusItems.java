@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus.item;
 
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.item.weapons.NonAmmoProjectileWeaponItem;
+import com.minecraftquietus.quietus.util.QuietusAttributes;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
@@ -17,9 +18,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -30,6 +34,7 @@ import static com.minecraftquietus.quietus.block.QuietusBlocks.EXAMPLE_BLOCK;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems.CopperWeatherState;
 import com.minecraftquietus.quietus.item.WeatheringIronItems.IronWeatherState;
 import com.minecraftquietus.quietus.item.component.UsesMana;
+import com.minecraftquietus.quietus.item.equipment.AmethystArmor;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
 
 import java.util.function.Consumer;
@@ -37,17 +42,29 @@ import com.minecraftquietus.quietus.item.weapons.AmmoProjectileWeaponItem;
 
 
 public class QuietusItems {
+    public static final ResourceLocation BASE_MAX_MANA_ID = ResourceLocation.fromNamespaceAndPath(MODID, "base_max_mana");
+    public static final ResourceLocation BASE_MANA_REGEN_BONUS_ID = ResourceLocation.fromNamespaceAndPath(MODID, "base_mana_regen_bonus");
+
+
     // Create a Deferred Register to hold Items which will all be registered under the "quietus" namespace
     public static final DeferredRegister.Items REGISTRAR = DeferredRegister.createItems(MODID);
     
     //#region MISCELLANEOUS
-    public static final DeferredItem<Item> HARDENED_FUR = REGISTRAR.registerItem("hardened_fur",Item::new,new Item.Properties());
+    public static final DeferredItem<Item> HARDENED_FUR = REGISTRAR.registerItem("hardened_fur",Item::new,new Item.Properties().attributes(
+        ItemAttributeModifiers.builder()
+            .add(QuietusAttributes.MAX_MANA.getDelegate(), new AttributeModifier(BASE_MANA_REGEN_BONUS_ID, 5, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND).build()
+    ));
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = REGISTRAR.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
     public static final DeferredItem<Item> EXAMPLE_ITEM = REGISTRAR.registerSimpleItem("example_item", new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
     //#endregion
 
     //#region EQUIPMENTS
+        /**
+         * Note: (as of Neoforge 21.5.75)
+         * handling ArmorMaterials as argument on properties of items in register seems to cause java.lang.ExceptionInInitializerError. 
+         * Instead, modify the second argument (the item creation factory) for item (instead of Item::new) and put the property with desired ArmorMaterial as argument, and add otherwise properties in the third argument class Item.Properties.
+         */
         // copper armor & variants<-((normal),exposed,weathered,oxidized)
         public static final DeferredItem<Item> COPPER_BOOTS = registerCopperArmor("copper_boots", CopperWeatherState.UNAFFECTED, QuietusArmorMaterials.COPPER, ArmorType.BOOTS);
         public static final DeferredItem<Item> COPPER_LEGGINGS = registerCopperArmor("copper_leggings", CopperWeatherState.UNAFFECTED, QuietusArmorMaterials.COPPER, ArmorType.LEGGINGS);
@@ -66,7 +83,7 @@ public class QuietusItems {
         public static final DeferredItem<Item> OXIDIZED_COPPER_CHESTPLATE = registerCopperArmor("oxidized_copper_chestplate", CopperWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_COPPER, ArmorType.CHESTPLATE);
         public static final DeferredItem<Item> OXIDIZED_COPPER_HELMET = registerCopperArmor("oxidized_copper_helmet", CopperWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_COPPER, ArmorType.HELMET);
         private static DeferredItem<Item> registerCopperArmor(String name, CopperWeatherState weatherState, ArmorMaterial armorMaterial, ArmorType armorType) {
-            return REGISTRAR.registerItem(name, (properties -> new WeatheringCopperArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))), new Item.Properties());
+            return REGISTRAR.registerItem(name, properties -> new WeatheringCopperArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))));
         }
         // iron armor & variants<-(exposed,weathered,oxidized)
         public static final DeferredItem<Item> EXPOSED_IRON_BOOTS = registerIronArmor("exposed_iron_boots", IronWeatherState.EXPOSED, QuietusArmorMaterials.EXPOSED_IRON, ArmorType.BOOTS);
@@ -82,17 +99,24 @@ public class QuietusItems {
         public static final DeferredItem<Item> OXIDIZED_IRON_CHESTPLATE = registerIronArmor("oxidized_iron_chestplate", IronWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_IRON, ArmorType.CHESTPLATE);
         public static final DeferredItem<Item> OXIDIZED_IRON_HELMET = registerIronArmor("oxidized_iron_helmet", IronWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_IRON, ArmorType.HELMET);
         private static DeferredItem<Item> registerIronArmor(String name, IronWeatherState weatherState, ArmorMaterial armorMaterial, ArmorType armorType) {
-            return REGISTRAR.registerItem(name, (properties -> new WeatheringIronArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))), new Item.Properties());
+            return REGISTRAR.registerItem(name, properties -> new WeatheringIronArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))));
         }
+        // amethyst armor
+        public static final DeferredItem<Item> AMETHYST_BOOTS = REGISTRAR.registerItem("amethyst_boots", properties -> new AmethystArmor(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.BOOTS).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))), new Item.Properties());
+        public static final DeferredItem<Item> AMETHYST_LEGGINGS = REGISTRAR.registerItem("amethyst_leggings", properties -> new AmethystArmor(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.LEGGINGS).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))), new Item.Properties());
+        public static final DeferredItem<Item> AMETHYST_CHESTPLATE = REGISTRAR.registerItem("amethyst_chestplate", properties -> new AmethystArmor(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.CHESTPLATE).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))), new Item.Properties());
+        public static final DeferredItem<Item> AMETHYST_HELMET = REGISTRAR.registerItem("amethyst_helmet", properties -> new AmethystArmor(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.HELMET).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))), new Item.Properties());
+    
     //#endregion
 
     //#region WEAPONS
         public static final DeferredItem<Item> TRIPLEBOW = REGISTRAR.registerItem("triple_bow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
-            .setWeaponProperty(
+            .weaponProperty( 
                 3,
                 (xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), 
                 (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f),
                 3.0f,
+                1.5f,
                 ProjectileWeaponItem.ARROW_ONLY,
                 16
             )
@@ -101,11 +125,12 @@ public class QuietusItems {
             .enchantable(1)
         );
         public static final DeferredItem<Item> INFINIBOW = REGISTRAR.registerItem("infini_bow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
-            .setWeaponProperty(
+            .weaponProperty(
                 50,
                 (xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), 
                 (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f),
                 3.0f,
+                1.5f,
                 ProjectileWeaponItem.ARROW_ONLY,
                 16
             )
@@ -137,12 +162,13 @@ public class QuietusItems {
                     new QuietusItemProperties()
                         .addProjectile(0, 5.0f, 0.05d, (damage)->(float)(damage*1.5d), 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
                         .addSound(NonAmmoProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
-                        .manaUse(5, UsesMana.Operation.ADDITION, 0)
-                        .setWeaponProperty(
+                        .manaUse(5, UsesMana.Operation.ADD_VALUE, 0)
+                        .weaponProperty(
                             1,
-                            (xRot,index,random)-> xRot+(random.nextFloat()-0.5f)*5.0f, 
-                            (yRot,index,random)-> yRot+(random.nextFloat()-0.5f)*5.0f,
+                            (xRot,index,random)-> xRot, 
+                            (yRot,index,random)-> yRot,
                             1.4f,
+                            0.5f,
                             (itemstack)-> true,
                             16
                         )

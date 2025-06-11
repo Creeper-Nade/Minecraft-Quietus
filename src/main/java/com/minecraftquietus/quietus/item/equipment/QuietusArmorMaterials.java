@@ -4,15 +4,19 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 import java.util.EnumMap;
 
+import com.minecraftquietus.tags.QuietusTags;
+
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.neoforged.neoforge.common.Tags;
+import com.minecraftquietus.quietus.util.attribute.AttributeModifierValue;
 
 public class QuietusArmorMaterials {
     public static final ArmorMaterial COPPER = new ArmorMaterial(
@@ -104,6 +108,31 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.BODY, 4);
         }),
         11, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_iron"))
+    );
+    public static final QuietusArmorMaterial AMETHYST = new QuietusArmorMaterial(
+        33,
+        Util.make(new EnumMap<>(ArmorType.class), map -> {
+            map.put(ArmorType.BOOTS, new AttributeModifierValue(2, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.LEGGINGS, new AttributeModifierValue(6, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.CHESTPLATE, new AttributeModifierValue(7, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.HELMET, new AttributeModifierValue(3, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.BODY, new AttributeModifierValue(10, AttributeModifier.Operation.ADD_VALUE));
+        }),
+        Util.make(new EnumMap<>(ArmorType.class), map -> {
+            map.put(ArmorType.BOOTS, new AttributeModifierValue(4, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.LEGGINGS, new AttributeModifierValue(7, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.CHESTPLATE, new AttributeModifierValue(8, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.HELMET, new AttributeModifierValue(5, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.BODY, new AttributeModifierValue(24, AttributeModifier.Operation.ADD_VALUE));
+        }),
+        Util.make(new EnumMap<>(ArmorType.class), map -> {
+            map.put(ArmorType.BOOTS, AttributeModifierValue.NONE);
+            map.put(ArmorType.LEGGINGS, AttributeModifierValue.NONE);
+            map.put(ArmorType.CHESTPLATE, AttributeModifierValue.NONE);
+            map.put(ArmorType.HELMET, AttributeModifierValue.NONE);
+            map.put(ArmorType.BODY, AttributeModifierValue.NONE);
+        }),
+        12, SoundEvents.ARMOR_EQUIP_IRON, 1.0F, 0.0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "amethyst"))
     );
 
 

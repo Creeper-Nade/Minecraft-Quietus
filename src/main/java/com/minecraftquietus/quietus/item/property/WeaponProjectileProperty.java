@@ -18,6 +18,10 @@ public record WeaponProjectileProperty(
     boolean isCustom // whether projectileType uses base class of QuietusProjectile or its successor. If false, NonAmmoProjectileWeaponItem will implement only the projectileType
 ) {
     
+    public static WeaponProjectileProperty.Builder builder() {
+        return new WeaponProjectileProperty.Builder();
+    }
+
     public static class Builder {
         private float damage;
         private double critChance;

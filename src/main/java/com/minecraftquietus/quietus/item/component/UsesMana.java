@@ -20,7 +20,7 @@ public record UsesMana(
     public static final Codec<UsesMana> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.INT.fieldOf("amount").forGetter(UsesMana::amount),
-            UsesMana.Operation.CODEC.optionalFieldOf("operation", Operation.ADDITION).forGetter(UsesMana::operation), 
+            UsesMana.Operation.CODEC.optionalFieldOf("operation", Operation.ADD_VALUE).forGetter(UsesMana::operation), 
             Codec.INT.optionalFieldOf("minimum_amount", 0).forGetter(UsesMana::minAmount)
         ).apply(instance, UsesMana::new)
     );
@@ -38,7 +38,7 @@ public record UsesMana(
 
     public static class Builder {
         private int amount;
-        private Operation operation = Operation.ADDITION; // default addition
+        private Operation operation = Operation.ADD_VALUE; // default addition
         private int minAmount = 0; // deafult 0
 
         public UsesMana.Builder amount(int amount) {
@@ -62,16 +62,16 @@ public record UsesMana(
 
     public enum Operation implements StringRepresentable {
         
-        ADDITION("addition", (byte)0, 
+        ADD_VALUE("add_value", (byte)0, 
             (mana, maxMana, amount, minAmount) -> Math.max(minAmount, amount)
         ),
-        PERCENTAGE_MULT("percentage_multiply", (byte)1, 
+        ADD_MULTIPLIED_CURRENT("add_multiplied_current", (byte)1, 
             (mana, maxMana, amount, minAmount) -> Math.max(minAmount, (int)Math.round(mana * ((double)amount/100.0d)))
         ),
-        PERCENTAGE_MULT_OF_MAX("percentage_multiply_by_max", (byte)2, 
+        ADD_MULTIPLIED_TOTAL("add_multiplied_total", (byte)2, 
             (mana, maxMana, amount, minAmount) -> Math.max(minAmount, (int)Math.round(maxMana * ((double)amount/100.0d)))
         ),
-        SET_TO("set_to", (byte)3, 
+        SET_VALUE("set_value", (byte)3, 
             (mana, maxMana, amount, minAmount) -> Math.max(minAmount, mana - amount)
         );
 

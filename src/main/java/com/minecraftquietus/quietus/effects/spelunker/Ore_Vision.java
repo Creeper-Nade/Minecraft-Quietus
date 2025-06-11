@@ -2,7 +2,7 @@ package com.minecraftquietus.quietus.effects.spelunker;
 
 import com.minecraftquietus.quietus.Quietus;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
-import com.minecraftquietus.quietus.util.QuietusTags;
+import com.minecraftquietus.tags.QuietusTags;
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -31,9 +31,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import org.joml.Matrix4fStack;
 
-import java.util.*;
+import static com.minecraftquietus.tags.QuietusTags.Blocks.SPELUNKABLE_ORES;
 
-import static com.minecraftquietus.quietus.util.QuietusTags.Blocks.SPELUNKABLE_ORES;
+import java.util.*;
 
 public class Ore_Vision {
     private static final Map<BlockPos, Block> VISIBLE_ORES = new HashMap<>();

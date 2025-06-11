@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "quietus:amethyst"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "quietus:amethyst"
+      }
+    ]
+  }
+}

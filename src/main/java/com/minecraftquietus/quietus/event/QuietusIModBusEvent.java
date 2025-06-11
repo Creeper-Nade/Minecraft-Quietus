@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.event;
 
-import com.minecraftquietus.quietus.client.model.projectile.magic.amethyst_projectile_model;
+import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
 import com.minecraftquietus.quietus.packet.ManaPack;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 
@@ -34,7 +34,7 @@ public class QuietusIModBusEvent {
 
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(amethyst_projectile_model.LAYER_LOCATION, amethyst_projectile_model::createBodyLayer);
+        event.registerLayerDefinition(AmethystProjectileModel.LAYER_LOCATION, AmethystProjectileModel::createBodyLayer);
     }
 
 

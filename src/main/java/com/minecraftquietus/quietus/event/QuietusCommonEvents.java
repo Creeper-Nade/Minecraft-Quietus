@@ -4,6 +4,7 @@ import com.minecraftquietus.quietus.core.ManaComponent;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.item.QuietusComponents;
+import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 import com.minecraftquietus.quietus.item.weapons.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.util.PlayerData;
@@ -21,9 +22,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
@@ -35,11 +38,16 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
+import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
+import java.util.Map;
+
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
+import net.neoforged.neoforge.event.entity.living.ArmorHurtEvent;
+import net.neoforged.neoforge.event.entity.living.ArmorHurtEvent.ArmorEntry;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -170,6 +178,31 @@ public class QuietusCommonEvents {
 
     }
 
+    @SubscribeEvent
+    public static void onArmorHurt(ArmorHurtEvent event) {
+
+        LivingEntity entity = event.getEntity();
+        Map<EquipmentSlot, ArmorEntry> armorEntryMap = event.getArmorMap();
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (!armorEntryMap.containsKey(slot)) continue; // skip slots without armor
+            ItemStack itemstack = armorEntryMap.get(slot).armorItemStack;
+            float damage = event.getNewDamage(slot);
+            // Worn armor only
+            if (slot == EquipmentSlot.FEET || slot == EquipmentSlot.LEGS || slot == EquipmentSlot.CHEST || slot == EquipmentSlot.HEAD) {
+                /**
+                 * For RetaliatesOnDamage armor items:
+                 * checks for each piece of armor the event provides whether or not they implement interface {@link RetaliatesOnDamage}
+                 * and runs the item's method #onArmorHurt, accepting its return value as new damage.
+                 */
+                if (itemstack.getItem() instanceof RetaliatesOnDamaged retaliatingItem) {
+                    damage = retaliatingItem.onArmorHurt(damage, armorEntryMap, slot, entity);
+                }
+            }
+
+            event.setNewDamage(slot, damage); // update damage to event
+        }
+    }
+
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
@@ -182,7 +215,7 @@ public class QuietusCommonEvents {
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
-        if (entity instanceof LocalPlayer localPlayer) return;
+        if (entity instanceof LocalPlayer) return;
         //if (event.getEntity().level().isClientSide()) return;
         if (entity instanceof LivingEntity living_entity) {
             event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(living_entity);

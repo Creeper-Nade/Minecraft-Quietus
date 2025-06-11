@@ -17,19 +17,19 @@ public class QuietusAttributes {
             // The translation key to use.
             "attributes.quietus.max_mana",
             // The default value.
-            20,
+            20d,
             // Min and max values.
-            0,
-            10000
+            0d,
+            10000d
     ));
 
     public static final Holder<Attribute> MANA_REGEN_BONUS = QUIETUS_ATTRIBUTES.register("mana_regen_bonus", () -> new RangedAttribute(
             // The translation key to use.
             "attributes.quietus.mana_regen_bonus",
             // The default value.
-            0,
+            0d,
             // Min and max values.
-            -10000,
-            10000
+            -10000d,
+            10000d
     ));
 }
