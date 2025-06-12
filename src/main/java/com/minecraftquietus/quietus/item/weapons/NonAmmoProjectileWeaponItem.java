@@ -112,7 +112,8 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
             if (projectileProperty.isCustom()) { // custom projectile supports below arguments for projectiles configuring:
                 QuietusProjectile projectile = this.createProjectileWithKey(i, level, shooter, weapon, weapon, isCrit);
                 projectile.setOwner(shooter);
-                projectile.setPos(shooter.getEyePosition());
+                // CreeperNade: Offset the y position for -0.1f, this is the y pos for arrow in vanilla minecraft, and doesn't block view
+                projectile.setPos(shooter.getEyePosition().x,shooter.getEyePosition().y-0.1f,shooter.getEyePosition().z);
                 /* if (projectileProperty.projectileType().create(level, EntitySpawnReason.LOAD) != null) { // projectile of this index is not null */
                     float f4 = f2 + f3 * ((i + 1) / 2) * f1;
                     f3 = -f3;

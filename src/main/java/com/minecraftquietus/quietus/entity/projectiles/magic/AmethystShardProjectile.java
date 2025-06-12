@@ -45,7 +45,7 @@ public class AmethystShardProjectile extends QuietusProjectile {
             this.level().addParticle(ParticleTypes.WITCH,pos.x - velocity.x * (double)f1, pos.y - velocity.y * (double)f1, pos.z - velocity.z * (double)f1, velocity.x, velocity.y, velocity.z);
         }
     }
-
+/* why not just write it in quietusprojectile?
     @Override
     protected void applyImpactEffects(LivingEntity livingTarget, float damage, boolean is_crit) {
             Vec3 pos = livingTarget.position();
@@ -55,7 +55,7 @@ public class AmethystShardProjectile extends QuietusProjectile {
                 applyKnockback(livingTarget);
                 if(is_crit) ((ServerLevel)this.level()).sendParticles(ParticleTypes.CRIT,pos.x, pos.y,pos.z, 50, 0,0.5,0,0.5);
             }
-    }
+    }*/
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
