@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -43,6 +44,17 @@ public class AmethystShardProjectile extends QuietusProjectile {
             float f1 = 0.05F;
             this.level().addParticle(ParticleTypes.WITCH,pos.x - velocity.x * (double)f1, pos.y - velocity.y * (double)f1, pos.z - velocity.z * (double)f1, velocity.x, velocity.y, velocity.z);
         }
+    }
+
+    @Override
+    protected void applyImpactEffects(LivingEntity livingTarget, float damage, boolean is_crit) {
+            Vec3 pos = livingTarget.position();
+            if (livingTarget.level() instanceof ServerLevel serverLevel) {
+                if (this.getOwner() instanceof LivingEntity owner)
+                    livingTarget.hurtServer(serverLevel, damageSources().mobProjectile(this, owner), damage);
+                applyKnockback(livingTarget);
+                if(is_crit) ((ServerLevel)this.level()).sendParticles(ParticleTypes.CRIT,pos.x, pos.y,pos.z, 50, 0,0.5,0,0.5);
+            }
     }
 
     @Override

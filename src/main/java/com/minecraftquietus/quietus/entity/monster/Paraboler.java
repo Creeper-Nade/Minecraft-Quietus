@@ -68,6 +68,13 @@ public class Paraboler extends Skeleton {
     private int hardAttackInterval = 12;
     private int normalAttackInterval = 15;
 
+
+    /**
+     * Methods for parabola:
+     * Given relative position of target to this and find initial velocities:
+     * V0y = TargetY÷time + 1/2*gravity*time
+     * V0z and V0x hypotenuse points towards target
+     */
     public Paraboler(EntityType<? extends Skeleton> type, Level level) {
         super(type, level);
         this.bowGoal = new RangedBowAttackGoal<>(this, 1.25, 40, 20.0F);

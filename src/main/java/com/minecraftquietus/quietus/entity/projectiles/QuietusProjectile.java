@@ -123,16 +123,7 @@ public abstract class QuietusProjectile extends Projectile {
         return 0;
     }
 
-    protected void applyImpactEffects(LivingEntity livingTarget, float damage, boolean is_crit) {
-
-            Vec3 pos = livingTarget.position();
-            if (livingTarget.level() instanceof ServerLevel serverLevel) {
-                livingTarget.hurtServer(serverLevel, damageSources().indirectMagic(this,getOwner()), damage);
-                applyKnockback(livingTarget);
-                if(is_crit) ((ServerLevel)this.level()).sendParticles(ParticleTypes.CRIT,pos.x, pos.y,pos.z, 50, 0,0.5,0,0.5);
-            }
-
-    }
+    protected abstract void applyImpactEffects(LivingEntity livingTarget, float damage, boolean is_crit);
 
     protected void discardAction(){
         this.spawnImpactParticles();
