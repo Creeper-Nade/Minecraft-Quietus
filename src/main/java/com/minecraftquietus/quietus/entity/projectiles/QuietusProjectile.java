@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -61,7 +62,8 @@ public abstract class QuietusProjectile extends Projectile {
 
         if ((hitresult.getType() == HitResult.Type.BLOCK) && !level().isClientSide) {
             this.onHitBlock((BlockHitResult) hitresult);
-            this.discard();
+            // Creepernade: use discard Action to discard so that it triggers particles and stuffs
+            discardAction();
             return;
         }
         if (hitresult.getType() == HitResult.Type.ENTITY) {
@@ -81,10 +83,10 @@ public abstract class QuietusProjectile extends Projectile {
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        if (!level().isClientSide && result.getEntity() != this.getOwner() &&result.getEntity() instanceof LivingEntity livingEntity ) {
+        if (!level().isClientSide && result.getEntity() != this.getOwner() &&(result.getEntity() instanceof LivingEntity || result.getEntity() instanceof EndCrystal) && this.getOwner() instanceof LivingEntity livingOwner) {
             boolean crit = this.makeCrit();
             float damage = this.calculateDamage(crit, baseDamage);
-                this.applyImpactEffects(livingEntity, damage, crit);
+                this.applyImpactEffects(result.getEntity(), damage, crit, livingOwner);
             discardAction();
         }
     }
@@ -123,7 +125,17 @@ public abstract class QuietusProjectile extends Projectile {
         return 0;
     }
 
-    protected abstract void applyImpactEffects(LivingEntity livingTarget, float damage, boolean is_crit);
+    protected void applyImpactEffects(Entity Target, float damage, boolean is_crit, LivingEntity livingOwner) {
+
+            Vec3 pos = Target.position();
+            if (Target.level() instanceof ServerLevel serverLevel) {
+                Target.hurtServer(serverLevel, damageSources().mobProjectile(this,livingOwner), damage);
+                if(Target instanceof LivingEntity livingTarget)
+                applyKnockback(livingTarget);
+                if(is_crit) ((ServerLevel)this.level()).sendParticles(ParticleTypes.CRIT,pos.x, pos.y,pos.z, 50, 0,0.5,0,0.5);
+            }
+
+    }
 
     protected void discardAction(){
         this.spawnImpactParticles();
