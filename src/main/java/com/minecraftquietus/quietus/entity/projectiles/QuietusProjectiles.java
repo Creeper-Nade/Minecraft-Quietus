@@ -63,6 +63,7 @@ public class QuietusProjectiles {
                         .sized(width, height)
                         .clientTrackingRange(4)
                         .updateInterval(10)
+                        //.setShouldReceiveVelocityUpdates(true)
                         .build(key)
         );
     }

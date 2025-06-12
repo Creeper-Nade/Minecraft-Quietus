@@ -185,6 +185,23 @@ public class QuietusItems {
                             }
                         }
                     );
+        public static final DeferredItem<NonAmmoProjectileWeaponItem> WEIRD_AMETHYST_STAFF =
+            REGISTRAR.register("weird_amethyst_staff", () -> new NonAmmoProjectileWeaponItem(
+                    new QuietusItemProperties()
+                        .addProjectile(0, 5.0f, 0.05d, (damage)->(float)(damage*1.5d), 0.4f, 0.1f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
+                        .addSound(NonAmmoProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
+                        .manaUse(5, UsesMana.Operation.ADD_VALUE, 0)
+                        .weaponProperty(
+                            1,
+                            (xRot,index,random)-> xRot, 
+                            (yRot,index,random)-> yRot,
+                            1.4f,
+                            0.5f,
+                            (itemstack)-> true,
+                            16
+                        )
+                        .useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:weird_amethyst_staff"))).stacksTo(1).useCooldown(0.75f))
+                    );
 
     //#endregion
 

@@ -1,10 +1,15 @@
 package com.minecraftquietus.quietus.entity.projectiles;
 
+import java.util.List;
 import java.util.function.Function;
 
 import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -32,12 +37,16 @@ public abstract class QuietusProjectile extends Projectile {
     protected double critChance = 0.05d;
     protected Function<Float,Float> critDamageOperation = (damage) -> (float)(damage*(1.0d+0.5d));
 
+    protected static final String NBT_TAG_PROJECTILE_GRAVITY = "ProjectileGravity";
+    protected static final EntityDataAccessor<Float> DATA_PROJECTILE_GRAVITY_ID = SynchedEntityData.defineId(QuietusProjectile.class, EntityDataSerializers.FLOAT);
+
     public QuietusProjectile(EntityType<? extends QuietusProjectile> type, Level level) {
         super(type, level);
     }
     
     public void configure(WeaponProjectileProperty projectileProperty) {
         this.gravity = projectileProperty.gravity();
+        this.getEntityData().set(DATA_PROJECTILE_GRAVITY_ID, projectileProperty.gravity());
         this.setNoGravity(gravity == 0.0);
         this.knockback = projectileProperty.knockback();
         this.baseDamage = projectileProperty.damage();
@@ -157,9 +166,37 @@ public abstract class QuietusProjectile extends Projectile {
         this.setDeltaMovement(velocity.scale((double)f));
     }
 
+    public float getSynchedGravity() {
+        return this.getEntityData().get(DATA_PROJECTILE_GRAVITY_ID);
+    }
+
     @Override
     protected double getDefaultGravity() {
-        return (double)gravity;
+        return (double)this.getSynchedGravity();
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag content) {
+        super.addAdditionalSaveData(content);
+        content.putFloat(NBT_TAG_PROJECTILE_GRAVITY, this.gravity);
+    }
+    @Override
+    public void readAdditionalSaveData(CompoundTag content) {
+        super.readAdditionalSaveData(content);
+        float r = content.getFloatOr(NBT_TAG_PROJECTILE_GRAVITY, 0.05f);
+        this.gravity = r;
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_PROJECTILE_GRAVITY_ID, 0.05f);
+    }
+    
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        if (DATA_PROJECTILE_GRAVITY_ID.equals(key)) {
+            this.gravity = getSynchedGravity();
+        }
     }
 
     protected abstract void spawnImpactParticles();

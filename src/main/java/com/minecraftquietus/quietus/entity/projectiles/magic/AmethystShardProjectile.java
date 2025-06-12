@@ -59,6 +59,6 @@ public class AmethystShardProjectile extends QuietusProjectile {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-
+        super.defineSynchedData(builder);
     }
 }
