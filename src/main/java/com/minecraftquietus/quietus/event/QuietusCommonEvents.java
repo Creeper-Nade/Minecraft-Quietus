@@ -37,16 +37,18 @@ import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
-import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.ArmorHurtEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.ArmorHurtEvent.ArmorEntry;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -178,7 +180,7 @@ public class QuietusCommonEvents {
 
     }
 
-    @SubscribeEvent
+    /* @SubscribeEvent
     public static void onArmorHurt(ArmorHurtEvent event) {
 
         LivingEntity entity = event.getEntity();
@@ -189,17 +191,31 @@ public class QuietusCommonEvents {
             float damage = event.getNewDamage(slot);
             // Worn armor only
             if (slot == EquipmentSlot.FEET || slot == EquipmentSlot.LEGS || slot == EquipmentSlot.CHEST || slot == EquipmentSlot.HEAD) {
-                /**
-                 * For RetaliatesOnDamage armor items:
-                 * checks for each piece of armor the event provides whether or not they implement interface {@link RetaliatesOnDamage}
-                 * and runs the item's method #onArmorHurt, accepting its return value as new damage.
-                 */
+                
                 if (itemstack.getItem() instanceof RetaliatesOnDamaged retaliatingItem) {
                     damage = retaliatingItem.onArmorHurt(damage, armorEntryMap, slot, entity);
                 }
             }
 
             event.setNewDamage(slot, damage); // update damage to event
+        }
+    } */
+    @SubscribeEvent
+    public static void onEntityHurtPost(LivingDamageEvent.Post event) {
+        LivingEntity entity = event.getEntity();
+        float damage = event.getNewDamage();
+        if (event.getReduction(DamageContainer.Reduction.ARMOR) > 0.0f && event.getReduction(DamageContainer.Reduction.INVULNERABILITY) == 0.0f) { // armor reducted damage
+            Map<EquipmentSlot, ItemStack> armorMap = new HashMap<>(EquipmentSlot.values().length);
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                if (slot == EquipmentSlot.FEET || slot == EquipmentSlot.LEGS || slot == EquipmentSlot.CHEST || slot == EquipmentSlot.HEAD)
+                    armorMap.put(slot, entity.getItemBySlot(slot));
+            }
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                ItemStack itemstack = armorMap.getOrDefault(slot, ItemStack.EMPTY);
+                if (itemstack.getItem() instanceof RetaliatesOnDamaged retaliatingItem) {
+                    retaliatingItem.onArmorHurt(damage, armorMap, slot, entity);
+                }
+            }
         }
     }
 

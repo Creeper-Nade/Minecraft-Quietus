@@ -4,9 +4,15 @@ import java.util.Map;
 
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.event.entity.living.ArmorHurtEvent.ArmorEntry;
+import net.minecraft.world.item.ItemStack;
 
 public interface RetaliatesOnDamaged {
-    
-    public float onArmorHurt(float damage, Map<EquipmentSlot, ArmorEntry> armorEntryMap, EquipmentSlot slot, LivingEntity wearer);
+    /**
+    * invoked in {@link com.minecraftquietus.quietus.event.QuietusCommonEvents} when a LivingEntity has damage reducted by armor.
+    * @param damage final damage (after-reduction) the entity took
+    * @param armorMap map of EquipmentSlot to ItemStack of the entity's all equipments
+    * @param slot the slot this item should be in of the wearer
+    * @param wearer the LivingEntity wearing this 
+    */
+    public void onArmorHurt(float damage, Map<EquipmentSlot, ItemStack> armorMap, EquipmentSlot slot, LivingEntity wearer);
 }

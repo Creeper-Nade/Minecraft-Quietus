@@ -29,48 +29,48 @@ import net.neoforged.neoforge.event.entity.living.ArmorHurtEvent.ArmorEntry;
 
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 
-public class AmethystArmor extends Item implements RetaliatesOnDamaged {
+public class AmethystArmorItem extends Item implements RetaliatesOnDamaged {
 
-    public AmethystArmor(Properties properties) {
+    public AmethystArmorItem(Properties properties) {
         super(properties);
     }
 
     @Override
-    public float onArmorHurt(float damage, Map<EquipmentSlot, ArmorEntry> armorEntryMap, EquipmentSlot slot, LivingEntity wearer) {
+    public void onArmorHurt(float damage, Map<EquipmentSlot, ItemStack> armorMap, EquipmentSlot slot, LivingEntity wearer) {
         Vec3 pos;
         List<ItemStack> list = new ArrayList<>();
-        armorEntryMap.forEach((equipmentSlot,armorEntry) -> {
-            if (armorEntry.armorItemStack.getItem() instanceof AmethystArmor) list.add(armorEntry.armorItemStack);
+        armorMap.forEach((equipmentSlot,armorItem) -> {
+            if (armorItem.getItem() instanceof AmethystArmorItem) list.add(armorItem);
         });
         boolean full_set_bonus = list.size() >= 4;
         switch (slot) {
             case FEET:
-                pos = wearer.position().add(0.00d,0.30d,0.00d);
+                pos = wearer.position().add(0.00d,0.25d,0.00d);
                 break;
             case LEGS:
-                pos = wearer.position().add(0.00d, 0.54d,0.00d);
+                pos = wearer.position().add(0.00d, 0.50d,0.00d);
                 break;
             case CHEST:
-                pos = wearer.getEyePosition().add(0.00d, -0.32d,0.00d);
+                pos = wearer.getEyePosition().add(0.00d, -0.625d,0.00d);
                 break;
             case HEAD:
                 pos = wearer.getEyePosition();
                 break;
             case null:
-                return damage;
+                return;
             default: // should not be otherwise. This armor does nothing otherwise
-                return damage;
+                return;
         }
         if (wearer.level() instanceof ServerLevel level) {
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AMETHYST_CLUSTER.defaultBlockState()),pos.x, pos.y,pos.z, 10, 0,0,0,0.5);
             level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.AMETHYST_CLUSTER_BREAK, EntitySoundSource.of(wearer), 1.0F, 1.0F);
             RandomSource random = wearer.getRandom();
-            int projectilesAmount = random.nextInt(3)+3;
+            int projectilesAmount = random.nextInt(3)+2;
             if (full_set_bonus) projectilesAmount += 1; // every armor piece adds by 1 when full set bonus active
             for (int i = 0; i < projectilesAmount; i++) {
-                Vec3 posNew = new Vec3(pos.x+random.nextDouble()*0.24d-0.12d, pos.y+random.nextDouble()*0.30d-0.15d, pos.z+random.nextDouble()*0.24d-0.12d);
+                Vec3 posNew = new Vec3(pos.x+random.nextDouble()*0.50d-0.25d, pos.y+random.nextDouble()*0.30d-0.15d, pos.z+random.nextDouble()*0.50d-0.25d);
                 AmethystShardProjectile projectile = new AmethystShardProjectile(QuietusProjectiles.AMETHYST_PROJECTILE.get(), level);
-                projectile.configure(new WeaponProjectileProperty.Builder()
+                projectile.configure(WeaponProjectileProperty.builder()
                     .damage(2.0f)
                     .critChance(0.0d)
                     .critOperation((dmg)->dmg)
@@ -80,7 +80,7 @@ public class AmethystArmor extends Item implements RetaliatesOnDamaged {
                     .projectileType(QuietusProjectiles.AMETHYST_PROJECTILE.get())
                     .build());
                 float yRot = random.nextFloat()*360 - 180.0f;
-                float xRot = random.nextFloat()*100 - 40.0f;
+                float xRot = random.nextFloat()*110 - 45.0f;
                 projectile.snapTo(posNew, yRot, xRot);
                 projectile.shootFromRotation(wearer, xRot, yRot, 0.0f, 0.5f, 0.0f);
                 projectile.setOwner(wearer);
@@ -88,7 +88,6 @@ public class AmethystArmor extends Item implements RetaliatesOnDamaged {
             }
             
         }
-        return damage;
     }
     
 }

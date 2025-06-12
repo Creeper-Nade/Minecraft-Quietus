@@ -21,8 +21,10 @@ import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 import javax.swing.text.html.parser.Entity;
 
 import com.minecraftquietus.quietus.client.renderer.BowslingerRenderer;
+import com.minecraftquietus.quietus.client.renderer.ParabolerRenderer;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.monster.Bowslinger;
+import com.minecraftquietus.quietus.entity.monster.Paraboler;
 
 @EventBusSubscriber(modid=MODID,bus = EventBusSubscriber.Bus.MOD)
 public class QuietusIModBusEvent {
@@ -55,9 +57,11 @@ public class QuietusIModBusEvent {
     @SubscribeEvent
     public static void initiateAttributes(EntityAttributeCreationEvent event) {
         event.put(QuietusEntityTypes.BOWSLINGER.get(), Bowslinger.createAttributes().build());
+        event.put(QuietusEntityTypes.PARABOLER.get(), Paraboler.createAttributes().build());
     }
     @SubscribeEvent
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(QuietusEntityTypes.BOWSLINGER.get(), BowslingerRenderer::new);
+        event.registerEntityRenderer(QuietusEntityTypes.PARABOLER.get(), ParabolerRenderer::new);
     }
 }

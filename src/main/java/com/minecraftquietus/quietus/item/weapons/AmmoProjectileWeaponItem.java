@@ -129,7 +129,7 @@ public class AmmoProjectileWeaponItem extends ProjectileWeaponItem {
     } */
 
     @Override
-    protected void shoot(
+    public void shoot(
         ServerLevel level,
         LivingEntity shooter,
         InteractionHand hand,
