@@ -80,7 +80,7 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
     public void tick() {
         LivingEntity target = this.mob.getTarget();
         if (target != null) {
-            double dist_target_sqr = this.mob.distanceToSqr(target.getX(), target.getY(), target.getZ());
+            double dist_target = this.mob.distanceToSqr(target.getX(), target.getY(), target.getZ());
             // TODO
             boolean has_sight = this.mob.getSensing().hasLineOfSight(target);
             boolean has_sight_last = this.seeTime > 0;
@@ -94,7 +94,7 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
                 this.seeTime--;
             }
 
-            if (!(dist_target_sqr > this.attackRadiusSqr) && this.seeTime >= 20) {
+            if (!(dist_target > this.attackRadiusSqr) && this.seeTime >= 20) {
                 this.mob.getNavigation().stop();
                 this.strafingTime++;
             } else {
@@ -115,13 +115,13 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
             }
 
             if (this.strafingTime > -1) {
-                if (dist_target_sqr > this.attackRadiusSqr * 0.5F) {
+                if (dist_target > this.attackRadiusSqr * 0.5F) {
                     this.strafingBackwards = false;
-                } else if (dist_target_sqr < this.attackRadiusSqr * 0.5F) {
+                } else if (dist_target < this.attackRadiusSqr * 0.5F) {
                     this.strafingBackwards = true;
                 }
 
-                this.mob.getMoveControl().strafe(this.strafingBackwards ? -0.5F : 0.5F, 0.0F/* this.strafingClockwise ? 0.5F : -0.5F */);
+                //this.mob.getMoveControl().strafe(this.strafingBackwards ? -0.5F : 0.5F, 0.0F/* this.strafingClockwise ? 0.5F : -0.5F */);
                 if (this.mob.getControlledVehicle() instanceof Mob mob) {
                     mob.lookAt(target, 30.0F, 30.0F);
                 }
@@ -138,53 +138,46 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
                     /**
                      * t = V0y/g ± √(2g(H-y))/g = √(2/g)*(√H±√(H-y))/g
                      */
-                    double d = 3.0d; // maximum distance for this to instead normal shooting
-                    Vec3 p = new Vec3(
-                        this.mob.getEyePosition().x,
-                        this.mob.getEyePosition().y,
-                        this.mob.getEyePosition().z
-                    );
                     Vec3 l = new Vec3(
-                        target.position().x - p.x,
-                        (target.position().y + target.getEyePosition().y*3) / 4 - p.y,
-                        target.position().z - p.z
+                        target.position().x - this.mob.getEyePosition().x,
+                        target.position().y - this.mob.getEyePosition().y,
+                        target.position().z - this.mob.getEyePosition().z
                     );
-                    double dist_target = Math.sqrt(dist_target_sqr);
-                    double turning_point = 1.5d+dist_target/4;
-                    double gravity = 0.05d; // same as vanilla arrow
-                    double v0ySqr = 2*turning_point*gravity;
-                    double time = Math.sqrt(2.0d/gravity)*(Math.sqrt(turning_point)+Math.sqrt(turning_point-l.y)); // descending hit
-                    /* double time = dist_target_sqr < d*d ? Math.sqrt(2.0d/gravity)*(Math.sqrt(turning_point)-Math.sqrt(turning_point-l.y)) : // ascending hit
-                        Math.sqrt(2.0d/gravity)*(Math.sqrt(turning_point)+Math.sqrt(turning_point-l.y)); // descending hit */
+                    double max_height = 1.5d;
+                    double gravity = 0.05d;
+                    double v0ySqr = 2*max_height*gravity;
+                    double time = Math.sqrt(2.0d/gravity)*(Math.sqrt(max_height)+Math.sqrt(max_height-l.y));
                         /* double time = l.y == 0 ? 
                         (double)Math.round(2*Math.sqrt(2*max_height/gravity)) : // when relative y of target is 0 simplified
                         (double)Math.round(Math.sqrt(2.0d/gravity)*(Math.sqrt(max_height)+Math.sqrt(max_height-l.y))); */
+                    double v0x = l.x/time;
+                        /* double v0x = l.y == 0 ?
+                        l.x/2*Math.sqrt(gravity/2/max_height) : 
+                        l.x/l.y*Math.sqrt(gravity/2)*(Math.sqrt(max_height)-Math.sqrt(max_height-l.y)); */
+                    double v0z = l.z/time;
+                        /* double v0z = l.y == 0 ?
+                        l.z/2*Math.sqrt(gravity/2/max_height) : 
+                        l.z/l.y*Math.sqrt(gravity/2)*(Math.sqrt(max_height)-Math.sqrt(max_height-l.y)); */
                     // attempts to predict target movement by adding their movement change to their position
-                    Vec3 target_dm = target.getKnownMovement();
-                    target_dm = target_dm.add(0.0d,target.onGround() ? -(target_dm.y) : -(target_dm.y/2),0.0d); // decrease y factor for sake of against player jumping 
-                    l = l.add(target_dm.scale(time));
-                    // v0x and v0z calculation
-                    double v0x = l.x/time/0.9d; //divide by 0.8d for some reason else the arrows land too close
-                    double v0z = l.z/time/0.9d; //divide by 0.8d for some reason else the arrows land too close
+                    /* Vec3 target_dm = target.getKnownMovement();
+                    target_dm = target_dm.add(0.0d,target.onGround() ? 0.0 : -(target_dm.y/4),0.0d); // decrease y factor for sake of against player jumping */
+                    //l = l.add(target_dm.scale((double)time));
                     // calculate vector to face towards
                     Vec3 v0 = new Vec3(v0x, Math.sqrt(v0ySqr), v0z);
-                    //this.mob.lookAt(Anchor.EYES, this.mob.getEyePosition().add(v0));
-                    Vec3 shooter_dm = this.mob.getKnownMovement();
-                    shooter_dm = shooter_dm.add(0.0d, this.mob.onGround() ? -(shooter_dm.y) : 0.0d,0.0d);
-                    this.mob.lookAt(Anchor.EYES, p.add(v0).add(shooter_dm.reverse()));
+                    //Vec3 v0 = new Vec3(l.x/time, l.y/time+0.5*gravity*time, l.z/time);
+                    this.mob.lookAt(Anchor.FEET, this.mob.position().add(v0));
+                    //this.mob.lookAt(Anchor.FEET, this.mob.position().add(v0).add(this.mob.getKnownMovement().reverse()));
                     int useTicks = this.mob.getTicksUsingItem();
                     if (this.weapon.getItem() instanceof BowItem) {
                         if (useTicks >= 10) {
                             this.mob.stopUsingItem();
-                            this.mob.performRangedAttack(target, BowItem.getPowerForTime(useTicks*2)*(float)v0.length());
+                            this.mob.performRangedAttack(target, BowItem.getPowerForTime(useTicks*2));
                             this.attackTime = this.minAttackInterval;
                         }
                     } else if (this.weapon.getItem() instanceof QuietusProjectileWeaponItem weapon_item && weapon_item.getUseDuration(weapon, this.mob) > 0 && weapon_item.getPowerDuration(weapon, this.mob) >= 0) {
                         if (useTicks >= (weapon_item.getPowerDuration(weapon, this.mob))/2) {
-                            System.out.println("x: "+ v0.x + " | y: " + v0.y + " | z: " + v0.z);
-                            System.out.println(dist_target + " | " + time + " | " + target.position().x + " " + target.position().y + " "+ target.position().z);
                             this.mob.stopUsingItem();
-                            this.mob.performRangedAttack(target, weapon_item.getPowerForTime(useTicks*2)*(float)v0.length());
+                            this.mob.performRangedAttack(target, weapon_item.getPowerForTime(useTicks*2));
                             this.attackTime = this.minAttackInterval;
                         }
                     }

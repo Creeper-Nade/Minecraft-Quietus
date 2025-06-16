@@ -1,0 +1,6 @@
+{
+  "parent": "quietus:item/combat/triplebow",
+  "textures": {
+    "layer0": "quietus:item/combat/triplebow_pulling_1"
+  }
+}

@@ -15,6 +15,8 @@ public record WeaponProperty(
     float shootVelocity, // function for calculating velocity multiplier when shooting
     float shootInaccuracy, // function for calculating velocity multiplier when shooting
     Predicate<ItemStack> supportedProjectiles, // supported projectile items by this weapon
+    int useDuration, // use duration for the weapon. -1 for infinite (set to 72000), 0 for none, >0 for fixed use duration
+    int powerDuration, // use duration for full charge for weapon. If ≥ 0, guaranteed crit hit when the weapon is used for more ticks than powerDuration, else ignored
     int attackRange // attack range of this weapon. Used for AI to determine range
 ) {
 
@@ -22,14 +24,16 @@ public record WeaponProperty(
         return new WeaponProperty.Builder();
     }
     
-    public static class Builder {
-        int projectilesPerShot;
-        TriFunction<Float,Integer,RandomSource,Float> xRotOffsetCalc;
-        TriFunction<Float,Integer,RandomSource,Float> yRotOffsetCalc;
-        float shootVelocity;
-        float shootInaccuracy;
-        Predicate<ItemStack> supportedProjectiles;
-        int attackRange;
+    public static class Builder { // defaults
+        int projectilesPerShot = 1;
+        TriFunction<Float,Integer,RandomSource,Float> xRotOffsetCalc = (a,b,c)->a;
+        TriFunction<Float,Integer,RandomSource,Float> yRotOffsetCalc = (a,b,c)->a;
+        float shootVelocity = 1.0f;
+        float shootInaccuracy = 0.0f;
+        Predicate<ItemStack> supportedProjectiles = (itemstack)->true;
+        int useDuration = 0;
+        int powerDuration = -1;
+        int attackRange = 15;
 
         public WeaponProperty.Builder projectilesPerShot(int value) {
             this.projectilesPerShot = value;
@@ -55,13 +59,21 @@ public record WeaponProperty(
             this.supportedProjectiles = func;
             return this;
         }
+        public WeaponProperty.Builder useDuration(int value) {
+            this.useDuration = value;
+            return this;
+        }
+        public WeaponProperty.Builder powerDuration(int value) {
+            this.powerDuration = value;
+            return this;
+        }
         public WeaponProperty.Builder attackRange(int value) {
             this.attackRange = value;
             return this;
         }
 
         public WeaponProperty build() {
-            return new WeaponProperty(this.projectilesPerShot, this.xRotOffsetCalc, this.yRotOffsetCalc, this.shootVelocity, this.shootInaccuracy, this.supportedProjectiles, this.attackRange);
+            return new WeaponProperty(this.projectilesPerShot, this.xRotOffsetCalc, this.yRotOffsetCalc, this.shootVelocity, this.shootInaccuracy, this.supportedProjectiles, this.useDuration, this.powerDuration, this.attackRange);
         }
     }
 }

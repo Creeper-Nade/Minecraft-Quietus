@@ -55,12 +55,15 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import com.minecraftquietus.quietus.entity.ai.goal.ParabolaAttackGoal;
 import com.minecraftquietus.quietus.item.weapons.AmmoProjectileWeaponItem;
+import com.minecraftquietus.quietus.item.weapons.QuietusProjectileWeaponItem;
 
 public class Paraboler extends Skeleton {
 
     private final RangedBowAttackGoal<AbstractSkeleton> bowGoal;
-    private final ParabolaAttackGoal<Paraboler> parabolaBowGoal;
+    private final ParabolaAttackGoal<AbstractSkeleton> parabolaBowGoal;
     private final MeleeAttackGoal meleeGoal;
+
+    private byte selectedAttackGoal = 2; // 2 for meleeGoa, 1 for bowGoal, 0 for parabolaBowGoal
 
     private static final int HARD_ATTACK_INTERVAL_BASE = 12;
     private static final int NORMAL_ATTACK_INTERVAL_BASE = 15;
@@ -72,13 +75,14 @@ public class Paraboler extends Skeleton {
     /**
      * Methods for parabola:
      * Given relative position of target to this and find initial velocities:
+     * V0x = TargetX÷time
      * V0y = TargetY÷time + 1/2*gravity*time
-     * V0z and V0x hypotenuse points towards target
+     * V0z = TargetZ÷time
      */
     public Paraboler(EntityType<? extends Skeleton> type, Level level) {
         super(type, level);
         this.bowGoal = new RangedBowAttackGoal<>(this, 1.25, 40, 20.0F);
-        this.parabolaBowGoal = new ParabolaAttackGoal<>(this, 1.25, 4, 17.0F);
+        this.parabolaBowGoal = new ParabolaAttackGoal<>(this, 1.00, 4, 17.0F);
         this.meleeGoal = new MeleeAttackGoal(this, 1.2, false) {
                 @Override
                 public void stop() {
@@ -104,34 +108,26 @@ public class Paraboler extends Skeleton {
         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, false));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Turtle.class, 10, false, false, Turtle.BABY_ON_LAND_SELECTOR));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
     }
 
 
-    /* @Override
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder dataBuild) {
         super.defineSynchedData(dataBuild);
-        dataBuild.define(DATA_BOWSLINGER_VOLLEY, 0);
-        dataBuild.define(DATA_BOWSLINGER_VOLLEY_MAX, 6+this.random.nextInt(2));
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putInt(VOLLEY_TAG, this.getVolley());
-        tag.putInt(VOLLEY_MAX_TAG, this.getVolleyMax());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        int i = tag.getIntOr(VOLLEY_TAG, 0);
-        int j = tag.getIntOr(VOLLEY_MAX_TAG, 6+this.random.nextInt(2));
-        this.setVolley(i);
-        this.setVolleyMax(j);
-    } */
+    } 
 
     
     @Override
@@ -175,22 +171,22 @@ public class Paraboler extends Skeleton {
     @Override
     public void performRangedAttack(LivingEntity target, float velocity) {
         ItemStack weapon = this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, item -> item instanceof net.minecraft.world.item.ProjectileWeaponItem));
+        ItemStack ammo = this.getProjectile(weapon);
         ProjectileWeaponItem weapon_item = (ProjectileWeaponItem)weapon.getItem();
         if (this.level() instanceof ServerLevel level) {
-            ItemStack projectile_item = this.getProjectile(weapon);
-            if (weapon_item instanceof AmmoProjectileWeaponItem ammo_weapon_item) { // Quietus' AmmoProjectileWeaponItem
-                List<ItemStack> _projectile_item = new ArrayList<>(1);
-                _projectile_item.add(projectile_item);
-                ammo_weapon_item.shoot(level,this,ProjectileUtil.getWeaponHoldingHand(this, item -> item instanceof net.minecraft.world.item.ProjectileWeaponItem),weapon,_projectile_item,velocity,1.6f,false,null);
+            if (weapon_item instanceof QuietusProjectileWeaponItem quietus_weapon_item && quietus_weapon_item.getUseDuration(weapon, this) > 0 && quietus_weapon_item.getPowerDuration(weapon, this) >= 0) { // Quietus' AmmoProjectileWeaponItem and is bow
+                List<ItemStack> _projectile_item = new ArrayList<>(quietus_weapon_item.getProjectilesPerShot());
+                for (int i = 0; i < quietus_weapon_item.getProjectilesPerShot(); i ++) _projectile_item.add(ammo); 
+                quietus_weapon_item.shoot(level,this,ProjectileUtil.getWeaponHoldingHand(this, item -> item instanceof net.minecraft.world.item.ProjectileWeaponItem),weapon,_projectile_item,velocity,1.6f,false,null);
             } else if (weapon_item instanceof BowItem bow) { // vanilla BowItem
-                AbstractArrow abstractarrow = this.getArrow(projectile_item, velocity, weapon);
-                abstractarrow = bow.customArrow(abstractarrow, projectile_item, weapon);
+                AbstractArrow abstractarrow = this.getArrow(ammo, velocity, weapon);
+                abstractarrow = bow.customArrow(abstractarrow, ammo, weapon);
                 double d0 = target.getX() - this.getX();
                 double d1 = target.getY(0.3333333333333333) - abstractarrow.getY();
                 double d2 = target.getZ() - this.getZ();
                 double d3 = Math.sqrt(d0 * d0 + d2 * d2);
                 Projectile.spawnProjectileUsingShoot(
-                    abstractarrow, level, projectile_item, d0, d1 + d3 * 0.19f, d2, 1.6F, 12
+                    abstractarrow, level, ammo, d0, d1 + d3 * 0.19f, d2, 1.6F, 12
                 );
             }
         } 
@@ -200,7 +196,7 @@ public class Paraboler extends Skeleton {
     @Override
     public void reassessWeaponGoal() {
         if (bowGoal == null || parabolaBowGoal == null || meleeGoal == null) {
-            return; // stop if goals are not yet initialzed (expected to stop the call on this method by super constructor AbstractSkeleton)
+            return; // stop if goals are not yet initialzed (expected to stop the call on this method by constructor by super AbstractSkeleton)
         }
         if (this.level() != null && !this.level().isClientSide) {
             // removal of actual goals
@@ -209,8 +205,12 @@ public class Paraboler extends Skeleton {
             this.goalSelector.removeGoal(this.meleeGoal);
             
             ItemStack itemstackBow = this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, item -> item instanceof net.minecraft.world.item.ProjectileWeaponItem));
-            if (itemstackBow.getItem() instanceof net.minecraft.world.item.ProjectileWeaponItem) {
-                boolean hasMultiProjectileBow = itemstackBow.getItem() instanceof net.minecraft.world.item.BowItem;
+            boolean hasBow = 
+                itemstackBow.getItem() instanceof BowItem
+                || (itemstackBow.getItem() instanceof QuietusProjectileWeaponItem it && it.getUseDuration(itemstackBow, this) > 0 && it.getPowerDuration(itemstackBow, this) >= 0);
+            if (hasBow) {
+                boolean hasMultiProjectileBow = 
+                    itemstackBow.getItem() instanceof QuietusProjectileWeaponItem it && it.getProjectilesPerShot() > 1;
                 this.setAttackInterval(hasMultiProjectileBow);
                 int i = this.getHardAttackInterval();
                 if (this.level().getDifficulty() != Difficulty.HARD) {
@@ -219,13 +219,16 @@ public class Paraboler extends Skeleton {
                 if (hasMultiProjectileBow) {
                     this.parabolaBowGoal.setMinAttackInterval(i);
                     this.goalSelector.addGoal(4, this.parabolaBowGoal);
+                    this.selectedAttackGoal = 0;
                 } else {
                     this.bowGoal.setMinAttackInterval(i);
                     this.goalSelector.addGoal(4, this.bowGoal);
+                    this.selectedAttackGoal = 1;
                 }
             } else { // melee attack; same as normal skeleton
                 this.setAttackInterval(true);
                 this.goalSelector.addGoal(4, this.meleeGoal);
+                this.selectedAttackGoal = 2;
             }
         }
     }

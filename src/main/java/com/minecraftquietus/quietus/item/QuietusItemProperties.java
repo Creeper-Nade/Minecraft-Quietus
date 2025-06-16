@@ -55,7 +55,7 @@ public class QuietusItemProperties extends Item.Properties {
         }
 
     public WeaponProperty weaponProperty;
-    public QuietusItemProperties weaponProperty(int projectilePerShot, TriFunction<Float,Integer,RandomSource,Float> xRotOffsetCalc, TriFunction<Float,Integer,RandomSource,Float> yRotOffsetCalc, float shootVelocity, float shootInaccuracy, Predicate<ItemStack> supportedProjectiles, int attackRange) {
+    public QuietusItemProperties weaponProperty(int projectilePerShot, TriFunction<Float,Integer,RandomSource,Float> xRotOffsetCalc, TriFunction<Float,Integer,RandomSource,Float> yRotOffsetCalc, float shootVelocity, float shootInaccuracy, Predicate<ItemStack> supportedProjectiles, int useDuration, int powerDuration, int attackRange) {
         this.weaponProperty = WeaponProperty.builder()
             .projectilesPerShot(projectilePerShot)
             .xRotOffsetFunc(xRotOffsetCalc)
@@ -63,6 +63,8 @@ public class QuietusItemProperties extends Item.Properties {
             .shootVelocity(shootVelocity)
             .shootInaccuracy(shootInaccuracy)
             .supportedProjectiles(supportedProjectiles)
+            .useDuration(useDuration)
+            .powerDuration(powerDuration)
             .attackRange(attackRange).build();
         return this;
     }

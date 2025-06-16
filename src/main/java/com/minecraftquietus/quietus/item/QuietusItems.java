@@ -1,7 +1,7 @@
 package com.minecraftquietus.quietus.item;
 
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
-import com.minecraftquietus.quietus.item.weapons.NonAmmoProjectileWeaponItem;
+import com.minecraftquietus.quietus.item.weapons.QuietusProjectileWeaponItem;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 
 import net.minecraft.core.registries.Registries;
@@ -110,21 +110,23 @@ public class QuietusItems {
     //#endregion
 
     //#region WEAPONS
-        public static final DeferredItem<Item> TRIPLEBOW = REGISTRAR.registerItem("triple_bow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> TRIPLEBOW = REGISTRAR.registerItem("triplebow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
             .weaponProperty( 
                 3,
-                (xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), 
-                (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f),
+                (xRot,index,random)-> xRot + (index-0.5f)*8.0f*(random.nextFloat()-0.5f), 
+                (yRot,index,random)-> yRot + index*12.0f*(random.nextFloat()-0.5f),
                 3.0f,
                 1.5f,
                 ProjectileWeaponItem.ARROW_ONLY,
+                -1,
+                20,
                 16
             )
             .addProjectileCritChance(AmmoProjectileWeaponItem.MAPKEY_PROJECTILE_DEFAULT_CRITCHANCE,0.2)
             .durability(384)
             .enchantable(1)
         );
-        public static final DeferredItem<Item> INFINIBOW = REGISTRAR.registerItem("infini_bow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> INFINIBOW = REGISTRAR.registerItem("infinibow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
             .weaponProperty(
                 50,
                 (xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), 
@@ -132,36 +134,52 @@ public class QuietusItems {
                 3.0f,
                 1.5f,
                 ProjectileWeaponItem.ARROW_ONLY,
+                -1,
+                30,
                 16
             )
             .addProjectileCritChance(AmmoProjectileWeaponItem.MAPKEY_PROJECTILE_DEFAULT_CRITCHANCE,0.2)
             .durability(384)
             .enchantable(1)
         );
-        /* public static final DeferredItem<MagicalWeapon<amethystProjectile>> AMETHYST_STAFF =
-            REGISTRAR.register("amethyst_staff", () ->new MagicalWeapon<>(
-                    new QuietusItemProperties().projectileProperties(0, 5.0f, 0.05d, 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
-                        .manaUse(5, UsesMana.Operation.ADDITION, 0).useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(0.75f),
-                    QuietusProjectiles.AMETHYST_PROJECTILE, // Direct RegistryObject reference
-                    1.5f, 0.0f, 0.4f, 5f, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
-                @Override
-                public void appendHoverText(ItemStack pStack, TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
-
-
-                    components.accept(CommonComponents.EMPTY);
-                    for(int i=1; i<=6;i++)
-                    {
-                        components.accept(Component.translatable("tooltip.quietus.amethyst_staff."+i));
-                    }
-                    super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
-                }
-
-            }); */
-        public static final DeferredItem<NonAmmoProjectileWeaponItem> AMETHYST_STAFF =
-            REGISTRAR.register("amethyst_staff", () -> new NonAmmoProjectileWeaponItem(
+        public static final DeferredItem<Item> PULLBOW = REGISTRAR.registerItem("pullbow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
+            .weaponProperty( 
+                3,
+                (xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), 
+                (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f),
+                3.0f,
+                1.5f,
+                ProjectileWeaponItem.ARROW_ONLY,
+                10,
+                -1,
+                16
+            )
+            .addProjectileCritChance(AmmoProjectileWeaponItem.MAPKEY_PROJECTILE_DEFAULT_CRITCHANCE,0.2)
+            .durability(384)
+            .enchantable(1)
+        );
+        public static final DeferredItem<Item> INSTABOW = REGISTRAR.registerItem("instabow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
+            .weaponProperty( 
+                3,
+                (xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), 
+                (yRot,index,random)-> yRot + index*15.0f*(random.nextFloat()-0.5f),
+                3.0f,
+                1.5f,
+                ProjectileWeaponItem.ARROW_ONLY,
+                0,
+                -1,
+                16
+            )
+            .addProjectileCritChance(AmmoProjectileWeaponItem.MAPKEY_PROJECTILE_DEFAULT_CRITCHANCE,0.2)
+            .durability(384)
+            .enchantable(1)
+        );
+        
+        public static final DeferredItem<QuietusProjectileWeaponItem> AMETHYST_STAFF =
+            REGISTRAR.register("amethyst_staff", () -> new QuietusProjectileWeaponItem(
                     new QuietusItemProperties()
                         .addProjectile(0, 5.0f, 0.05d, (damage)->(float)(damage*1.5d), 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
-                        .addSound(NonAmmoProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
+                        .addSound(QuietusProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
                         .manaUse(5, UsesMana.Operation.ADD_VALUE, 0)
                         .weaponProperty(
                             1,
@@ -170,8 +188,11 @@ public class QuietusItems {
                             1.4f,
                             0.5f,
                             (itemstack)-> true,
+                            0,
+                            -1,
                             16
                         )
+                        .durability(384)
                         .useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(0.75f))
                         {
                             @Override
@@ -185,11 +206,11 @@ public class QuietusItems {
                             }
                         }
                     );
-        public static final DeferredItem<NonAmmoProjectileWeaponItem> WEIRD_AMETHYST_STAFF =
-            REGISTRAR.register("weird_amethyst_staff", () -> new NonAmmoProjectileWeaponItem(
+        public static final DeferredItem<QuietusProjectileWeaponItem> WEIRD_AMETHYST_STAFF =
+            REGISTRAR.register("weird_amethyst_staff", () -> new QuietusProjectileWeaponItem(
                     new QuietusItemProperties()
                         .addProjectile(0, 5.0f, 0.05d, (damage)->(float)(damage*1.5d), 0.4f, 0.1f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
-                        .addSound(NonAmmoProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
+                        .addSound(QuietusProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
                         .manaUse(5, UsesMana.Operation.ADD_VALUE, 0)
                         .weaponProperty(
                             1,
@@ -198,8 +219,11 @@ public class QuietusItems {
                             1.4f,
                             0.5f,
                             (itemstack)-> true,
+                            10,
+                            -1,
                             16
                         )
+                        .durability(384)
                         .useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:weird_amethyst_staff"))).stacksTo(1).useCooldown(0.75f))
                     );
 
@@ -249,3 +273,27 @@ public class QuietusItems {
         REGISTRAR.register(eventBus);
     }
 }
+
+
+
+
+/*         Old register for quietus:amethyst_staff  
+            public static final DeferredItem<MagicalWeapon<amethystProjectile>> AMETHYST_STAFF =
+            REGISTRAR.register("amethyst_staff", () ->new MagicalWeapon<>(
+                    new QuietusItemProperties().projectileProperties(0, 5.0f, 0.05d, 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
+                        .manaUse(5, UsesMana.Operation.ADDITION, 0).useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(0.75f),
+                    QuietusProjectiles.AMETHYST_PROJECTILE, // Direct RegistryObject reference
+                    1.5f, 0.0f, 0.4f, 5f, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
+                @Override
+                public void appendHoverText(ItemStack pStack, TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
+
+
+                    components.accept(CommonComponents.EMPTY);
+                    for(int i=1; i<=6;i++)
+                    {
+                        components.accept(Component.translatable("tooltip.quietus.amethyst_staff."+i));
+                    }
+                    super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
+                }
+
+            }); */

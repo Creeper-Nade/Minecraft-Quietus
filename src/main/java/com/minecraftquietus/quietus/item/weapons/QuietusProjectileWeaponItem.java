@@ -47,13 +47,15 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Class for weapon items not consuming items. Has to be configured to shoot a projectile of QuietusProjectile
  */
-public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
+public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
 
     protected final int projectilesPerShot;
     protected final int attackRange;
     protected final Map<Integer,WeaponProjectileProperty> projectilePropertyMap;
     protected final float shootVelocity;
     protected final float shootInaccuracy;
+    protected final int useDuration;
+    protected final int powerDuration;
     protected final TriFunction<Float,Integer,RandomSource,Float> xRotCalc;
     protected final TriFunction<Float,Integer,RandomSource,Float> yRotCalc;
     protected final Map<String,SoundAsset> soundMap;
@@ -63,13 +65,15 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
 
     public static final String MAPKEY_SOUND_PLAYER_SHOOT = "player_shoot";
 
-    public NonAmmoProjectileWeaponItem(Item.Properties property) {
+    public QuietusProjectileWeaponItem(Item.Properties property) {
         super(property);
         if (property instanceof QuietusItemProperties prop) {
             this.projectilesPerShot = prop.weaponProperty.projectilesPerShot();
             this.projectilePropertyMap = Map.copyOf(prop.projectileProperties);
             this.shootVelocity = prop.weaponProperty.shootVelocity();
             this.shootInaccuracy = prop.weaponProperty.shootInaccuracy();
+            this.useDuration = prop.weaponProperty.useDuration();
+            this.powerDuration = prop.weaponProperty.powerDuration();
             this.xRotCalc = prop.weaponProperty.xRotOffsetCalc();
             this.yRotCalc = prop.weaponProperty.yRotOffsetCalc();
             this.attackRange = Objects.requireNonNullElse(prop.weaponProperty.attackRange(), 8);
@@ -80,6 +84,8 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
             this.projectilesPerShot = 1;
             this.shootVelocity = 1.5f;
             this.shootInaccuracy = 0.0f;
+            this.useDuration = 0;
+            this.powerDuration = -1;
             this.projectilePropertyMap = MAP_DEFAULT_PROJECTILE_PROPERTY;
             this.xRotCalc = (rotX, index, random) -> rotX;
             this.yRotCalc = (rotY, index, random) -> rotY;
@@ -91,7 +97,137 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
     }
 
     @Override
-    protected void shoot(
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        ItemStack itemstack = player.getItemInHand(hand);
+
+        InteractionResult ret = net.neoforged.neoforge.event.EventHooks.onArrowNock(itemstack, level, player, hand, true);
+        if (ret != null) return ret;
+
+        if (this.getUseDuration(itemstack, player) > 0) {
+            player.startUsingItem(hand);
+            return InteractionResult.CONSUME; 
+        } else {
+            if (player instanceof ServerPlayer) {
+                List<ItemStack> list = new ArrayList<>();
+                if (level instanceof ServerLevel serverlevel) {
+                    this.shoot(
+                        serverlevel, player, player.getUsedItemHand(), itemstack, 
+                        list, 
+                        this.shootVelocity, 
+                        this.shootInaccuracy, 
+                        false, // not taken in account
+                        null
+                    );
+                }
+
+                level.playSound(
+                    null,
+                    player.getX(),
+                    player.getY(),
+                    player.getZ(),
+                    this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundEvent(),
+                    this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundSource(),
+                    1.0F,
+                    1.0F / (level.getRandom().nextFloat() * 0.4F + 1.2F) + shootVelocity * 0.5F
+                );
+                player.awardStat(Stats.ITEM_USED.get(this));
+                return InteractionResult.SUCCESS_SERVER;
+            } else {
+                return InteractionResult.SUCCESS;
+            }
+        }
+        /* player.startUsingItem(hand);
+        return InteractionResult.CONSUME; */
+    }
+
+    @Override
+    public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
+        if (this.getUseDuration(stack, entity) == 0 || this.powerDuration < 0) {
+            return super.releaseUsing(stack, level, entity, timeLeft);
+        } else {
+            if (!(entity instanceof Player player)) {
+                return false;
+            } else { 
+                // checking power
+                int useTime = this.getUseDuration(stack, entity) - timeLeft;
+                useTime = net.neoforged.neoforge.event.EventHooks.onArrowLoose(stack, level, player, useTime, !player.getProjectile(stack).isEmpty());
+                if (useTime < 0) return false; 
+                float power = 1.0f;
+                power = this.getPowerForTime(useTime);
+                if (power < 0.1) return false;
+                // server side
+                if (player instanceof ServerPlayer) {
+                    List<ItemStack> list = new ArrayList<>();
+                    if (level instanceof ServerLevel serverlevel) {
+                        this.shoot(
+                            serverlevel, player, player.getUsedItemHand(), stack, 
+                            list, // don't care, NonAmmoProjectileWeaponItem#shoot checks on its own
+                            shootVelocity*power, 
+                            1.0F, 
+                            false,  // don't care. This is not use in NonAmmoProjectileWeaponItem#shoot
+                            null
+                        );
+                    }
+
+                    level.playSound(
+                        null,
+                        player.getX(),
+                        player.getY(),
+                        player.getZ(),
+                        this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundEvent(),
+                        this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundSource(),
+                        1.0F,
+                        1.0F / (level.getRandom().nextFloat() * 0.4F + 1.2F) + shootVelocity * 0.5F
+                    );
+                    player.awardStat(Stats.ITEM_USED.get(this));
+                    return true;
+                } else {
+                    return true;
+                }
+
+            }
+        }
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
+        if (this.powerDuration < 0 && this.getUseDuration(stack, livingEntity) > 0) {
+            if (livingEntity instanceof Player player) {
+                if (player instanceof ServerPlayer) {
+                    List<ItemStack> list = new ArrayList<>(); 
+                    if (level instanceof ServerLevel serverlevel) {
+                        this.shoot(
+                            serverlevel, player, player.getUsedItemHand(), stack, 
+                            list, // don't care, NonAmmoProjectileWeaponItem#shoot checks on its own
+                            shootVelocity, 
+                            1.0F, 
+                            false,  // don't care. This is not use in NonAmmoProjectileWeaponItem#shoot
+                            null
+                        );
+                    }
+
+                    level.playSound(
+                        null,
+                        player.getX(),
+                        player.getY(),
+                        player.getZ(),
+                        this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundEvent(),
+                        this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundSource(),
+                        1.0F,
+                        1.0F / (level.getRandom().nextFloat() * 0.4F + 1.2F) + shootVelocity * 0.5F
+                    );
+                    player.awardStat(Stats.ITEM_USED.get(this));
+                    return stack;
+                } else {
+                    return stack;
+                }
+            }
+        }
+        return super.finishUsingItem(stack, level, livingEntity);
+    }
+
+    @Override
+    public void shoot(
         ServerLevel level,
         LivingEntity shooter,
         InteractionHand hand,
@@ -110,7 +246,7 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
         for (int i = 0; i < this.projectilesPerShot; i++) {
             projectileProperty = Objects.requireNonNullElse(this.projectilePropertyMap.get(i), projectileProperty); // if this key not specified take previous property
             if (projectileProperty.isCustom()) { // custom projectile supports below arguments for projectiles configuring:
-                QuietusProjectile projectile = this.createProjectileWithKey(i, level, shooter, weapon, weapon, isCrit);
+                QuietusProjectile projectile = this.createProjectileWithKey(i, level, shooter, weapon, weapon, shooter.getRandom().nextDouble() < projectileProperty.critChance());
                 projectile.setOwner(shooter);
                 // CreeperNade: Offset the y position for -0.1f, this is the y pos for arrow in vanilla minecraft, and doesn't block view
                 projectile.setPos(shooter.getEyePosition().x,shooter.getEyePosition().y-0.1f,shooter.getEyePosition().z);
@@ -122,45 +258,24 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
                 level.addFreshEntity(projectile);
             }
         }
-        // get average durability use of all ammo launched
         weapon.hurtAndBreak(1, shooter, LivingEntity.getSlotForHand(hand));
     }
 
     /**
-     * Checks for available ammo supported by weapon from player
-     * @param player player being checked
-     * @param weapon the weapon item
-     * @return {@link List} of all found applicable items, in form of {@link ItemStack}
+     * Gets the velocity of the arrow entity from the bow's charge
      */
-    /* protected List<ItemStack> checkForAmmo(Player player, ItemStack weapon) {
-        List<ItemStack> list = new ArrayList<>();
-        Consumer<ItemStack> projectileItemAddUp = (stack) -> {
-            if (this.getAllSupportedProjectiles().test(stack)) list.add(stack);
-        };
-        player.getInventory().forEach(projectileItemAddUp);
-        return list;
-    } */
-
-    /**
-     * Static method.
-     * Draws amount of ammo supported by weapon from player. 
-     * @param amount amount of ammo needed
-     * @param player player drawing from
-     * @param weapon the weapon item
-     * @return {@link List} of drawn ammo, in form of {@link ItemStack}, 
-     * each ItemStack has count relative to the weapon's enchantments, such as minecraft:multishot.
-     */
-    /* protected static List<ItemStack> drawAmmo(int amount, Player player, ItemStack weapon) {
-        List<ItemStack> list = new ArrayList<>(amount);
-        for (int i = 0; i < amount; i++) {
-            ItemStack supportedAmmoStack = player.getProjectile(weapon);
-            if (supportedAmmoStack.isEmpty()) {
-                return list;
-            }
-            list.addAll(draw(weapon, supportedAmmoStack, player));
+    public float getPowerForTime(int charge) {
+        if (this.powerDuration == 0) { // power = 0: do not divide, return full charge
+            return 1.0f;
         }
-        return list;
-    } */
+        float f = charge / (float)this.powerDuration;
+        f = (f * f + f * 2.0F) / 3.0F;
+        if (f > 1.0F) {
+            f = 1.0F;
+        }
+
+        return f;
+    } 
 
     @Override
     protected void shootProjectile(
@@ -176,7 +291,7 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
     }
 
     @Override
-    protected QuietusProjectile createProjectile(Level level, LivingEntity shooter, ItemStack weapon, ItemStack ammo, boolean isCrit) {
+    protected Projectile createProjectile(Level level, LivingEntity shooter, ItemStack weapon, ItemStack ammo, boolean isCrit) {
         /* ArrowItem arrowitem = ammo.getItem() instanceof ArrowItem arrowitem1 ? arrowitem1 : (ArrowItem)Items.ARROW;
         AbstractArrow abstractarrow = arrowitem.createArrow(level, ammo, shooter, weapon);
         if (isCrit) {
@@ -187,7 +302,7 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
     protected QuietusProjectile createProjectileWithKey(int key, Level level, LivingEntity shooter, ItemStack weapon, ItemStack ammo, boolean isCrit) {
         QuietusProjectile projectile;
         // Use projectileProperty of weapon provided, or else use this own projectileProperty
-        if (weapon.getItem() instanceof NonAmmoProjectileWeaponItem weapon1) {
+        if (weapon.getItem() instanceof QuietusProjectileWeaponItem weapon1) {
             projectile = weapon1.getProjectileProperty(key).projectileType().create(level, EntitySpawnReason.LOAD);
             projectile.configure(weapon1.getProjectileProperty(key));
         } else {
@@ -197,69 +312,23 @@ public class NonAmmoProjectileWeaponItem extends ProjectileWeaponItem {
         return projectile;
     }
 
-    
-    /**
-     * Gets the velocity of the arrow entity from the bow's charge
-     */
-    /* public static float getPowerForTime(int charge) {
-        float f = charge / 20.0F;
-        f = (f * f + f * 2.0F) / 3.0F;
-        if (f > 1.0F) {
-            f = 1.0F;
-        }
-
-        return f;
-    } */
-
-    /* @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return 72000;
-    } */
-
-    /* @Override
-    public ItemUseAnimation getUseAnimation(ItemStack p_40678_) {
-        return ItemUseAnimation.BOW;
-    } */
 
     @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        ItemStack itemstack = player.getItemInHand(hand);
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        return this.useDuration == -1 ? 72000 : this.useDuration;
+    } 
+    public int getPowerDuration(ItemStack stack, LivingEntity entity) {
+        return this.powerDuration;
+    } 
 
-        InteractionResult ret = net.neoforged.neoforge.event.EventHooks.onArrowNock(itemstack, level, player, hand, true);
-        if (ret != null) return ret;
-
-
-        if (player instanceof ServerPlayer) {
-            List<ItemStack> list = new ArrayList<>();
-            if (level instanceof ServerLevel serverlevel) {
-                this.shoot(
-                    serverlevel, player, player.getUsedItemHand(), itemstack, 
-                    list, 
-                    this.shootVelocity, 
-                    this.shootInaccuracy, 
-                    false, // not taken in account
-                    null
-                );
-            }
-
-            level.playSound(
-                null,
-                player.getX(),
-                player.getY(),
-                player.getZ(),
-                this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundEvent(),
-                this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundSource(),
-                1.0F,
-                1.0F / (level.getRandom().nextFloat() * 0.4F + 1.2F) + shootVelocity * 0.5F
-            );
-            player.awardStat(Stats.ITEM_USED.get(this));
-            return InteractionResult.SUCCESS_SERVER;
+    @Override
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        if (this.useDuration == 0) {
+            return super.getUseAnimation(stack);
         } else {
-            return InteractionResult.SUCCESS;
+            return ItemUseAnimation.BOW;
         }
-        /* player.startUsingItem(hand);
-        return InteractionResult.CONSUME; */
-    }
+    } 
 
     // Used in net.minecraft.world.entity.ai.behavior.BehaviourUtils by entity AIs to check whether or not in range for attack
     public int getDefaultProjectileRange() {
