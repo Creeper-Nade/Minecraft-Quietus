@@ -33,7 +33,7 @@ public class QuietusEmissiveLayer<T extends GeoAnimatable, O, R extends GeoRende
     public QuietusEmissiveLayer(GeoRenderer<T, O, R> renderer) {
         super(renderer);
     }
-
+/*
     protected static final TriFunction<ResourceLocation, Boolean, Boolean, RenderType> FIXED_RENDER_TYPE = memoizeRenderType(QuietusEmissiveLayer::createRenderType);
 
     public static RenderPipeline FIXED_EMISSIVE = RenderPipeline.builder(RenderPipelines.MATRICES_COLOR_FOG_SNIPPET)
@@ -48,7 +48,7 @@ public class QuietusEmissiveLayer<T extends GeoAnimatable, O, R extends GeoRende
             .withDepthWrite(false)
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS)
-            .build();
+            .build();*/
 
 /*
     @Override
@@ -77,7 +77,7 @@ public class QuietusEmissiveLayer<T extends GeoAnimatable, O, R extends GeoRende
     protected boolean shouldRespectWorldLighting() {
         return true;
     }
-
+/*
     private static RenderType createRenderType(ResourceLocation texture, boolean outline, boolean respectLighting) {
         return respectLighting ? RenderType.entityTranslucentEmissive(texture, outline) :
                 RenderType.create("geckolib_emissive",
@@ -117,6 +117,6 @@ public class QuietusEmissiveLayer<T extends GeoAnimatable, O, R extends GeoRende
     public void render(R renderState, PoseStack poseStack, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer,
                        int packedLight, int packedOverlay, int renderColor) {
         super.render(renderState, poseStack, bakedModel, renderType, bufferSource, buffer, LightTexture.FULL_SKY, packedOverlay, renderColor);
-    }
+    }*/
 
 }
