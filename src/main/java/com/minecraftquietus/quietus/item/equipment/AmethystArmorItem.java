@@ -3,13 +3,18 @@ package com.minecraftquietus.quietus.item.equipment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
+import com.minecraftquietus.quietus.client.model.equipments.AmethystArmorRenderer;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.entity.projectiles.magic.AmethystShardProjectile;
 import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -25,12 +30,26 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.event.entity.living.ArmorHurtEvent.ArmorEntry;
 
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.client.GeoRenderProvider;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.animatable.manager.AnimatableManager;
+import software.bernie.geckolib.animatable.processing.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
+import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
-public class AmethystArmorItem extends Item implements RetaliatesOnDamaged {
+public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoItem {
 
+    private AnimatableInstanceCache cache= new SingletonAnimatableInstanceCache(this);
     public AmethystArmorItem(Properties properties) {
         super(properties);
     }
@@ -89,5 +108,32 @@ public class AmethystArmorItem extends Item implements RetaliatesOnDamaged {
             
         }
     }
-    
+//geckolib related stuffs
+
+@Override
+public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
+    consumer.accept(new GeoRenderProvider() {
+        private AmethystArmorRenderer renderer;
+
+
+        @Override
+        public <S extends HumanoidRenderState> GeoArmorRenderer<?, ?> getGeoArmorRenderer(@Nullable S livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, EquipmentClientInfo.LayerType type, @Nullable HumanoidModel<S> original) {
+            if(this.renderer == null)
+                this.renderer = new AmethystArmorRenderer();
+
+            return this.renderer;
+        }
+    });
+}
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
+    {
+        controllerRegistrar.add(new AnimationController<GeoAnimatable>(animTest -> PlayState.STOP));
+    }
+
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
 }

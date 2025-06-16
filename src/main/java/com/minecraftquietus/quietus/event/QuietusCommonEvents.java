@@ -46,6 +46,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.neoforged.neoforge.event.entity.living.*;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
@@ -219,6 +220,7 @@ public class QuietusCommonEvents {
             }
         }
     }
+
 
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
