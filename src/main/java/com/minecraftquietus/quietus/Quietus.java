@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus;
 
 
+import com.minecraftquietus.quietus.client.model.QuietusEmissiveLayer;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
@@ -218,6 +219,7 @@ public class Quietus
 
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
+        event.registerPipeline(QuietusEmissiveLayer.FIXED_EMISSIVE);
     }
 
 
