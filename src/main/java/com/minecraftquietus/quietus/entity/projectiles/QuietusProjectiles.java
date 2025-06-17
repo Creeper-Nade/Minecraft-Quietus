@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.entity.projectiles;
 
+import com.minecraftquietus.quietus.entity.projectiles.magic.SmallAmethystShardProjectile;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -33,6 +34,8 @@ public class QuietusProjectiles {
 
     public static final Supplier<EntityType<AmethystShardProjectile>> AMETHYST_PROJECTILE =
             registerProjectile("amethyst_projectile", createKey("amethyst_projectile"), AmethystShardProjectile::new, 0.5F, 0.5f);
+    public static final Supplier<EntityType<SmallAmethystShardProjectile>> SMALL_AMETHYST_PROJECTILE =
+            registerProjectile("small_amethyst_projectile", createKey("small_amethyst_projectile"), SmallAmethystShardProjectile::new, 0.3F, 0.3f);
     /*
 
     public static final Supplier<EntityType<MagicalProjectile>> MAGIC_PROJECTILE =

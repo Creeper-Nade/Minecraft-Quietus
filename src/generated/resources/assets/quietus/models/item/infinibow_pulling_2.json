@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/bow",
+  "textures": {
+    "layer0": "quietus:item/infinibow_pulling_2"
+  }
+}

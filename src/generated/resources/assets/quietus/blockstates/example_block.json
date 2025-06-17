@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "quietus:block/example_block"
+    }
+  }
+}

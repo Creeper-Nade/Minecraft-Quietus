@@ -4,13 +4,20 @@
   "item.quietus.example_item": "Example Item",
   "item.quietus.hardened_fur": "Hardened Fur",
 
+  "attributes.quietus.max_mana": "Max Mana",
+
   "item.quietus.amethyst_staff": "Amethyst Staff",
-  "tooltip.quietus.amethyst_staff.1": "§2 5 Magic Damage",
-  "tooltip.quietus.amethyst_staff.2": "§2 5% Crit. Chance",
+  "tooltip.quietus.amethyst_staff.1": "§2 6 Magic Damage",
+  "tooltip.quietus.amethyst_staff.2": "§2 10% Crit. Chance",
   "tooltip.quietus.amethyst_staff.3": "§6§lRIGHT CLICK§r §eto shoot",
   "tooltip.quietus.amethyst_staff.4": "§ean amethyst bolt",
   "tooltip.quietus.amethyst_staff.5": "§7 Mana Cost§r: §35",
   "tooltip.quietus.amethyst_staff.6": "§7 CoolDown§r: §30.75s",
+
+  "tooltip.quietus.amethyst_armor.1": "§6§lFULL SET BONUS:",
+  "tooltip.quietus.amethyst_armor.2": "§eScatters amethyst shards",
+  "tooltip.quietus.amethyst_armor.3": "§ethat damage nearby foes",
+  "tooltip.quietus.amethyst_armor.4": "§ewhen taking damage",
 
   "effect.quietus.spelunking": "Spelunking",
   "item.minecraft.potion.effect.spelunking": "Potion of Spelunking",
@@ -46,5 +53,12 @@
   "item.quietus.oxidized_iron_boots": "Oxidized Iron Boots",
   "item.quietus.oxidized_iron_leggings": "Oxidized Iron Leggings",
   "item.quietus.oxidized_iron_chestplate": "Oxidized Iron Chestplate",
-  "item.quietus.oxidized_iron_helmet": "Oxidized Iron Helmet"
+  "item.quietus.oxidized_iron_helmet": "Oxidized Iron Helmet",
+
+  "item.quietus.amethyst_leggings": "Amethyst Leggings",
+  "item.quietus.amethyst_boots": "Amethyst Boots",
+  "item.quietus.amethyst_chestplate": "Amethyst Chestplate",
+  "item.quietus.amethyst_helmet": "Amethyst Helmet",
+
+  "item.quietus.triplebow": "Triple Bow"
 }

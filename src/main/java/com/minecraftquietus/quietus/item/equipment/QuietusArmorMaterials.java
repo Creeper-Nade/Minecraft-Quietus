@@ -14,11 +14,22 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.neoforged.neoforge.common.Tags;
 import com.minecraftquietus.quietus.util.attribute.AttributeModifierValue;
 
 public class QuietusArmorMaterials {
+    public static ResourceKey<EquipmentAsset> COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "copper"));
+    public static ResourceKey<EquipmentAsset> EXPOSED_COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "exposed_copper"));
+    public static ResourceKey<EquipmentAsset> WEATHERED_COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "weathered_copper"));
+    public static ResourceKey<EquipmentAsset> OXIDIZED_COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_copper"));
+    public static ResourceKey<EquipmentAsset> EXPOSED_IRON_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "exposed_iron"));
+    public static ResourceKey<EquipmentAsset> OXIDIZED_IRON_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_iron"));
+    public static ResourceKey<EquipmentAsset> WEATHERED_IRON_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "weathered_iron"));
+    public static ResourceKey<EquipmentAsset> AMETHYST_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "amethyst"));
+
+
     public static final ArmorMaterial COPPER = new ArmorMaterial(
         10,
         Util.make(new EnumMap<>(ArmorType.class), map -> {
@@ -28,8 +39,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 2);
             map.put(ArmorType.BODY, 4);
         }),
-        5, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "copper"))
-    );
+        5, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, COPPER_KEY);
     public static final ArmorMaterial EXPOSED_COPPER = new ArmorMaterial(
         10,
         Util.make(new EnumMap<>(ArmorType.class), map -> {
@@ -39,8 +49,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 1);
             map.put(ArmorType.BODY, 4);
         }),
-        8, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "exposed_copper"))
-    );
+        8, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, EXPOSED_COPPER_KEY);
     public static final ArmorMaterial WEATHERED_COPPER = new ArmorMaterial(
         10,
         Util.make(new EnumMap<>(ArmorType.class), map -> {
@@ -50,8 +59,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 1);
             map.put(ArmorType.BODY, 3);
         }),
-        11, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "weathered_copper"))
-    );
+        11, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, WEATHERED_COPPER_KEY);
     public static final ArmorMaterial OXIDIZED_COPPER = new ArmorMaterial(
         10,
         Util.make(new EnumMap<>(ArmorType.class), map -> {
@@ -61,7 +69,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 1);
             map.put(ArmorType.BODY, 3);
         }),
-        14, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_copper"))
+        14, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Tags.Items.INGOTS_COPPER, OXIDIZED_COPPER_KEY
     );
 
 
@@ -85,7 +93,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 2);
             map.put(ArmorType.BODY, 5);
         }),
-        9, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "exposed_iron"))
+        9, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, EXPOSED_IRON_KEY
     );
     public static final ArmorMaterial WEATHERED_IRON = new ArmorMaterial(
         15,
@@ -96,7 +104,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 1);
             map.put(ArmorType.BODY, 4);
         }),
-        10, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "weathered_iron"))
+        10, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, WEATHERED_IRON_KEY
     );
     public static final ArmorMaterial OXIDIZED_IRON = new ArmorMaterial(
         15,
@@ -107,7 +115,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 1);
             map.put(ArmorType.BODY, 4);
         }),
-        11, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_iron"))
+        11, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, OXIDIZED_IRON_KEY
     );
     public static final QuietusArmorMaterial AMETHYST = new QuietusArmorMaterial(
         33,
@@ -132,7 +140,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, AttributeModifierValue.NONE);
             map.put(ArmorType.BODY, AttributeModifierValue.NONE);
         }),
-        12, SoundEvents.ARMOR_EQUIP_IRON, 1.0F, 0.0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "amethyst"))
+        12, SoundEvents.ARMOR_EQUIP_IRON, 1.0F, 0.0F, ItemTags.REPAIRS_IRON_ARMOR, AMETHYST_KEY
     );
 
 

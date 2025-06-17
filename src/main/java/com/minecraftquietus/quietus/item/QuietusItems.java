@@ -102,10 +102,50 @@ public class QuietusItems {
             return REGISTRAR.registerItem(name, properties -> new WeatheringIronArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))));
         }
         // amethyst armor
-        public static final DeferredItem<Item> AMETHYST_BOOTS = REGISTRAR.registerItem("amethyst_boots", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.BOOTS).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))), new Item.Properties());
-        public static final DeferredItem<Item> AMETHYST_LEGGINGS = REGISTRAR.registerItem("amethyst_leggings", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.LEGGINGS).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))), new Item.Properties());
-        public static final DeferredItem<Item> AMETHYST_CHESTPLATE = REGISTRAR.registerItem("amethyst_chestplate", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.CHESTPLATE).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))), new Item.Properties());
-        public static final DeferredItem<Item> AMETHYST_HELMET = REGISTRAR.registerItem("amethyst_helmet", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.HELMET).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))), new Item.Properties());
+        public static final DeferredItem<Item> AMETHYST_BOOTS = REGISTRAR.registerItem("amethyst_boots", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.BOOTS).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
+    {
+            @Override
+            public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
+            components.accept(CommonComponents.EMPTY);
+            for(int i=1; i<=4;i++)
+            {
+                components.accept(Component.translatable("tooltip.quietus.amethyst_armor."+i));
+            }
+        super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
+    }
+    }, new Item.Properties());
+        public static final DeferredItem<Item> AMETHYST_LEGGINGS = REGISTRAR.registerItem("amethyst_leggings", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.LEGGINGS).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
+                {
+                    @Override
+                    public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
+                        components.accept(CommonComponents.EMPTY);
+                        for(int i=1; i<=4;i++)
+                        {
+                            components.accept(Component.translatable("tooltip.quietus.amethyst_armor."+i));
+                        }
+                        super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
+                    }}, new Item.Properties());
+        public static final DeferredItem<Item> AMETHYST_CHESTPLATE = REGISTRAR.registerItem("amethyst_chestplate", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.CHESTPLATE).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))){
+                    @Override
+                    public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
+                        components.accept(CommonComponents.EMPTY);
+                        for(int i=1; i<=4;i++)
+                        {
+                            components.accept(Component.translatable("tooltip.quietus.amethyst_armor."+i));
+                        }
+                        super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
+                    }}, new Item.Properties());
+        public static final DeferredItem<Item> AMETHYST_HELMET = REGISTRAR.registerItem("amethyst_helmet", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.HELMET).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
+                {
+                    @Override
+                    public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
+                        components.accept(CommonComponents.EMPTY);
+                        for(int i=1; i<=4;i++)
+                        {
+                            components.accept(Component.translatable("tooltip.quietus.amethyst_armor."+i));
+                        }
+                        super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
+                    }}, new Item.Properties());
     
     //#endregion
 
@@ -178,7 +218,7 @@ public class QuietusItems {
         public static final DeferredItem<QuietusProjectileWeaponItem> AMETHYST_STAFF =
             REGISTRAR.register("amethyst_staff", () -> new QuietusProjectileWeaponItem(
                     new QuietusItemProperties()
-                        .addProjectile(0, 5.0f, 0.05d, (damage)->(float)(damage*1.5d), 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
+                        .addProjectile(0, 6.0f, 0.1d, (damage)->(float)(damage*1.5d), 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
                         .addSound(QuietusProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
                         .manaUse(5, UsesMana.Operation.ADD_VALUE, 0)
                         .weaponProperty(

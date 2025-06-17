@@ -2,6 +2,8 @@ package com.minecraftquietus.quietus;
 
 
 import com.minecraftquietus.quietus.client.model.QuietusEmissiveLayer;
+import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
+import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
@@ -119,6 +121,7 @@ public class Quietus
         // CreeperNade: The SpawnEvent class is never registered, so I'm adding it here for you 👀
         NeoForge.EVENT_BUS.register(SpawnEvent.class);
         modEventBus.register(QuietusIModBusEvent.class);
+        modEventBus.register(DataGenerator.class);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onClientTick);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockPlace);
@@ -214,6 +217,7 @@ public class Quietus
             LOGGER.info("  ##        ##  ");
             LOGGER.info("    ########    ");
             EntityRenderers.register(QuietusProjectiles.AMETHYST_PROJECTILE.get(), AmethystProjectileRenderer::new);
+            EntityRenderers.register(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get(), AmethystProjectileSmallRenderer::new);
         }
     }
 

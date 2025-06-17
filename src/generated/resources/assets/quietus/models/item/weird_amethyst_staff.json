@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "quietus:item/weird_amethyst_staff"
+  }
+}
