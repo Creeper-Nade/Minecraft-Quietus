@@ -234,11 +234,25 @@ public class QuietusCommonEvents {
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
-        if (entity instanceof LocalPlayer) return;
+        if (entity instanceof Player) return;
         //if (event.getEntity().level().isClientSide()) return;
-        if (entity instanceof LivingEntity living_entity) {
+        else if (entity instanceof LivingEntity living_entity) {
             event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(living_entity);
 
+        }
+    }
+/* Have to separate player tick and entity tick or else mana will reset everytime player dies or joins the world
+   This is because on the first entity tick, the max mana attribute is not modified, which equals to 20 (the default max mana); when mana exceeds max mana, mana value will be set the same as max mana
+   wrting something like "if (entity instanceof LocalPlayer) return;" inside onEntityTick will not work, but onPlayerTick somehow doesn't have this problem, so let's use it for now.
+ */
+    @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event)
+    {
+        Player player=event.getEntity();
+        //if (event.getEntity().level().isClientSide()) return;
+        if(player instanceof ServerPlayer serverPlayer) {
+            event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);
+            //ManaHudOverlay.SetTick(serverPlayer);
         }
     }
 

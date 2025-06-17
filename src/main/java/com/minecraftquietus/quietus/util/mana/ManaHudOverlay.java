@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.Random;
@@ -36,15 +37,15 @@ public class ManaHudOverlay {
     //private static int currentTick;
     //private static Player Hudplayer;
     //private static int slots;
-
     @SubscribeEvent
-    public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onPlayerClone(PlayerEvent.Clone event) {
         globalBlinkEndTime=0;
         lastUpdateTime=0;
         lastWaveStartTime=0;
     }
     @SubscribeEvent
-    public static void onPlayerClone(PlayerEvent.Clone event) {
+    public static void onWorldJoin(EntityJoinLevelEvent event)
+    {
         globalBlinkEndTime=0;
         lastUpdateTime=0;
         lastWaveStartTime=0;

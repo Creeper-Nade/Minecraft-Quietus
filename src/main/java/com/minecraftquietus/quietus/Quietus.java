@@ -135,7 +135,7 @@ public class Quietus
 
         // Register client-side HUD
         NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onRenderGui);
-        NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onLogin);
+        NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onWorldJoin);
         NeoForge.EVENT_BUS.addListener(ManaHudOverlay::onPlayerClone);
 
         /*NeoForge.EVENT_BUS.addListener((PlayerTickEvent.Post event) -> {
