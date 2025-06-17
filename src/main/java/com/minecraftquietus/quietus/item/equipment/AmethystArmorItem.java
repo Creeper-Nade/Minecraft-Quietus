@@ -81,13 +81,13 @@ public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoI
             default: // should not be otherwise. This armor does nothing otherwise
                 return;
         }
-        if (wearer.level() instanceof ServerLevel level) {
+        if (wearer.level() instanceof ServerLevel level && full_set_bonus) {
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AMETHYST_CLUSTER.defaultBlockState()),pos.x, pos.y,pos.z, 10, -1,0.5,1,0.5);
             level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.GLASS_BREAK, EntitySoundSource.of(wearer), 0.5F, 1.0F);
             level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.CHAIN_BREAK, EntitySoundSource.of(wearer), 0.5F, 1.0F);
             RandomSource random = wearer.getRandom();
             int projectilesAmount = random.nextInt(3)+2;
-            if (full_set_bonus) projectilesAmount += 1; // every armor piece adds by 1 when full set bonus active
+            if (full_set_bonus) projectilesAmount += 2; // every armor piece adds by 1 when full set bonus active
             for (int i = 0; i < projectilesAmount; i++) {
                 Vec3 posNew = new Vec3(pos.x+random.nextDouble()*0.50d-0.25d, pos.y+random.nextDouble()*0.30d-0.15d, pos.z+random.nextDouble()*0.50d-0.25d);
                 SmallAmethystShardProjectile projectile = new SmallAmethystShardProjectile(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get(), level);

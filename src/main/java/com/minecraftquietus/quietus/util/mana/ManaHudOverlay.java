@@ -180,9 +180,10 @@ public class ManaHudOverlay {
     public static boolean shouldBlinkContainers(int currentTick) {
         return currentTick < globalBlinkEndTime;
     }
-
+//there's a variable called "slots" for reasons,don't change this
     public static int getTotalSlots() {
-        return (int) Math.ceil(Display_MaxMana / 4.0);
+        slots=(int) Math.ceil(Display_MaxMana / 4.0);
+        return slots;
     }
 
     public static int getRowCount() {

@@ -92,7 +92,7 @@ public abstract class QuietusProjectile extends Projectile {
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        if (!level().isClientSide && result.getEntity() != this.getOwner() &&(result.getEntity() instanceof LivingEntity || result.getEntity() instanceof EndCrystal) && this.getOwner() instanceof LivingEntity livingOwner) {
+        if (!level().isClientSide && result.getEntity() != this.getOwner() &&!(result.getEntity() instanceof Projectile) && this.getOwner() instanceof LivingEntity livingOwner) {
             boolean crit = this.makeCrit();
             float damage = this.calculateDamage(crit, baseDamage);
                 this.applyImpactEffects(result.getEntity(), damage, crit, livingOwner);
