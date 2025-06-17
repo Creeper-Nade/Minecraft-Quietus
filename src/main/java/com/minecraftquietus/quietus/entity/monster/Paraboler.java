@@ -54,6 +54,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import com.minecraftquietus.quietus.entity.ai.goal.ParabolaAttackGoal;
+import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.weapons.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.item.weapons.QuietusProjectileWeaponItem;
 
@@ -133,7 +134,7 @@ public class Paraboler extends Skeleton {
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
         super.populateDefaultEquipmentSlots(random, difficulty);
-        this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
+        this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(QuietusItems.TRIPLEBOW.get()));
     }
 
     @Nullable

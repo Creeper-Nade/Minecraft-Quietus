@@ -1,6 +1,8 @@
-package com.minecraftquietus.quietus.item;
+package com.minecraftquietus.quietus.item.equipment;
 
 
+import com.minecraftquietus.quietus.item.WeatheringIronItems;
+import com.minecraftquietus.quietus.item.WeatheringIronItems.IronWeatherState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,7 +14,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 public class WeatheringIronArmorItem extends Item implements WeatheringIronItems {
 
-    public static final float OXIDATION_CHANCE = (float)128/(float)854 * (float)3/(float)4096;
+    public static final float OXIDATION_CHANCE = (float)96/(float)854 * (float)3/(float)4096;
 
     public static float getOxidationChance() {
         return OXIDATION_CHANCE;

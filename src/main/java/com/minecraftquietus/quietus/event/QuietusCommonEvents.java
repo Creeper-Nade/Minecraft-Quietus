@@ -19,6 +19,7 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -26,6 +27,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -238,17 +240,22 @@ public class QuietusCommonEvents {
             event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(living_entity);
 
         }
+        if (entity instanceof Arrow arrow && arrow.level() instanceof ServerLevel) {
+            Vec3 pos = arrow.position();
+                //System.out.println(pos.x+ " | "+ pos.y + " | "+pos.z);
+                System.out.println(arrow.getDeltaMovement().y);
+        }
     }
 
 
-    @SubscribeEvent
+    /* @SubscribeEvent
     public static void onProjectileLand(ProjectileImpactEvent event) {
         Entity projectile = event.getProjectile();
         Vec3 pos = projectile.position();
         if (projectile instanceof AbstractArrow) {
             System.out.println("land: "+pos.x+ " | "+ pos.y + " | "+pos.z);
         }
-    }
+    } */
 
 
 

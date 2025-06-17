@@ -65,28 +65,28 @@ public class AmethystArmorItem extends Item implements RetaliatesOnDamaged {
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AMETHYST_CLUSTER.defaultBlockState()),pos.x, pos.y,pos.z, 10, 0,0,0,0.5);
             level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.AMETHYST_CLUSTER_BREAK, EntitySoundSource.of(wearer), 1.0F, 1.0F);
             RandomSource random = wearer.getRandom();
-            int projectilesAmount = random.nextInt(3)+2;
-            if (full_set_bonus) projectilesAmount += 1; // every armor piece adds by 1 when full set bonus active
-            for (int i = 0; i < projectilesAmount; i++) {
-                Vec3 posNew = new Vec3(pos.x+random.nextDouble()*0.50d-0.25d, pos.y+random.nextDouble()*0.30d-0.15d, pos.z+random.nextDouble()*0.50d-0.25d);
-                AmethystShardProjectile projectile = new AmethystShardProjectile(QuietusProjectiles.AMETHYST_PROJECTILE.get(), level);
-                projectile.configure(WeaponProjectileProperty.builder()
-                    .damage(2.0f)
-                    .critChance(0.0d)
-                    .critOperation((dmg)->dmg)
-                    .knockback(0.2f)
-                    .gravity(0.05f)
-                    .persistanceTicks(200)
-                    .projectileType(QuietusProjectiles.AMETHYST_PROJECTILE.get())
-                    .build());
-                float yRot = random.nextFloat()*360 - 180.0f;
-                float xRot = random.nextFloat()*110 - 45.0f;
-                projectile.snapTo(posNew, yRot, xRot);
-                projectile.shootFromRotation(wearer, xRot, yRot, 0.0f, 0.5f, 0.0f);
-                projectile.setOwner(wearer);
-                level.addFreshEntity(projectile);
+            if (full_set_bonus) {
+                int projectilesAmount = wearer.getRandom().nextInt(2,6); // every armor piece makes 2 to 5 projectiles when full set bonus active
+                for (int i = 0; i < projectilesAmount; i++) {
+                    Vec3 posNew = new Vec3(pos.x+random.nextDouble()*0.50d-0.25d, pos.y+random.nextDouble()*0.30d-0.15d, pos.z+random.nextDouble()*0.50d-0.25d);
+                    AmethystShardProjectile projectile = new AmethystShardProjectile(QuietusProjectiles.AMETHYST_PROJECTILE.get(), level);
+                    projectile.configure(WeaponProjectileProperty.builder()
+                        .damage(2.0f)
+                        .critChance(0.0d)
+                        .critOperation((dmg)->dmg)
+                        .knockback(0.2f)
+                        .gravity(0.05f)
+                        .persistanceTicks(200)
+                        .projectileType(QuietusProjectiles.AMETHYST_PROJECTILE.get())
+                        .build());
+                    float yRot = random.nextFloat()*360 - 180.0f;
+                    float xRot = random.nextFloat()*110 - 45.0f;
+                    projectile.snapTo(posNew, yRot, xRot);
+                    projectile.shootFromRotation(wearer, xRot, yRot, 0.0f, 0.5f, 0.0f);
+                    projectile.setOwner(wearer);
+                    level.addFreshEntity(projectile);
+                }
             }
-            
         }
     }
     

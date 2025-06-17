@@ -164,7 +164,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
                             list, // don't care, NonAmmoProjectileWeaponItem#shoot checks on its own
                             shootVelocity*power, 
                             1.0F, 
-                            false,  // don't care. This is not use in NonAmmoProjectileWeaponItem#shoot
+                            this.getPowerDuration(stack, entity) >= 0 ? power >= 1.0f : false,  // don't care if has no power charge duration. This is not use in NonAmmoProjectileWeaponItem#shoot
                             null
                         );
                     }

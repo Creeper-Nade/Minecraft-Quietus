@@ -148,7 +148,7 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
                                 list, 
                                 shootVelocity*power, 
                                 this.shootInaccuracy, 
-                                player.getRandom().nextDouble() < projectileCritChance, 
+                                this.getPowerDuration(stack, entity) >= 0 ? power >= 1.0f : false,  // don't care if has no power charge duration. This is not use in NonAmmoProjectileWeaponItem#shoot
                                 null
                             );
                         }
