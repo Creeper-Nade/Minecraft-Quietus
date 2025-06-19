@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -18,6 +19,7 @@ import com.minecraftquietus.quietus.item.property.SoundAsset;
 import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
 import com.minecraftquietus.quietus.util.TriFunction;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -27,6 +29,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.player.Player;
@@ -51,7 +54,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
 
     protected final int projectilesPerShot;
     protected final int attackRange;
-    protected final Map<Integer,WeaponProjectileProperty> projectilePropertyMap;
+    protected Map<Integer,WeaponProjectileProperty> projectilePropertyMap;
     protected final float shootVelocity;
     protected final float shootInaccuracy;
     protected final int useDuration;
@@ -304,10 +307,10 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
         // Use projectileProperty of weapon provided, or else use this own projectileProperty
         if (weapon.getItem() instanceof QuietusProjectileWeaponItem weapon1) {
             projectile = weapon1.getProjectileProperty(key).projectileType().create(level, EntitySpawnReason.LOAD);
-            projectile.configure(weapon1.getProjectileProperty(key));
+            projectile.configure(weapon1.getProjectileProperty(key),weapon);
         } else {
             projectile = this.projectilePropertyMap.get(key).projectileType().create(level, EntitySpawnReason.LOAD);
-            projectile.configure(this.projectilePropertyMap.get(key));
+            projectile.configure(this.projectilePropertyMap.get(key),weapon);
         }
         return projectile;
     }

@@ -73,7 +73,6 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             }
         }
         if(this.mana > this.maxMana) {
-            System.out.println("BIG");
             this.mana = this.maxMana;
             SendPacketToPlayer(entity);
         }
@@ -83,7 +82,6 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     private void checkManaAttributes(LivingEntity entity)
     {
         int attribute_max_mana = (int)entity.getAttributes().getValue(MAX_MANA);
-        System.out.println(attribute_max_mana);
         int attribute_mana_regen_bonus = (int)entity.getAttributes().getValue(MANA_REGEN_BONUS);
         if(this.maxMana != attribute_max_mana)
         {

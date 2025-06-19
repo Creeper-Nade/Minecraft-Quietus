@@ -1,0 +1,41 @@
+{
+  "anvil_cost": 4,
+  "description": {
+    "translate": "enchantment.quietus.impact"
+  },
+  "effects": {
+    "minecraft:knockback": [
+      {
+        "effect": {
+          "type": "minecraft:add",
+          "value": {
+            "type": "minecraft:linear",
+            "base": 0.9,
+            "per_level_above_first": 0.9
+          }
+        },
+        "requirements": {
+          "condition": "minecraft:entity_properties",
+          "entity": "direct_attacker",
+          "predicate": {
+            "type": "#quietus:magic_projectile"
+          }
+        }
+      }
+    ]
+  },
+  "max_cost": {
+    "base": 35,
+    "per_level_above_first": 20
+  },
+  "max_level": 2,
+  "min_cost": {
+    "base": 10,
+    "per_level_above_first": 20
+  },
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#quietus:magic_enchantable",
+  "weight": 2
+}

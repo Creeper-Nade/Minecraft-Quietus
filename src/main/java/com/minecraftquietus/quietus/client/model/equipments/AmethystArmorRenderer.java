@@ -20,7 +20,6 @@ public class AmethystArmorRenderer<R extends HumanoidRenderState & GeoRenderStat
     protected GeoBone waistBone = null;
     public AmethystArmorRenderer() {
         super(new AmethystArmorModel());
-        //I was trying to add an emissive layer however it's bugged, ignore it for now
         this.addRenderLayer(new QuietusEmissiveLayer<>(this));
     }
 

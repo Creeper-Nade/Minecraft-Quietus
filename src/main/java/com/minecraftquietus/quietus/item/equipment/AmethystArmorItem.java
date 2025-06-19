@@ -99,7 +99,7 @@ public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoI
                     .gravity(0.05f)
                     .persistanceTicks(200)
                     .projectileType(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get())
-                    .build());
+                    .build(),armorMap.get(slot));
                 float yRot = random.nextFloat()*360 - 180.0f;
                 float xRot = random.nextFloat()*110 - 45.0f;
                 projectile.snapTo(posNew, yRot, xRot);

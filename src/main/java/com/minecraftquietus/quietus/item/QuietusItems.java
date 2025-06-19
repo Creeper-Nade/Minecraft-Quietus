@@ -218,7 +218,7 @@ public class QuietusItems {
         public static final DeferredItem<QuietusProjectileWeaponItem> AMETHYST_STAFF =
             REGISTRAR.register("amethyst_staff", () -> new QuietusProjectileWeaponItem(
                     new QuietusItemProperties()
-                        .addProjectile(0, 6.0f, 0.1d, (damage)->(float)(damage*1.5d), 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
+                        .addProjectile(0, 7.0f, 0.1d, (damage)->(float)(damage*1.5d), 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
                         .addSound(QuietusProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
                         .manaUse(5, UsesMana.Operation.ADD_VALUE, 0)
                         .weaponProperty(
@@ -233,6 +233,7 @@ public class QuietusItems {
                             16
                         )
                         .durability(384)
+                            .enchantable(3)
                         .useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(0.75f))
                         {
                             @Override

@@ -7,6 +7,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,9 +50,10 @@ public class SmallAmethystShardProjectile extends QuietusProjectile {
     @Override
     protected void applyImpactEffects(Entity target, float damage, boolean is_crit, LivingEntity owner) {
             Vec3 pos = target.position();
+            DamageSource damageSource = damageSources().mobProjectile(this, owner);
             if (target.level() instanceof ServerLevel serverLevel) {
-                target.hurtServer(serverLevel, damageSources().mobProjectile(this, owner), damage);
-                if (target instanceof LivingEntity livingTarget) applyKnockback(livingTarget);
+                target.hurtServer(serverLevel,damageSource , damage);
+                if (target instanceof LivingEntity livingTarget) applyKnockback(livingTarget,damageSource);
                 if(is_crit) ((ServerLevel)this.level()).sendParticles(ParticleTypes.CRIT,pos.x, pos.y,pos.z, 50, 0,0.5,0,0.5);
             }
     }

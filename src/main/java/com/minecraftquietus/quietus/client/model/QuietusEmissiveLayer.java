@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class QuietusEmissiveLayer<T extends GeoAnimatable, O, R extends GeoRenderState> extends AutoGlowingGeoLayer<T,O,R> {
-    //ignore this whole class for now
     public QuietusEmissiveLayer(GeoRenderer<T, O, R> renderer) {
         super(renderer);
     }
