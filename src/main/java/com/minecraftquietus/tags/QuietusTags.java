@@ -28,8 +28,11 @@ public class QuietusTags {
     }
 
     public static class Items {
-        public static final TagKey<Item> REPAIRS_AMETHYST_ARMOR = createTag("repairs_amethyst_armor");
+        //this tag is for pure mage-class weapon
         public static final TagKey<Item> MAGIC_WEAPON= createTag("magic_weapon");
+        //this tag is for all weapon that fires custom projectile, which has crit chance (e.g. sword that fires projectile)
+        public static final TagKey<Item> PROJECTILE_FIRING_WEAPON= createTag("projectile_firing_weapon");
+        //this tag is for any item that consumes mana (e.g. healing wand)
         public static final TagKey<Item> MAGIC_ENCHANTABLE = createTag("magic_enchantable");
         
 

@@ -2,14 +2,19 @@ package com.minecraftquietus.quietus.item.component;
 
 import java.util.function.IntFunction;
 
+import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentHelper;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
 
 public record UsesMana(
     int amount,
@@ -32,8 +37,15 @@ public record UsesMana(
         UsesMana::new
     );
 
-    public int calculateConsumption(int mana, int maxMana) {
-        return this.operation.apply(mana, maxMana, this.amount(), this.minAmount());
+    public int calculateConsumption(int mana, int maxMana, ItemStack item, Level level) {
+        //for the "Conservation" enchantment, which reduces mana cost.
+        //the ItemStack and the level of the owner has to be passed in here for enchantmentHelper
+        int RealAmount= this.amount();
+        if(level instanceof ServerLevel serverLevel) {
+            float cost_reduction=QuietusEnchantmentHelper.modifyManaCost(serverLevel, item, 0.0f);
+            RealAmount = Math.round(this.amount()*(1-cost_reduction));
+        }
+        return this.operation.apply(mana, maxMana, RealAmount, this.minAmount());
     }
 
     public static class Builder {

@@ -1,17 +1,17 @@
 {
-  "anvil_cost": 3,
+  "anvil_cost": 2,
   "description": {
-    "translate": "enchantment.quietus.impact"
+    "translate": "enchantment.quietus.acupuncture"
   },
   "effects": {
-    "minecraft:knockback": [
+    "quietus:crit_chance": [
       {
         "effect": {
           "type": "minecraft:add",
           "value": {
             "type": "minecraft:linear",
-            "base": 0.9,
-            "per_level_above_first": 0.9
+            "base": 0.04,
+            "per_level_above_first": 0.04
           }
         },
         "requirements": {
@@ -25,17 +25,17 @@
     ]
   },
   "max_cost": {
-    "base": 35,
-    "per_level_above_first": 20
+    "base": 27,
+    "per_level_above_first": 15
   },
-  "max_level": 2,
+  "max_level": 3,
   "min_cost": {
-    "base": 10,
-    "per_level_above_first": 20
+    "base": 5,
+    "per_level_above_first": 15
   },
   "slots": [
     "mainhand"
   ],
   "supported_items": "#quietus:projectile_firing_weapon",
-  "weight": 3
+  "weight": 5
 }

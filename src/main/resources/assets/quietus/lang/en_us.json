@@ -5,10 +5,14 @@
   "item.quietus.hardened_fur": "Hardened Fur",
 
   "attributes.quietus.max_mana": "Max Mana",
+  "enchantment.quietus.hex": "Hex",
+  "enchantment.quietus.impact": "Impact",
+  "enchantment.quietus.acupuncture": "Acupuncture",
+  "enchantment.quietus.conservation": "Conservation",
 
   "item.quietus.amethyst_staff": "Amethyst Staff",
-  "tooltip.quietus.amethyst_staff.1": "§2 6 Magic Damage",
-  "tooltip.quietus.amethyst_staff.2": "§2 10% Crit. Chance",
+  "tooltip.quietus.amethyst_staff.1": "§2 7 Magic Damage",
+  "tooltip.quietus.amethyst_staff.2": "§2 10% Ranged Crit. Chance",
   "tooltip.quietus.amethyst_staff.3": "§6§lRIGHT CLICK§r §eto shoot",
   "tooltip.quietus.amethyst_staff.4": "§ean amethyst bolt",
   "tooltip.quietus.amethyst_staff.5": "§7 Mana Cost§r: §35",

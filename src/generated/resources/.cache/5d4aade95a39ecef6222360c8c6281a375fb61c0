@@ -1,10 +1,11 @@
-// 1.21.5	2025-06-19T18:45:29.4753083	Tags for minecraft:item mod id quietus
+// 1.21.5	2025-06-20T19:29:36.1390408	Tags for minecraft:item mod id quietus
 432a881b4c9580033d7e3c4bfb84cc07ab2e3b7a data/minecraft/tags/item/chest_armor.json
 732e6e7eea884c1fa2b8e40c9935a99233c522c6 data/minecraft/tags/item/enchantable/bow.json
-b3f07bcc2355d05161a6e592fe51b498aee57e6f data/minecraft/tags/item/enchantable/durability.json
+dea116dd6a288204609752f2f91b2506eab22395 data/minecraft/tags/item/enchantable/durability.json
 3b160c93219234dd2716215c739bb6ffba162817 data/minecraft/tags/item/foot_armor.json
 4215d34664f510ae255122f7e2191439d261c056 data/minecraft/tags/item/head_armor.json
 48ad640c5d3e4e20caad6b354613c11392d4db69 data/minecraft/tags/item/leg_armor.json
 8404456cf29410c3875feb305d800418e741e1c9 data/minecraft/tags/item/trimmable_armor.json
 b3f07bcc2355d05161a6e592fe51b498aee57e6f data/quietus/tags/item/magic_enchantable.json
 b5b547226ffaff4904818d058fd837cf66cd9ff6 data/quietus/tags/item/magic_weapon.json
+b3f07bcc2355d05161a6e592fe51b498aee57e6f data/quietus/tags/item/projectile_firing_weapon.json

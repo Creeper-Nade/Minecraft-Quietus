@@ -107,8 +107,11 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
         this.tag(QuietusTags.Items.MAGIC_WEAPON)
                 .add(QuietusItems.AMETHYST_STAFF.get());
 
-        this.tag(ItemTags.DURABILITY_ENCHANTABLE)
+        this.tag(QuietusTags.Items.PROJECTILE_FIRING_WEAPON)
                 .addTag(QuietusTags.Items.MAGIC_WEAPON);
+
+        this.tag(ItemTags.DURABILITY_ENCHANTABLE)
+                .addTag(QuietusTags.Items.PROJECTILE_FIRING_WEAPON);
 
         this.tag(QuietusTags.Items.MAGIC_ENCHANTABLE)
                 .addTag(QuietusTags.Items.MAGIC_WEAPON);

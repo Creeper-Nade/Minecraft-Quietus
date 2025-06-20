@@ -5,6 +5,7 @@ import com.minecraftquietus.quietus.client.model.QuietusEmissiveLayer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
 import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
+import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.event.SpawnEvent;
@@ -106,6 +107,7 @@ public class Quietus
         //ITEMS.register(modEventBus);
         QuietusItems.register(modEventBus);
         QuietusComponents.register(modEventBus);
+        QuietusEnchantmentComponent.register(modEventBus);
         QuietusBlocks.register(modEventBus);
         QuietusPotions.register(modEventBus);
         QuietusEffects.register(modEventBus);

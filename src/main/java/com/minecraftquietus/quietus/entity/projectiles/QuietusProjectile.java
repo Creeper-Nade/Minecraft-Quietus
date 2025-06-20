@@ -3,6 +3,7 @@ package com.minecraftquietus.quietus.entity.projectiles;
 import java.util.List;
 import java.util.function.Function;
 
+import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentHelper;
 import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
 
 import net.minecraft.core.component.DataComponentType;
@@ -34,6 +35,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.world.item.enchantment.EnchantmentEffectComponents.DAMAGE;
 
@@ -46,7 +48,7 @@ public abstract class QuietusProjectile extends Projectile {
     protected float gravity = 0.05f;
     protected float knockback = 0.4f;
     protected float baseDamage = 5.0f;
-    protected ItemStack item;
+    protected ItemStack item = null;
     protected int persistanceTicks = 200;
     protected double critChance = 0.05d;
     protected Function<Float,Float> critDamageOperation = (damage) -> (float)(damage*(1.0d+0.5d));
@@ -58,13 +60,13 @@ public abstract class QuietusProjectile extends Projectile {
         super(type, level);
     }
     
-    public void configure(WeaponProjectileProperty projectileProperty, ItemStack item) {
+    public void configure(WeaponProjectileProperty projectileProperty, @Nullable ItemStack item) {
         this.gravity = projectileProperty.gravity();
         this.getEntityData().set(DATA_PROJECTILE_GRAVITY_ID, projectileProperty.gravity());
         this.setNoGravity(gravity == 0.0);
         this.knockback = projectileProperty.knockback();
         this.baseDamage = projectileProperty.damage();
-        this.item=item;
+        this.item=item.copy();
         this.persistanceTicks = projectileProperty.persistanceTicks();
         this.critChance = projectileProperty.critChance();
         this.critDamageOperation = projectileProperty.critOperation();
@@ -107,17 +109,18 @@ public abstract class QuietusProjectile extends Projectile {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         if (!level().isClientSide && result.getEntity() != this.getOwner() &&!(result.getEntity() instanceof Projectile) && this.getOwner() instanceof LivingEntity livingOwner) {
-            boolean crit = this.makeCrit();
             DamageSource damagesource = this.damageSources().mobProjectile(this, livingOwner);
+            boolean crit = this.makeCrit(result.getEntity(),damagesource);
+
             float damage = this.calculateDamage(crit, baseDamage,livingOwner,result.getEntity(),damagesource);
                 this.applyImpactEffects(result.getEntity(), damage, crit, livingOwner);
             discardAction();
         }
     }
     
-    private boolean makeCrit()
+    private boolean makeCrit(Entity target, DamageSource damageSource)
     {
-        return this.random.nextDouble() < getCritChance();
+        return this.random.nextDouble() < getCritChance(target,damageSource);
     }
 
     /**
@@ -140,10 +143,15 @@ public abstract class QuietusProjectile extends Projectile {
 
         return damage;
     }
-    public double getCritChance()
+    public double getCritChance(Entity target, DamageSource damageSource)
     {
         //reserved for addition of crit chance
-        return critChance;
+        double ActualCrit=critChance;
+        if(this.level() instanceof ServerLevel serverLevel)
+           ActualCrit = QuietusEnchantmentHelper.modifyCritChance(serverLevel, item, target, damageSource, critChance);
+
+        System.out.println(ActualCrit);
+        return ActualCrit;
     }
 
     protected abstract void applyImpactEffects(Entity Target, float damage, boolean is_crit, LivingEntity livingOwner);
@@ -158,7 +166,7 @@ public abstract class QuietusProjectile extends Projectile {
         if(this.level() instanceof ServerLevel serverLevel)
         finalKnockback = EnchantmentHelper.modifyKnockback(serverLevel, item, target, damageSource, 0.0f);
         else finalKnockback=knockback;
-System.out.println(finalKnockback);
+
         double d1 = Math.max((double)0.0F, (double)1.0F - target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
         Vec3 vec3 = this.getDeltaMovement().multiply((double)1.0F, (double)0.0F, (double)1.0F).normalize().scale(finalKnockback * 0.6 * d1);
         //Vec3 knockbackVec = this.getDeltaMovement().normalize().scale(finalKnockback);

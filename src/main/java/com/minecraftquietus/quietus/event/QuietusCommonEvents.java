@@ -12,6 +12,7 @@ import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.util.mana.Mana;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
+import com.minecraftquietus.tags.QuietusTags;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
@@ -47,6 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.neoforged.neoforge.event.entity.living.*;
+import net.neoforged.neoforge.event.entity.player.PlayerEnchantItemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
@@ -78,7 +80,7 @@ public class QuietusCommonEvents {
                 int current_mana = ClientPayloadHandler.getInstance().GetManaFromPack();
                 int current_max_mana = ClientPayloadHandler.getInstance().GetMaxManaFromPack();
                 //LOGGER.info("Expected mana consumption on use: "+mana_consume + " | Player's mana: " + ClientPayloadHandler.getInstance().GetManaFromPack());
-                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(current_mana, current_max_mana);
+                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(current_mana, current_max_mana,itemstack,player.level());
                 flag = current_mana >= mana_consume;
                 if (!flag) {
                     event.setCancellationResult(InteractionResult.FAIL);
@@ -87,7 +89,7 @@ public class QuietusCommonEvents {
                 } else {
                 }
             } else {
-                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(player), Mana.getMaxMana(player));
+                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(player), Mana.getMaxMana(player),itemstack,player.level());
                 //LOGGER.info("Expected mana consumption on use: "+mana_consume + " | Player's mana: " + Mana.getMana(player));
                 flag = Mana.getMana(player) >= mana_consume;
                 if (!flag) {
@@ -111,7 +113,7 @@ public class QuietusCommonEvents {
             return;
         } else {
             if (!entity.level().isClientSide()) {
-                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(entity), Mana.getMaxMana(entity));
+                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(entity), Mana.getMaxMana(entity),itemstack,entity.level());
                 if (itemstack.getItem() instanceof BowItem || itemstack.getItem() instanceof AmmoProjectileWeaponItem) {
                     Mana.get(entity).consumeMana(mana_consume, entity);
                 }
@@ -128,7 +130,7 @@ public class QuietusCommonEvents {
             return;
         } else {
             if (!entity.level().isClientSide()) { // Server side
-                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(entity), Mana.getMaxMana(entity));
+                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(entity), Mana.getMaxMana(entity),itemstack,entity.level());
                 if (Mana.getMana(entity) < mana_consume) {
                     entity.stopUsingItem();
                     event.setCanceled(true);
@@ -140,7 +142,7 @@ public class QuietusCommonEvents {
                 if (entity instanceof Player) {
                     int current_mana = ClientPayloadHandler.getInstance().GetManaFromPack();
                     int current_max_mana = ClientPayloadHandler.getInstance().GetMaxManaFromPack();
-                    int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(current_mana, current_max_mana);
+                    int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(current_mana, current_max_mana,itemstack,entity.level());
                     if (current_mana < mana_consume) {
                         entity.stopUsingItem();
                         event.setCanceled(true);
@@ -167,6 +169,15 @@ public class QuietusCommonEvents {
         builder.addMix(Potions.THICK, Items.GLOW_BERRIES, QuietusPotions.SPELUNKING);
         builder.addMix(QuietusPotions.SPELUNKING, Items.REDSTONE, QuietusPotions.LONG_SPELUNKING); // longer duration of potion of spelunking
         builder.addMix(QuietusPotions.SPELUNKING, Items.GLOW_INK_SAC, QuietusPotions.STRONG_SPELUNKING);
+    }
+
+    @SubscribeEvent
+    public static void onEnchantment(PlayerEnchantItemEvent event)
+    {
+        if(event.getEnchantedItem().is(QuietusTags.Items.MAGIC_ENCHANTABLE))
+        {
+            event.getEnchantedItem().set(DataComponents.DAMAGE,0);
+        }
     }
 
     public static void onBlockBreak(BlockEvent.BreakEvent event) {

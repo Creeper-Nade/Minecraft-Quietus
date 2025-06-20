@@ -83,7 +83,7 @@ public class QuietusItems {
         public static final DeferredItem<Item> OXIDIZED_COPPER_CHESTPLATE = registerCopperArmor("oxidized_copper_chestplate", CopperWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_COPPER, ArmorType.CHESTPLATE);
         public static final DeferredItem<Item> OXIDIZED_COPPER_HELMET = registerCopperArmor("oxidized_copper_helmet", CopperWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_COPPER, ArmorType.HELMET);
         private static DeferredItem<Item> registerCopperArmor(String name, CopperWeatherState weatherState, ArmorMaterial armorMaterial, ArmorType armorType) {
-            return REGISTRAR.registerItem(name, properties -> new WeatheringCopperArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))));
+            return REGISTRAR.registerItem(name, properties -> new WeatheringCopperArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).repairable(Items.COPPER_INGOT).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))));
         }
         // iron armor & variants<-(exposed,weathered,oxidized)
         public static final DeferredItem<Item> EXPOSED_IRON_BOOTS = registerIronArmor("exposed_iron_boots", IronWeatherState.EXPOSED, QuietusArmorMaterials.EXPOSED_IRON, ArmorType.BOOTS);
@@ -99,10 +99,10 @@ public class QuietusItems {
         public static final DeferredItem<Item> OXIDIZED_IRON_CHESTPLATE = registerIronArmor("oxidized_iron_chestplate", IronWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_IRON, ArmorType.CHESTPLATE);
         public static final DeferredItem<Item> OXIDIZED_IRON_HELMET = registerIronArmor("oxidized_iron_helmet", IronWeatherState.OXIDIZED, QuietusArmorMaterials.OXIDIZED_IRON, ArmorType.HELMET);
         private static DeferredItem<Item> registerIronArmor(String name, IronWeatherState weatherState, ArmorMaterial armorMaterial, ArmorType armorType) {
-            return REGISTRAR.registerItem(name, properties -> new WeatheringIronArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))));
+            return REGISTRAR.registerItem(name, properties -> new WeatheringIronArmorItem(weatherState, new Item.Properties().humanoidArmor(armorMaterial, armorType).repairable(Items.IRON_INGOT).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))));
         }
         // amethyst armor
-        public static final DeferredItem<Item> AMETHYST_BOOTS = REGISTRAR.registerItem("amethyst_boots", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.BOOTS).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
+        public static final DeferredItem<Item> AMETHYST_BOOTS = REGISTRAR.registerItem("amethyst_boots", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.BOOTS).repairable(Items.AMETHYST_SHARD).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
     {
             @Override
             public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
@@ -114,7 +114,7 @@ public class QuietusItems {
         super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
     }
     }, new Item.Properties());
-        public static final DeferredItem<Item> AMETHYST_LEGGINGS = REGISTRAR.registerItem("amethyst_leggings", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.LEGGINGS).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
+        public static final DeferredItem<Item> AMETHYST_LEGGINGS = REGISTRAR.registerItem("amethyst_leggings", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.LEGGINGS).repairable(Items.AMETHYST_SHARD).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
                 {
                     @Override
                     public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
@@ -125,7 +125,7 @@ public class QuietusItems {
                         }
                         super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
                     }}, new Item.Properties());
-        public static final DeferredItem<Item> AMETHYST_CHESTPLATE = REGISTRAR.registerItem("amethyst_chestplate", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.CHESTPLATE).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))){
+        public static final DeferredItem<Item> AMETHYST_CHESTPLATE = REGISTRAR.registerItem("amethyst_chestplate", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.CHESTPLATE).repairable(Items.AMETHYST_SHARD).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))){
                     @Override
                     public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
                         components.accept(CommonComponents.EMPTY);
@@ -135,7 +135,7 @@ public class QuietusItems {
                         }
                         super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
                     }}, new Item.Properties());
-        public static final DeferredItem<Item> AMETHYST_HELMET = REGISTRAR.registerItem("amethyst_helmet", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.HELMET).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
+        public static final DeferredItem<Item> AMETHYST_HELMET = REGISTRAR.registerItem("amethyst_helmet", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.HELMET).repairable(Items.AMETHYST_SHARD).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
                 {
                     @Override
                     public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
@@ -233,7 +233,7 @@ public class QuietusItems {
                             16
                         )
                         .durability(384)
-                            .enchantable(3)
+                            .enchantable(2).repairable(Items.AMETHYST_SHARD)
                         .useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(0.75f))
                         {
                             @Override

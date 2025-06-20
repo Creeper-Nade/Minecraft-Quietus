@@ -25,6 +25,10 @@ public class QuietusEnchantments {
             ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "impact"));
     public static final ResourceKey<Enchantment> HEX = ResourceKey.create(Registries.ENCHANTMENT,
             ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "hex"));
+    public static final ResourceKey<Enchantment> ACUPUNCTURE = ResourceKey.create(Registries.ENCHANTMENT,
+            ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "acupuncture"));
+    public static final ResourceKey<Enchantment> CONSERVATION = ResourceKey.create(Registries.ENCHANTMENT,
+            ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "conservation"));
 
     public static void bootstrap(BootstrapContext<Enchantment> context) {
         var enchantments = context.lookup(Registries.ENCHANTMENT);
@@ -32,7 +36,7 @@ public class QuietusEnchantments {
         HolderGetter<EntityType<?>> holdergetter4 = context.lookup(Registries.ENTITY_TYPE);
 
         register(context, HEX, Enchantment.enchantment(Enchantment.definition(
-                        items.getOrThrow(QuietusTags.Items.MAGIC_ENCHANTABLE),
+                        items.getOrThrow(QuietusTags.Items.MAGIC_WEAPON),
                         10,
                         5,
                         Enchantment.dynamicCost(1, 10),
@@ -41,13 +45,31 @@ public class QuietusEnchantments {
                 EquipmentSlotGroup.MAINHAND)).withEffect(EnchantmentEffectComponents.DAMAGE, new AddValue(LevelBasedValue.perLevel(1.0F)), LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.DIRECT_ATTACKER, net.minecraft.advancements.critereon.EntityPredicate.Builder.entity().of(holdergetter4, QuietusTags.Entity.MAGIC_PROJECTILE).build())));
 
         register(context, IMPACT, Enchantment.enchantment(Enchantment.definition(
-                items.getOrThrow(QuietusTags.Items.MAGIC_ENCHANTABLE),
-                2,
+                items.getOrThrow(QuietusTags.Items.PROJECTILE_FIRING_WEAPON),
+                3,
                 2,
                 Enchantment.dynamicCost(10, 20),
                 Enchantment.dynamicCost(35, 20),
-                4,
+                3,
                 EquipmentSlotGroup.MAINHAND)).withEffect(EnchantmentEffectComponents.KNOCKBACK, new AddValue(LevelBasedValue.perLevel(0.9F)), LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.DIRECT_ATTACKER, net.minecraft.advancements.critereon.EntityPredicate.Builder.entity().of(holdergetter4, QuietusTags.Entity.MAGIC_PROJECTILE).build())));
+
+        register(context, ACUPUNCTURE, Enchantment.enchantment(Enchantment.definition(
+                items.getOrThrow(QuietusTags.Items.PROJECTILE_FIRING_WEAPON),
+                5,
+                3,
+                Enchantment.dynamicCost(5, 15),
+                Enchantment.dynamicCost(27, 15),
+                2,
+                EquipmentSlotGroup.MAINHAND)).withEffect(QuietusEnchantmentComponent.CRIT_CHANCE.get(), new AddValue(LevelBasedValue.perLevel(0.04F)), LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.DIRECT_ATTACKER, net.minecraft.advancements.critereon.EntityPredicate.Builder.entity().of(holdergetter4, QuietusTags.Entity.MAGIC_PROJECTILE).build())));
+
+        register(context, CONSERVATION, Enchantment.enchantment(Enchantment.definition(
+                items.getOrThrow(QuietusTags.Items.MAGIC_ENCHANTABLE),
+                1,
+                3,
+                Enchantment.dynamicCost(15, 20),
+                Enchantment.dynamicCost(35, 20),
+                4,
+                EquipmentSlotGroup.MAINHAND)).withEffect(QuietusEnchantmentComponent.MANA_COST_REDUCTION.get(), new AddValue(LevelBasedValue.perLevel(0.1F,0.05F))));
     }
 
     private static void register(BootstrapContext<Enchantment> registry, ResourceKey<Enchantment> key,
