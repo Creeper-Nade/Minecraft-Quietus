@@ -3,8 +3,10 @@ package com.minecraftquietus.quietus.entity.projectiles.magic;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
 import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
 
+import com.minecraftquietus.quietus.util.Damage.QuietusDamageType;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -48,14 +50,55 @@ public class AmethystShardProjectile extends QuietusProjectile {
         }
     }
     @Override
-    protected void applyImpactEffects(Entity target, float damage, boolean is_crit, LivingEntity owner) {
-            Vec3 pos = target.position();
-            DamageSource damageSource = damageSources().mobProjectile(this, owner);
-            if (target.level() instanceof ServerLevel serverLevel) {
-                target.hurtServer(serverLevel, damageSource, damage);
-                if (target instanceof LivingEntity livingTarget) applyKnockback(livingTarget,damageSource);
-                if(is_crit) ((ServerLevel)this.level()).sendParticles(ParticleTypes.CRIT,pos.x, pos.y,pos.z, 50, 0,0.5,0,0.5);
+    protected void applyImpactEffects(Entity target, float damage, boolean is_crit, Entity owner) {
+            if(owner instanceof LivingEntity livingOwner)
+            {
+                Vec3 pos = target.position();
+                //DamageSource damageSource = damageSources().mobProjectile(this, livingOwner);
+                DamageSource damageSource = new DamageSource(
+                        // The damage type holder to use. Query from the registry. This is the only required parameter.
+                        this.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE),
+                        // The direct entity. For example, if a skeleton shot you, the skeleton would be the causing entity
+                        // (= the parameter above), and the arrow would be the direct entity (= this parameter). Similar to
+                        // the causing entity, this isn't always applicable and therefore nullable. Optional, defaults to null.
+                        this,
+                        // The entity causing the damage. This isn't always applicable (e.g. when falling out of the world)
+                        // and may therefore be null. Optional, defaults to null.
+                        owner,
+                        // The damage source position. This is rarely used, one example would be intentional game design
+                        // (= nether beds exploding). Nullable and optional, defaulting to null.
+                        null
+                );
+                if (target.level() instanceof ServerLevel serverLevel) {
+                    target.hurtServer(serverLevel, damageSource, damage);
+                    if (target instanceof LivingEntity livingTarget) applyKnockback(livingTarget,damageSource);
+                    if(is_crit) ((ServerLevel)this.level()).sendParticles(ParticleTypes.CRIT,pos.x, pos.y,pos.z, 50, 0,0.5,0,0.5);
+                }
             }
+
+    }
+    @Override
+    protected DamageSource getDamageSource(Entity owner)
+    {
+        return new DamageSource(
+                // The damage type holder to use. Query from the registry. This is the only required parameter.
+                this.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE),
+                // The direct entity. For example, if a skeleton shot you, the skeleton would be the causing entity
+                // (= the parameter above), and the arrow would be the direct entity (= this parameter). Similar to
+                // the causing entity, this isn't always applicable and therefore nullable. Optional, defaults to null.
+                this,
+                // The entity causing the damage. This isn't always applicable (e.g. when falling out of the world)
+                // and may therefore be null. Optional, defaults to null.
+                owner,
+                // The damage source position. This is rarely used, one example would be intentional game design
+                // (= nether beds exploding). Nullable and optional, defaulting to null.
+                null
+        );
+        /*
+        if(owner instanceof  LivingEntity livingEntity)
+        return damageSources().mobProjectile(this,livingEntity);
+        else
+            return damageSources().magic();*/
     }
 
     @Override

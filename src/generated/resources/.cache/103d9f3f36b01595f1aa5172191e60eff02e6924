@@ -1,4 +1,6 @@
-// 1.21.5	2025-06-20T19:29:36.1408862	Registries
+// 1.21.5	2025-06-21T01:25:56.7223405	Registries
+3d8b95fb7655feb9fe7bdf38830cd76f7b55e1df data/quietus/damage_type/magic_projectile_damage.json
+0ddb7e1c12f3612ac29b6834b66f794033102de0 data/quietus/damage_type/magic_projectile_damage_bypass_invincible_frame.json
 a19070172f79c059797ce3aecfc0aa95f145444e data/quietus/enchantment/acupuncture.json
 09d22a9ce39723ef8ba582f6bc180139c36148db data/quietus/enchantment/conservation.json
 218401e4dc0417305b09546590c45c7a8b2b86a5 data/quietus/enchantment/hex.json

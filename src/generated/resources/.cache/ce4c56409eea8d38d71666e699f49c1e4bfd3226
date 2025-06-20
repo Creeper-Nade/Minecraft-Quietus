@@ -1,0 +1,4 @@
+// 1.21.5	2025-06-21T01:25:56.7203438	Tags for minecraft:damage_type mod id vanilla
+b476ed93290c0d83ded9417d77d209c6506a63de data/minecraft/tags/damage_type/always_kills_armor_stands.json
+b16ced78260c33a1ee47138dddaf7a6cf6874211 data/minecraft/tags/damage_type/bypasses_cooldown.json
+b476ed93290c0d83ded9417d77d209c6506a63de data/minecraft/tags/damage_type/panic_causes.json

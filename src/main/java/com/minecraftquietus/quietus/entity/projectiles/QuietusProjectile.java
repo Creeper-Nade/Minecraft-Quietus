@@ -6,9 +6,11 @@ import java.util.function.Function;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentHelper;
 import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
 
+import com.minecraftquietus.quietus.util.Damage.QuietusDamageType;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -109,7 +111,9 @@ public abstract class QuietusProjectile extends Projectile {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         if (!level().isClientSide && result.getEntity() != this.getOwner() &&!(result.getEntity() instanceof Projectile) && this.getOwner() instanceof LivingEntity livingOwner) {
-            DamageSource damagesource = this.damageSources().mobProjectile(this, livingOwner);
+            //DamageSource damagesource = this.damageSources().mobProjectile(this, livingOwner);
+            DamageSource damagesource = getDamageSource(this.getOwner());
+
             boolean crit = this.makeCrit(result.getEntity(),damagesource);
 
             float damage = this.calculateDamage(crit, baseDamage,livingOwner,result.getEntity(),damagesource);
@@ -154,7 +158,9 @@ public abstract class QuietusProjectile extends Projectile {
         return ActualCrit;
     }
 
-    protected abstract void applyImpactEffects(Entity Target, float damage, boolean is_crit, LivingEntity livingOwner);
+    protected abstract void applyImpactEffects(Entity Target, float damage, boolean is_crit, Entity Owner);
+
+    protected abstract DamageSource getDamageSource(Entity owner);
 
     protected void discardAction(){
         this.spawnImpactParticles();

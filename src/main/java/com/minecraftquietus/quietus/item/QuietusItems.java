@@ -4,6 +4,7 @@ import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.item.weapons.QuietusProjectileWeaponItem;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 
+import com.minecraftquietus.quietus.util.mana.Mana;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -11,6 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -243,6 +245,11 @@ public class QuietusItems {
                                 {
                                     components.accept(Component.translatable("tooltip.quietus.amethyst_staff."+i));
                                 }
+
+                                //may need a tooltip revamp that's more flexible in the future
+                               // int mana_consume = pStack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana((LivingEntity)this.), Mana.getMaxMana((LivingEntity)pStack.getEntityRepresentation()),pStack,pStack.getEntityRepresentation().level());
+                                /*components.accept(Component.literal(Component.translatable("tooltip.quietus.amethyst_staff."+5)+String.valueOf(mana_consume)));
+                                components.accept(Component.translatable("tooltip.quietus.amethyst_staff."+6));*/
                                 super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
                             }
                         }
