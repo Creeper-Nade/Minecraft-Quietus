@@ -19,6 +19,12 @@ public class QuietusEffects {
             //The color of the effect particles in RGB format.
             0xFAD540));
 
+    public static final Holder<MobEffect> INSTANT_MANA = MOB_EFFECTS.register("instant_mana", () -> new instant_mana_effect(
+            //Can be either BENEFICIAL, NEUTRAL or HARMFUL. Used to determine the potion tooltip color of this effect.
+            MobEffectCategory.BENEFICIAL,
+            //The color of the effect particles in RGB format.
+            0x5FF));
+
     public static void register (IEventBus eventBus) {
         MOB_EFFECTS.register(eventBus);
     }

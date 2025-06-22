@@ -1,7 +1,6 @@
 package com.minecraftquietus.quietus;
 
 
-import com.minecraftquietus.quietus.client.model.QuietusEmissiveLayer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
 import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
@@ -9,6 +8,7 @@ import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.event.SpawnEvent;
+import com.minecraftquietus.quietus.potion.PotionConsumptionHandler;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
@@ -127,6 +127,8 @@ public class Quietus
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onClientTick);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockPlace);
+
+        //NeoForge.EVENT_BUS.addListener(PotionConsumptionHandler::onPotionConsumed);
         //NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
 
 // Register our mana attachment

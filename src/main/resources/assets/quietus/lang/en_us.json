@@ -27,6 +27,10 @@
   "item.minecraft.potion.effect.spelunking": "Potion of Spelunking",
   "item.minecraft.splash_potion.effect.spelunking": "Splash Potion of Spelunking",
   "item.minecraft.lingering_potion.effect.spelunking": "Lingering Potion of Spelunking",
+  "effect.quietus.instant_mana": "Instant Mana",
+  "item.minecraft.potion.effect.lesser_instant_mana": "Lesser Potion of Mana Supply",
+  "item.minecraft.splash_potion.effect.lesser_instant_mana": "Lesser Splash Potion of Mana Supply",
+  "item.minecraft.lingering_potion.effect.lesser_instant_mana": "Lesser Lingering Potion of Mana Supply",
 
 
   "item.quietus.copper_boots": "Copper Boots",
