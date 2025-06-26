@@ -167,7 +167,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
                             list, // don't care, NonAmmoProjectileWeaponItem#shoot checks on its own
                             shootVelocity*power, 
                             1.0F, 
-                            false,  // don't care. This is not use in NonAmmoProjectileWeaponItem#shoot
+                            this.getPowerDuration(stack, entity) >= 0 ? power >= 1.0f : false,  // don't care if has no power charge duration. This is not use in NonAmmoProjectileWeaponItem#shoot
                             null
                         );
                     }
@@ -249,7 +249,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
         for (int i = 0; i < this.projectilesPerShot; i++) {
             projectileProperty = Objects.requireNonNullElse(this.projectilePropertyMap.get(i), projectileProperty); // if this key not specified take previous property
             if (projectileProperty.isCustom()) { // custom projectile supports below arguments for projectiles configuring:
-                QuietusProjectile projectile = this.createProjectileWithKey(i, level, shooter, weapon, weapon, shooter.getRandom().nextDouble() < projectileProperty.critChance());
+                QuietusProjectile projectile = this.createProjectileWithKey(i, level, shooter, weapon, ItemStack.EMPTY, shooter.getRandom().nextDouble() < projectileProperty.critChance());
                 projectile.setOwner(shooter);
                 // CreeperNade: Offset the y position for -0.1f, this is the y pos for arrow in vanilla minecraft, and doesn't block view
                 projectile.setPos(shooter.getEyePosition().x,shooter.getEyePosition().y-0.1f,shooter.getEyePosition().z);
