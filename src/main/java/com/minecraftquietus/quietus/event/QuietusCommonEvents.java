@@ -240,11 +240,11 @@ public class QuietusCommonEvents {
             event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(living_entity);
 
         }
-        if (entity instanceof Arrow arrow && arrow.level() instanceof ServerLevel) {
+        /* if (entity instanceof Arrow arrow && arrow.level() instanceof ServerLevel) {
             Vec3 pos = arrow.position();
                 //System.out.println(pos.x+ " | "+ pos.y + " | "+pos.z);
                 System.out.println(arrow.getDeltaMovement().y);
-        }
+        } */
     }
 
 
