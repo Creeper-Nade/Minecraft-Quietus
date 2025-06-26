@@ -1,6 +1,8 @@
-package com.minecraftquietus.quietus.item;
+package com.minecraftquietus.quietus.item.equipment;
 
 
+import com.minecraftquietus.quietus.item.WeatheringCopperItems;
+import com.minecraftquietus.quietus.item.WeatheringCopperItems.CopperWeatherState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
