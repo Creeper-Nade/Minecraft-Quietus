@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus;
 
 
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
+import com.minecraftquietus.quietus.core.PlayerDeathHandler;
 import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
@@ -120,6 +121,7 @@ public class Quietus
         modEventBus.addListener(this::registerPipeline);
 
         NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
+        NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
         // CreeperNade: The SpawnEvent class is never registered, so I'm adding it here for you 👀
         NeoForge.EVENT_BUS.register(SpawnEvent.class);
         modEventBus.register(QuietusIModBusEvent.class);
