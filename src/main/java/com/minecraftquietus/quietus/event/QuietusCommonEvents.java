@@ -282,8 +282,6 @@ public class QuietusCommonEvents {
         if(player instanceof ServerPlayer serverPlayer) {
             event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);
             //ManaHudOverlay.SetTick(serverPlayer);
-            if(ClientPayloadHandler.getInstance().getGhostState())
-                GhostDeathScreen.tick();
         }
     }
 

@@ -65,6 +65,7 @@ public class ClientPayloadHandler {
                     System.out.println("payload test");
                     if(payload.isGhost())
                     GhostDeathScreen.show(payload.message());
+
                 })
                 .exceptionally(e -> {
                     // 处理异常

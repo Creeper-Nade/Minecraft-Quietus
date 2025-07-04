@@ -125,7 +125,7 @@ public class Quietus
         NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
        // NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
         NeoForge.EVENT_BUS.register(GhostMovementHandler.class);
-        NeoForge.EVENT_BUS.addListener(GhostDeathScreen::render);
+        NeoForge.EVENT_BUS.register(GhostDeathScreen.class);
         // CreeperNade: The SpawnEvent class is never registered, so I'm adding it here for you 👀
         NeoForge.EVENT_BUS.register(SpawnEvent.class);
         modEventBus.register(QuietusIModBusEvent.class);
@@ -233,6 +233,7 @@ public class Quietus
 
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
+        event.registerPipeline(GhostDeathScreen.ghostPipeline);
         //event.registerPipeline(QuietusEmissiveLayer.FIXED_EMISSIVE);
     }
 
