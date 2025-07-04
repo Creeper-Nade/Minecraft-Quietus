@@ -1,16 +1,19 @@
 package com.minecraftquietus.quietus.event;
 
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeathScreen;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 import com.minecraftquietus.quietus.item.weapons.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
+import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.util.mana.Mana;
 import com.minecraftquietus.quietus.tags.QuietusTags;
+import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
@@ -23,6 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -243,10 +247,12 @@ public class QuietusCommonEvents {
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
+        if(player==null) return;
 
-        if (Minecraft.getInstance().player != null && Minecraft.getInstance().level != null && player.hasEffect(QuietusEffects.SPELUNKING_EFFECT)) {
+        if (Minecraft.getInstance().level != null && player.hasEffect(QuietusEffects.SPELUNKING_EFFECT)) {
             Ore_Vision.IfPlayerMoved(player);
         }
+
     }
 
     @SubscribeEvent
@@ -276,9 +282,10 @@ public class QuietusCommonEvents {
         if(player instanceof ServerPlayer serverPlayer) {
             event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);
             //ManaHudOverlay.SetTick(serverPlayer);
+            if(ClientPayloadHandler.getInstance().getGhostState())
+                GhostDeathScreen.tick();
         }
     }
-
 
     /* @SubscribeEvent
     public static void onProjectileLand(ProjectileImpactEvent event) {
@@ -288,39 +295,6 @@ public class QuietusCommonEvents {
             System.out.println("land: "+pos.x+ " | "+ pos.y + " | "+pos.z);
         }
     } */
-
-
-
-
-    /*
-    public static void onWorldRenderLast(RenderLevelStageEvent event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        LocalPlayer player = minecraft.player;
-        PoseStack poseStack = event.getPoseStack();
-
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
-            return;
-        }
-
-        if (player.hasEffect(QuietusEffects.SPELUNKING_EFFECT) && player != null) {
-            // this is a world pos of the player
-            Ore_Vision.updateVisibleOres(player);
-            Ore_Vision.renderOreOutlines(poseStack);
-        }
-        else
-        {
-            Ore_Vision.clearAllOutlines();
-            return;
-        }
-    }*/
-    /*
-    @SubscribeEvent
-    public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(MODID);
-        registrar.playToClient(ManaPack.TYPE, ManaPack.MANA_PACK_STREAM_CODEC, ClientPayloadHandler::ManaHandler);
-    }
-
-     */
 
 
 }

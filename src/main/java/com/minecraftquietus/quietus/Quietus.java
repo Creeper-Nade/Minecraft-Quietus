@@ -2,14 +2,15 @@ package com.minecraftquietus.quietus;
 
 
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
-import com.minecraftquietus.quietus.core.PlayerDeathHandler;
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeathScreen;
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.event.SpawnEvent;
-import com.minecraftquietus.quietus.potion.PotionConsumptionHandler;
+import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
@@ -110,6 +111,7 @@ public class Quietus
         QuietusComponents.register(modEventBus);
         QuietusEnchantmentComponent.register(modEventBus);
         QuietusBlocks.register(modEventBus);
+        QuietusSounds.register(modEventBus);
         QuietusPotions.register(modEventBus);
         QuietusEffects.register(modEventBus);
         QuietusEntityTypes.register(modEventBus);
@@ -121,7 +123,9 @@ public class Quietus
         modEventBus.addListener(this::registerPipeline);
 
         NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
-        NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
+       // NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
+        NeoForge.EVENT_BUS.register(GhostMovementHandler.class);
+        NeoForge.EVENT_BUS.addListener(GhostDeathScreen::render);
         // CreeperNade: The SpawnEvent class is never registered, so I'm adding it here for you 👀
         NeoForge.EVENT_BUS.register(SpawnEvent.class);
         modEventBus.register(QuietusIModBusEvent.class);

@@ -1,9 +1,12 @@
 package com.minecraftquietus.quietus.event;
 
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
+import com.minecraftquietus.quietus.packet.GhostStatePayload;
 import com.minecraftquietus.quietus.packet.ManaPack;
+import com.minecraftquietus.quietus.packet.PlayerReviveCooldownPack;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -37,6 +40,16 @@ public class QuietusIModBusEvent {
     public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar(MODID);
         registrar.playToClient(ManaPack.TYPE, ManaPack.MANA_PACK_STREAM_CODEC, ClientPayloadHandler::ManaHandler);
+        registrar.playToClient(
+                GhostStatePayload.TYPE,
+                GhostStatePayload.STREAM_CODEC,
+                ClientPayloadHandler::handleGhostState
+        );
+        registrar.playToClient(
+                PlayerReviveCooldownPack.TYPE,
+                PlayerReviveCooldownPack.STREAM_CODEC,
+                ClientPayloadHandler::handleReviveCD
+        );
     }
 
     @SubscribeEvent

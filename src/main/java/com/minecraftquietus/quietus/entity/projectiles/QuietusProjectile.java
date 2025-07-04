@@ -68,7 +68,7 @@ public abstract class QuietusProjectile extends Projectile {
         this.setNoGravity(gravity == 0.0);
         this.knockback = projectileProperty.knockback();
         this.baseDamage = projectileProperty.damage();
-        this.item=item.copy();
+        this.item=item;
         this.persistanceTicks = projectileProperty.persistanceTicks();
         this.critChance = projectileProperty.critChance();
         this.critDamageOperation = projectileProperty.critOperation();
