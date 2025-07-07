@@ -6,7 +6,7 @@ uniform sampler2D DiffuseSampler;
 uniform vec2 ScreenSize;
 uniform float VignetteIntensity;
 uniform float Time;
-uniform float FadeFactor; // New uniform for fade control
+uniform float FadeFactor;
 
 // Large-scale noise function
 float largeNoise(vec2 uv) {
@@ -22,25 +22,25 @@ float largeNoise(vec2 uv) {
     return noise * 0.33;
 }
 
-// Safe distortion function
-vec2 safeDistortion(vec2 uv) {
+// Minimal distortion function
+vec2 minimalDistortion(vec2 uv) {
     // Calculate center-based distortion
     vec2 centerVec = uv - vec2(0.5);
     float dist = length(centerVec);
 
-    // Create subtle ripple effect
-    float ripple = sin(dist * 30.0 - Time * 3.0) * 0.003;
+    // Create very subtle ripple effect
+    float ripple = sin(dist * 25.0 - Time * 2.5) * 0.0005;
 
     // Apply ripple only in the middle of the screen
     float centerFactor = 1.0 - smoothstep(0.3, 0.5, dist);
-    ripple *= centerFactor * FadeFactor; // Scale with fade factor
+    ripple *= centerFactor * FadeFactor;
 
     return uv + centerVec * ripple;
 }
 
 void main() {
-    // Apply safe distortion
-    vec2 distortedUV = safeDistortion(texCoord);
+    // Apply minimal distortion
+    vec2 distortedUV = minimalDistortion(texCoord);
 
     // Sample texture with distortion
     vec4 color = texture(DiffuseSampler, distortedUV);
@@ -58,13 +58,14 @@ void main() {
     float scanline = sin(texCoord.y * ScreenSize.y * 0.8 + Time * 5.0) * 0.1;
     bwColor += scanline * 0.1;
 
-    // Apply vignette
+    // Apply deep black vignette
     vec2 uv = texCoord * 2.0 - 1.0;
     float dist = length(uv);
     float vignette = 1.0 - smoothstep(0.7, 1.0, dist * VignetteIntensity);
 
     // Apply fade factor to all effects
-    vec3 finalColor = mix(color.rgb, bwColor * vignette, FadeFactor);
+    vec3 finalColor = mix(color.rgb, bwColor, FadeFactor);
+    finalColor *= vignette;  // Apply vignette last to maintain deep blacks
 
     fragColor = vec4(finalColor, color.a);
 }

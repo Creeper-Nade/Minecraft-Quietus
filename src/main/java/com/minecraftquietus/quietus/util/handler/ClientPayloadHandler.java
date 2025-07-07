@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.util.handler;
 
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeathScreen;
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.packet.GhostStatePayload;
 import com.minecraftquietus.quietus.packet.ManaPack;
 import com.minecraftquietus.quietus.packet.PlayerReviveCooldownPack;
@@ -24,6 +25,7 @@ public class ClientPayloadHandler {
     private static boolean Mana_Speed_Charging;
 
     private static boolean PlayerIsGhost;
+    private static boolean IsHardCore;
     private static int MaxReviveCD;
     private static int ReviveCD;
 
@@ -62,9 +64,13 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
                     PlayerIsGhost=payload.isGhost();
                     MaxReviveCD=payload.Max_CD();
-                    System.out.println("payload test");
+                    IsHardCore= payload.hardcore();
                     if(payload.isGhost())
-                    GhostDeathScreen.show(payload.message());
+                    {
+                        GhostDeathScreen.show(payload.message());
+                        GhostMovementHandler.Init();
+                    }
+
 
                 })
                 .exceptionally(e -> {
@@ -76,6 +82,7 @@ public class ClientPayloadHandler {
 
     }
     public boolean getGhostState(){return PlayerIsGhost;}
+    public boolean getHardcore(){return IsHardCore;}
     public int getMaxReviveCD(){return MaxReviveCD;}
 
     public static void handleReviveCD(final PlayerReviveCooldownPack payload, final IPayloadContext context) {

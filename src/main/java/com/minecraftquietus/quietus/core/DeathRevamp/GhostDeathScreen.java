@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.core.DeathRevamp;
 
+import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.blaze3d.buffers.BufferType;
@@ -16,15 +17,24 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.OptionalDouble;
@@ -42,7 +52,12 @@ public class GhostDeathScreen{
     private static int animation_cd_tick = 0;
     private static float fade=0;
     private static boolean animation_flag=false;
+    private static boolean animation_completed=false;
     private static float IntensityAddition =0.02f;
+    private static boolean hardcore;
+
+    private static GhostAmbientSound AmbientSound;
+    private static GhostAmbientSound MoodSound;
 
 
     public static void show(Component causeOfDeath) {
@@ -51,11 +66,36 @@ public class GhostDeathScreen{
         playerScore = Minecraft.getInstance().player.getScore();
         animation_cd_tick = 0;
         animation_flag=true;
+        animation_completed=false;
+        hardcore= ClientPayloadHandler.getInstance().getHardcore();
         vignetteIntensity=0.8f;
         fade=0;
         IntensityAddition =0.02f;
         pulseScale = 1.0f;
         pulseColor = 0x00FF00; // Reset to green
+        AmbientSound = new GhostAmbientSound(SoundEvents.AMBIENT_WARPED_FOREST_LOOP.value());
+        MoodSound = new GhostAmbientSound(SoundEvents.AMBIENT_WARPED_FOREST_MOOD.value());
+        Minecraft.getInstance().getSoundManager().play(AmbientSound);
+        Minecraft.getInstance().getSoundManager().play(MoodSound);
+    }
+
+    @SubscribeEvent
+    public static void onLogin(PlayerEvent.PlayerLoggedInEvent event)
+    {
+        if(!(event.getEntity() instanceof ServerPlayer player)) return;
+        CompoundTag nbt= player.getPersistentData();
+
+        HolderLookup.Provider registries = player.level().registryAccess();
+        String json = nbt.getStringOr("deathMessage","death.attack.generic");
+        Component deathMessage = Component.Serializer.fromJson(json, registries);
+
+        Boolean isGhost= nbt.getBooleanOr("isGhost",false);
+        boolean hardcore= player.level().getLevelData().isHardcore();
+        int ReviveCD= nbt.getIntOr("reviveCooldown",0);
+
+        PlayerData.GhostPackToPlayer(player,isGhost,deathMessage,ReviveCD,hardcore);
+        PlayerData.ReviveCDToPlayer(player,ReviveCD);
+
     }
 
     @SubscribeEvent
@@ -71,6 +111,7 @@ public class GhostDeathScreen{
             //reset
             animation_cd_tick=0;
             animation_flag=false;
+            animation_completed=true;
         }
 
     }
@@ -87,10 +128,16 @@ public class GhostDeathScreen{
         // cd
         int cd = ClientPayloadHandler.getInstance().GetReviveCD();
         int seconds= cd/20;
+        //bug fix: putting sound reset at the earlier part of code
+        if(seconds<=1)
+        {
+            AmbientSound.fadeOut();
+            MoodSound.fadeOut();
+        }
 
         // Calculate fade factor (fade in during first second, out during last second)
         fade = 1.0f;
-        if (cd==reviveCooldown) {
+        if (cd==reviveCooldown && !animation_completed) {
             animation_flag=true;
             fade = Math.max(0.0f, animation_cd_tick / 20f);
         } else if(cd==0) {
@@ -104,7 +151,10 @@ public class GhostDeathScreen{
             }
         }
 
-        if(fade<=0) return;
+        if(fade<=0)
+        {
+            return;
+        }
         int alpha = (int)(fade * 255);
 
         // Render "You Died" title
@@ -113,21 +163,25 @@ public class GhostDeathScreen{
         Component title = Component.translatable("deathScreen.title").withStyle(ChatFormatting.BOLD);
         int titleWidth = mc.font.width(title);
         int titleX = (width / 2 - titleWidth) / 2;
-        guiGraphics.drawString(mc.font, title, titleX, 30, 0xFFFFFF | (alpha << 24), false);
+        guiGraphics.drawString(mc.font, title, titleX, 30, 0xFF5555 | (alpha << 24), false);
         guiGraphics.pose().popPose();
 
         // Render cause of death
         if (deathMessage != null) {
             int deathY = 85;
             int deathX = width / 2 - mc.font.width(deathMessage) / 2;
-            guiGraphics.drawString(mc.font, deathMessage, deathX, deathY, 0xFFFFFF | (alpha << 24), false);
+            guiGraphics.drawString(mc.font, deathMessage, deathX, deathY, 0xFF5555 | (alpha << 24), false);
         }
 
         // Render score
+        if(hardcore)
+        {
+            return;
+        }
         Component scoreText = Component.translatable("deathScreen.score.value",
                 Component.literal(Integer.toString(playerScore)).withStyle(ChatFormatting.YELLOW));
         int scoreX = width / 2 - mc.font.width(scoreText) / 2;
-        guiGraphics.drawString(mc.font, scoreText, scoreX, 100, 0xFFFFFF | (alpha << 24), false);
+        guiGraphics.drawString(mc.font, scoreText, scoreX, 100, 0xFF5555 | (alpha << 24), false);
 
         // Render countdown
 
@@ -161,16 +215,39 @@ public class GhostDeathScreen{
 
             guiGraphics.pose().popPose();
         }
+        if(seconds<=3)
+        {
+
+            if(seconds<=1)
+            {
+                UpdateVignetteLastSecond();
+            }
+
+            else
+                UpdateVignetteIntensity(0.8f + (4 - seconds) * 0.2f,seconds);
+        }
+        //play warden heartbeat sound
+        if(seconds!=lastSecond)
+        {
+            LocalPlayer player = Minecraft.getInstance().player;
+            if(seconds<=3)
+            player.level().playLocalSound(player, SoundEvents.WARDEN_HEARTBEAT, EntitySoundSource.of(player), 1.0F, 1.0F);
+
+            switch(seconds) {
+                case 4:
+                    player.level().playLocalSound(player, SoundEvents.PORTAL_TRIGGER, EntitySoundSource.of(player), 0.8F, 1.0F);
+                    break;
+                case 0:
+                    player.level().playLocalSound(player, SoundEvents.PLAYER_BREATH, EntitySoundSource.of(player), 0.6F, 1.0F);
+                    break;
+                default:
+                    break;
+            }
+            lastSecond=seconds;
+        }
     }
     private static void updatePulseEffect(int seconds) {
         if (seconds <= 3) {
-
-            if(seconds!=lastSecond)
-            {
-                LocalPlayer player = Minecraft.getInstance().player;
-                player.level().playLocalSound(player, SoundEvents.WARDEN_HEARTBEAT, EntitySoundSource.of(player), 1.0F, 1.0F);
-                lastSecond=seconds;
-            }
 
             // Pulse animation - scales between 0.9 and 1.1
             float pulseSpeed = 2.0f; // Speed of pulse
@@ -182,10 +259,6 @@ public class GhostDeathScreen{
             int g = (int)(Mth.lerp(ratio, 255, 0));
             pulseColor = (r << 16) | (g << 8);
             //vignetteIntensity = 0.8f + (3 - seconds) * 0.2f;
-            if(seconds<=1)
-                UpdateVignetteLastSecond();
-            else
-                UpdateVignetteIntensity(0.8f + (4 - seconds) * 0.2f,seconds);
         } else {
             pulseScale = 1.0f;
             pulseColor = 0x00FF00; // Green
@@ -199,10 +272,10 @@ public class GhostDeathScreen{
         if (vignetteIntensity>=targetIntensity)
         {
             if(seconds-1<=1)
-            IntensityAddition =0.25f;
+                //For the screen transition at the last second
+            IntensityAddition =10f;
             else
                 IntensityAddition =0.02f;
-            System.out.println(IntensityAddition);
             return;
         }
         vignetteIntensity+= IntensityAddition;
@@ -214,9 +287,10 @@ public class GhostDeathScreen{
     }
     private static void UpdateVignetteLastSecond()
     {
+
         vignetteIntensity+= IntensityAddition;
 
-        IntensityAddition -=0.01f;
+        IntensityAddition -=0.4f;
     }
 
     //For vignette shader
@@ -325,6 +399,5 @@ public class GhostDeathScreen{
         }
         vertexCount = 0;
     }
-
 
 }

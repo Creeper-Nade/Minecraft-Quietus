@@ -10,6 +10,7 @@ import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
+import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.util.mana.Mana;
 import com.minecraftquietus.quietus.tags.QuietusTags;
@@ -40,6 +41,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -253,6 +255,7 @@ public class QuietusCommonEvents {
             Ore_Vision.IfPlayerMoved(player);
         }
 
+
     }
 
     @SubscribeEvent
@@ -282,6 +285,20 @@ public class QuietusCommonEvents {
         if(player instanceof ServerPlayer serverPlayer) {
             event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);
             //ManaHudOverlay.SetTick(serverPlayer);
+            GameRules gameRules= serverPlayer.serverLevel().getGameRules();
+
+            //Placeholder method for enabling/disabling death screen in relation to the ghost mode, might be changed in the future
+            LocalPlayer localPlayer= Minecraft.getInstance().player;
+        if(gameRules.getBoolean(QuietusGameRules.GHOST_MODE_ENABLED) &&localPlayer!=null)
+        {
+            if (localPlayer.shouldShowDeathScreen()) localPlayer.setShowDeathScreen(false);
+        }
+        else if(!gameRules.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN) &&localPlayer!=null)
+        {
+            if (!localPlayer.shouldShowDeathScreen()) localPlayer.setShowDeathScreen(true);
+        }
+
+
         }
     }
 

@@ -13,9 +13,11 @@ import com.minecraftquietus.quietus.event.SpawnEvent;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
+import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.world.level.GameRules;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import org.slf4j.Logger;
@@ -128,6 +130,7 @@ public class Quietus
         NeoForge.EVENT_BUS.register(GhostDeathScreen.class);
         // CreeperNade: The SpawnEvent class is never registered, so I'm adding it here for you 👀
         NeoForge.EVENT_BUS.register(SpawnEvent.class);
+        //NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
         modEventBus.register(QuietusIModBusEvent.class);
         modEventBus.register(DataGenerator.class);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onClientTick);
@@ -173,6 +176,7 @@ public class Quietus
     {
         event.enqueueWork(() -> {
             QuietusItems.registerWeatheringMappings();
+            QuietusGameRules.Init();
 
         });
     }

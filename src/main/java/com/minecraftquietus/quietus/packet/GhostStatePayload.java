@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public record GhostStatePayload(boolean isGhost, Component message,int Max_CD) implements CustomPacketPayload {
+public record GhostStatePayload(boolean isGhost, Component message,int Max_CD,boolean hardcore) implements CustomPacketPayload {
     public static final Type<GhostStatePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"ghost_state"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, GhostStatePayload> STREAM_CODEC = StreamCodec.composite(
@@ -22,6 +22,8 @@ public record GhostStatePayload(boolean isGhost, Component message,int Max_CD) i
             GhostStatePayload::message,
             ByteBufCodecs.INT,
             GhostStatePayload::Max_CD,
+            ByteBufCodecs.BOOL,
+            GhostStatePayload::hardcore,
             GhostStatePayload::new
     );
 

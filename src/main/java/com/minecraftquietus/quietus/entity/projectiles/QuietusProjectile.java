@@ -154,7 +154,6 @@ public abstract class QuietusProjectile extends Projectile {
         if(this.level() instanceof ServerLevel serverLevel)
            ActualCrit = QuietusEnchantmentHelper.modifyCritChance(serverLevel, item, target, damageSource, critChance);
 
-        System.out.println(ActualCrit);
         return ActualCrit;
     }
 

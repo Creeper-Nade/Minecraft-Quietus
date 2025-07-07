@@ -19,8 +19,8 @@ public class PlayerData {
         manapackToPlayer(serverPlayer, serverPlayer.getData(QuietusAttachments.MANA_ATTACHMENT));
     }
 
-    public static void GhostPackToPlayer(ServerPlayer serverPlayer, Boolean isGhost, Component deathMessage,int Max_CD) {
-        PacketDistributor.sendToPlayer(serverPlayer, new GhostStatePayload(isGhost,deathMessage,Max_CD));
+    public static void GhostPackToPlayer(ServerPlayer serverPlayer, Boolean isGhost, Component deathMessage,int Max_CD,boolean hardcore) {
+        PacketDistributor.sendToPlayer(serverPlayer, new GhostStatePayload(isGhost,deathMessage,Max_CD,hardcore));
     }
     public static void ReviveCDToPlayer(ServerPlayer serverPlayer, int CD) {
         PacketDistributor.sendToPlayer(serverPlayer, new PlayerReviveCooldownPack(CD));

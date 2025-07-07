@@ -1,4 +1,11 @@
 {
+  "gamerule.enableGhostMode": "Enters Ghost Mode Upon Death",
+  "death.attack.quietus:magic_projectile_damage": "%1$s magically disappeared",
+  "death.attack.quietus:magic_projectile_damage.player": "%1$s was voodooed by %2$s",
+  "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame": "%1$s magically disappeared",
+  "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame.player": "%1$s was voodooed by %2$s",
+  "sounds.quietus.steve_uoh": "Player UOH",
+
   "itemGroup.quietus": "Example Mod Tab",
   "block.quietus.example_block": "Example Block",
   "item.quietus.example_item": "Example Item",

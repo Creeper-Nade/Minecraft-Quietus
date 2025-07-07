@@ -33,33 +33,19 @@ public class GhostMovementHandler {
     private static final double MAX_SPEED = 1.0;
 
     private static Vec3 ghostVelocity = Vec3.ZERO;
-    private static boolean wasGhost = false;
 
+    public static void Init()
+    {
+        ghostVelocity=Vec3.ZERO;
+    }
     @SubscribeEvent
     public static void onMovementInput(MovementInputUpdateEvent event) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
-            wasGhost = false;
-            ghostVelocity = Vec3.ZERO;
+        if (player == null || !ClientPayloadHandler.getInstance().getGhostState()|| ClientPayloadHandler.getInstance().getHardcore() ||
+                Minecraft.getInstance().getCameraEntity() != player) {
             return;
         }
 
-        boolean isGhost = ClientPayloadHandler.getInstance().getGhostState();
-        if (!isGhost) {
-            if (player.shouldShowDeathScreen()) player.setShowDeathScreen(false);
-            wasGhost = false;
-            ghostVelocity = Vec3.ZERO;
-            return;
-        }
-
-        // Initialize ghost state and reset velocity on first entry
-        if (!wasGhost) {
-            ghostVelocity = Vec3.ZERO;
-            wasGhost = true;
-        }
-        if (!player.getPersistentData().contains("isGhost")) {
-            player.getPersistentData().putBoolean("isGhost", true);
-        }
 
         ClientInput input = event.getInput();
         Vec2 moveVector = input.getMoveVector();
