@@ -43,16 +43,12 @@ public class SmallAmethystShardProjectile extends QuietusProjectile {
     {
         Vec3 velocity = this.getDeltaMovement();
         Vec3 pos = this.position();
-
-        for(int i = 0; i < 2; ++i) {
-            float f1 = 0.05F;
-            this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AMETHYST_BLOCK.defaultBlockState()),pos.x - velocity.x * (double)f1, pos.y - velocity.y * (double)f1, pos.z - velocity.z * (double)f1, velocity.x, velocity.y, velocity.z);
-        }
+        float f1 = 0.05F;
+        this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AMETHYST_BLOCK.defaultBlockState()), pos.x - velocity.x * (double)f1, pos.y - velocity.y * (double)f1, pos.z - velocity.z * (double)f1, velocity.x, velocity.y, velocity.z);
     }
     @Override
     protected void applyImpactEffects(Entity target, float damage, boolean is_crit, Entity owner) {
-        if(owner instanceof LivingEntity livingOwner)
-        {
+        if(owner instanceof LivingEntity) {
             Vec3 pos = target.position();
             DamageSource damageSource = new DamageSource(
                     this.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE),
