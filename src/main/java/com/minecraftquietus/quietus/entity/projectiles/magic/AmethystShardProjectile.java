@@ -1,7 +1,7 @@
 package com.minecraftquietus.quietus.entity.projectiles.magic;
 
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
-import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
+import com.minecraftquietus.quietus.item.property.QuietusProjectileProperty;
 
 import com.minecraftquietus.quietus.util.Damage.QuietusDamageType;
 import net.minecraft.core.particles.BlockParticleOption;

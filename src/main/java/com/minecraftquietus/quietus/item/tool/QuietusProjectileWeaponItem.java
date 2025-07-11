@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.item.weapons;
+package com.minecraftquietus.quietus.item.tool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.item.QuietusItemProperties;
 import com.minecraftquietus.quietus.item.property.SoundAsset;
-import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
+import com.minecraftquietus.quietus.item.property.QuietusProjectileProperty;
 import com.minecraftquietus.quietus.util.TriFunction;
 
 import net.minecraft.core.component.DataComponents;
@@ -54,7 +54,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
 
     protected final int projectilesPerShot;
     protected final int attackRange;
-    protected Map<Integer,WeaponProjectileProperty> projectilePropertyMap;
+    protected Map<Integer,QuietusProjectileProperty> projectilePropertyMap;
     protected final float shootVelocity;
     protected final float shootInaccuracy;
     protected final int useDuration;
@@ -63,23 +63,23 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
     protected final TriFunction<Float,Integer,RandomSource,Float> yRotCalc;
     protected final Map<String,SoundAsset> soundMap;
 
-    private final Map<Integer,WeaponProjectileProperty> MAP_DEFAULT_PROJECTILE_PROPERTY = 
-        Map.of(0, new WeaponProjectileProperty.Builder().damage(5.0f).critChance(0.05d).knockback(0.4f).gravity(0.0f).persistanceTicks(200).projectileType(QuietusProjectiles.AMETHYST_PROJECTILE.get()).build());;
+    private final Map<Integer,QuietusProjectileProperty> MAP_DEFAULT_PROJECTILE_PROPERTY = 
+        Map.of(0, new QuietusProjectileProperty.Builder().damage(5.0f).critChance(0.05d).knockback(0.4f).gravity(0.0f).persistanceTicks(200).projectileType(QuietusProjectiles.AMETHYST_PROJECTILE.get()).build());;
 
     public static final String MAPKEY_SOUND_PLAYER_SHOOT = "player_shoot";
 
     public QuietusProjectileWeaponItem(Item.Properties property) {
         super(property);
         if (property instanceof QuietusItemProperties prop) {
-            this.projectilesPerShot = prop.weaponProperty.projectilesPerShot();
+            this.projectilesPerShot = prop.projectileWeaponProperty.projectilesPerShot();
             this.projectilePropertyMap = Map.copyOf(prop.projectileProperties);
-            this.shootVelocity = prop.weaponProperty.shootVelocity();
-            this.shootInaccuracy = prop.weaponProperty.shootInaccuracy();
-            this.useDuration = prop.weaponProperty.useDuration();
-            this.powerDuration = prop.weaponProperty.powerDuration();
-            this.xRotCalc = prop.weaponProperty.xRotOffsetCalc();
-            this.yRotCalc = prop.weaponProperty.yRotOffsetCalc();
-            this.attackRange = Objects.requireNonNullElse(prop.weaponProperty.attackRange(), 8);
+            this.shootVelocity = prop.projectileWeaponProperty.shootVelocity();
+            this.shootInaccuracy = prop.projectileWeaponProperty.shootInaccuracy();
+            this.useDuration = prop.projectileWeaponProperty.useDuration();
+            this.powerDuration = prop.projectileWeaponProperty.powerDuration();
+            this.xRotCalc = prop.projectileWeaponProperty.xRotOffsetCalc();
+            this.yRotCalc = prop.projectileWeaponProperty.yRotOffsetCalc();
+            this.attackRange = Objects.requireNonNullElse(prop.projectileWeaponProperty.attackRange(), 8);
             this.soundMap = prop.sounds.isEmpty() ? 
                 Map.of(MAPKEY_SOUND_PLAYER_SHOOT, new SoundAsset.Builder().event(SoundEvents.ARROW_SHOOT).source(SoundSource.PLAYERS).build())
                  : Map.copyOf(prop.sounds);
@@ -245,7 +245,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
         float f1 = this.projectilesPerShot == 1 ? 0.0F : 2.0F * f / (projectileItems.size() - 1);
         float f2 = (this.projectilesPerShot - 1) % 2 * f1 / 2.0F;
         float f3 = 1.0F;
-        WeaponProjectileProperty projectileProperty = MAP_DEFAULT_PROJECTILE_PROPERTY.get(0); // default
+        QuietusProjectileProperty projectileProperty = MAP_DEFAULT_PROJECTILE_PROPERTY.get(0); // default
         for (int i = 0; i < this.projectilesPerShot; i++) {
             projectileProperty = Objects.requireNonNullElse(this.projectilePropertyMap.get(i), projectileProperty); // if this key not specified take previous property
             if (projectileProperty.isCustom()) { // custom projectile supports below arguments for projectiles configuring:
@@ -342,7 +342,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
         return this.projectilesPerShot;
     }
 
-    public WeaponProjectileProperty getProjectileProperty(int key) {
+    public QuietusProjectileProperty getProjectileProperty(int key) {
         return this.projectilePropertyMap.get(key);
     }
 

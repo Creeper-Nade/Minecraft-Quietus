@@ -1,8 +1,6 @@
-package com.minecraftquietus.quietus.item.equipment;
+package com.minecraftquietus.quietus.item;
 
 
-import com.minecraftquietus.quietus.item.WeatheringIronItems;
-import com.minecraftquietus.quietus.item.WeatheringIronItems.IronWeatherState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,7 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
-public class WeatheringIronArmorItem extends Item implements WeatheringIronItems {
+public class WeatheringIronItem extends Item implements WeatheringIronItems {
 
     public static final float OXIDATION_CHANCE = (float)96/(float)854 * (float)3/(float)4096;
 
@@ -40,31 +38,31 @@ public class WeatheringIronArmorItem extends Item implements WeatheringIronItems
         }
         return propItem;
     }));
-    public static final MapCodec<WeatheringIronArmorItem> CODEC = RecordCodecBuilder.mapCodec(instance ->
+    public static final MapCodec<WeatheringIronItem> CODEC = RecordCodecBuilder.mapCodec(instance ->
         instance.group(
-            WeatheringIronItems.IronWeatherState.WEATHERSTATE_CODEC.fieldOf("weathering_state").forGetter(WeatheringIronArmorItem::getAge),
-            PROPERTIES_CODEC.fieldOf("properties").forGetter(WeatheringIronArmorItem::getProperties)
-        ).apply(instance, WeatheringIronArmorItem::new)
+            WeatheringIronItems.WeatherState.WEATHERSTATE_CODEC.fieldOf("weathering_state").forGetter(WeatheringIronItem::getAge),
+            PROPERTIES_CODEC.fieldOf("properties").forGetter(WeatheringIronItem::getProperties)
+        ).apply(instance, WeatheringIronItem::new)
     );
     //#endregion
     
-    private final WeatheringIronItems.IronWeatherState weatherState; 
+    private final WeatheringIronItems.WeatherState weatherState; 
 
     private final Item.Properties savedProperties; // upon construction, save its properties
-    public WeatheringIronArmorItem(IronWeatherState weatherState, Item.Properties properties) {
+    public WeatheringIronItem(WeatherState weatherState, Item.Properties properties) {
         super(properties);
         this.savedProperties = properties; 
         this.weatherState = weatherState;
     }
-    public WeatheringIronArmorItem(String weatherStateString, Item.Properties properties) {
-        this(IronWeatherState.valueOf(weatherStateString), properties);
+    public WeatheringIronItem(String weatherStateString, Item.Properties properties) {
+        this(WeatherState.valueOf(weatherStateString), properties);
     }
 
-    public WeatheringIronItems.IronWeatherState getAge() {
+    public WeatheringIronItems.WeatherState getAge() {
         return this.weatherState;
     }
     public float getChanceModifier() {
-        return this.getAge() == WeatheringIronArmorItem.IronWeatherState.UNAFFECTED ? 0.9F : 1.0F;
+        return this.getAge() == WeatheringIronItems.WeatherState.UNAFFECTED ? 0.9F : 1.0F;
     }
     @Override
     public boolean checkConditionsToWeather(ItemStack thisItem, ItemStack[] surroundingItems, RandomSource random) {

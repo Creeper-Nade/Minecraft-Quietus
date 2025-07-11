@@ -25,14 +25,15 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-@EventBusSubscriber(modid=MODID)
+@EventBusSubscriber(modid = MODID)
 public class WeatheringHandler {
 
 
     @SubscribeEvent
-    public static void onServerTick(EntityTickEvent.Post event) {
+    public static void onEntityServerTick(EntityTickEvent.Post event) {
         if (!event.getEntity().level().isClientSide()) {
             if (event.getEntity() instanceof LivingEntity livingEntity) {
+                /** Armor oxidation */
                 ItemStack[] armorItems = { // ATTENTION: INVENTORY_SIZE by 1.21.5 vanilla is numerically equal to 36, and equipments indexes start from 36.
                     livingEntity.getItemBySlot(EquipmentSlot.FEET),
                     livingEntity.getItemBySlot(EquipmentSlot.LEGS),
@@ -44,10 +45,11 @@ public class WeatheringHandler {
                     Optional<Item> nextOptional = checkAndGetNextWeatherItem(armorItems[i], armorItems);
                     if (nextOptional.isPresent()) {
                         //LOGGER.info(armorItems[i].getItem().getName().getString() + " is oxidizing to " + nextOptional.get().asItem().getName().getString());
-                        weatherArmorItem(livingEntity, nextOptional, armorItems[i], armorSlots[i]);
+                        weatherItem(livingEntity, nextOptional, armorItems[i], armorSlots[i]);
                     }
                 }
-            } /* // Deepseek is liar; ArmorStand is a child class of LivingEntity. Below code is deprecated and can be used in case of exceptional (non-LivingEntity) entities that are able to equip armor in the future
+            } 
+            /* // Deepseek is liar; ArmorStand is a child class of LivingEntity. Below code is deprecated and can be used in case of exceptional (non-LivingEntity) entities that are able to equip armor in the future
             else 
             if (event.getEntity() instanceof ArmorStand armorStand) {
                 ItemStack[] armorItems = { // ATTENTION: INVENTORY_SIZE by 1.21.5 vanilla is numerically equal to 36, and equipments indexes start from 36.
@@ -103,22 +105,22 @@ public class WeatheringHandler {
     }
 
     @SuppressWarnings("unchecked") // supressing builder.set((DataComponentType<Object>) component.type(), (Object) component.value()); Unchecked Warning
-    private static void weatherArmorItem(LivingEntity entity, Optional<Item> newItemOptional, ItemStack oldStack, EquipmentSlot slot) {
+    private static void weatherItem(LivingEntity entity, Optional<Item> newItemOptional, ItemStack oldStack, EquipmentSlot slot) {
         // copying components from old item, all but attribute modifiers and item name
         ItemStack newStack = new ItemStack(newItemOptional.get());
-        DataComponentPatch.Builder builder = DataComponentPatch.builder();
+        DataComponentPatch.Builder data_component_patch$builder = DataComponentPatch.builder();
         oldStack.getComponents().forEach((component) -> { // newStack does not inherit the attribute modifiers, item name, item model adnd equippable (including equipment slots, equip sound and equipment entity model resource location)
             if (!component.type().equals(DataComponents.ATTRIBUTE_MODIFIERS) 
              && !component.type().equals(DataComponents.ITEM_NAME) 
              && !component.type().equals(DataComponents.ITEM_MODEL)
              && !component.type().equals(DataComponents.EQUIPPABLE)) {
-                builder.set((DataComponentType<Object>) component.type(), (Object) component.value());
+                data_component_patch$builder.set((DataComponentType<Object>) component.type(), (Object) component.value());
             }
         });
-        newStack.applyComponents(builder.build());
+        newStack.applyComponents(data_component_patch$builder.build());
         // setting the new item
         if (entity instanceof Player player) {
-            player.getInventory().setItem(slot.getIndex(Inventory.INVENTORY_SIZE), newStack); // using this specifically for players can set items 'silently'; as for armor without triggering equipment sound
+            player.getInventory().setItem(slot.getIndex(Inventory.INVENTORY_SIZE), newStack); // using this specifically for players can set items 'silently'; e.g. for armor without triggering equipment sound
             player.inventoryMenu.broadcastChanges();
         } else {
             entity.setItemSlot(slot, newStack); 

@@ -170,26 +170,8 @@ public class Quietus
     }
 
     // Creative mode tabs
-    private void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(QuietusItems.EXAMPLE_BLOCK_ITEM);
-        }
-        if (event.getTabKey() == CreativeModeTabs.INGREDIENTS){
-            event.accept(QuietusItems.HARDENED_FUR);
-        }
-        if (event.getTabKey() == CreativeModeTabs.COMBAT) {
-            event.accept(QuietusItems.COPPER_HELMET);
-            event.accept(QuietusItems.COPPER_CHESTPLATE);
-            event.accept(QuietusItems.COPPER_LEGGINGS);
-            event.accept(QuietusItems.COPPER_BOOTS);
-            event.accept(QuietusItems.AMETHYST_HELMET);
-            event.accept(QuietusItems.AMETHYST_CHESTPLATE);
-            event.accept(QuietusItems.AMETHYST_LEGGINGS);
-            event.accept(QuietusItems.AMETHYST_BOOTS);
-
-            event.accept(QuietusItems.AMETHYST_STAFF);
-        }
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        QuietusItems.addCreativeTabItems(event, event.getTabKey());
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

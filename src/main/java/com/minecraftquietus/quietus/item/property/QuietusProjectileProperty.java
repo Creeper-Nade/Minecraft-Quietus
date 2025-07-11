@@ -7,7 +7,7 @@ import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
 import net.minecraft.world.entity.EntityType;
 
 
-public record WeaponProjectileProperty(
+public record QuietusProjectileProperty(
     float damage,
     double critChance,
     Function<Float,Float> critOperation,
@@ -18,8 +18,8 @@ public record WeaponProjectileProperty(
     boolean isCustom // whether projectileType uses base class of QuietusProjectile or its successor. If false, NonAmmoProjectileWeaponItem will implement only the projectileType
 ) {
     
-    public static WeaponProjectileProperty.Builder builder() {
-        return new WeaponProjectileProperty.Builder();
+    public static QuietusProjectileProperty.Builder builder() {
+        return new QuietusProjectileProperty.Builder();
     }
 
     public static class Builder {
@@ -33,38 +33,38 @@ public record WeaponProjectileProperty(
         private boolean isCustom;
 
         
-        public WeaponProjectileProperty.Builder damage(float value) {
+        public QuietusProjectileProperty.Builder damage(float value) {
             this.damage = value;
             return this;
         }
-        public WeaponProjectileProperty.Builder critChance(double value) {
+        public QuietusProjectileProperty.Builder critChance(double value) {
             this.critChance = value;
             return this;
         }
-        public WeaponProjectileProperty.Builder critOperation(Function<Float,Float> func) {
+        public QuietusProjectileProperty.Builder critOperation(Function<Float,Float> func) {
             this.critOperation = func;
             return this;
         }
-        public WeaponProjectileProperty.Builder knockback(float value) {
+        public QuietusProjectileProperty.Builder knockback(float value) {
             this.knockback = value;
             return this;
         }
-        public WeaponProjectileProperty.Builder gravity(float value) {
+        public QuietusProjectileProperty.Builder gravity(float value) {
             this.gravity = value;
             return this;
         }
-        public WeaponProjectileProperty.Builder persistanceTicks(int value) {
+        public QuietusProjectileProperty.Builder persistanceTicks(int value) {
             this.persistanceTicks = value;
             return this;
         }
-        public WeaponProjectileProperty.Builder projectileType(EntityType projectileType) {
+        public QuietusProjectileProperty.Builder projectileType(EntityType projectileType) {
             this.projectileType = projectileType;
             this.isCustom = projectileType.getBaseClass().isAssignableFrom(QuietusProjectile.class);
             return this;
         }
 
-        public WeaponProjectileProperty build() {
-            return new WeaponProjectileProperty(this.damage, this.critChance, this.critOperation, this.knockback, this.gravity, this.persistanceTicks, this.projectileType, this.isCustom);
+        public QuietusProjectileProperty build() {
+            return new QuietusProjectileProperty(this.damage, this.critChance, this.critOperation, this.knockback, this.gravity, this.persistanceTicks, this.projectileType, this.isCustom);
         }
     }
 

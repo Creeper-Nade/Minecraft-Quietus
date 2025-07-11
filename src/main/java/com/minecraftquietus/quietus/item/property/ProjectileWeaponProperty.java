@@ -8,7 +8,7 @@ import com.minecraftquietus.quietus.util.TriFunction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 
-public record WeaponProperty(
+public record ProjectileWeaponProperty(
     int projectilesPerShot, // how many projectiles per use
     TriFunction<Float,Integer,RandomSource,Float> xRotOffsetCalc, // function for calculating x rotation offsets when shooting
     TriFunction<Float,Integer,RandomSource,Float> yRotOffsetCalc, // function for calculating y rotation offsets when shooting
@@ -20,8 +20,8 @@ public record WeaponProperty(
     int attackRange // attack range of this weapon. Used for AI to determine range
 ) {
 
-    public static WeaponProperty.Builder builder() {
-        return new WeaponProperty.Builder();
+    public static ProjectileWeaponProperty.Builder builder() {
+        return new ProjectileWeaponProperty.Builder();
     }
     
     public static class Builder { // defaults
@@ -35,45 +35,45 @@ public record WeaponProperty(
         int powerDuration = -1;
         int attackRange = 15;
 
-        public WeaponProperty.Builder projectilesPerShot(int value) {
+        public ProjectileWeaponProperty.Builder projectilesPerShot(int value) {
             this.projectilesPerShot = value;
             return this;
         }
-        public WeaponProperty.Builder xRotOffsetFunc(TriFunction<Float,Integer,RandomSource,Float> func) {
+        public ProjectileWeaponProperty.Builder xRotOffsetFunc(TriFunction<Float,Integer,RandomSource,Float> func) {
             this.xRotOffsetCalc = func;
             return this;
         }
-        public WeaponProperty.Builder yRotOffsetFunc(TriFunction<Float,Integer,RandomSource,Float> func) {
+        public ProjectileWeaponProperty.Builder yRotOffsetFunc(TriFunction<Float,Integer,RandomSource,Float> func) {
             this.yRotOffsetCalc = func;
             return this;
         }
-        public WeaponProperty.Builder shootVelocity(float value) {
+        public ProjectileWeaponProperty.Builder shootVelocity(float value) {
             this.shootVelocity = value;
             return this;
         }
-        public WeaponProperty.Builder shootInaccuracy(float value) {
+        public ProjectileWeaponProperty.Builder shootInaccuracy(float value) {
             this.shootInaccuracy = value;
             return this;
         }
-        public WeaponProperty.Builder supportedProjectiles(Predicate<ItemStack> func) {
+        public ProjectileWeaponProperty.Builder supportedProjectiles(Predicate<ItemStack> func) {
             this.supportedProjectiles = func;
             return this;
         }
-        public WeaponProperty.Builder useDuration(int value) {
+        public ProjectileWeaponProperty.Builder useDuration(int value) {
             this.useDuration = value;
             return this;
         }
-        public WeaponProperty.Builder powerDuration(int value) {
+        public ProjectileWeaponProperty.Builder powerDuration(int value) {
             this.powerDuration = value;
             return this;
         }
-        public WeaponProperty.Builder attackRange(int value) {
+        public ProjectileWeaponProperty.Builder attackRange(int value) {
             this.attackRange = value;
             return this;
         }
 
-        public WeaponProperty build() {
-            return new WeaponProperty(this.projectilesPerShot, this.xRotOffsetCalc, this.yRotOffsetCalc, this.shootVelocity, this.shootInaccuracy, this.supportedProjectiles, this.useDuration, this.powerDuration, this.attackRange);
+        public ProjectileWeaponProperty build() {
+            return new ProjectileWeaponProperty(this.projectilesPerShot, this.xRotOffsetCalc, this.yRotOffsetCalc, this.shootVelocity, this.shootInaccuracy, this.supportedProjectiles, this.useDuration, this.powerDuration, this.attackRange);
         }
     }
 }

@@ -55,8 +55,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import com.minecraftquietus.quietus.entity.ai.goal.ParabolaAttackGoal;
 import com.minecraftquietus.quietus.item.QuietusItems;
-import com.minecraftquietus.quietus.item.weapons.AmmoProjectileWeaponItem;
-import com.minecraftquietus.quietus.item.weapons.QuietusProjectileWeaponItem;
+import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
+import com.minecraftquietus.quietus.item.tool.QuietusProjectileWeaponItem;
 
 public class Paraboler extends Skeleton {
 

@@ -1,8 +1,6 @@
-package com.minecraftquietus.quietus.item.equipment;
+package com.minecraftquietus.quietus.item;
 
 
-import com.minecraftquietus.quietus.item.WeatheringCopperItems;
-import com.minecraftquietus.quietus.item.WeatheringCopperItems.CopperWeatherState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,7 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
-public class WeatheringCopperArmorItem extends Item implements WeatheringCopperItems {
+public class WeatheringCopperItem extends Item implements WeatheringCopperItems {
 
     private static final float OXIDATION_CHANCE = (float)64/(float)1125 * (float)3/(float)4096; // according to minecraft.wiki copper blocks 64/1125 chance into pre-oxidization state for every random tick (default to 3 per 4096 for every tick). 
 
@@ -40,31 +38,31 @@ public class WeatheringCopperArmorItem extends Item implements WeatheringCopperI
         }
         return propItem;
     }));
-    public static final MapCodec<WeatheringCopperArmorItem> CODEC = RecordCodecBuilder.mapCodec(instance ->
+    public static final MapCodec<WeatheringCopperItem> CODEC = RecordCodecBuilder.mapCodec(instance ->
         instance.group(
-            WeatheringCopperItems.CopperWeatherState.WEATHERSTATE_CODEC.fieldOf("weathering_state").forGetter(WeatheringCopperArmorItem::getAge),
-            PROPERTIES_CODEC.fieldOf("properties").forGetter(WeatheringCopperArmorItem::getProperties)
-        ).apply(instance, WeatheringCopperArmorItem::new)
+            WeatheringCopperItems.WeatherState.WEATHERSTATE_CODEC.fieldOf("weathering_state").forGetter(WeatheringCopperItem::getAge),
+            PROPERTIES_CODEC.fieldOf("properties").forGetter(WeatheringCopperItem::getProperties)
+        ).apply(instance, WeatheringCopperItem::new)
     );
     //#endregion
     
-    private final WeatheringCopperItems.CopperWeatherState weatherState; 
+    private final WeatheringCopperItems.WeatherState weatherState; 
 
     private final Item.Properties savedProperties; // upon construction, save its properties
-    public WeatheringCopperArmorItem(CopperWeatherState weatherState, Item.Properties properties) {
+    public WeatheringCopperItem(WeatheringCopperItems.WeatherState weatherState, Item.Properties properties) {
         super(properties);
         this.savedProperties = properties; 
         this.weatherState = weatherState;
     }
-    public WeatheringCopperArmorItem(String weatherStateString, Item.Properties properties) {
-        this(CopperWeatherState.valueOf(weatherStateString), properties);
+    public WeatheringCopperItem(String weatherStateString, Item.Properties properties) {
+        this(WeatherState.valueOf(weatherStateString), properties);
     }
 
-    public WeatheringCopperItems.CopperWeatherState getAge() {
+    public WeatheringCopperItems.WeatherState getAge() {
         return this.weatherState;
     }
     public float getChanceModifier() {
-        return this.getAge() == WeatheringCopperArmorItem.CopperWeatherState.UNAFFECTED ? 0.75F : 1.0F;
+        return this.getAge() == WeatheringCopperItems.WeatherState.UNAFFECTED ? 0.75F : 1.0F;
     }
     @Override
     public boolean checkConditionsToWeather(ItemStack thisItem, ItemStack[] surroundingItems, RandomSource random) {

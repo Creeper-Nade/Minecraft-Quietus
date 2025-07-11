@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.item.weapons;
+package com.minecraftquietus.quietus.item.tool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
         super(property);
         if (property instanceof QuietusItemProperties prop) {
             this.projectileCritChance = prop.projectileProperties.get(MAPKEY_PROJECTILE_DEFAULT_CRITCHANCE).critChance();
-            this.supportedProjectile = prop.weaponProperty.supportedProjectiles();
+            this.supportedProjectile = prop.projectileWeaponProperty.supportedProjectiles();
         } else {
             this.projectileCritChance = 0.05d;
             this.supportedProjectile = ARROW_ONLY;

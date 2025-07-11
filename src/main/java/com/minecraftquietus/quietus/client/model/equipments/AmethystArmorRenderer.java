@@ -3,6 +3,8 @@ package com.minecraftquietus.quietus.client.model.equipments;
 
 import com.minecraftquietus.quietus.client.model.QuietusEmissiveLayer;
 import com.minecraftquietus.quietus.item.equipment.AmethystArmorItem;
+
+import net.minecraft.Util;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
@@ -17,10 +19,17 @@ import software.bernie.geckolib.util.RenderUtil;
 
 public class AmethystArmorRenderer<R extends HumanoidRenderState & GeoRenderState> extends GeoArmorRenderer<AmethystArmorItem,R> {
 
+    /**
+     * EmissiveLayer with Geckolib is found crashing on mac with ARM architecture (as of geckolib 5.1.0 with Neoforge 21.5.75). 
+     */
+    private static final boolean IS_MAC_ARM = Util.getPlatform() == Util.OS.OSX
+            && System.getProperty("os.arch").contains("aarch64");
+
     protected GeoBone waistBone = null;
     public AmethystArmorRenderer() {
         super(new AmethystArmorModel());
-        this.addRenderLayer(new QuietusEmissiveLayer<>(this));
+        if (IS_MAC_ARM) this.addRenderLayer(new AutoGlowingGeoLayer<>(this));
+        else this.addRenderLayer(new QuietusEmissiveLayer<>(this)); // do not render quietus emissive on mac with ARM architecture
     }
 
 

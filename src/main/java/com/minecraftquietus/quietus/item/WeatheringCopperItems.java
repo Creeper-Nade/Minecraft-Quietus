@@ -11,7 +11,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 
-public interface WeatheringCopperItems extends WeatheringItem<WeatheringCopperItems.CopperWeatherState> {
+public interface WeatheringCopperItems extends WeatheringItem<WeatheringCopperItems.WeatherState> {
 
     static final BiMap<Item, Item> OXIDATION_MAP = HashBiMap.create();
 
@@ -39,16 +39,16 @@ public interface WeatheringCopperItems extends WeatheringItem<WeatheringCopperIt
     public boolean isWeatherable();
 
 
-    public static enum CopperWeatherState implements StringRepresentable {
+    public static enum WeatherState implements StringRepresentable {
         UNAFFECTED("unaffected"),
         EXPOSED("exposed"),
         WEATHERED("weathered"),
         OXIDIZED("oxidized");
-        private CopperWeatherState(final String nameString) {
+        private WeatherState(final String nameString) {
             this.name = nameString;
         }
         
-        public static final Codec<WeatheringCopperItems.CopperWeatherState> WEATHERSTATE_CODEC = StringRepresentable.fromEnum(WeatheringCopperItems.CopperWeatherState::values);
+        public static final Codec<WeatheringCopperItems.WeatherState> WEATHERSTATE_CODEC = StringRepresentable.fromEnum(WeatheringCopperItems.WeatherState::values);
         private final String name;
 
 

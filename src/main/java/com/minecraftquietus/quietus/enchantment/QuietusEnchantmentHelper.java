@@ -7,8 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.*;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
-import java.util.List;
-
 public class QuietusEnchantmentHelper extends EnchantmentHelper {
     public static float modifyCritChance(ServerLevel level, ItemStack tool, Entity entity, DamageSource damageSource, double chance) {
         MutableFloat mutablefloat = new MutableFloat(chance);

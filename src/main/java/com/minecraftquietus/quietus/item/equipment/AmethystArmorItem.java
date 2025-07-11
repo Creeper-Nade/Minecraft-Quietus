@@ -6,12 +6,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.minecraftquietus.quietus.client.model.equipments.AmethystArmorRenderer;
-import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
-import com.minecraftquietus.quietus.entity.projectiles.magic.AmethystShardProjectile;
 import com.minecraftquietus.quietus.entity.projectiles.magic.SmallAmethystShardProjectile;
-import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
-import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
+import com.minecraftquietus.quietus.item.property.QuietusProjectileProperty;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
@@ -20,22 +17,15 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.neoforged.neoforge.event.entity.living.ArmorHurtEvent.ArmorEntry;
 
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -50,7 +40,8 @@ import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoItem {
 
-    private AnimatableInstanceCache cache= new SingletonAnimatableInstanceCache(this);
+    private AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
+    
     public AmethystArmorItem(Properties properties) {
         super(properties);
     }
@@ -87,11 +78,11 @@ public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoI
             level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.CHAIN_BREAK, EntitySoundSource.of(wearer), 0.5F, 1.0F);
             RandomSource random = wearer.getRandom();
             int projectilesAmount = random.nextInt(3)+2;
-            if (full_set_bonus) projectilesAmount += 2; // every armor piece adds by 1 when full set bonus active
+            if (full_set_bonus) projectilesAmount += 2; // every armor piece adds by 2 when full set bonus active
             for (int i = 0; i < projectilesAmount; i++) {
                 Vec3 posNew = new Vec3(pos.x+random.nextDouble()*0.50d-0.25d, pos.y+random.nextDouble()*0.30d-0.15d, pos.z+random.nextDouble()*0.50d-0.25d);
                 SmallAmethystShardProjectile projectile = new SmallAmethystShardProjectile(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get(), level);
-                projectile.configure(WeaponProjectileProperty.builder()
+                projectile.configure(QuietusProjectileProperty.builder()
                     .damage(4.0f)
                     .critChance(0.0d)
                     .critOperation((dmg)->dmg)
@@ -99,7 +90,7 @@ public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoI
                     .gravity(0.05f)
                     .persistanceTicks(200)
                     .projectileType(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get())
-                    .build(),armorMap.get(slot));
+                    .build(), armorMap.get(slot));
                 float yRot = random.nextFloat()*360 - 180.0f;
                 float xRot = random.nextFloat()*110 - 45.0f;
                 projectile.snapTo(posNew, yRot, xRot);
@@ -107,26 +98,24 @@ public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoI
                 projectile.setOwner(wearer);
                 level.addFreshEntity(projectile);
             }
-            
         }
     }
-//geckolib related stuffs
 
-@Override
-public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
-    consumer.accept(new GeoRenderProvider() {
-        private AmethystArmorRenderer renderer;
+    //geckolib related stuffs
+    @Override
+    public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
+        consumer.accept(new GeoRenderProvider() {
+            private AmethystArmorRenderer renderer;
 
+            @Override
+            public <S extends HumanoidRenderState> GeoArmorRenderer<?, ?> getGeoArmorRenderer(@Nullable S livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, EquipmentClientInfo.LayerType type, @Nullable HumanoidModel<S> original) {
+                if(this.renderer == null)
+                    this.renderer = new AmethystArmorRenderer();
 
-        @Override
-        public <S extends HumanoidRenderState> GeoArmorRenderer<?, ?> getGeoArmorRenderer(@Nullable S livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, EquipmentClientInfo.LayerType type, @Nullable HumanoidModel<S> original) {
-            if(this.renderer == null)
-                this.renderer = new AmethystArmorRenderer();
-
-            return this.renderer;
-        }
-    });
-}
+                return this.renderer;
+            }
+        });
+    }
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
     {

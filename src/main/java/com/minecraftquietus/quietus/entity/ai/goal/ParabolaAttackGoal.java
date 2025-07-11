@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.minecraftquietus.quietus.entity.monster.VolleyRangedAttackMob;
-import com.minecraftquietus.quietus.item.weapons.QuietusProjectileWeaponItem;
+import com.minecraftquietus.quietus.item.tool.QuietusProjectileWeaponItem;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
 import net.minecraft.core.BlockPos;

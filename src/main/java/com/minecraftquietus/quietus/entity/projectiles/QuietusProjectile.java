@@ -1,10 +1,11 @@
 package com.minecraftquietus.quietus.entity.projectiles;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentHelper;
-import com.minecraftquietus.quietus.item.property.WeaponProjectileProperty;
+import com.minecraftquietus.quietus.item.property.QuietusProjectileProperty;
 
 import com.minecraftquietus.quietus.util.Damage.QuietusDamageType;
 import net.minecraft.core.component.DataComponentType;
@@ -50,7 +51,7 @@ public abstract class QuietusProjectile extends Projectile {
     protected float gravity = 0.05f;
     protected float knockback = 0.4f;
     protected float baseDamage = 5.0f;
-    protected ItemStack item = null;
+    protected ItemStack item;
     protected int persistanceTicks = 200;
     protected double critChance = 0.05d;
     protected Function<Float,Float> critDamageOperation = (damage) -> (float)(damage*(1.0d+0.5d));
@@ -60,15 +61,16 @@ public abstract class QuietusProjectile extends Projectile {
 
     public QuietusProjectile(EntityType<? extends QuietusProjectile> type, Level level) {
         super(type, level);
+        this.item = ItemStack.EMPTY;
     }
     
-    public void configure(WeaponProjectileProperty projectileProperty, @Nullable ItemStack item) {
+    public void configure(QuietusProjectileProperty projectileProperty, @Nullable ItemStack item) {
         this.gravity = projectileProperty.gravity();
         this.getEntityData().set(DATA_PROJECTILE_GRAVITY_ID, projectileProperty.gravity());
         this.setNoGravity(gravity == 0.0);
         this.knockback = projectileProperty.knockback();
         this.baseDamage = projectileProperty.damage();
-        this.item=item.copy();
+        this.item = Objects.requireNonNullElse(item.copy(), ItemStack.EMPTY);
         this.persistanceTicks = projectileProperty.persistanceTicks();
         this.critChance = projectileProperty.critChance();
         this.critDamageOperation = projectileProperty.critOperation();
@@ -150,12 +152,12 @@ public abstract class QuietusProjectile extends Projectile {
     public double getCritChance(Entity target, DamageSource damageSource)
     {
         //reserved for addition of crit chance
-        double ActualCrit=critChance;
+        double finalCrit = critChance;
         if(this.level() instanceof ServerLevel serverLevel)
-           ActualCrit = QuietusEnchantmentHelper.modifyCritChance(serverLevel, item, target, damageSource, critChance);
+           finalCrit = QuietusEnchantmentHelper.modifyCritChance(serverLevel, item, target, damageSource, critChance);
 
-        System.out.println(ActualCrit);
-        return ActualCrit;
+
+        return finalCrit;
     }
 
     protected abstract void applyImpactEffects(Entity Target, float damage, boolean is_crit, Entity Owner);

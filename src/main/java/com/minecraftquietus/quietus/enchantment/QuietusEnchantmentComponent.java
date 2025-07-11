@@ -1,31 +1,22 @@
 package com.minecraftquietus.quietus.enchantment;
 
-import com.minecraftquietus.quietus.Quietus;
-import com.minecraftquietus.quietus.enchantment.effect_components.crit_chance;
-import com.mojang.serialization.Codec;
-import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
-import static net.minecraft.core.component.DataComponentType.builder;
+import static com.minecraftquietus.quietus.Quietus.MODID;
 
 public interface QuietusEnchantmentComponent {
 
     public static final DeferredRegister.DataComponents ENCHANTMENT_COMPONENT_TYPES =
-            DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, Quietus.MODID);
+            DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, MODID);
 
     //Codec<DataComponentType<?>> COMPONENT_CODEC = Codec.lazyInitialized(() -> BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE.byNameCodec());
     //Codec<DataComponentMap> CODEC = DataComponentMap.makeCodec(COMPONENT_CODEC);
