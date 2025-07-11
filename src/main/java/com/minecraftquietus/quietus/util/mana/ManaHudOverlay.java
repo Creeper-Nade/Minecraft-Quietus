@@ -3,6 +3,7 @@ package com.minecraftquietus.quietus.util.mana;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -46,6 +47,7 @@ public class ManaHudOverlay {
     @SubscribeEvent
     public static void onWorldJoin(EntityJoinLevelEvent event)
     {
+        if(!(event.getEntity() instanceof LocalPlayer)) return;
         globalBlinkEndTime=0;
         lastUpdateTime=0;
         lastWaveStartTime=0;

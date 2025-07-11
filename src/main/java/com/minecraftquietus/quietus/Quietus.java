@@ -1,19 +1,23 @@
 package com.minecraftquietus.quietus;
 
 
-import com.minecraftquietus.quietus.client.model.QuietusEmissiveLayer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeathScreen;
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.event.SpawnEvent;
+import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
+import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.world.level.GameRules;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import org.slf4j.Logger;
@@ -109,6 +113,7 @@ public class Quietus
         QuietusComponents.register(modEventBus);
         QuietusEnchantmentComponent.register(modEventBus);
         QuietusBlocks.register(modEventBus);
+        QuietusSounds.register(modEventBus);
         QuietusPotions.register(modEventBus);
         QuietusEffects.register(modEventBus);
         QuietusEntityTypes.register(modEventBus);
@@ -120,13 +125,19 @@ public class Quietus
         modEventBus.addListener(this::registerPipeline);
 
         NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
+       // NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
+        NeoForge.EVENT_BUS.register(GhostMovementHandler.class);
+        NeoForge.EVENT_BUS.register(GhostDeathScreen.class);
         // CreeperNade: The SpawnEvent class is never registered, so I'm adding it here for you 👀
         NeoForge.EVENT_BUS.register(SpawnEvent.class);
+        //NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
         modEventBus.register(QuietusIModBusEvent.class);
         modEventBus.register(DataGenerator.class);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onClientTick);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockBreak);
         NeoForge.EVENT_BUS.addListener(QuietusCommonEvents::onBlockPlace);
+
+        //NeoForge.EVENT_BUS.addListener(PotionConsumptionHandler::onPotionConsumed);
         //NeoForge.EVENT_BUS.addListener(QuietusEvents::onWorldRenderLast);
 
 // Register our mana attachment
@@ -165,6 +176,7 @@ public class Quietus
     {
         event.enqueueWork(() -> {
             QuietusItems.registerWeatheringMappings();
+            QuietusGameRules.Init();
 
         });
     }
@@ -207,6 +219,7 @@ public class Quietus
 
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
+        event.registerPipeline(GhostDeathScreen.ghostPipeline);
         //event.registerPipeline(QuietusEmissiveLayer.FIXED_EMISSIVE);
     }
 

@@ -1,6 +1,12 @@
 package com.minecraftquietus.quietus.util.handler;
 
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeathScreen;
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
+import com.minecraftquietus.quietus.packet.GhostStatePayload;
 import com.minecraftquietus.quietus.packet.ManaPack;
+import com.minecraftquietus.quietus.packet.PlayerReviveCooldownPack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -17,6 +23,11 @@ public class ClientPayloadHandler {
     private static int maxMana;
     private static int mana;
     private static boolean Mana_Speed_Charging;
+
+    private static boolean PlayerIsGhost;
+    private static boolean IsHardCore;
+    private static int MaxReviveCD;
+    private static int ReviveCD;
 
 
     public static void ManaHandler(final ManaPack Mpack, final IPayloadContext context) {
@@ -48,4 +59,41 @@ public class ClientPayloadHandler {
     {
         return mana;
     }
+
+    public static void handleGhostState(final GhostStatePayload payload,final IPayloadContext context) {
+        context.enqueueWork(() -> {
+                    PlayerIsGhost=payload.isGhost();
+                    MaxReviveCD=payload.Max_CD();
+                    IsHardCore= payload.hardcore();
+                    if(payload.isGhost())
+                    {
+                        GhostDeathScreen.show(payload.message());
+                        GhostMovementHandler.Init();
+                    }
+
+
+                })
+                .exceptionally(e -> {
+                    // 处理异常
+                    // Handle exception
+                    context.disconnect(Component.translatable("my_mod.networking.failed", e.getMessage()));
+                    return null;
+                });
+
+    }
+    public boolean getGhostState(){return PlayerIsGhost;}
+    public boolean getHardcore(){return IsHardCore;}
+    public int getMaxReviveCD(){return MaxReviveCD;}
+
+    public static void handleReviveCD(final PlayerReviveCooldownPack payload, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+                    ReviveCD= payload.cooldown();
+                })
+                .exceptionally(e -> {
+                    context.disconnect(Component.translatable("my_mod.networking.failed", e.getMessage()));
+                    return null;
+                });
+
+    }
+    public int GetReviveCD(){return ReviveCD;}
 }

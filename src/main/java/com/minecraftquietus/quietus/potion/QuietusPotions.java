@@ -35,6 +35,11 @@ public class QuietusPotions {
             new MobEffectInstance[]{
                     new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,2400,1)
             }));
+
+    public static final DeferredHolder<Potion,Potion> LESSER_INSTANT_MANA = POTIONS.register("lesser_instant_mana", () -> new Potion("lesser_instant_mana",
+            new MobEffectInstance[]{
+                    new MobEffectInstance(QuietusEffects.INSTANT_MANA,0)
+            }));
     
 
     public static void register(IEventBus eventBus)

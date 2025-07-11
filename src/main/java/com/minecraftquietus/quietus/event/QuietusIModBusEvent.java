@@ -1,14 +1,22 @@
 package com.minecraftquietus.quietus.event;
 
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
+import com.minecraftquietus.quietus.packet.GhostStatePayload;
 import com.minecraftquietus.quietus.packet.ManaPack;
+import com.minecraftquietus.quietus.packet.PlayerReviveCooldownPack;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.ThrowablePotionItem;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
+import net.neoforged.neoforge.event.ItemStackedOnOtherEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -32,6 +40,16 @@ public class QuietusIModBusEvent {
     public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar(MODID);
         registrar.playToClient(ManaPack.TYPE, ManaPack.MANA_PACK_STREAM_CODEC, ClientPayloadHandler::ManaHandler);
+        registrar.playToClient(
+                GhostStatePayload.TYPE,
+                GhostStatePayload.STREAM_CODEC,
+                ClientPayloadHandler::handleGhostState
+        );
+        registrar.playToClient(
+                PlayerReviveCooldownPack.TYPE,
+                PlayerReviveCooldownPack.STREAM_CODEC,
+                ClientPayloadHandler::handleReviveCD
+        );
     }
 
     @SubscribeEvent
@@ -64,4 +82,6 @@ public class QuietusIModBusEvent {
         event.registerEntityRenderer(QuietusEntityTypes.BOWSLINGER.get(), BowslingerRenderer::new);
         event.registerEntityRenderer(QuietusEntityTypes.PARABOLER.get(), ParabolerRenderer::new);
     }
+
+
 }

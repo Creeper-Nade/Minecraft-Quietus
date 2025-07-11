@@ -1,9 +1,8 @@
-package com.minecraftquietus.tags;
+package com.minecraftquietus.quietus.tags;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
@@ -43,6 +42,7 @@ public class QuietusTags {
 
     public static class Entity{
         public static final TagKey<EntityType<?>> MAGIC_PROJECTILE= createTag("magic_projectile");
+        public static final TagKey<EntityType<?>> BOSS_MONSTER= createTag("boss_monster");
 
         private static TagKey<EntityType<?>> createTag(String name) {
             return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, name));

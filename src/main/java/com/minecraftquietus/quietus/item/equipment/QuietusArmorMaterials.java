@@ -4,8 +4,6 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 import java.util.EnumMap;
 
-import com.minecraftquietus.tags.QuietusTags;
-
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -127,11 +125,11 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.BODY, new AttributeModifierValue(10, AttributeModifier.Operation.ADD_VALUE));
         }),
         Util.make(new EnumMap<>(ArmorType.class), map -> {
-            map.put(ArmorType.BOOTS, new AttributeModifierValue(4, AttributeModifier.Operation.ADD_VALUE));
-            map.put(ArmorType.LEGGINGS, new AttributeModifierValue(7, AttributeModifier.Operation.ADD_VALUE));
-            map.put(ArmorType.CHESTPLATE, new AttributeModifierValue(8, AttributeModifier.Operation.ADD_VALUE));
-            map.put(ArmorType.HELMET, new AttributeModifierValue(5, AttributeModifier.Operation.ADD_VALUE));
-            map.put(ArmorType.BODY, new AttributeModifierValue(24, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.BOOTS, new AttributeModifierValue(2, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.LEGGINGS, new AttributeModifierValue(3, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.CHESTPLATE, new AttributeModifierValue(4, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.HELMET, new AttributeModifierValue(3, AttributeModifier.Operation.ADD_VALUE));
+            map.put(ArmorType.BODY, new AttributeModifierValue(12, AttributeModifier.Operation.ADD_VALUE));
         }),
         Util.make(new EnumMap<>(ArmorType.class), map -> {
             map.put(ArmorType.BOOTS, AttributeModifierValue.NONE);

@@ -2,7 +2,6 @@ package com.minecraftquietus.quietus.effects.spelunker;
 
 import com.minecraftquietus.quietus.Quietus;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
-import com.minecraftquietus.tags.QuietusTags;
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -26,12 +25,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.common.Tags;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import org.joml.Matrix4fStack;
 
-import static com.minecraftquietus.tags.QuietusTags.Blocks.SPELUNKABLE_ORES;
+import static com.minecraftquietus.quietus.tags.QuietusTags.Blocks.SPELUNKABLE_ORES;
 
 import java.util.*;
 

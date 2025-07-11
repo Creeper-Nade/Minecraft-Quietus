@@ -2,7 +2,7 @@ package com.minecraftquietus.quietus.data;
 
 import com.minecraftquietus.quietus.Quietus;
 import com.minecraftquietus.quietus.item.QuietusItems;
-import com.minecraftquietus.tags.QuietusTags;
+import com.minecraftquietus.quietus.tags.QuietusTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
