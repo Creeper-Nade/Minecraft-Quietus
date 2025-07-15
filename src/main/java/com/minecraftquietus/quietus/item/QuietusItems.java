@@ -3,7 +3,7 @@ package com.minecraftquietus.quietus.item;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 
-import com.minecraftquietus.quietus.util.mana.Mana;
+import com.minecraftquietus.quietus.util.mana.ManaUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition.Weather;
 import net.minecraft.network.chat.CommonComponents;
@@ -388,11 +388,11 @@ public class QuietusItems {
         /* Arguments: 
          *  the Item object, int array of possible WeatherStates(picked randomly from the array), float of oxidation chance, the Class<?> enumeration of WeatherState class this item should have (just take from existing classes as shown below)
         */
-        Class<?> class_weathering_iron_armor_item_enum = WeatheringIronItems.WeatherState.class;
-        WeatheringItem.registerExtraWeatheringItem(Items.IRON_BOOTS, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, class_weathering_iron_armor_item_enum);
-        WeatheringItem.registerExtraWeatheringItem(Items.IRON_LEGGINGS, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, class_weathering_iron_armor_item_enum);
-        WeatheringItem.registerExtraWeatheringItem(Items.IRON_CHESTPLATE, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, class_weathering_iron_armor_item_enum);
-        WeatheringItem.registerExtraWeatheringItem(Items.IRON_HELMET, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, class_weathering_iron_armor_item_enum);
+        Class<?> class_weathering_iron_armor_item = WeatheringIronItems.WeatherState.class;
+        WeatheringItem.registerExtraWeatheringItem(Items.IRON_BOOTS, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, WeatheringIronItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_iron_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.IRON_LEGGINGS, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, WeatheringIronItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_iron_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.IRON_CHESTPLATE, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, WeatheringIronItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_iron_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.IRON_HELMET, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, WeatheringIronItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_iron_armor_item);
     }
 
     public static void register(IEventBus eventBus)

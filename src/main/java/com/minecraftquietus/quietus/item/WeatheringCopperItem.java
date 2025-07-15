@@ -12,10 +12,15 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 public class WeatheringCopperItem extends Item implements WeatheringCopperItems {
 
-    private static final float OXIDATION_CHANCE = (float)64/(float)1125 * (float)3/(float)4096; // according to minecraft.wiki copper blocks 64/1125 chance into pre-oxidization state for every random tick (default to 3 per 4096 for every tick). 
+    public static final float OXIDATION_CHANCE = (float)64/(float)1125; // according to minecraft.wiki copper blocks 64/1125 chance into pre-oxidization state for every random tick. 
+    public static final float OXIDATION_CHANCE_WARM = OXIDATION_CHANCE * 1.5f;
 
-    public static float getOxidationChance() {
-        return OXIDATION_CHANCE;
+    public static float getOxidationChance(boolean isWarm) {
+        if (isWarm) {
+            return OXIDATION_CHANCE_WARM;
+        } else {
+            return OXIDATION_CHANCE;
+        }
     }
 
     // Codecs mapping item.properties and weatherstates (currently unused)
@@ -61,14 +66,16 @@ public class WeatheringCopperItem extends Item implements WeatheringCopperItems 
     public WeatheringCopperItems.WeatherState getAge() {
         return this.weatherState;
     }
+    @Override
     public float getChanceModifier() {
         return this.getAge() == WeatheringCopperItems.WeatherState.UNAFFECTED ? 0.75F : 1.0F;
     }
     @Override
-    public boolean checkConditionsToWeather(ItemStack thisItem, ItemStack[] surroundingItems, RandomSource random) {
-        if (random.nextFloat() < OXIDATION_CHANCE) {
+    public boolean checkConditionsToWeather(ItemStack thisItem, ItemStack[] surroundingItems, RandomSource random, boolean isWarm) {
+        if (random.nextFloat() < getOxidationChance(isWarm)) {
             return this.checkWeatheringSurroundings(thisItem, surroundingItems, random);
-        } else {return false;}
+        } 
+        return false;
     }
 
     private Item.Properties getProperties() {

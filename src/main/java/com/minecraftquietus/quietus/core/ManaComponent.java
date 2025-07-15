@@ -1,7 +1,7 @@
 package com.minecraftquietus.quietus.core;
 
 import com.minecraftquietus.quietus.util.PlayerData;
-import com.minecraftquietus.quietus.util.mana.Mana;
+import com.minecraftquietus.quietus.util.mana.ManaUtil;
 import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 
 import net.minecraft.core.HolderLookup;
@@ -147,7 +147,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     }
 
     public boolean consumeMana(int value, LivingEntity entity) { 
-        if (value > Mana.getMana(entity)) {
+        if (value > ManaUtil.getMana(entity)) {
             return false;
         }
         else {

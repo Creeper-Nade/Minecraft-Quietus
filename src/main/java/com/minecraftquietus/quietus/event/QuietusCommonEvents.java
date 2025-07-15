@@ -12,7 +12,7 @@ import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
-import com.minecraftquietus.quietus.util.mana.Mana;
+import com.minecraftquietus.quietus.util.mana.ManaUtil;
 import com.minecraftquietus.quietus.tags.QuietusTags;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.logging.LogUtils;
@@ -100,16 +100,16 @@ public class QuietusCommonEvents {
                 } else {
                 }
             } else {
-                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(player), Mana.getMaxMana(player),itemstack,player.level());
+                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(ManaUtil.getMana(player), ManaUtil.getMaxMana(player),itemstack,player.level());
                 //LOGGER.info("Expected mana consumption on use: "+mana_consume + " | Player's mana: " + Mana.getMana(player));
-                flag = Mana.getMana(player) >= mana_consume;
+                flag = ManaUtil.getMana(player) >= mana_consume;
                 if (!flag) {
                     event.setCancellationResult(InteractionResult.FAIL);
                     player.stopUsingItem();
                     event.setCanceled(true);}
                 else {
                     if (itemstack.getItem().getUseDuration(itemstack, player) == 0 ) {
-                        Mana.get(player).consumeMana(mana_consume, player);
+                        ManaUtil.get(player).consumeMana(mana_consume, player);
                     }
                 }
             }
@@ -124,9 +124,9 @@ public class QuietusCommonEvents {
             return;
         } else {
             if (!entity.level().isClientSide()) {
-                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(entity), Mana.getMaxMana(entity),itemstack,entity.level());
+                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(ManaUtil.getMana(entity), ManaUtil.getMaxMana(entity),itemstack,entity.level());
                 if (itemstack.getItem() instanceof BowItem || itemstack.getItem() instanceof AmmoProjectileWeaponItem) {
-                    Mana.get(entity).consumeMana(mana_consume, entity);
+                    ManaUtil.get(entity).consumeMana(mana_consume, entity);
                 }
             }
         }
@@ -141,13 +141,13 @@ public class QuietusCommonEvents {
             return;
         } else {
             if (!entity.level().isClientSide()) { // Server side
-                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(Mana.getMana(entity), Mana.getMaxMana(entity),itemstack,entity.level());
-                if (Mana.getMana(entity) < mana_consume) {
+                int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(ManaUtil.getMana(entity), ManaUtil.getMaxMana(entity),itemstack,entity.level());
+                if (ManaUtil.getMana(entity) < mana_consume) {
                     entity.stopUsingItem();
                     event.setCanceled(true);
                 }
                 if (event.getDuration() == 1) { // about to finish item
-                    Mana.get(entity).consumeMana(mana_consume, entity);
+                    ManaUtil.get(entity).consumeMana(mana_consume, entity);
                 }
             } else { // Client side
                 if (entity instanceof Player) {
