@@ -29,7 +29,7 @@ public class SmallAmethystShardProjectile extends QuietusProjectile {
         if (this.level() instanceof ServerLevel level) {
             Vec3 vec31 = this.position();
             Random random= new Random();
-            level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AMETHYST_CLUSTER.defaultBlockState()),vec31.x, vec31.y,vec31.z, 15, 0,0,0,0.5);
+            level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AMETHYST_CLUSTER.defaultBlockState()),vec31.x, vec31.y,vec31.z, 5, 0,0,0,0.5);
             this.level().playSound(null, vec31.x, vec31.y, vec31.z,
                     SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.PLAYERS, 1.0F, random.nextFloat(1.0f,3.0f));
 
