@@ -184,15 +184,15 @@ public class QuietusCommonEvents {
             int decay = itemstack.getOrDefault(QuietusComponents.DECAY.get(), 0).intValue();
             @SuppressWarnings("null") int fraction_hundredth = (int)Math.floor(decayComponent.getDecayFraction(decay) * 100);
             if (event.getFlags().isAdvanced()) {
-                if (fraction_hundredth >= 80) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.pristine_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth >= 50) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.fresh_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth >= 20) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.stale_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth < 20) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.spoiled_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
+                if (fraction_hundredth >= 80) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.pristine_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth >= 50) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.fresh_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth >= 20) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.stale_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth < 20) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.spoiled_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
             } else {
-                if (fraction_hundredth >= 80) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.pristine").withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth >= 50) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.fresh").withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth >= 20 ) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.stale").withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth < 20) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.spoiled").withColor(decayComponent.getDisplayColor(decay)));
+                if (fraction_hundredth >= 80) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.pristine").withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth >= 50) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.fresh").withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth >= 20 ) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.stale").withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth < 20) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.spoiled").withColor(decayComponent.getDisplayColor(decay)));
             }
         }
     }
