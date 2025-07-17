@@ -13,7 +13,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 
 public record UsesMana(
@@ -46,6 +45,21 @@ public record UsesMana(
             RealAmount = Math.round(this.amount()*(1-cost_reduction));
         }
         return this.operation.apply(mana, maxMana, RealAmount, this.minAmount());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        } else {
+            return other instanceof UsesMana usesmana 
+                ? this.amount == usesmana.amount() && this.operation.equals(usesmana.operation()) && this.minAmount == usesmana.minAmount()
+                : false;
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {

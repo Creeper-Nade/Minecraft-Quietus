@@ -1,5 +1,6 @@
 {
   "gamerule.enableGhostMode": "Enters Ghost Mode Upon Death",
+  "gamerule.enableGhostMode": "Number of game ticks taken for all items to decay once",
   "death.attack.quietus:magic_projectile_damage": "%1$s magically disappeared",
   "death.attack.quietus:magic_projectile_damage.player": "%1$s was voodooed by %2$s",
   "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame": "%1$s magically disappeared",
@@ -16,6 +17,16 @@
   "enchantment.quietus.impact": "Impact",
   "enchantment.quietus.acupuncture": "Acupuncture",
   "enchantment.quietus.conservation": "Conservation",
+
+  "_comments_tooltip_freshness": "Tooltip colours for freshness are hard-coded in CanDecay component class, which is also used by the item background",
+  "tooltip.quietus.freshness.pristine": "Pristine",
+  "tooltip.quietus.freshness.fresh": "Fresh",
+  "tooltip.quietus.freshness.stale": "Stale",
+  "tooltip.quietus.freshness.spoiled": "Spoiled",
+  "tooltip.quietus.freshness.pristine_advanced": "Pristine §r(%s%%) ",
+  "tooltip.quietus.freshness.fresh_advanced": "Fresh §r(%s%%) ",
+  "tooltip.quietus.freshness.stale_advanced": "Stale §r(%s%%) ",
+  "tooltip.quietus.freshness.spoiled_advanced": "Spoiled §r(%s%%) ",
 
   "item.quietus.amethyst_staff": "Amethyst Staff",
   "tooltip.quietus.amethyst_staff.1": "§2 7 Magic Damage",

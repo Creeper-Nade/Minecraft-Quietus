@@ -4,6 +4,7 @@ import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeathScreen;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.item.QuietusComponents;
+import com.minecraftquietus.quietus.item.component.CanDecay;
 import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
@@ -23,6 +24,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -61,6 +63,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEnchantItemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
@@ -173,6 +176,28 @@ public class QuietusCommonEvents {
     }
 
     @SubscribeEvent
+    public static void onItemToolTip(ItemTooltipEvent event) {
+        ItemStack itemstack = event.getItemStack();
+
+        if (itemstack.has(QuietusComponents.CAN_DECAY.get())) {
+            CanDecay decayComponent = itemstack.get(QuietusComponents.CAN_DECAY.get());
+            int decay = itemstack.getOrDefault(QuietusComponents.DECAY.get(), 0).intValue();
+            @SuppressWarnings("null") int fraction_hundredth = (int)Math.floor(decayComponent.getDecayFraction(decay) * 100);
+            if (event.getFlags().isAdvanced()) {
+                if (fraction_hundredth >= 80) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.pristine_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth >= 50) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.fresh_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth >= 20) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.stale_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth < 20) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.spoiled_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
+            } else {
+                if (fraction_hundredth >= 80) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.pristine").withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth >= 50) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.fresh").withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth >= 20 ) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.stale").withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction_hundredth < 20) event.getToolTip().add(2, Component.translatable("tooltip.quietus.freshness.spoiled").withColor(decayComponent.getDisplayColor(decay)));
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void registerBrewingRecipe(RegisterBrewingRecipesEvent event)
     {
         PotionBrewing.Builder builder=event.getBuilder();
@@ -180,7 +205,7 @@ public class QuietusCommonEvents {
         builder.addMix(Potions.THICK, Items.GLOW_BERRIES, QuietusPotions.SPELUNKING);
         builder.addMix(QuietusPotions.SPELUNKING, Items.REDSTONE, QuietusPotions.LONG_SPELUNKING); // longer duration of potion of spelunking
         builder.addMix(QuietusPotions.SPELUNKING, Items.GLOW_INK_SAC, QuietusPotions.STRONG_SPELUNKING);
-//placeholder ingredients for instant mana potion, will be changed to a custom ingredient in the future
+        //placeholder ingredients for instant mana potion, will be changed to a custom ingredient in the future
         builder.addMix(Potions.AWKWARD, Items.QUARTZ, QuietusPotions.LESSER_INSTANT_MANA);
     }
 
@@ -280,23 +305,20 @@ public class QuietusCommonEvents {
     @SubscribeEvent
     public static void onPlayerTickPost(PlayerTickEvent.Post event)
     {
-        Player player=event.getEntity();
-        //if (event.getEntity().level().isClientSide()) return;
-        if(player instanceof ServerPlayer serverPlayer) {
-            event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);
+        Player player = event.getEntity();
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);
             //ManaHudOverlay.SetTick(serverPlayer);
-            GameRules gameRules= serverPlayer.serverLevel().getGameRules();
+            GameRules gameRules = serverPlayer.serverLevel().getGameRules();
 
             //Placeholder method for enabling/disabling death screen in relation to the ghost mode, might be changed in the future
             LocalPlayer localPlayer= Minecraft.getInstance().player;
-        if(gameRules.getBoolean(QuietusGameRules.GHOST_MODE_ENABLED) &&localPlayer!=null)
-        {
-            if (localPlayer.shouldShowDeathScreen()) localPlayer.setShowDeathScreen(false);
-        }
-        else if(!gameRules.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN) &&localPlayer!=null)
-        {
-            if (!localPlayer.shouldShowDeathScreen()) localPlayer.setShowDeathScreen(true);
-        }
+            if(gameRules.getBoolean(QuietusGameRules.GHOST_MODE_ENABLED) &&localPlayer!=null) {
+                if (localPlayer.shouldShowDeathScreen()) localPlayer.setShowDeathScreen(false);
+            }
+            else if(!gameRules.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN) &&localPlayer!=null) {
+                if (!localPlayer.shouldShowDeathScreen()) localPlayer.setShowDeathScreen(true);
+            }
 
 
         }

@@ -1,30 +1,41 @@
 package com.minecraftquietus.quietus.event;
 
+import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems;
 import com.minecraftquietus.quietus.item.WeatheringIronItems;
 import com.minecraftquietus.quietus.item.WeatheringItem;
+import com.minecraftquietus.quietus.item.component.CanDecay;
+import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.util.container.ContainerUtil;
+import com.mojang.logging.LogUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractChestBoat;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -35,10 +46,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.ItemStackedOnOtherEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import static net.minecraft.world.level.GameRules.RULE_RANDOMTICKING;
 
@@ -48,25 +61,31 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 /**
  * WeatheringHandler is responsible for all weathering-related processes, 
  * desired to weather world items  (including from containers and entities) spontaneously over time,
- * whether oxidizing or food rotting in Quietus.
+ * whether oxidizing or decaying in Quietus.
  */
 public class WeatheringHandler {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static final Set<BaseContainerBlockEntity> LOADED_CONTAINERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+    private static int lastServerTick = 0;
 
     @SubscribeEvent
     /**
      * Does entities equipments weathering 
      * (for Player inventories, for every LivingEntity armor they are wearing and held item)
      */
+    @SuppressWarnings("null")
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         Level level = entity.level();
-        int randomTickSpeed = 3; // default value in case server is null
-        if (!Objects.isNull(level.getServer())) randomTickSpeed = level.getServer().getGameRules().getRule(RULE_RANDOMTICKING).get();
-        float tick_chance = (float)randomTickSpeed / (float)4096; // 4096 blocks per chunk
-        if (!level.isClientSide() 
-         && entity.getRandom().nextFloat() < tick_chance) { // server side && also apply chances with random ticking
+        int serverTick = lastServerTick;
+        float tick_chance = 3.0f / 4096.0f; // default value in case server is null, given 4096 blocks per chunk
+        if (!level.isClientSide() && !Objects.isNull(level.getServer())) { // server side only
+            MinecraftServer server = level.getServer();
+            tick_chance = getRandomTickChance(server);
+            serverTick = level.getServer().getTickCount();
             /* LivingEntity */
             if (entity instanceof LivingEntity livingEntity) {
                 /** Armor oxidation */
@@ -77,41 +96,61 @@ public class WeatheringHandler {
                     livingEntity.getItemBySlot(EquipmentSlot.HEAD)
                 }; EquipmentSlot[] armorSlots = {EquipmentSlot.FEET,EquipmentSlot.LEGS,EquipmentSlot.CHEST,EquipmentSlot.HEAD};
                 for (int i = 0; i < armorItems.length; ++i) { // armor items
-                    if (WeatheringItem.canWeather(armorItems[i].getItem())) { // only if this item is not weatherable
-                        Optional<Item> nextOptional = checkAndGetNextWeatherItem(armorItems[i], armorItems, level.dimensionType().ultraWarm());
-                        if (nextOptional.isPresent()) {
-                            //LOGGER.info(armorItems[i].getItem().getName().getString() + " is oxidizing to " + nextOptional.get().asItem().getName().getString());
-                            replaceArmorItem(livingEntity, makeNewWeatheredStack(nextOptional, armorItems[i]), armorSlots[i]);
+                    ItemStack itemstack = armorItems[i];
+                    if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) {
+                        Optional<ItemStack> converted_to = itemstack.get(QuietusComponents.CAN_DECAY.get()).changeDecayAndMakeConvertedItemIfDecayed(itemstack, 1);
+                        if (converted_to.isPresent()) {
+                            itemstack = converted_to.get();
+                            replaceArmorItem(livingEntity, itemstack, armorSlots[i]);
+                        }
+                    }
+                    if (entity.getRandom().nextFloat() < tick_chance) {
+                        if (WeatheringItem.canWeather(itemstack.getItem())) { // only if this item is weatherable, and also take in random ticking chance
+                            Optional<Item> nextOptional = checkAndGetNextWeatherItem(itemstack, armorItems, level.dimensionType().ultraWarm());
+                            if (nextOptional.isPresent()) {
+                                //LOGGER.info(itemstack.getItem().getName().getString() + " is oxidizing to " + nextOptional.get().asItem().getName().getString());
+                                replaceArmorItem(livingEntity, makeNewWeatheredStack(nextOptional, itemstack), armorSlots[i]);
+                            }
                         }
                     }
                 }
                 if (livingEntity instanceof Player player) { // also checks for player inventory for oxidizing
                     Inventory inventory = player.getInventory();
-                    for (int i = 0; i < Inventory.INVENTORY_SIZE; i ++) {
+                    for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
                         ItemStack itemstack = inventory.getItem(i);
-                        if (WeatheringItem.canWeather(itemstack.getItem())) {
-                            int perRow = Inventory.getSelectionSize();
-                            List<ItemStack> surroundingItems = new ArrayList<>(8);
-                            /** surrounding items set to all items visibly neighboring this item within the inventory GUI */
-                            for (int a = -1; a <= 1; a++) { // a for row offset
-                                for (int b = -1; b <= 1; b++) { // b for horizontal offset
-                                    int index = i + a*perRow + b;
-                                    if (i < perRow) { // however, hotbar oxidizes seperately
-                                        if (a != 0) continue;
-                                    } else {
-                                        if (index < perRow) continue;
-                                    }
-                                    if (index >= 0 
-                                    && index < Inventory.INVENTORY_SIZE 
-                                    && index != i
-                                    && Math.floorMod(i, perRow) + b >= 0
-                                    && Math.floorMod(i, perRow) + b < perRow) 
-                                        surroundingItems.add(inventory.getItem(index));
-                                }
+                        if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) {
+                            Optional<ItemStack> converted_to = itemstack.get(QuietusComponents.CAN_DECAY.get()).changeDecayAndMakeConvertedItemIfDecayed(itemstack, 1);
+                            if (converted_to.isPresent()) {
+                                itemstack = converted_to.get();
+                                replaceInventoryItem(player, itemstack, i);
                             }
-                            Optional<Item> nextOptional = checkAndGetNextWeatherItem(itemstack, surroundingItems.toArray(new ItemStack[0]), level.dimensionType().ultraWarm());
-                            if (nextOptional.isPresent()) {
-                                replaceInventoryItem(player, makeNewWeatheredStack(nextOptional, itemstack), i);
+                        }
+                        if (player.getRandom().nextFloat() < tick_chance) { 
+                            if (WeatheringItem.canWeather(itemstack.getItem())) {
+                                int perRow = Inventory.getSelectionSize();
+                                List<ItemStack> surroundingItems = new ArrayList<>(8);
+                                /** surrounding items set to all items visibly neighboring this item within the inventory GUI */
+                                for (int a = -1; a <= 1; a++) { // a for row offset
+                                    for (int b = -1; b <= 1; b++) { // b for horizontal offset
+                                        int index = i + a*perRow + b;
+                                        if (i < perRow) { // however, hotbar oxidizes seperately
+                                            if (a != 0) continue;
+                                        } else {
+                                            if (index < perRow) continue;
+                                        }
+                                        if (index >= 0 
+                                        && index < Inventory.INVENTORY_SIZE 
+                                        && index != i
+                                        && Math.floorMod(i, perRow) + b >= 0
+                                        && Math.floorMod(i, perRow) + b < perRow) 
+                                            surroundingItems.add(inventory.getItem(index));
+                                    }
+                                }
+                                Optional<Item> nextOptional = checkAndGetNextWeatherItem(itemstack, surroundingItems.toArray(new ItemStack[0]), level.dimensionType().ultraWarm());
+                                if (nextOptional.isPresent()) {
+                                    itemstack = makeNewWeatheredStack(nextOptional, itemstack);
+                                    replaceInventoryItem(player, itemstack, i);
+                                }
                             }
                         }
                     }
@@ -123,11 +162,21 @@ public class WeatheringHandler {
                 int containerSize = containerEntity.getContainerSize();
                 for (int i = 0; i < containerSize; i++) {
                     ItemStack itemstack = containerEntity.getItem(i);
-                    if (WeatheringItem.canWeather(itemstack.getItem())) {
-                        ItemStack[] surroundingItems = ContainerUtil.getSurroundingItems(i, 1, 1, containerEntity, perRow, false);
-                        Optional<Item> nextOptional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.dimensionType().ultraWarm());
-                        if (nextOptional.isPresent()) {
-                            containerEntity.setItem(i, makeNewWeatheredStack(nextOptional, itemstack));
+                    if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) {
+                        Optional<ItemStack> converted_to = itemstack.get(QuietusComponents.CAN_DECAY.get()).changeDecayAndMakeConvertedItemIfDecayed(itemstack, 1);
+                        if (converted_to.isPresent()) {
+                            itemstack = converted_to.get();
+                            containerEntity.setItem(i, itemstack);
+                        }
+                    }
+                    if (entity.getRandom().nextFloat() < tick_chance) { 
+                        if (WeatheringItem.canWeather(itemstack.getItem())) {
+                            ItemStack[] surroundingItems = ContainerUtil.getSurroundingItems(i, 1, 1, containerEntity, perRow, false);
+                            Optional<Item> nextOptional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.dimensionType().ultraWarm());
+                            if (nextOptional.isPresent()) {
+                                itemstack = makeNewWeatheredStack(nextOptional, itemstack);
+                                containerEntity.setItem(i, makeNewWeatheredStack(nextOptional, itemstack));
+                            }
                         }
                     }
                 }
@@ -135,11 +184,21 @@ public class WeatheringHandler {
             /* ItemFrame */
             if (entity instanceof ItemFrame itemFrame) {
                 ItemStack itemstack = itemFrame.getItem();
-                if (WeatheringItem.canWeather(itemstack.getItem())) {
-                    ItemStack[] surroundingItems = new ItemStack[0]; // it displays just 1 item!
-                    Optional<Item> nextOptional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.dimensionType().ultraWarm());
-                    if (nextOptional.isPresent()) {
-                        itemFrame.setItem(makeNewWeatheredStack(nextOptional, itemstack));
+                if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) {
+                    Optional<ItemStack> converted_to = itemstack.get(QuietusComponents.CAN_DECAY.get()).changeDecayAndMakeConvertedItemIfDecayed(itemstack, 1);
+                    if (converted_to.isPresent()) {
+                        itemstack = converted_to.get();
+                        itemFrame.setItem(itemstack);
+                    }
+                }
+                if (entity.getRandom().nextFloat() < tick_chance) { 
+                    if (WeatheringItem.canWeather(itemstack.getItem())) {
+                        ItemStack[] surroundingItems = new ItemStack[0]; // it displays just 1 item!
+                        Optional<Item> nextOptional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.dimensionType().ultraWarm());
+                        if (nextOptional.isPresent()) {
+                            itemstack = makeNewWeatheredStack(nextOptional, itemstack);
+                            itemFrame.setItem(itemstack);
+                        }
                     }
                 }
             }
@@ -154,10 +213,10 @@ public class WeatheringHandler {
      */
     public static void onLevelTick(LevelTickEvent.Pre event) {
         Level level = event.getLevel();
-        if (!level.isClientSide()) {
-            int randomTickSpeed = 3; // default value in case server is null
-            if (!Objects.isNull(level.getServer())) randomTickSpeed = level.getServer().getGameRules().getRule(RULE_RANDOMTICKING).get();
-            float tick_chance = (float)randomTickSpeed / (float)4096; // 4096 blocks per chunk
+        if (!level.isClientSide() && !Objects.isNull(level.getServer())) {
+            float tick_chance = 3.0f / 4096.0f; // default value in case server is null, given 4096 blocks per chunk
+            MinecraftServer server = level.getServer();
+            tick_chance = getRandomTickChance(server);
             for (BaseContainerBlockEntity container : LOADED_CONTAINERS) {
                 BlockEntity get_block_entity = level.getBlockEntity(container.getBlockPos());
                 if (!Objects.isNull(get_block_entity) && get_block_entity.equals(container)) { // only operate this block entity if it is in this level
@@ -165,29 +224,46 @@ public class WeatheringHandler {
                         LOADED_CONTAINERS.remove(container);
                         continue;
                     }
-                    if (level.getRandom().nextFloat() < tick_chance) { // accounts for randomTickSpeed gamerule
-                        int perRow = 1;
-                        if (container.getType() == BlockEntityType.CHEST
-                        || container.getType() == BlockEntityType.TRAPPED_CHEST
-                        || container.getType() == BlockEntityType.BARREL) {
-                            perRow = 9;
-                        } else {
-                            continue;
+                    int perRow = 1;
+                    if (container.getType() == BlockEntityType.CHEST
+                    || container.getType() == BlockEntityType.TRAPPED_CHEST
+                    || container.getType() == BlockEntityType.BARREL) {
+                        perRow = 9;
+                    } else {
+                        continue;
+                    }
+                    int containerSize = container.getContainerSize();
+                    for (int i = 0; i < containerSize; i++) {
+                        ItemStack itemstack = container.getItem(i);
+                        if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) {
+                            Optional<ItemStack> converted_to = itemstack.get(QuietusComponents.CAN_DECAY.get()).changeDecayAndMakeConvertedItemIfDecayed(itemstack, 1);
+                            if (converted_to.isPresent()) {
+                                itemstack = converted_to.get();
+                                container.setItem(i, itemstack);
+                            }
                         }
-                        int containerSize = container.getContainerSize();
-                        for (int i = 0; i < containerSize; i++) {
-                            ItemStack itemstack = container.getItem(i);
+                        if (level.getRandom().nextFloat() < tick_chance) { // accounts for randomTickSpeed gamerule
                             if (WeatheringItem.canWeather(itemstack.getItem())) {
                                 ItemStack[] surroundingItems = ContainerUtil.getSurroundingItems(i, 1, 1, container, perRow, false);
                                 Optional<Item> nextOptional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.dimensionType().ultraWarm());
                                 if (nextOptional.isPresent()) {
-                                    container.setItem(i, makeNewWeatheredStack(nextOptional, itemstack));
+                                    itemstack = makeNewWeatheredStack(nextOptional, itemstack);
+                                    container.setItem(i, itemstack);
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onServerTickPost(ServerTickEvent.Post event) {
+        MinecraftServer server = event.getServer();
+        int serverTick = server.getTickCount();
+        if (isTimeToDecay(server)) {
+            lastServerTick = serverTick;
         }
     }
 
@@ -213,11 +289,75 @@ public class WeatheringHandler {
 
     @SubscribeEvent
     public static void onBlockPlacement(BlockEvent.EntityPlaceEvent event) {
-        //BlockEntity blockEntity = event.getBlockSnapshot().recreateBlockEntity(event.getLevel().registryAccess());
         BlockEntity blockEntity = event.getLevel().getBlockEntity(event.getPos());
         if (blockEntity instanceof BaseContainerBlockEntity container) {
             LOADED_CONTAINERS.add(container);
         }
+    }
+    @SubscribeEvent
+    public static void onBlockDestruction(BlockEvent.BreakEvent event) {
+        BlockEntity blockEntity = event.getLevel().getBlockEntity(event.getPos());
+        if (blockEntity instanceof BaseContainerBlockEntity container) {
+            LOADED_CONTAINERS.remove(container);
+        }
+    }
+
+    /**
+     * Allows items otherwise identical but with different decay values to be stacked on each other
+     */
+    @SubscribeEvent
+    public static void onItemStackedOnOther(ItemStackedOnOtherEvent event) {
+        Slot targetSlot = event.getSlot();
+        SlotAccess carriedSlot = event.getCarriedSlotAccess();
+        ItemStack carriedItem = event.getCarriedItem();
+        ItemStack targetItem = event.getStackedOnItem();
+        if (carriedItem.isEmpty() || targetItem.isEmpty()) return; // do nothing if either items are empty
+        /* Checking if the items are all identical but Decay */
+        if (carriedItem.getItem() == targetItem.getItem() && carriedItem.has(QuietusComponents.CAN_DECAY.get()) && targetItem.has(QuietusComponents.CAN_DECAY.get())) {
+            DataComponentMap carried_components = carriedItem.getComponents();
+            DataComponentMap target_components = targetItem.getComponents();
+            Set<DataComponentType<?>> all_component_types = new HashSet<>(carried_components.keySet());
+            all_component_types.addAll(target_components.keySet());
+            boolean components_identical = true;
+            for (DataComponentType<?> type : all_component_types) {
+                if (type == QuietusComponents.DECAY.get()) { // skip decay value comparison
+                    continue;
+                } else if (!Objects.equals(carriedItem.get(type), targetItem.get(type))) {
+                    components_identical = false;
+                    System.out.println("unidentical on: " + type.toString());
+                    break;
+                }
+            }
+            if (components_identical) {
+                /* Checked are identical items but Decay, now make them merge */
+                int carried_decay = carriedItem.getOrDefault(QuietusComponents.DECAY.get(), 0).intValue();
+                int target_decay = targetItem.getOrDefault(QuietusComponents.DECAY.get(), 0).intValue();
+                int max_stack_size = targetItem.getMaxStackSize();
+                if (targetItem.getCount() != max_stack_size) { // the target item is not further stackable (count reaching its max stack)
+                    int over_max_count = carriedItem.getCount() + targetItem.getCount() - max_stack_size;
+                    if (over_max_count > 0) {
+                        ItemStack newCarriedItem = carriedItem.copy();
+                        newCarriedItem.setCount(over_max_count);
+                        carriedSlot.set(newCarriedItem);
+                        ItemStack newTargetItem = targetItem.copy();
+                        newTargetItem.set(QuietusComponents.DECAY.get(), (int)Math.floor((carried_decay*(carriedItem.getCount()-over_max_count) + target_decay*targetItem.getCount()) / max_stack_size));
+                        newTargetItem.setCount(max_stack_size);
+                        targetSlot.set(newTargetItem);
+                        event.setCanceled(true);
+                    } else {
+                        carriedSlot.set(ItemStack.EMPTY);
+                        ItemStack newTargetItem = targetItem.copy();
+                        newTargetItem.set(QuietusComponents.DECAY.get(), (int)Math.floor((carried_decay*carriedItem.getCount() + target_decay*targetItem.getCount()) / (carriedItem.getCount()+targetItem.getCount())));
+                        newTargetItem.setCount(carriedItem.getCount()+targetItem.getCount());
+                        targetSlot.set(newTargetItem);
+                        event.setCanceled(true);
+                    }
+                }
+            }
+            
+        }
+        /* slot.set(targetItem);
+        event.setCanceled(true); */
     }
 
     private static Optional<Item> checkAndGetNextWeatherItem(ItemStack itemstack, ItemStack[] surroundingItems, boolean isWarm) {
@@ -255,14 +395,20 @@ public class WeatheringHandler {
     }
 
     private static ItemStack makeNewWeatheredStack(Optional<Item> nextItemOptional, ItemStack oldStack) {
-        // copying components from old item, all but attribute modifiers and item name
         ItemStack newStack = new ItemStack(nextItemOptional.get(), oldStack.getCount());
         DataComponentPatch.Builder data_component_patch$builder = DataComponentPatch.builder();
-        oldStack.getComponents().forEach((component) -> { // newStack does not inherit the attribute modifiers, item name, item model and equippable (including equipment slots, equip sound and equipment entity model resource location)
+        /**
+         * the weathered newStack does not inherit the follows: 
+         * attribute modifiers, item name, item model 
+         * and equippable (including equipment slots, equip sound and equipment entity model resource location)
+         */
+        oldStack.getComponents().forEach((component) -> { 
             if (!component.type().equals(DataComponents.ATTRIBUTE_MODIFIERS) 
              && !component.type().equals(DataComponents.ITEM_NAME) 
              && !component.type().equals(DataComponents.ITEM_MODEL)
-             && !component.type().equals(DataComponents.EQUIPPABLE)) {
+             && !component.type().equals(DataComponents.EQUIPPABLE)
+             && !component.type().equals(DataComponents.FOOD)
+                && !component.type().equals(DataComponents.CONSUMABLE)) {
                 data_component_patch$builder.set((DataComponentType<Object>) component.type(), (Object) component.value());
             }
         });
@@ -283,20 +429,14 @@ public class WeatheringHandler {
         player.getInventory().setItem(index, itemStack); 
         player.inventoryMenu.broadcastChanges();
     }
-    //@SuppressWarnings("unchecked") // supressing builder.set((DataComponentType<Object>) component.type(), (Object) component.value()); Unchecked Warning
-    /*private static void weatherArmorItem(ArmorStand armorStand, Optional<Item> newItemOptional, ItemStack oldStack, EquipmentSlot slot) {
-        // copying components from old item, all but attribute modifiers and item name
-        ItemStack newStack = new ItemStack(newItemOptional.get());
-        DataComponentPatch.Builder builder = DataComponentPatch.builder();
-        oldStack.getComponents().forEach((component) -> { // newStack does not inherit the attribute modifiers, item name and item model
-            if (!component.type().equals(DataComponents.ATTRIBUTE_MODIFIERS) 
-             && !component.type().equals(DataComponents.ITEM_NAME) 
-             && !component.type().equals(DataComponents.ITEM_MODEL)) {
-                builder.set((DataComponentType<Object>) component.type(), (Object) component.value());
-            }
-        });
-        newStack.applyComponents(builder.build());
-        // setting the new item
-        armorStand.setItemSlot(slot, newStack); 
-    }*/
+    private static float getRandomTickChance(MinecraftServer server) {
+        return (float)server.getGameRules().getRule(RULE_RANDOMTICKING).get() / 4096.0f;
+    }
+
+    /**
+     * Decay methods
+     */
+    private static boolean isTimeToDecay(MinecraftServer server) {
+        return server.getTickCount() > (lastServerTick + server.getGameRules().getRule(QuietusGameRules.TICKS_PER_DECAY).get()); // decays once per 5 seconds (default game rule)
+    }
 }

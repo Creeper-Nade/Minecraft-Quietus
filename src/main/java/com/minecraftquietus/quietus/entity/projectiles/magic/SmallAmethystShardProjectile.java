@@ -1,7 +1,8 @@
 package com.minecraftquietus.quietus.entity.projectiles.magic;
 
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
-import com.minecraftquietus.quietus.util.Damage.QuietusDamageType;
+import com.minecraftquietus.quietus.util.damage.QuietusDamageType;
+
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
@@ -32,9 +33,6 @@ public class SmallAmethystShardProjectile extends QuietusProjectile {
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.AMETHYST_CLUSTER.defaultBlockState()),vec31.x, vec31.y,vec31.z, 5, 0,0,0,0.5);
             this.level().playSound(null, vec31.x, vec31.y, vec31.z,
                     SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.PLAYERS, 1.0F, random.nextFloat(1.0f,3.0f));
-
-            //level().addParticle(ParticleTypes.WITCH,
-            //        getX(), getY(), getZ(), 0, 0, 0);
         }
     }
 

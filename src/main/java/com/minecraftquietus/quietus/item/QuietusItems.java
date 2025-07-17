@@ -3,16 +3,13 @@ package com.minecraftquietus.quietus.item;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 
-import com.minecraftquietus.quietus.util.mana.ManaUtil;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.TestEnvironmentDefinition.Weather;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -20,8 +17,6 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -38,7 +33,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import static com.minecraftquietus.quietus.Quietus.MODID;
 import static com.minecraftquietus.quietus.block.QuietusBlocks.EXAMPLE_BLOCK;
 
-import com.minecraftquietus.quietus.item.WeatheringIronItems;
 import com.minecraftquietus.quietus.item.component.UsesMana;
 import com.minecraftquietus.quietus.item.equipment.AmethystArmorItem;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
@@ -46,16 +40,16 @@ import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.item.tool.CopperAxeItem;
 import com.minecraftquietus.quietus.item.tool.CopperHoeItem;
 import com.minecraftquietus.quietus.item.tool.CopperShovelItem;
-import com.minecraftquietus.quietus.item.tool.QuietusAxeItem;
-import com.minecraftquietus.quietus.item.tool.QuietusHoeItem;
 import com.minecraftquietus.quietus.item.tool.QuietusProjectileWeaponItem;
-import com.minecraftquietus.quietus.item.tool.QuietusShovelItem;
 import com.minecraftquietus.quietus.item.tool.QuietusToolMaterial;
 
 import java.util.function.Consumer;
 
 
 public class QuietusItems {
+    /**
+     * Attribute Modifiers ResourceLocation
+     */
     public static final ResourceLocation BASE_MAX_MANA_ID = ResourceLocation.fromNamespaceAndPath(MODID, "base_max_mana");
     public static final ResourceLocation BASE_MANA_REGEN_BONUS_ID = ResourceLocation.fromNamespaceAndPath(MODID, "base_mana_regen_bonus");
 
@@ -400,27 +394,3 @@ public class QuietusItems {
         REGISTRAR.register(eventBus);
     }
 }
-
-
-
-
-/*         Old register for quietus:amethyst_staff  
-            public static final DeferredItem<MagicalWeapon<amethystProjectile>> AMETHYST_STAFF =
-            REGISTRAR.register("amethyst_staff", () ->new MagicalWeapon<>(
-                    new QuietusItemProperties().projectileProperties(0, 5.0f, 0.05d, 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
-                        .manaUse(5, UsesMana.Operation.ADDITION, 0).useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:amethyst_staff"))).stacksTo(1).useCooldown(0.75f),
-                    QuietusProjectiles.AMETHYST_PROJECTILE, // Direct RegistryObject reference
-                    1.5f, 0.0f, 0.4f, 5f, 200,0.05, SoundEvents.AMETHYST_CLUSTER_HIT){
-                @Override
-                public void appendHoverText(ItemStack pStack, TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
-
-
-                    components.accept(CommonComponents.EMPTY);
-                    for(int i=1; i<=6;i++)
-                    {
-                        components.accept(Component.translatable("tooltip.quietus.amethyst_staff."+i));
-                    }
-                    super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
-                }
-
-            }); */

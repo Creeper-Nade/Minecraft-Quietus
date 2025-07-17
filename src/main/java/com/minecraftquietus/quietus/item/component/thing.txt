@@ -1,0 +1,31 @@
+public float getDecayFraction() {
+        return 1.0f - (float)this.decay / (float)this.maxDecay;
+    }
+    public int getDisplayColor() {
+        return this.getDisplayColor(0xFF);
+    }
+    public int getDisplayColor(int transparency) {
+        int pristine = 0xFF289B00;  // opaque green
+        int fresh = 0xFFAABB00;  // opaque lime 
+        int stale = 0xFFFFA500;  // opaque orange
+        int spoiled = 0xFFEE2222;  // opaque red
+        int defaultColor = 0xFFFFFFFF; // opaque white
+
+        float fraction = this.getDecayFraction();
+        if (fraction >= 0.8f && fraction <= 1.0f) {
+            return (pristine & 0x00FFFFFF) | ((transparency & 0xFF) << 24);
+        } else if (fraction >= 0.5f) {
+            return (fresh & 0x00FFFFFF) | ((transparency & 0xFF) << 24);
+        } else if (fraction >= 0.2f) {
+            return (stale & 0x00FFFFFF) | ((transparency & 0xFF) << 24);
+        } else if (fraction >= 0.0f) {
+            return (spoiled & 0x00FFFFFF) | ((transparency & 0xFF) << 24);
+        } else {
+            return (defaultColor & 0x00FFFFFF) | ((transparency & 0xFF) << 24);
+        }
+    }
+
+
+
+
+    stack.set(DataComponents.DAMAGE, Mth.clamp(damage, 0, stack.getMaxDamage()));
