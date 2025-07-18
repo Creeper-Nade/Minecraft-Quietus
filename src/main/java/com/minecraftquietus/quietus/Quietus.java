@@ -2,7 +2,7 @@ package com.minecraftquietus.quietus;
 
 
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
-import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeathScreen;
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
@@ -127,7 +127,7 @@ public class Quietus
         NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
        // NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
         NeoForge.EVENT_BUS.register(GhostMovementHandler.class);
-        NeoForge.EVENT_BUS.register(GhostDeathScreen.class);
+        NeoForge.EVENT_BUS.register(GhostDeath.class);
         // CreeperNade: The SpawnEvent class is never registered, so I'm adding it here for you 👀
         NeoForge.EVENT_BUS.register(SpawnEvent.class);
         //NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
@@ -219,7 +219,7 @@ public class Quietus
 
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
-        event.registerPipeline(GhostDeathScreen.ghostPipeline);
+        event.registerPipeline(GhostDeath.ghostPipeline);
         //event.registerPipeline(QuietusEmissiveLayer.FIXED_EMISSIVE);
     }
 

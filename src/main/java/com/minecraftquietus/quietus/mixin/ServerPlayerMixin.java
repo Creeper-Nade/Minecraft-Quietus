@@ -52,13 +52,13 @@ public abstract class ServerPlayerMixin extends Player {
             return;
         // Set ghost state
         CompoundTag data = player.getPersistentData();
-        boolean BossExists = !player.level().getEntities(
+        boolean boss_exists = !player.level().getEntities(
                 (Entity) null, // No specific entity type filter
                 player.getBoundingBox().inflate(1000), // 100 block radius
                 entity -> entity.getType().is(QuietusTags.Entity.BOSS_MONSTER)// Check tag
         ).isEmpty();
         int cooldown=100;
-        if(BossExists) cooldown=300;
+        if(boss_exists) cooldown=300;
 
         data.putBoolean("isGhost", true);
         data.putInt("reviveCooldown", cooldown);
@@ -68,13 +68,10 @@ public abstract class ServerPlayerMixin extends Player {
         String json = Component.Serializer.toJson(deathMessage, registries);
         data.putString("deathMessage", json);
 
-        PlayerData.GhostPackToPlayer(player,true,deathMessage,cooldown,hardcore);
-        PlayerData.ReviveCDToPlayer(player,cooldown);
-
-
-
-
+        PlayerData.ghostPackToPlayer(player,true,deathMessage,cooldown,hardcore);
+        PlayerData.revivalCDToPlayer(player,cooldown);
     }
+
     @Inject(method = "die", at = @At("TAIL"))
     private void handleGhostDeathTail(DamageSource cause, CallbackInfo ci) {
         ServerPlayer player = (ServerPlayer)(Object)this;
@@ -99,21 +96,21 @@ public abstract class ServerPlayerMixin extends Player {
 
         // Check ghost state
         if (!ClientPayloadHandler.getInstance().getGhostState()) return;
-        Boolean flag=ClientPayloadHandler.getInstance().getHardcore();
+        boolean is_hardcore = ClientPayloadHandler.getInstance().getHardcore();
 
         int cooldown = data.getIntOr("reviveCooldown",0);
-        if(flag)
+        if (is_hardcore)
         {
             if (cooldown > 60) {
                 data.putInt("reviveCooldown", cooldown - 1);
             }
         }
         // Handle cooldown
-        if(cooldown%20==0)
+        if (cooldown%20==0)
         {
-            PlayerData.ReviveCDToPlayer(player,cooldown);
+            PlayerData.revivalCDToPlayer(player,cooldown);
         }
-       if(flag) return;
+       if (is_hardcore) return;
 
         if (cooldown > 0) {
             data.putInt("reviveCooldown", cooldown - 1);
@@ -167,7 +164,7 @@ public abstract class ServerPlayerMixin extends Player {
         data.remove("ghostSafeX");
         data.remove("ghostSafeY");
         data.remove("ghostSafeZ");
-        PlayerData.GhostPackToPlayer(player,false, CommonComponents.EMPTY,0,hardcore);
+        PlayerData.ghostPackToPlayer(player,false, CommonComponents.EMPTY,0,hardcore);
         // Restore survival mode
         player.setGameMode(originalGameMode);
         player.onUpdateAbilities();

@@ -10,13 +10,14 @@ import net.minecraft.resources.ResourceLocation;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public record PlayerReviveCooldownPack(int cooldown) implements CustomPacketPayload  {
-    public static final CustomPacketPayload.Type<PlayerReviveCooldownPack> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"revive_cd"));
+public record PlayerRevivalCooldownPacket (int cooldown) implements CustomPacketPayload  {
+    
+    public static final CustomPacketPayload.Type<PlayerRevivalCooldownPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"revive_cd"));
 
-    public static final StreamCodec<FriendlyByteBuf,  PlayerReviveCooldownPack> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<FriendlyByteBuf,  PlayerRevivalCooldownPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT,
-            PlayerReviveCooldownPack::cooldown,
-            PlayerReviveCooldownPack::new
+            PlayerRevivalCooldownPacket::cooldown,
+            PlayerRevivalCooldownPacket::new
     );
 
     @Override

@@ -42,7 +42,7 @@ import java.util.OptionalInt;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 @EventBusSubscriber(modid=MODID)
-public class GhostDeathScreen{
+public class GhostDeath{
     private static Component deathMessage;
     private static int reviveCooldown;
     private static int playerScore;
@@ -60,7 +60,7 @@ public class GhostDeathScreen{
     private static GhostAmbientSound MoodSound;
 
 
-    public static void show(Component causeOfDeath) {
+    public static void showScreen(Component causeOfDeath) {
         deathMessage = causeOfDeath;
         reviveCooldown = ClientPayloadHandler.getInstance().getMaxReviveCD();
         playerScore = Minecraft.getInstance().player.getScore();
@@ -89,12 +89,12 @@ public class GhostDeathScreen{
         String json = nbt.getStringOr("deathMessage","death.attack.generic");
         Component deathMessage = Component.Serializer.fromJson(json, registries);
 
-        Boolean isGhost= nbt.getBooleanOr("isGhost",false);
-        boolean hardcore= player.level().getLevelData().isHardcore();
-        int ReviveCD= nbt.getIntOr("reviveCooldown",0);
+        Boolean isGhost = nbt.getBooleanOr("isGhost",false);
+        boolean hardcore = player.level().getLevelData().isHardcore();
+        int ReviveCD = nbt.getIntOr("reviveCooldown",0);
 
-        PlayerData.GhostPackToPlayer(player,isGhost,deathMessage,ReviveCD,hardcore);
-        PlayerData.ReviveCDToPlayer(player,ReviveCD);
+        PlayerData.ghostPackToPlayer(player,isGhost,deathMessage,ReviveCD,hardcore);
+        PlayerData.revivalCDToPlayer(player,ReviveCD);
 
     }
 

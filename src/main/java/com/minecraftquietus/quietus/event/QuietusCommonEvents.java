@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.event;
 
-import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeathScreen;
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.item.QuietusComponents;
@@ -171,7 +171,7 @@ public class QuietusCommonEvents {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
-            PlayerData.ManapackToPlayer(serverPlayer);
+            PlayerData.manaPackToPlayer(serverPlayer);
         } 
     }
 

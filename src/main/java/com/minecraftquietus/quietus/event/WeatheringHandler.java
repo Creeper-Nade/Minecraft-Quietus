@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
@@ -28,6 +30,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -46,6 +49,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.ItemStackedOnOtherEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
@@ -266,6 +270,27 @@ public class WeatheringHandler {
             lastServerTick = serverTick;
         }
     }
+    
+    /* @SubscribeEvent
+    public static void onClientTickPost(ClientTickEvent.Post event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        LocalPlayer player = minecraft.player;
+        if (Objects.nonNull(player)) {
+            Inventory inv = player.getInventory();
+            int slot = inv.getSelectedSlot();
+            ItemStack itemstackor = inv.getItem(slot);
+            ItemStack itemstack = itemstackor.copy();
+            if (!itemstack.isEmpty() && itemstack.has(QuietusComponents.CAN_DECAY.get()) && player.isShiftKeyDown()){
+                System.out.println("test");
+                Optional<ItemStack> converted_to = itemstack.get(QuietusComponents.CAN_DECAY.get()).changeDecayAndMakeConvertedItemIfDecayed(itemstack, 1);
+                if (converted_to.isPresent()) {
+                inv.setItem(slot, converted_to.get());}
+                else {
+                    inv.setItem(slot, itemstack);
+                }
+            }
+        }
+    } */
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
@@ -422,6 +447,7 @@ public class WeatheringHandler {
             player.getInventory().setItem(slot.getIndex(Inventory.INVENTORY_SIZE), itemStack); // using this specifically for players can set items 'silently'; e.g. for armor without triggering equipment sound
             player.inventoryMenu.broadcastChanges();
         } else {
+            entity.getSlot(slot.getIndex(100)).set(itemStack);
             entity.setItemSlot(slot, itemStack); 
         }
     }

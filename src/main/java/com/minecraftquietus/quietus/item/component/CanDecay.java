@@ -11,10 +11,11 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public record CanDecay(
     int maxDecay,
-    ItemStack convertsInto
+    ItemStack convertInto
 ) {
     public float getDecayFraction(int decay) {
         return 1.0f - (float)decay / (float)this.maxDecay;
@@ -55,7 +56,7 @@ public record CanDecay(
     }
     public Optional<ItemStack> changeDecayAndMakeConvertedItemIfDecayed(ItemStack itemstack, int amount) {
         if (this.setDecay(itemstack, itemstack.getOrDefault(QuietusComponents.DECAY.get(), 0).intValue()+amount)) {
-            ItemStack newstack = this.convertsInto.copy();
+            ItemStack newstack = this.convertInto.copy();
             newstack.setCount(itemstack.getCount());
             return Optional.of(newstack);
         }
@@ -66,13 +67,13 @@ public record CanDecay(
     public static final Codec<CanDecay> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.INT.fieldOf("max_decay").forGetter(CanDecay::maxDecay),
-            ItemStack.CODEC.optionalFieldOf("converts_into", ItemStack.EMPTY).forGetter(CanDecay::convertsInto)
+            ItemStack.OPTIONAL_CODEC.optionalFieldOf("convert_into", ItemStack.EMPTY).forGetter(CanDecay::convertInto)
         ).apply(instance, CanDecay::new)
     );
     // Serialization Codec for network
     public static final StreamCodec<RegistryFriendlyByteBuf, CanDecay> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.INT, CanDecay::maxDecay,
-        ItemStack.STREAM_CODEC, CanDecay::convertsInto,
+        ItemStack.OPTIONAL_STREAM_CODEC, CanDecay::convertInto,
         CanDecay::new
     );
 
@@ -82,7 +83,7 @@ public record CanDecay(
             return true;
         } else {
             return other instanceof CanDecay candecay 
-                ? this.convertsInto.getItem().equals(candecay.convertsInto().getItem()) && this.convertsInto.getCount() == candecay.convertsInto().getCount() && this.convertsInto.getComponentsPatch().equals(candecay.convertsInto().getComponentsPatch()) 
+                ? this.convertInto.getItem().equals(candecay.convertInto().getItem()) && this.convertInto.getCount() == candecay.convertInto().getCount() && this.convertInto.getComponentsPatch().equals(candecay.convertInto().getComponentsPatch()) 
                     && this.maxDecay == candecay.maxDecay()
                 : false;
         }

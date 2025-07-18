@@ -12,19 +12,19 @@ import net.minecraft.resources.ResourceLocation;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public record GhostStatePayload(boolean isGhost, Component message,int Max_CD,boolean hardcore) implements CustomPacketPayload {
-    public static final Type<GhostStatePayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"ghost_state"));
+public record GhostStatePacket(boolean isGhost, Component message,int Max_CD,boolean hardcore) implements CustomPacketPayload {
+    public static final Type<GhostStatePacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"ghost_state"));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, GhostStatePayload> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, GhostStatePacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL,
-            GhostStatePayload::isGhost,
+            GhostStatePacket::isGhost,
             ComponentSerialization.TRUSTED_STREAM_CODEC,
-            GhostStatePayload::message,
+            GhostStatePacket::message,
             ByteBufCodecs.INT,
-            GhostStatePayload::Max_CD,
+            GhostStatePacket::Max_CD,
             ByteBufCodecs.BOOL,
-            GhostStatePayload::hardcore,
-            GhostStatePayload::new
+            GhostStatePacket::hardcore,
+            GhostStatePacket::new
     );
 
     @Override

@@ -8,20 +8,20 @@ import net.minecraft.resources.ResourceLocation;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public record ManaPack(int MaxMana, int Mana,boolean fast_charging) implements CustomPacketPayload {
-    public static final Type<ManaPack> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"mana_pack"));
+public record ManaPacket(int MaxMana, int Mana,boolean FastCharging) implements CustomPacketPayload {
+    public static final Type<ManaPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"mana_pack"));
 
-    public ManaPack(final FriendlyByteBuf buf){
+    public ManaPacket(final FriendlyByteBuf buf){
         this(buf.readInt(),buf.readInt(),buf.readBoolean());
     }
     public void Encode(FriendlyByteBuf buf){
         buf.writeInt(MaxMana());
         buf.writeInt(Mana());
-        buf.writeBoolean(fast_charging());
+        buf.writeBoolean(FastCharging());
     }
 
 
-    public static final StreamCodec<FriendlyByteBuf, ManaPack> MANA_PACK_STREAM_CODEC = StreamCodec.ofMember(ManaPack::Encode, ManaPack::new);
+    public static final StreamCodec<FriendlyByteBuf, ManaPacket> STREAM_CODEC = StreamCodec.ofMember(ManaPacket::Encode, ManaPacket::new);
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;

@@ -1,10 +1,10 @@
 package com.minecraftquietus.quietus.util.handler;
 
-import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeathScreen;
+import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
-import com.minecraftquietus.quietus.packet.GhostStatePayload;
-import com.minecraftquietus.quietus.packet.ManaPack;
-import com.minecraftquietus.quietus.packet.PlayerReviveCooldownPack;
+import com.minecraftquietus.quietus.packet.GhostStatePacket;
+import com.minecraftquietus.quietus.packet.ManaPacket;
+import com.minecraftquietus.quietus.packet.PlayerRevivalCooldownPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -20,9 +20,9 @@ public class ClientPayloadHandler {
         return INSTANCE;
     }
 
-    private static int maxMana;
-    private static int mana;
-    private static boolean Mana_Speed_Charging;
+    private static int MaxMana;
+    private static int Mana;
+    private static boolean ManaFastCharging;
 
     private static boolean PlayerIsGhost;
     private static boolean IsHardCore;
@@ -30,53 +30,36 @@ public class ClientPayloadHandler {
     private static int ReviveCD;
 
 
-    public static void ManaHandler(final ManaPack Mpack, final IPayloadContext context) {
-        // Do something with the data, on the network thread
-        // 在network 线程中对data数据做一些处理的话，代码写在这里。
-
-        // Do something with the data, on the main thread
-        // 在Main 线程里面做一些什么，代码西在下面
+    public static void handleMana(final ManaPacket Mpack, final IPayloadContext context) {
         context.enqueueWork(() -> {
-                    // 写在这里
-                    //System.out.println(Mpack.Mana());
-                    maxMana = Mpack.MaxMana();
-                    mana = Mpack.Mana();
-                    Mana_Speed_Charging=Mpack.fast_charging();
+                    MaxMana = Mpack.MaxMana();
+                    Mana = Mpack.Mana();
+                    ManaFastCharging = Mpack.FastCharging();
                 })
                 .exceptionally(e -> {
-                    // 处理异常
-                    // Handle exception
-                    context.disconnect(Component.translatable("my_mod.networking.failed", e.getMessage()));
+                    context.disconnect(Component.translatable("quietus.networking.failed", e.getMessage()));
                     return null;
                 });
     }
-    public int GetMaxManaFromPack()
-    {
-        return maxMana;
-    }
-    public boolean GetManaChargeStatus(){return Mana_Speed_Charging;}
-    public int GetManaFromPack()
-    {
-        return mana;
-    }
+    public int GetMaxManaFromPack() {return MaxMana;}
+    public boolean GetManaChargeStatus(){return ManaFastCharging;}
+    public int GetManaFromPack() {return Mana;}
 
-    public static void handleGhostState(final GhostStatePayload payload,final IPayloadContext context) {
+    public static void handleGhostState(final GhostStatePacket payload,final IPayloadContext context) {
         context.enqueueWork(() -> {
-                    PlayerIsGhost=payload.isGhost();
-                    MaxReviveCD=payload.Max_CD();
-                    IsHardCore= payload.hardcore();
+                    PlayerIsGhost = payload.isGhost();
+                    MaxReviveCD = payload.Max_CD();
+                    IsHardCore = payload.hardcore();
                     if(payload.isGhost())
                     {
-                        GhostDeathScreen.show(payload.message());
+                        GhostDeath.showScreen(payload.message());
                         GhostMovementHandler.Init();
                     }
 
 
                 })
                 .exceptionally(e -> {
-                    // 处理异常
-                    // Handle exception
-                    context.disconnect(Component.translatable("my_mod.networking.failed", e.getMessage()));
+                    context.disconnect(Component.translatable("quietus.networking.failed", e.getMessage()));
                     return null;
                 });
 
@@ -85,12 +68,12 @@ public class ClientPayloadHandler {
     public boolean getHardcore(){return IsHardCore;}
     public int getMaxReviveCD(){return MaxReviveCD;}
 
-    public static void handleReviveCD(final PlayerReviveCooldownPack payload, final IPayloadContext context) {
+    public static void handleReviveCD(final PlayerRevivalCooldownPacket payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
-                    ReviveCD= payload.cooldown();
+                    ReviveCD = payload.cooldown();
                 })
                 .exceptionally(e -> {
-                    context.disconnect(Component.translatable("my_mod.networking.failed", e.getMessage()));
+                    context.disconnect(Component.translatable("quietus.networking.failed", e.getMessage()));
                     return null;
                 });
 

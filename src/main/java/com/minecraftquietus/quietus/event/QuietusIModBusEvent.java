@@ -2,9 +2,9 @@ package com.minecraftquietus.quietus.event;
 
 import com.minecraftquietus.quietus.client.item.DecayBarDecorator;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
-import com.minecraftquietus.quietus.packet.GhostStatePayload;
-import com.minecraftquietus.quietus.packet.ManaPack;
-import com.minecraftquietus.quietus.packet.PlayerReviveCooldownPack;
+import com.minecraftquietus.quietus.packet.GhostStatePacket;
+import com.minecraftquietus.quietus.packet.ManaPacket;
+import com.minecraftquietus.quietus.packet.PlayerRevivalCooldownPacket;
 import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,6 +21,7 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -42,16 +43,19 @@ public class QuietusIModBusEvent {
     @SubscribeEvent
     public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {
         final PayloadRegistrar registrar = event.registrar(MODID);
-        registrar.playToClient(ManaPack.TYPE, ManaPack.MANA_PACK_STREAM_CODEC, ClientPayloadHandler::ManaHandler);
         registrar.playToClient(
-                GhostStatePayload.TYPE,
-                GhostStatePayload.STREAM_CODEC,
-                ClientPayloadHandler::handleGhostState
+            ManaPacket.TYPE, 
+            ManaPacket.STREAM_CODEC, 
+            ClientPayloadHandler::handleMana);
+        registrar.playToClient(
+            GhostStatePacket.TYPE,
+            GhostStatePacket.STREAM_CODEC,
+            ClientPayloadHandler::handleGhostState
         );
         registrar.playToClient(
-                PlayerReviveCooldownPack.TYPE,
-                PlayerReviveCooldownPack.STREAM_CODEC,
-                ClientPayloadHandler::handleReviveCD
+            PlayerRevivalCooldownPacket.TYPE,
+            PlayerRevivalCooldownPacket.STREAM_CODEC,
+            ClientPayloadHandler::handleReviveCD
         );
     }
 

@@ -39,7 +39,7 @@ public class DecayBarDecorator implements IItemDecorator {
             int outline_width = 1; // must not be negative
             int outline_height = 1; // must not be negative
             int height_offset = Math.round((height-1-outline_height*2) * fraction); // the height depending on how decayed is this item
-            int color = decayComponent.getDisplayColor(decay, 0x66);
+            int color = decayComponent.getDisplayColor(decay, 0x88);
             int color_transparent = decayComponent.getDisplayColor(decay, 0x48);
             /* int color = 0x66000038 | Mth.hsvToRgb((float)Math.round(fraction*2.5) / 2.5f * 0.33f, 1.0f, 1.0f); 
             int color_transparent = 0x48000098 | Mth.hsvToRgb((float)Math.round(fraction*3) / 3.0f * 0.33f, 1.0f, 1.0f); // green (normal) -> red (decayed) */
