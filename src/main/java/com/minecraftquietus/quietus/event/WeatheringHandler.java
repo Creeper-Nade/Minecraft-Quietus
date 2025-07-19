@@ -289,7 +289,7 @@ public class WeatheringHandler {
                     } else 
                     /* Furnaces have special logic: if lit, input item does not weather */
                     if (container instanceof AbstractFurnaceBlockEntity furnaceBlockEntity) {
-                        perRow = -1;
+                        perRow = -2;
                         int furnaceSize = furnaceBlockEntity.getContainerSize();
                         if (furnaceBlockEntity.getBlockState().getValue(AbstractFurnaceBlock.LIT)) { // is lit
                             for (int i = 1; i < furnaceSize; i ++) { // vanilla furnaces have fuel on slot 1, result on slot 2.
@@ -300,7 +300,7 @@ public class WeatheringHandler {
                             continue; // skip following generic logic
                         }
                     } else {
-                        continue;
+                        perRow = -1;
                     }
                     int containerSize = container.getContainerSize();
                     for (int i = 0; i < containerSize; i++) {
