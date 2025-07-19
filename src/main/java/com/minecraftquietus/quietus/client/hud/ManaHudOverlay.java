@@ -1,6 +1,5 @@
-package com.minecraftquietus.quietus.util.mana;
+package com.minecraftquietus.quietus.client.hud;
 
-import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -13,6 +12,8 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.Random;
+
+import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 

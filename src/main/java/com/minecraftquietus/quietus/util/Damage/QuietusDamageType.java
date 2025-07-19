@@ -9,7 +9,6 @@ import net.minecraft.world.damagesource.DamageEffects;
 import net.minecraft.world.damagesource.DamageScaling;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DeathMessageType;
-import net.minecraft.world.item.enchantment.Enchantment;
 
 public class QuietusDamageType {
     public static final ResourceKey<DamageType> MAGIC_PROJECTILE_DAMAGE =

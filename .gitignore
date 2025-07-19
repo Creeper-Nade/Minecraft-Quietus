@@ -26,3 +26,11 @@ run-data
 repo
 .DS_Store
 .vscode/launch.json
+src/generated/resources/.cache/103d9f3f36b01595f1aa5172191e60eff02e6924
+src/generated/resources/.cache/1edd1aa8a5f5209e40be6ce639ab3fdd92079a0c
+src/generated/resources/.cache/26b0f15e076f9474815657280749f5098ea3bcd2
+src/generated/resources/.cache/3bd7de217172dc6831362868d30259919a766e65
+src/generated/resources/.cache/5d4aade95a39ecef6222360c8c6281a375fb61c0
+src/generated/resources/.cache/ce4c56409eea8d38d71666e699f49c1e4bfd3226
+gradle/gradle-daemon-jvm.properties
+gradle/gradle-daemon-jvm.properties

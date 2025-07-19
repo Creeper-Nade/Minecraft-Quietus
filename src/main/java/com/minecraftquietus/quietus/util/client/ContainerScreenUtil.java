@@ -1,7 +1,5 @@
 package com.minecraftquietus.quietus.util.client;
 
-import static com.minecraftquietus.quietus.block.QuietusBlocks.register;
-
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;

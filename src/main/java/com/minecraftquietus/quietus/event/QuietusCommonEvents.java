@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.event;
 
+import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.effects.QuietusEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
@@ -9,11 +10,10 @@ import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
+import com.minecraftquietus.quietus.util.ManaUtil;
 import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusGameRules;
-import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
-import com.minecraftquietus.quietus.util.mana.ManaUtil;
 import com.minecraftquietus.quietus.tags.QuietusTags;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.logging.LogUtils;
@@ -171,7 +171,7 @@ public class QuietusCommonEvents {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
-            PlayerData.manaPackToPlayer(serverPlayer);
+            PlayerData.sendManaPackToPlayer(serverPlayer);
         } 
     }
 

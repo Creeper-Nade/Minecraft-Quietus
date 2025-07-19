@@ -14,7 +14,7 @@ import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 import com.minecraftquietus.quietus.util.QuietusGameRules;
-import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
+
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.level.GameRules;
@@ -51,6 +51,7 @@ import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
+import com.minecraftquietus.quietus.client.hud.ManaHudOverlay;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileRenderer;
 
 

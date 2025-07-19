@@ -1,8 +1,7 @@
 package com.minecraftquietus.quietus.core;
 
+import com.minecraftquietus.quietus.util.ManaUtil;
 import com.minecraftquietus.quietus.util.PlayerData;
-import com.minecraftquietus.quietus.util.mana.ManaUtil;
-import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -14,6 +13,8 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
+
+import com.minecraftquietus.quietus.client.hud.ManaHudOverlay;
 
 
 public class ManaComponent implements INBTSerializable<CompoundTag> {
@@ -192,7 +193,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     private void SendPacketToPlayer(LivingEntity entity)
     {
         if (entity instanceof ServerPlayer serverPlayer) {
-            PlayerData.manapackToPlayer(serverPlayer,this);
+            PlayerData.sendManaPackToPlayer(serverPlayer,this);
         }
     }
 

@@ -1,11 +1,13 @@
 package com.minecraftquietus.quietus.event;
 
+import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.client.item.DecayBarDecorator;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
+import com.minecraftquietus.quietus.packet.DoDecayPacket;
 import com.minecraftquietus.quietus.packet.GhostStatePacket;
 import com.minecraftquietus.quietus.packet.ManaPacket;
 import com.minecraftquietus.quietus.packet.PlayerRevivalCooldownPacket;
-import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
+import com.minecraftquietus.quietus.packet.WeatherItemContainerPacket;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -56,6 +58,16 @@ public class QuietusIModBusEvent {
             PlayerRevivalCooldownPacket.TYPE,
             PlayerRevivalCooldownPacket.STREAM_CODEC,
             ClientPayloadHandler::handleReviveCD
+        );
+        registrar.playToClient(
+            DoDecayPacket.TYPE,
+            DoDecayPacket.STREAM_CODEC,
+            ClientPayloadHandler::handleDoDecay
+        );
+        registrar.playToClient(
+            WeatherItemContainerPacket.TYPE,
+            WeatherItemContainerPacket.STREAM_CODEC,
+            ClientPayloadHandler::handleWeatherItemContainer
         );
     }
 

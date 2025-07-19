@@ -1,9 +1,10 @@
 package com.minecraftquietus.quietus.mixin;
 
+import com.minecraftquietus.quietus.client.hud.ManaHudOverlay;
 import com.minecraftquietus.quietus.core.ManaComponent;
 import com.minecraftquietus.quietus.event.QuietusCommonEvents;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
-import com.minecraftquietus.quietus.util.mana.ManaHudOverlay;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.world.entity.player.Player;

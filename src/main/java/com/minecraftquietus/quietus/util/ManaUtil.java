@@ -1,7 +1,6 @@
-package com.minecraftquietus.quietus.util.mana;
+package com.minecraftquietus.quietus.util;
 
 import com.minecraftquietus.quietus.core.ManaComponent;
-import com.minecraftquietus.quietus.util.QuietusAttachments;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;

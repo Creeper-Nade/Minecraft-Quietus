@@ -2,7 +2,7 @@
   "required": true,
   "package": "com.minecraftquietus.quietus.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["GuiMixin","PotionStackMixin","ServerPlayerMixin"],
+  "mixins": ["GuiMixin","PotionStackMixin","ServerPlayerMixin","AbstractFurnaceBlockEntityMixin"],
   "client": [],
   "server": [],
   "injectors": {

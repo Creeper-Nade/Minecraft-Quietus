@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.core.DeathRevamp;
 
-import com.minecraftquietus.quietus.util.handler.ClientPayloadHandler;
+import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.ClientInput;
