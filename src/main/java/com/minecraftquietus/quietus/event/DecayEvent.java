@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.event;
 
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 
@@ -13,11 +14,13 @@ import net.neoforged.bus.api.ICancellableEvent;
 public class DecayEvent extends Event implements ICancellableEvent {
     private final ItemStack original;
     private final ItemStack convertInto;
+    private final Level level;
     private ItemStack finalItem;
 
-    public DecayEvent(ItemStack original, ItemStack convertInto) {
+    public DecayEvent(ItemStack original, ItemStack convertInto, Level level) {
         this.original = original;
         this.convertInto = convertInto;
+        this.level = level;
         this.finalItem = convertInto;
     }
     
@@ -27,6 +30,10 @@ public class DecayEvent extends Event implements ICancellableEvent {
 
     public ItemStack getItemConvertInto() {
         return this.convertInto;
+    }
+
+    public Level getLevel() {
+        return this.level;
     }
 
     public void setItemConvertInto(ItemStack itemstack) {

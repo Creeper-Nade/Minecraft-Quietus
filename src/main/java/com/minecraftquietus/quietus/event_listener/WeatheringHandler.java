@@ -162,7 +162,7 @@ public class WeatheringHandler {
             Optional<ItemStack> converted_to = itemstack.get(QuietusComponents.CAN_DECAY.get()).changeDecayAndMakeConvertedItemIfDecayed(itemstack, 1);
             hasDecayed = true;
             if (converted_to.isPresent()) {
-                DecayEvent event = new DecayEvent(itemstack, converted_to.get());
+                DecayEvent event = new DecayEvent(itemstack, converted_to.get(), level);
                 if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
                     itemstack = event.getFinalItem();
                     hasChangedItem = true;
