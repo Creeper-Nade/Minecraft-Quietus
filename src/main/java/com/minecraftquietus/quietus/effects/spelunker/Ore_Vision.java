@@ -1,7 +1,7 @@
 package com.minecraftquietus.quietus.effects.spelunker;
 
 import com.minecraftquietus.quietus.Quietus;
-import com.minecraftquietus.quietus.effects.QuietusEffects;
+import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -116,7 +116,7 @@ public class Ore_Vision {
             return;
         }
 
-        if (player.hasEffect(QuietusEffects.SPELUNKING_EFFECT) && player != null) {
+        if (player.hasEffect(QuietusMobEffects.SPELUNKING_EFFECT) && player != null) {
             // this is a world pos of the player
             Ore_Vision.updateVisibleOres(player);
             Ore_Vision.renderOreOutlines(poseStack);

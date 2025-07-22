@@ -1,8 +1,8 @@
-package com.minecraftquietus.quietus.event;
+package com.minecraftquietus.quietus.event_listener;
 
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
-import com.minecraftquietus.quietus.effects.QuietusEffects;
+import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.component.CanDecay;
@@ -35,29 +35,21 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.BowItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.GameType;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
-import net.neoforged.neoforge.event.ItemStackedOnOtherEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
-import static net.neoforged.neoforge.common.NeoForge.EVENT_BUS;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -276,7 +268,7 @@ public class QuietusCommonEvents {
         LocalPlayer player = minecraft.player;
         if(player==null) return;
 
-        if (Minecraft.getInstance().level != null && player.hasEffect(QuietusEffects.SPELUNKING_EFFECT)) {
+        if (Minecraft.getInstance().level != null && player.hasEffect(QuietusMobEffects.SPELUNKING_EFFECT)) {
             Ore_Vision.IfPlayerMoved(player);
         }
 

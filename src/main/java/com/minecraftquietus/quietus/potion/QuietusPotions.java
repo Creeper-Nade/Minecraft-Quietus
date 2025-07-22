@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.potion;
 
-import com.minecraftquietus.quietus.effects.QuietusEffects;
+import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -25,20 +25,20 @@ public class QuietusPotions {
 
     public static final DeferredHolder<Potion,Potion> SPELUNKING = POTIONS.register("spelunking", () -> new Potion("spelunking",
             new MobEffectInstance[]{
-                    new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,3600)
+                    new MobEffectInstance(QuietusMobEffects.SPELUNKING_EFFECT,3600)
             }));
     public static final DeferredHolder<Potion,Potion> LONG_SPELUNKING = POTIONS.register("long_spelunking", () -> new Potion("spelunking",
             new MobEffectInstance[]{
-                    new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,6000)
+                    new MobEffectInstance(QuietusMobEffects.SPELUNKING_EFFECT,6000)
             }));
     public static final DeferredHolder<Potion,Potion> STRONG_SPELUNKING = POTIONS.register("strong_spelunking", () -> new Potion("spelunking",
             new MobEffectInstance[]{
-                    new MobEffectInstance(QuietusEffects.SPELUNKING_EFFECT,2400,1)
+                    new MobEffectInstance(QuietusMobEffects.SPELUNKING_EFFECT,2400,1)
             }));
 
     public static final DeferredHolder<Potion,Potion> LESSER_INSTANT_MANA = POTIONS.register("lesser_instant_mana", () -> new Potion("lesser_instant_mana",
             new MobEffectInstance[]{
-                    new MobEffectInstance(QuietusEffects.INSTANT_MANA,0)
+                    new MobEffectInstance(QuietusMobEffects.INSTANT_MANA,0)
             }));
     
 

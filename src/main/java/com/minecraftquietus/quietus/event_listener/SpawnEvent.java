@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.event;
+package com.minecraftquietus.quietus.event_listener;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 

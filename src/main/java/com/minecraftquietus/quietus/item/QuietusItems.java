@@ -47,6 +47,13 @@ import java.util.function.Consumer;
 
 
 public class QuietusItems {
+
+
+    public static void init() {
+        QuietusFoods.init();
+        QuietusConsumables.init();
+    }
+
     /**
      * Attribute Modifiers ResourceLocation
      */
@@ -65,6 +72,14 @@ public class QuietusItems {
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = REGISTRAR.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
     public static final DeferredItem<Item> EXAMPLE_ITEM = REGISTRAR.registerSimpleItem("example_item", new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
+    //#endregion
+
+    //#region FOODS
+    public static final DeferredItem<Item> MOLD = REGISTRAR.registerItem("mold", Item::new, new Item.Properties().food(QuietusFoods.MOLD, QuietusConsumables.MOLD));
+    public static final DeferredItem<Item> MOLD_BUCKET = REGISTRAR.registerItem("mold_bucket", Item::new, new Item.Properties().craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.MOLD_BUCKET, QuietusConsumables.MOLD_BUCKET));
+    public static final DeferredItem<Item> MOLD_BOWL = REGISTRAR.registerItem("mold_bowl", Item::new, new Item.Properties().craftRemainder(Items.BOWL).usingConvertsTo(Items.BOWL).food(QuietusFoods.MOLD_BOWL, QuietusConsumables.MOLD_BOWL));
+    public static final DeferredItem<Item> YOGHURT_BUCKET = REGISTRAR.registerItem("yoghurt_bucket", properties -> new Item(new QuietusItemProperties().canDecay(192, new ItemStack(MOLD_BUCKET.get())).craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.YOGHURT_BUCKET, QuietusConsumables.YOGHURT_BUCKET).setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MODID, "yoghurt_bucket")))));
+    public static final DeferredItem<Item> CHEESE_BUCKET = REGISTRAR.registerItem("cheese_bucket", properties -> new Item(new QuietusItemProperties().canDecay(192, new ItemStack(MOLD_BUCKET.get())).craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.CHEESE_BUCKET, QuietusConsumables.CHEESE_BUCKET).setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MODID, "cheese_bucket")))));
     //#endregion
 
     //#region EQUIPMENTS

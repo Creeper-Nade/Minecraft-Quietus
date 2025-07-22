@@ -58,7 +58,6 @@ public abstract class AbstractFurnaceBlockEntityMixin {
             );
         }
     }
-    @SuppressWarnings("null")
     @Inject(
         method = "burn",
         at = @At(

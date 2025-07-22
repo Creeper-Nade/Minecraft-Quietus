@@ -7,9 +7,6 @@ import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
-import com.minecraftquietus.quietus.event.QuietusCommonEvents;
-import com.minecraftquietus.quietus.event.QuietusIModBusEvent;
-import com.minecraftquietus.quietus.event.SpawnEvent;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
@@ -45,12 +42,15 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import com.minecraftquietus.quietus.block.QuietusBlocks;
-import com.minecraftquietus.quietus.effects.QuietusEffects;
+import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
+import com.minecraftquietus.quietus.event_listener.QuietusCommonEvents;
+import com.minecraftquietus.quietus.event_listener.QuietusIModBusEvent;
+import com.minecraftquietus.quietus.event_listener.SpawnEvent;
 import com.minecraftquietus.quietus.client.hud.ManaHudOverlay;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileRenderer;
 
@@ -109,6 +109,7 @@ public class Quietus
         modEventBus.addListener(this::commonSetup);
 
 
+        QuietusItems.init();
         //ITEMS.register(modEventBus);
         QuietusItems.register(modEventBus);
         QuietusComponents.register(modEventBus);
@@ -116,7 +117,7 @@ public class Quietus
         QuietusBlocks.register(modEventBus);
         QuietusSounds.register(modEventBus);
         QuietusPotions.register(modEventBus);
-        QuietusEffects.register(modEventBus);
+        QuietusMobEffects.register(modEventBus);
         QuietusEntityTypes.register(modEventBus);
 
         QuietusProjectiles.register(modEventBus);
@@ -248,10 +249,10 @@ public class Quietus
 
         // Safe getters for cached values
         public static int getRange(LocalPlayer player) {
-            if (!player.hasEffect(QuietusEffects.SPELUNKING_EFFECT)) return 0;
+            if (!player.hasEffect(QuietusMobEffects.SPELUNKING_EFFECT)) return 0;
 
             // Amplifier is 0 for level I, 1 for level II, etc.
-            int amplifier = player.getEffect(QuietusEffects.SPELUNKING_EFFECT).getAmplifier();
+            int amplifier = player.getEffect(QuietusMobEffects.SPELUNKING_EFFECT).getAmplifier();
             int rangePerLevel = 3; // Additional blocks per level
 
             return cachedRange + (amplifier * rangePerLevel);

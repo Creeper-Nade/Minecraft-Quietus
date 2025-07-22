@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 
 public interface RetaliatesOnDamaged {
     /**
-    * invoked in {@link com.minecraftquietus.quietus.event.QuietusCommonEvents} when a LivingEntity has damage reducted by armor.
+    * invoked in {@link com.minecraftquietus.quietus.event_listener.QuietusCommonEvents} when a LivingEntity has damage reducted by armor.
     * @param damage final damage (post reduction effects applied) the entity took
     * @param armorMap map of EquipmentSlot to ItemStack of the entity's all armor equipments
     * @param slot the slot this item should be in of the wearer

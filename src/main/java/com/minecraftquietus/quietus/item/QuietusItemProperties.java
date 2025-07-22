@@ -7,6 +7,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import com.minecraftquietus.quietus.item.component.CanDecay;
 import com.minecraftquietus.quietus.item.component.UsesMana;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterial;
 import com.minecraftquietus.quietus.item.property.SoundAsset;
@@ -81,6 +82,10 @@ public class QuietusItemProperties extends Item.Properties {
                 Equippable.builder(type.getSlot()).setEquipSound(material.equipSound()).setAsset(material.assetId()).build()
             )
             .repairable(material.repairIngredient());
+    }
+
+    public QuietusItemProperties canDecay(int maxDecay, ItemStack convertInto) {
+        return (QuietusItemProperties)this.component(QuietusComponents.CAN_DECAY, CanDecay.builder().maxDecay(maxDecay).convertsInto(convertInto).build());
     }
 
     public ProjectileWeaponProperty projectileWeaponProperty;

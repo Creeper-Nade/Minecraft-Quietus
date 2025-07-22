@@ -1,6 +1,8 @@
-package com.minecraftquietus.quietus.event;
+package com.minecraftquietus.quietus.event_listener;
 
+import com.minecraftquietus.quietus.event.DecayEvent;
 import com.minecraftquietus.quietus.item.QuietusComponents;
+import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems;
 import com.minecraftquietus.quietus.item.WeatheringIronItems;
 import com.minecraftquietus.quietus.item.WeatheringItem;
@@ -17,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -59,10 +62,12 @@ import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.ItemStackedOnOtherEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
@@ -89,6 +94,28 @@ public class WeatheringHandler {
     private static final Set<BaseContainerBlockEntity> LOADED_CONTAINERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private static int lastServerTick = 0;
+
+    @SubscribeEvent
+    public static void onDecay(DecayEvent event) {
+        ItemStack originalItem = event.getOriginalItem();
+        ItemStack convertToItem = event.getItemConvertInto();
+        /**
+         * Milk bucket:
+         * 50% decay to mold bucket (default in component converts to mold_bucket)
+         * 50% * 25% decay to cheese bucket
+         * 50% * 75% decay to yoghurt bucket
+         */
+        if (originalItem.is(Items.MILK_BUCKET) && convertToItem.is(QuietusItems.MOLD_BUCKET)) {
+            RandomSource random = RandomSource.create();
+            if (random.nextFloat() < 0.5f) {
+                if (random.nextFloat() < 0.25f) {
+                    event.setItemConvertInto(new ItemStack(QuietusItems.CHEESE_BUCKET.get()));
+                } else {
+                    event.setItemConvertInto(new ItemStack(QuietusItems.YOGHURT_BUCKET.get()));
+                }
+            }
+        }
+    }
 
     /**
      * Used by doWeatherItem() to return a result including the weathered item stack,
@@ -135,8 +162,11 @@ public class WeatheringHandler {
             Optional<ItemStack> converted_to = itemstack.get(QuietusComponents.CAN_DECAY.get()).changeDecayAndMakeConvertedItemIfDecayed(itemstack, 1);
             hasDecayed = true;
             if (converted_to.isPresent()) {
-                itemstack = converted_to.get();
-                hasChangedItem = true;
+                DecayEvent event = new DecayEvent(itemstack, converted_to.get());
+                if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+                    itemstack = event.getFinalItem();
+                    hasChangedItem = true;
+                }
             }
         }
         if (random.nextFloat() < tick_chance) {
@@ -299,6 +329,9 @@ public class WeatheringHandler {
                             }
                             continue; // skip following generic logic
                         }
+                    } else
+                    if (container instanceof BrewingStandBlockEntity) {
+                        perRow = -1;
                     } else {
                         perRow = -1;
                     }
