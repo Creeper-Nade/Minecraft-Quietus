@@ -5,7 +5,7 @@ import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 
 /**
- * DecayEvent fires when an item is decaying to a new item, origin in {@link com.minecraftquietus.quietus.event_listener.WeatheringHandler}
+ * DecayEvent fires when an item is decaying to a new item, fired in {@link com.minecraftquietus.quietus.event_listener.WeatheringHandler}
  * Is {@link ICancellableEvent}. When canceled, the item will not be decaying this tick. 
  * However if its decay component remains unchanged, it will likely still decay the next tick.
  * Fires only on logical server side.
