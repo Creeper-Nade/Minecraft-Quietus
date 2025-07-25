@@ -21,9 +21,9 @@ import net.minecraft.server.level.ServerPlayer;
 public class SkillCommands {
 
     private static final DynamicCommandExceptionType ERROR_INVALID_SKILL = new DynamicCommandExceptionType(
-        s -> Component.translatableEscape("skill.skillNotFound", s)
+        arg1 -> Component.translatableEscape("skill.skillNotFound", arg1)
     );
-    private static final DynamicCommandExceptionType ERROR_NO_ACTION_PERFORMED = new DynamicCommandExceptionType(s -> (Component)s);
+    private static final DynamicCommandExceptionType ERROR_NO_ACTION_PERFORMED = new DynamicCommandExceptionType(arg1 -> (Component)arg1);
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
@@ -105,6 +105,7 @@ public class SkillCommands {
     }
 
     private static int perform(CommandSourceStack source, ServerPlayer player, SkillCommands.Action action, Skill skill) throws CommandSyntaxException {
+        System.out.println(skill.toString());
         return perform(source, (Collection<ServerPlayer>)List.of(player), action, skill, 0);
     }
     private static int perform(CommandSourceStack source, Collection<ServerPlayer> players, SkillCommands.Action action, Skill skill, int amount) throws CommandSyntaxException {

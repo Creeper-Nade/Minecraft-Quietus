@@ -62,7 +62,7 @@ public class SkillComponent implements INBTSerializable<CompoundTag> {
         for (Tag tag : list) {
             if (tag instanceof CompoundTag tag2) {
                 int level = tag2.getIntOr("level", 1);
-                Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(ResourceLocation.parse(tag2.getStringOr("id", "none")));
+                Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(ResourceLocation.parse(tag2.getStringOr("id", "minecraft:none")));
                 this.skillMap.put(skill, level);
             }
         }

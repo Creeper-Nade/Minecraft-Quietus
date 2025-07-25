@@ -58,6 +58,7 @@ public class GhostDeath{
 
 
     public static void showScreen(Component causeOfDeath) {
+        Minecraft.getInstance().setScreen(null);
         deathMessage = causeOfDeath;
         reviveCooldown = ClientPayloadHandler.getInstance().getMaxReviveCD();
         playerScore = Minecraft.getInstance().player.getScore();

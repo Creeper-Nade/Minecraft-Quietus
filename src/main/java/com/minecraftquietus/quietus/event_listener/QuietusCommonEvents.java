@@ -1,6 +1,8 @@
 package com.minecraftquietus.quietus.event_listener;
 
+import com.minecraftquietus.quietus.client.QuietusKeyBindings;
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
+import com.minecraftquietus.quietus.client.screen.SkillTreeScreen;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
@@ -19,6 +21,7 @@ import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -275,7 +278,11 @@ public class QuietusCommonEvents {
             Ore_Vision.IfPlayerMoved(player);
         }
 
-
+        while (QuietusKeyBindings.SKILL_TREE_KEY.get().consumeClick()) {
+            if (minecraft.screen == null) {
+                minecraft.setScreen(new SkillTreeScreen());
+            }
+        }
     }
 
     @SubscribeEvent
