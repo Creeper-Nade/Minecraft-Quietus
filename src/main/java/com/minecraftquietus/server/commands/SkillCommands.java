@@ -77,8 +77,7 @@ public class SkillCommands {
                       (CommandSourceStack)context.getSource(), 
                       EntityArgument.getPlayer(context, "target"), 
                       Action.GET, 
-                      QuietusRegistries.SKILL_REGISTRY.getValue(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL)), 
-                      0
+                      QuietusRegistries.SKILL_REGISTRY.getValue(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL))
                     ))
                   )
                 )
@@ -105,8 +104,8 @@ public class SkillCommands {
         );
     }
 
-    private static int perform(CommandSourceStack source, ServerPlayer player, SkillCommands.Action action, Skill skill, int amount) throws CommandSyntaxException {
-        return perform(source, (Collection<ServerPlayer>)List.of(player), action, skill, amount);
+    private static int perform(CommandSourceStack source, ServerPlayer player, SkillCommands.Action action, Skill skill) throws CommandSyntaxException {
+        return perform(source, (Collection<ServerPlayer>)List.of(player), action, skill, 0);
     }
     private static int perform(CommandSourceStack source, Collection<ServerPlayer> players, SkillCommands.Action action, Skill skill, int amount) throws CommandSyntaxException {
         int count = 0;
