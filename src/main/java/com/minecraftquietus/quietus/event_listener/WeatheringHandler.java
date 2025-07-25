@@ -121,10 +121,10 @@ public class WeatheringHandler {
      * Used by doWeatherItem() to return a result including the weathered item stack,
      * and further data related to certain changes to the weathered item.
      * Intended for implementations of doWeatherItem() to determine whether or not to update certain data.
-     * @param itemStack the ItemStack after weathering (and its contents weathering if it has any)
+     * @param itemStack the ItemStack after weathering (and its container contents after weathering if it has any)
      * @param isItemChanged whether or not is the {@link ItemStack#getItem()} changed
      * @param hasDecayed the item has undergone a decay
-     * @param changedContainerContents empty if the item does not have this property, or it is not changed. Else, is the contents after weathering.
+     * @param changedContainerContents empty if the item does not have this property, or it is not changed. Else, is the container contents after weathering.
      */
     record WeatheringResult(
         ItemStack itemStack,
@@ -209,7 +209,6 @@ public class WeatheringHandler {
     }
 
     @SubscribeEvent
-    @SuppressWarnings("null")
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         Level level = entity.level();
@@ -300,9 +299,7 @@ public class WeatheringHandler {
     public static void onLevelTick(LevelTickEvent.Pre event) {
         Level level = event.getLevel();
         if (!level.isClientSide() && !Objects.isNull(level.getServer())) {
-            float tick_chance = 3.0f / 4096.0f; // default value in case server is null, given 4096 blocks per chunk
             MinecraftServer server = level.getServer();
-            tick_chance = getRandomTickChance(server);
             for (BaseContainerBlockEntity container : LOADED_CONTAINERS) {
                 BlockEntity get_block_entity = level.getBlockEntity(container.getBlockPos());
                 if (!Objects.isNull(get_block_entity) && get_block_entity.equals(container)) { // only operate this block entity if it is in this level

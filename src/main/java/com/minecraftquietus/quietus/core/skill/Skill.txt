@@ -1,0 +1,10 @@
+package com.minecraftquietus.quietus.core.skill;
+
+import net.minecraft.resources.ResourceKey;
+
+public record Skill (
+    int maxLevel,
+    ResourceKey<Skill> id,
+    String descriptionId  
+) {
+}

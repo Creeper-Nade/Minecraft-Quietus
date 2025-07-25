@@ -404,8 +404,7 @@ public class QuietusItems {
         WeatheringItem.registerExtraWeatheringItem(Items.IRON_HELMET, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, WeatheringIronItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_iron_armor_item);
     }
 
-    public static void register(IEventBus eventBus)
-    {
+    public static void register(IEventBus eventBus) {
         REGISTRAR.register(eventBus);
     }
 }

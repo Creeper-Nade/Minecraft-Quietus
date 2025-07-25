@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.potion;
 
-import com.minecraftquietus.quietus.core.ManaComponent;
+import com.minecraftquietus.quietus.core.mana.ManaComponent;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;

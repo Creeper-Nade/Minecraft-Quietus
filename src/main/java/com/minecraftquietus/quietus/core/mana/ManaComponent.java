@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.core;
+package com.minecraftquietus.quietus.core.mana;
 
 import com.minecraftquietus.quietus.util.ManaUtil;
 import com.minecraftquietus.quietus.util.PlayerData;
@@ -69,13 +69,13 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
                 manaRate=0;
                 if (is_fast_charging) {
                     is_fast_charging=false;
-                    SendPacketToPlayer(entity);
+                    sendPacket(entity);
                 }
             }
         }
         if(this.mana > this.maxMana) {
             this.mana = this.maxMana;
-            SendPacketToPlayer(entity);
+            sendPacket(entity);
         }
         //System.out.println("global"+globalBlinkEndTime);
     }
@@ -87,7 +87,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         if(this.maxMana != attribute_max_mana)
         {
             this.maxMana = attribute_max_mana;
-            SendPacketToPlayer(entity);
+            sendPacket(entity);
         }
         if(regenBonus != attribute_mana_regen_bonus) {
             regenBonus = attribute_mana_regen_bonus;
@@ -112,7 +112,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             if(!is_fast_charging)
             {
                 is_fast_charging=true;
-                SendPacketToPlayer(entity);
+                sendPacket(entity);
             }
 
             return maxMana / 3;
@@ -123,7 +123,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             if(is_fast_charging)
             {
                 is_fast_charging=false;
-                SendPacketToPlayer(entity);
+                sendPacket(entity);
             }
             return 0;
         }
@@ -144,7 +144,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         }*/
         this.mana += value;
         if (this.mana < 0) this.mana = 0;
-        SendPacketToPlayer(entity);
+        sendPacket(entity);
     }
 
     public boolean consumeMana(int value, LivingEntity entity) { 
@@ -190,7 +190,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         return this.is_fast_charging;
     }
 
-    private void SendPacketToPlayer(LivingEntity entity)
+    private void sendPacket(LivingEntity entity)
     {
         if (entity instanceof ServerPlayer serverPlayer) {
             PlayerData.sendManaPackToPlayer(serverPlayer,this);

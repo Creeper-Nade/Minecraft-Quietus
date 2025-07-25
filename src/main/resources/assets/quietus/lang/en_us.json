@@ -1,5 +1,7 @@
 {
-  "gamerule.enableGhostMode": "Enters Ghost Mode Upon Death",
+  "skill.skillNotFound": "Unknown skill: %s",
+
+  "gamerule.enableGhostMode": "Enters ghost mode upon death",
   "gamerule.enableGhostMode": "Number of game ticks taken for all items to decay once",
   "death.attack.quietus:magic_projectile_damage": "%1$s magically disappeared",
   "death.attack.quietus:magic_projectile_damage.player": "%1$s was voodooed by %2$s",
@@ -18,7 +20,7 @@
   "enchantment.quietus.acupuncture": "Acupuncture",
   "enchantment.quietus.conservation": "Conservation",
 
-  "_comments_tooltip_freshness": "Tooltip colours for freshness are hard-coded in CanDecay component class, which is also used by the item background",
+  "_comments_tooltip_freshness": "NOTE: Tooltip colours for freshness are hard-coded in CanDecay component class, which is also used by the item background",
   "tooltip.quietus.freshness.pristine": "Pristine",
   "tooltip.quietus.freshness.fresh": "Fresh",
   "tooltip.quietus.freshness.stale": "Stale",
@@ -67,7 +69,6 @@
   "item.quietus.oxidized_copper_leggings": "Oxidized Copper Leggings",
   "item.quietus.oxidized_copper_chestplate": "Oxidized Copper Chestplate",
   "item.quietus.oxidized_copper_helmet": "Oxidized Copper Helmet",
-
   "item.quietus.exposed_iron_boots": "Exposed Iron Boots",
   "item.quietus.exposed_iron_leggings": "Exposed Iron Leggings",
   "item.quietus.exposed_iron_chestplate": "Exposed Iron Chestplate",
@@ -80,11 +81,26 @@
   "item.quietus.oxidized_iron_leggings": "Oxidized Iron Leggings",
   "item.quietus.oxidized_iron_chestplate": "Oxidized Iron Chestplate",
   "item.quietus.oxidized_iron_helmet": "Oxidized Iron Helmet",
-
   "item.quietus.amethyst_leggings": "Amethyst Leggings",
   "item.quietus.amethyst_boots": "Amethyst Boots",
   "item.quietus.amethyst_chestplate": "Amethyst Chestplate",
   "item.quietus.amethyst_helmet": "Amethyst Helmet",
+  "item.quietus.triplebow": "Triple Bow",
 
-  "item.quietus.triplebow": "Triple Bow"
+  "skill.quietus.example_skill": "Do Be Do Be Do Be Do",
+
+
+  "commands.skill.add.single.success": "Granted %s levels of %s to %s",
+  "commands.skill.add.single.failure": "Level of %s for %s is unchanged",
+  "commands.skill.add.multiple.success": "Granted %s levels of %s to %s players",
+  "commands.skill.add.multiple.failure": "Levels of %s for %s players are unchanged",
+  "commands.skill.remove.single.success": "Removed %s levels of %s from %s",
+  "commands.skill.remove.single.failure": "Level of %s for %s is unchanged",
+  "commands.skill.remove.multiple.success": "Removed %s levels of %s from %s players",
+  "commands.skill.remove.multiple.failure": "Levels of %s for %s players are unchanged",
+  "commands.skill.get.single.success": "%s has %s levels of %s",
+  "commands.skill.set.single.success": "Set %s levels of %s for %s",
+  "commands.skill.set.single.failure": "Level of %s for %s is unchanged",
+  "commands.skill.set.multiple.success": "Set %s levels of %s for %s players",
+  "commands.skill.set.multiple.failure": "Levels of %s for %s players are unchanged"
 }

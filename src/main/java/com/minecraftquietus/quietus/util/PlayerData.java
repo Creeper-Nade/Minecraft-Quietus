@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.util;
 
-import com.minecraftquietus.quietus.core.ManaComponent;
+import com.minecraftquietus.quietus.core.mana.ManaComponent;
 import com.minecraftquietus.quietus.packet.DoDecayPacket;
 import com.minecraftquietus.quietus.packet.GhostStatePacket;
 import com.minecraftquietus.quietus.packet.ManaPacket;

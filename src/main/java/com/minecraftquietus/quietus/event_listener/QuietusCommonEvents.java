@@ -210,12 +210,14 @@ public class QuietusCommonEvents {
         }
     }
 
+    @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         if (event.getState().is(Tags.Blocks.ORES)) {
             Ore_Vision.RemoveSingleBlock(event);
         }
     }
 
+    @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (event.getState().is(Tags.Blocks.ORES)) {
             Ore_Vision.AddSingleBlock(event);
@@ -263,6 +265,7 @@ public class QuietusCommonEvents {
     }
 
 
+    @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
