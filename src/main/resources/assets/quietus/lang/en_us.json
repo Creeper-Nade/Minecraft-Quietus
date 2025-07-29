@@ -90,6 +90,8 @@
   "skill.quietus.example_skill": "Do Be Do Be Do Be Do",
 
 
+  "gui.skill_tree": "Skill Tree",
+
   "commands.skill.add.single.success": "Granted %s levels of %s to %s",
   "commands.skill.add.single.failure": "Level of %s for %s is unchanged",
   "commands.skill.add.multiple.success": "Granted %s levels of %s to %s players",

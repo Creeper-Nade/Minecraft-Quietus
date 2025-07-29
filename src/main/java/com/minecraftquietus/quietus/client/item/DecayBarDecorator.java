@@ -26,7 +26,7 @@ public class DecayBarDecorator implements IItemDecorator {
 
     @Override
     @SuppressWarnings("null") 
-    public boolean render(GuiGraphics guiGraphics, Font font, ItemStack itemstack, int xOffset, int yOffset) {
+    public boolean render(GuiGraphics guiGraphics, Font font, ItemStack itemstack, int offsetX, int offsetY) {
         if (!itemstack.has(QuietusComponents.CAN_DECAY.get())) // skip immediately if this item does not have component
             return false;
         Minecraft minecraft = Minecraft.getInstance();
@@ -44,21 +44,21 @@ public class DecayBarDecorator implements IItemDecorator {
         int color_transparent = 0x48000098 | Mth.hsvToRgb((float)Math.round(fraction*3) / 3.0f * 0.33f, 1.0f, 1.0f); // green (normal) -> red (decayed) */
         
         guiGraphics.fill( 
-            xOffset + outline_width, 
-            yOffset + height - height_offset - outline_height*2, 
-            xOffset + width - outline_width, 
-            yOffset + height - outline_height, 
+            offsetX + outline_width, 
+            offsetY + height - height_offset - outline_height*2, 
+            offsetX + width - outline_width, 
+            offsetY + height - outline_height, 
             color
         ); 
         if (minecraft.screen instanceof AbstractContainerScreen<?> containerScreen) { // only in container GUI
             if (ContainerScreenUtil.isMouseDraggingItem(containerScreen, itemstack)) {
-            //if (ContainerScreenUtil.isMouseInArea(containerScreen, xOffset-1, yOffset-1, xOffset + width, yOffset + height)) {
-                guiGraphics.fill(xOffset + outline_width, yOffset + outline_height, xOffset + width - outline_width, yOffset + height - height_offset - outline_height*2, color_transparent);
+            //if (ContainerScreenUtil.isMouseInArea(containerScreen, offsetX-1, offsetY-1, offsetX + width, offsetY + height)) {
+                guiGraphics.fill(offsetX + outline_width, offsetY + outline_height, offsetX + width - outline_width, offsetY + height - height_offset - outline_height*2, color_transparent);
             } else {
-                guiGraphics.fill(xOffset, yOffset, xOffset + outline_width, yOffset + height, color);
-                guiGraphics.fill(xOffset + width - outline_width, yOffset, xOffset + width, yOffset + height, color);
-                guiGraphics.fill(xOffset + outline_width, yOffset, xOffset + width - outline_width, yOffset + outline_height, color);
-                guiGraphics.fill(xOffset + outline_width, yOffset + height - outline_height, xOffset + width - outline_width, yOffset + height, color);
+                guiGraphics.fill(offsetX, offsetY, offsetX + outline_width, offsetY + height, color);
+                guiGraphics.fill(offsetX + width - outline_width, offsetY, offsetX + width, offsetY + height, color);
+                guiGraphics.fill(offsetX + outline_width, offsetY, offsetX + width - outline_width, offsetY + outline_height, color);
+                guiGraphics.fill(offsetX + outline_width, offsetY + height - outline_height, offsetX + width - outline_width, offsetY + height, color);
             }
             return true;
         }

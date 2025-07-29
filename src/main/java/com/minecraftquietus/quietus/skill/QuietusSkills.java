@@ -16,6 +16,8 @@ public class QuietusSkills {
 
     public static final DeferredRegister<Skill> REGISTRAR = DeferredRegister.create(QuietusRegistries.SKILL_REGISTRY, MODID);
 
+    public static final Supplier<Skill> NONE = REGISTRAR.register("none", () -> new Skill(ResourceKey.create(QuietusRegistries.SKILL_REGISTRY_KEY, ResourceLocation.fromNamespaceAndPath(MODID, "none")), 1));
+    
     public static final Supplier<Skill> EXAMPLE_SKILL = registerSkill("example_skill", 5);
     public static final Supplier<Skill> EXAMPLE_SKILL_TWO = registerSkill("example_skill_2", 3);
 

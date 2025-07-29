@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus;
 
 
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
+import com.minecraftquietus.quietus.commands.QuietusCommands;
 import com.minecraftquietus.quietus.core.QuietusRegistries;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
@@ -42,7 +43,6 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import com.minecraftquietus.commands.QuietusCommands;
 import com.minecraftquietus.quietus.block.QuietusBlocks;
 import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.item.QuietusComponents;

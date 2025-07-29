@@ -2,7 +2,8 @@ package com.minecraftquietus.quietus.event_listener;
 
 import com.minecraftquietus.quietus.client.QuietusKeyBindings;
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
-import com.minecraftquietus.quietus.client.screen.SkillTreeScreen;
+import com.minecraftquietus.quietus.client.screens.CustomScreen;
+import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeScreen;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
@@ -22,6 +23,7 @@ import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -281,6 +283,7 @@ public class QuietusCommonEvents {
         while (QuietusKeyBindings.SKILL_TREE_KEY.get().consumeClick()) {
             if (minecraft.screen == null) {
                 minecraft.setScreen(new SkillTreeScreen());
+                //minecraft.setScreen(new CustomScreen(player.connection.getAdvancements()));
             }
         }
     }

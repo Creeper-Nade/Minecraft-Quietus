@@ -1,0 +1,85 @@
+package com.minecraftquietus.quietus.client.screens.skill_tree;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.minecraftquietus.quietus.skill_tree.SkillTreeNode;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+
+public class SkillTreeTab implements SkillTreeScrollable {
+    
+    private final Minecraft minecraft;
+    private final SkillTreeScreen screen;
+    private final int index;
+    private final ResourceLocation icon;
+    private final Component title;
+
+    private final Map<SkillTreeNode,SkillTreeWidget> widgets = new LinkedHashMap();
+    private double scrollX;
+    private double scrollY;
+    private int minX = Integer.MAX_VALUE;
+    private int minY = Integer.MAX_VALUE;
+    private int maxX = Integer.MIN_VALUE;
+    private int maxY = Integer.MIN_VALUE;
+
+    public SkillTreeTab(Minecraft minecraft, SkillTreeScreen screen, int index, ResourceLocation icon, Component title) {
+        this.minecraft = minecraft;
+        this.screen = screen;
+        this.index = index;
+        this.icon = icon;
+        this.title = title;
+
+        this.scrollX = 0.0d;
+        this.scrollY = 0.0d;
+
+    }
+
+    public void testAdd(SkillTreeNode node, SkillTreeWidget widget) {
+        this.widgets.put(node, widget);
+    }
+    
+    public void drawContents(GuiGraphics guiGraphics, int offsetX, int offsetY) {
+        guiGraphics.enableScissor(offsetX, offsetY, offsetX + SkillTreeScreen.WINDOW_INSIDE_WIDTH, offsetY + SkillTreeScreen.WINDOW_INSIDE_HEIGHT);
+        /* guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate((float)offsetX, (float)offsetY, 0.0F); */
+
+
+        guiGraphics.fill(offsetX, offsetY, offsetX+SkillTreeScreen.WINDOW_INSIDE_WIDTH, offsetY+SkillTreeScreen.WINDOW_INSIDE_HEIGHT, 0xFFFFFFFF);
+
+        int relX = offsetX + (int)this.scrollX;
+        int relY = offsetY + (int)this.scrollY;
+        guiGraphics.vLine(relX + 13 + 25, relY + 13 + 25, relY + 13 + 25 + 26 + 6, 0xFF000000);
+        for (SkillTreeWidget widget : this.widgets.values()) {
+            widget.draw(guiGraphics, relX, relY);
+        }
+
+        //guiGraphics.pose().popPose();
+        guiGraphics.disableScissor();
+    }
+
+    @Override
+    public void scroll(double dragX, double dragY) {
+        this.scrollX += dragX;
+        this.scrollY += dragY;
+    }
+
+    public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
+        for (SkillTreeWidget widget : this.widgets.values()) {
+            if (widget.click(offsetX, offsetY, mouseX, mouseY, mouseButton)) 
+                return true;
+        }
+        return false;
+    }
+
+    public SkillTreeScreen getScreen() {
+        return this.screen;
+    }
+    
+}

@@ -1,0 +1,134 @@
+package com.minecraftquietus.quietus.client.screens.skill_tree;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
+
+import static com.minecraftquietus.quietus.Quietus.MODID;
+
+import java.util.List;
+
+import org.checkerframework.checker.units.qual.min;
+
+public class SkillTreeWidgetScreen implements SkillTreeScrollable {
+    private static final ResourceLocation CONTAINER_CONTENTS_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
+    private static final ResourceLocation CONTAINER_HEADER_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_header");
+    private static final ResourceLocation CLOSE_BUTTON_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/cross_button");
+    private static final int CLOSE_BUTTON_WIDTH = 20;
+    private static final int CLOSE_BUTTON_HEIGHT = 20;
+
+    /* In pixels (GUI) */
+    private static final int WIDTH = 200;
+    private static final int LINE_SPACING = 2;
+    private static final int HEADER_CONTENTS_PADDING = 5;
+    private static final int SECTION_PADDING = 6;
+    private static final int RESOURCE_V_MARGIN = 3; // vertically 3px left blank in resources 
+    private static final int H_MARGIN = 5;
+    private static final int CONTENT_H_MARGIN = H_MARGIN;
+    private static final int V_MARGIN = 6;
+    private static final int CONTENT_V_MARGIN = V_MARGIN;
+
+    private final Minecraft minecraft;
+    private final Font font;
+    private final SkillTreeWidget widget;
+    private final SkillTreeScreen screen;
+    private final Component header;
+    private final Component description;
+
+    private final int height;
+    private final int headerTextHeight;
+
+    private int x;
+    private int y;
+
+
+    public SkillTreeWidgetScreen(Minecraft minecraft, SkillTreeWidget widget, SkillTreeScreen screen, int widgetDrawnX, int widgetDrawnY) {
+        this.minecraft = minecraft;
+        this.font = this.minecraft.font;
+        this.widget = widget;
+        this.screen = screen;
+        this.x = widgetDrawnX;
+        this.y = widgetDrawnY;
+        this.header = Component.translatable(String.join(".", "skillTree", this.widget.getLanguageKey(), "header"));
+        this.description = Component.translatable(String.join(".", "skillTree", this.widget.getLanguageKey(), "description"));
+
+        this.headerTextHeight = this.font.split(this.header, WIDTH).size() * this.font.lineHeight + (this.font.split(this.header, WIDTH).size()-1) * LINE_SPACING;
+        this.height = this.headerTextHeight
+            + this.font.split(this.description, WIDTH).size() * this.font.lineHeight
+            + (this.font.split(this.description, WIDTH).size()-1) * LINE_SPACING
+            + SkillTreeWidget.ICON_HEIGHT 
+            + SECTION_PADDING
+            + V_MARGIN * 2
+            + CONTENT_V_MARGIN
+            + HEADER_CONTENTS_PADDING * 2
+            + RESOURCE_V_MARGIN * 2;
+    }
+
+    public void draw(GuiGraphics guiGraphics, int offsetX, int offsetY) {
+        int render_x = this.x + offsetX;
+        int render_y = this.y + offsetY;
+        int window_x = render_x - H_MARGIN;
+        int window_y = render_y - SECTION_PADDING - this.headerTextHeight - V_MARGIN - RESOURCE_V_MARGIN;
+        // contents container
+        guiGraphics.blitSprite(RenderType::guiTextured, CONTAINER_CONTENTS_SPRITE_LOCATION, window_x, window_y, WIDTH, this.height);
+        // header container
+        guiGraphics.blitSprite(RenderType::guiTextured, CONTAINER_HEADER_SPRITE_LOCATION, window_x, window_y, WIDTH, this.headerTextHeight + V_MARGIN + SECTION_PADDING + SkillTreeWidget.ICON_HEIGHT + HEADER_CONTENTS_PADDING);
+        // header
+        guiGraphics.drawWordWrap(font, header, render_x, render_y - SECTION_PADDING - this.headerTextHeight, WIDTH, 0xFFFFFFFF, true);
+        // description
+        guiGraphics.drawWordWrap(font, description, render_x + CONTENT_H_MARGIN, render_y + SkillTreeWidget.ICON_HEIGHT + HEADER_CONTENTS_PADDING*2, WIDTH, 0xFFFFFFFF, true);
+        // icon (drawn again in addition to the widghet drawing itself in the tab)
+        this.widget.drawAbsolute(guiGraphics, render_x, render_y);
+        // close button
+        guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
+    }
+
+    public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
+        if (isMouseOverCloseButton(offsetX, offsetY, (int)mouseX, (int)mouseY)) {
+            this.discard();
+            return true;
+        };
+        return false;
+    }
+
+    private boolean isMouseOverCloseButton(int offsetX, int offsetY, int mouseX, int mouseY) {
+        int button_x = this.x + offsetX - H_MARGIN * 2 + WIDTH - CLOSE_BUTTON_WIDTH;
+        int button_y = this.y + offsetY - SECTION_PADDING - this.headerTextHeight - RESOURCE_V_MARGIN;
+        return 
+            mouseX > button_x 
+            && mouseX < button_x + CLOSE_BUTTON_WIDTH
+            && mouseY > button_y
+            && mouseY < button_y + CLOSE_BUTTON_HEIGHT;
+    }
+
+    public boolean isMouseOverWindow(int offsetX, int offsetY, int mouseX, int mouseY) {
+        int actual_x = this.x + offsetX;
+        int actual_y = this.y + offsetY;
+        /* System.out.println("xy: " + actual_x + "," + actual_y + " mouse: " + mouseX + "," + mouseY);
+        if (mouseX > actual_x 
+            && mouseX < actual_x + WIDTH
+            && mouseY > actual_y
+            && mouseY < actual_y + this.height)
+        System.out.println("yes!"); */
+        return 
+            mouseX > actual_x 
+            && mouseX < actual_x + WIDTH
+            && mouseY > actual_y
+            && mouseY < actual_y + this.height;
+    }
+
+    @Override
+    public void scroll(double dragX, double dragY) {
+        this.x += (int)dragX;
+        this.y += (int)dragY;
+    }
+
+    public void discard() {
+        this.screen.removeWidgetScreen(this.widget);
+    }
+}

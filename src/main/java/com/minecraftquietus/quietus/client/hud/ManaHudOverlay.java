@@ -19,7 +19,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 public class ManaHudOverlay {
     private static final ResourceLocation MANA_ICONS =
-            ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/mana_icons.png");
+            ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/sprites/hud/mana.png");
 
     private static final int ICON_SIZE = 9;
     private static final int TEXTURE_WIDTH = 63;

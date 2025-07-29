@@ -1,6 +1,6 @@
-package com.minecraftquietus.commands;
+package com.minecraftquietus.quietus.commands;
 
-import com.minecraftquietus.server.commands.SkillCommands;
+import com.minecraftquietus.quietus.server.commands.SkillCommands;
 
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 

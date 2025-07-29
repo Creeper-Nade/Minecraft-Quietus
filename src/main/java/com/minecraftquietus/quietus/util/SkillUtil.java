@@ -11,16 +11,20 @@ public final class SkillUtil {
         return player.getData(QuietusAttachments.SKILL_ATTACHMENT);
     }
 
-    public static int getSkillLevel(Player player, Skill skill) {
-        return getSkills(player).getLevel(skill);
-    }
-
-    public static void addSkillLevel(Player player, Skill skill, int amount) {
-        getSkills(player).addLevel(skill, amount);
+    public static int getSkillLevel(Player player, Skill skill, String source) {
+        return getSkills(player).getLevel(skill, source);
     }
     
-    public static void setSkillLevel(Player player, Skill skill, int value) {
-        getSkills(player).setLevel(skill, value);
+    public static int getTotalSkillLevel(Player player, Skill skill) {
+        return getSkills(player).getTotalLevel(skill);
+    }
+
+    public static void addSkillLevel(Player player, Skill skill, int amount, String source) {
+        getSkills(player).addLevel(skill, amount, source);
+    }
+    
+    public static void setSkillLevel(Player player, Skill skill, int value, String source) {
+        getSkills(player).setLevel(skill, value, source);
     }
 
     public static int getMaxSkillLevel(Skill skill) {
