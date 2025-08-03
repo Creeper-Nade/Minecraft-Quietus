@@ -1,0 +1,42 @@
+{
+    "_comment": "no prerequisite if root node",
+    "prerequisites": {
+        "parent": [
+            []
+        ],
+        
+        "_comment": "vanilla criteria here",
+        "criteria": {
+            "killed_by_something": {
+                "trigger": "minecraft:entity_killed_player"
+            },
+            "killed_something": {
+                "trigger": "minecraft:player_killed_entity"
+            }
+        }
+    },
+
+    "rewards": [
+        {
+            "skill": "quietus:example_skill",
+            "amount": 1,
+            "source": "quietus:skill_tree"
+        }
+    ],
+
+    "display": {
+        "header": {
+            "translate": "skillTree.quietus.node.example_root.header"
+        },
+        "description": {
+            "translate": "skillTree.quietus.node.example_root.description"
+        },
+        "prerequisite": {
+            "criteria": {
+                "[criteria name here]": {
+                    "translate": "skillTree.quietus.node.example_root.criteria1"
+                }
+            }
+        }
+    }
+}

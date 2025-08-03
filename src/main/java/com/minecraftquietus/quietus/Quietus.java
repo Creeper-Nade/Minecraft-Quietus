@@ -53,6 +53,7 @@ import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.event_listener.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event_listener.QuietusIModBusEvent;
+import com.minecraftquietus.quietus.event_listener.ResourceEvent;
 import com.minecraftquietus.quietus.event_listener.SpawnEvent;
 import com.minecraftquietus.quietus.client.hud.ManaHudOverlay;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileRenderer;
@@ -113,6 +114,7 @@ public class Quietus
         
         // register registries
         modEventBus.addListener(QuietusRegistries::registerRegistries);
+        //modEventBus.addListener(QuietusRegistries::registerDatapackRegistries);
 
         QuietusItems.init();
 
@@ -127,6 +129,9 @@ public class Quietus
         QuietusEntityTypes.register(modEventBus);
         QuietusProjectiles.register(modEventBus);
         QuietusSkills.register(modEventBus);
+
+        // register resource loading listeners
+        NeoForge.EVENT_BUS.addListener(ResourceEvent::onServerResourceReload);
 
         // register commands
         NeoForge.EVENT_BUS.addListener(QuietusCommands::registerCommands);

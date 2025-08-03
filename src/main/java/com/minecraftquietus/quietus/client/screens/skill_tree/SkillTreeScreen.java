@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.minecraftquietus.quietus.client.QuietusKeyBindings;
-import com.minecraftquietus.quietus.skill_tree.SkillTreeNode;
+import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -25,6 +25,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
@@ -58,9 +59,9 @@ public class SkillTreeScreen extends Screen {
         super(TITLE);
 
         testTab = new SkillTreeTab(Minecraft.getInstance(), this, 0, WINDOW_LOCATION, TITLE);
-        testNode = new SkillTreeNode(ResourceLocation.fromNamespaceAndPath(MODID, "none"), null, null);
+        testNode = new SkillTreeNode(ResourceLocation.fromNamespaceAndPath(MODID, "none"), null);
         testWidget = new SkillTreeWidget(testTab, Minecraft.getInstance(), testNode, 25, 25, WidgetType.SQUARE);
-        testNode2 = new SkillTreeNode(ResourceLocation.fromNamespaceAndPath(MODID, "example"), null, null);
+        testNode2 = new SkillTreeNode(ResourceLocation.fromNamespaceAndPath(MODID, "example"), null);
         testWidget2 = new SkillTreeWidget(testTab, Minecraft.getInstance(), testNode2, 25, 25 + 26 + 6, WidgetType.SQUARE);
         this.testTab.testAdd(testNode, testWidget);
         this.testTab.testAdd(testNode2, testWidget2);
@@ -110,7 +111,7 @@ public class SkillTreeScreen extends Screen {
         int offsetY = (this.height - WINDOW_HEIGHT) / 2;
         this.renderInside(guiGraphics, mouseX, mouseY, offsetX, offsetY);
         this.renderWindow(guiGraphics, offsetX, offsetY);
-        this.renderScreens(guiGraphics, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y); // offset from the inside content
+        this.renderScreens(guiGraphics, mouseX, mouseY, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y); // offset from the inside content
     }
 
     private void renderWindow(GuiGraphics guiGraphics, int offsetX, int offsetY) {
@@ -121,9 +122,9 @@ public class SkillTreeScreen extends Screen {
         this.selectedTab.drawContents(guiGraphics, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y);
     }
 
-    private void renderScreens(GuiGraphics guiGraphics, int offsetX, int offsetY) {
+    private void renderScreens(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
         for (SkillTreeWidgetScreen screen : this.widgetScreens.values()) {
-            screen.draw(guiGraphics, offsetX, offsetY);
+            screen.draw(guiGraphics, mouseX, mouseY, offsetX, offsetY);
         }
     }
 
@@ -134,7 +135,7 @@ public class SkillTreeScreen extends Screen {
         List<SkillTreeWidgetScreen> list = new ArrayList<>(this.widgetScreens.values());
         SkillTreeWidgetScreen outmost_focused_screen = null;
         for (SkillTreeWidgetScreen screen : list) {
-            if (screen.isMouseOverWindow(offsetX, offsetY, (int)mouseX, (int)mouseY)) {
+            if (screen.isMouseOverWindow(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY)) {
                 this.focusedScrollable = screen;
                 outmost_focused_screen = screen;
             }
@@ -151,12 +152,6 @@ public class SkillTreeScreen extends Screen {
                 }
             }
         }
-        /* ListIterator<SkillTreeWidgetScreen> iterator = list.listIterator(this.widgetScreens.size());
-        while (iterator.hasPrevious()) {
-            SkillTreeWidgetScreen screen = iterator.previous();
-            if (screen.click(offsetX, offsetY, mouseX, mouseY, button)) 
-                return true;
-        } */
         return super.mouseClicked(mouseX, mouseY, button);
     }
 

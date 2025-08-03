@@ -1,0 +1,35 @@
+{
+    "prerequisites": {
+        "parent": [
+            [
+                "modid:a_node"
+            ],
+            [
+                "modid:a_collection",
+                "modid:of_two_nodes"
+            ]
+        ],
+        "_comment": "vanilla criteria here",
+        "criteria": {
+        }
+    },
+
+    "rewards": [
+    ],
+
+    "display": {
+        "header": {
+            "translate": "skillTree.quietus.node.example.header"
+        },
+        "description": {
+            "translate": "skillTree.quietus.node.example.description"
+        },
+        "prerequisite": {
+            "criteria": {
+                "[criteria name here]": {
+                    "translate": "skillTree.quietus.node.example_root.criteria1"
+                }
+            }
+        }
+    }
+}

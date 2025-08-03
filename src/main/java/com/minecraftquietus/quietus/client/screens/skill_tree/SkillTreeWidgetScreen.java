@@ -19,14 +19,16 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
     private static final ResourceLocation CONTAINER_CONTENTS_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
     private static final ResourceLocation CONTAINER_HEADER_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_header");
     private static final ResourceLocation CLOSE_BUTTON_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/cross_button");
+    private static final ResourceLocation CLOSE_BUTTON_HIGHLIGHTED_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/cross_button_highlighted");
     private static final int CLOSE_BUTTON_WIDTH = 20;
     private static final int CLOSE_BUTTON_HEIGHT = 20;
 
     /* In pixels (GUI) */
-    private static final int WIDTH = 200;
+    private static final int WIDTH = 180;
     private static final int LINE_SPACING = 2;
     private static final int HEADER_CONTENTS_PADDING = 5;
-    private static final int SECTION_PADDING = 6;
+    private static final int SECTION_V_MARGIN = 5;
+    private static final int SECTION_H_MARGIN = 6;
     private static final int RESOURCE_V_MARGIN = 3; // vertically 3px left blank in resources 
     private static final int H_MARGIN = 5;
     private static final int CONTENT_H_MARGIN = H_MARGIN;
@@ -45,6 +47,8 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
 
     private int x;
     private int y;
+    private double scrollX;
+    private double scrollY;
 
 
     public SkillTreeWidgetScreen(Minecraft minecraft, SkillTreeWidget widget, SkillTreeScreen screen, int widgetDrawnX, int widgetDrawnY) {
@@ -54,6 +58,8 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
         this.screen = screen;
         this.x = widgetDrawnX;
         this.y = widgetDrawnY;
+        this.scrollX = (double)this.x;
+        this.scrollY = (double)this.y;
         this.header = Component.translatable(String.join(".", "skillTree", this.widget.getLanguageKey(), "header"));
         this.description = Component.translatable(String.join(".", "skillTree", this.widget.getLanguageKey(), "description"));
 
@@ -62,30 +68,36 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
             + this.font.split(this.description, WIDTH).size() * this.font.lineHeight
             + (this.font.split(this.description, WIDTH).size()-1) * LINE_SPACING
             + SkillTreeWidget.ICON_HEIGHT 
-            + SECTION_PADDING
+            + SECTION_V_MARGIN
             + V_MARGIN * 2
             + CONTENT_V_MARGIN
             + HEADER_CONTENTS_PADDING * 2
             + RESOURCE_V_MARGIN * 2;
     }
 
-    public void draw(GuiGraphics guiGraphics, int offsetX, int offsetY) {
+    public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
         int render_x = this.x + offsetX;
         int render_y = this.y + offsetY;
         int window_x = render_x - H_MARGIN;
-        int window_y = render_y - SECTION_PADDING - this.headerTextHeight - V_MARGIN - RESOURCE_V_MARGIN;
+        int window_y = render_y - SECTION_V_MARGIN - this.headerTextHeight - V_MARGIN - RESOURCE_V_MARGIN;
         // contents container
         guiGraphics.blitSprite(RenderType::guiTextured, CONTAINER_CONTENTS_SPRITE_LOCATION, window_x, window_y, WIDTH, this.height);
         // header container
-        guiGraphics.blitSprite(RenderType::guiTextured, CONTAINER_HEADER_SPRITE_LOCATION, window_x, window_y, WIDTH, this.headerTextHeight + V_MARGIN + SECTION_PADDING + SkillTreeWidget.ICON_HEIGHT + HEADER_CONTENTS_PADDING);
+        guiGraphics.blitSprite(RenderType::guiTextured, CONTAINER_HEADER_SPRITE_LOCATION, window_x, window_y, WIDTH, this.headerTextHeight + V_MARGIN + SECTION_V_MARGIN + SkillTreeWidget.ICON_HEIGHT + HEADER_CONTENTS_PADDING);
         // header
-        guiGraphics.drawWordWrap(font, header, render_x, render_y - SECTION_PADDING - this.headerTextHeight, WIDTH, 0xFFFFFFFF, true);
+        guiGraphics.drawWordWrap(font, header, render_x, render_y - SECTION_V_MARGIN - this.headerTextHeight, WIDTH, 0xFFFFFFFF, true);
         // description
         guiGraphics.drawWordWrap(font, description, render_x + CONTENT_H_MARGIN, render_y + SkillTreeWidget.ICON_HEIGHT + HEADER_CONTENTS_PADDING*2, WIDTH, 0xFFFFFFFF, true);
+        
+        guiGraphics.fill(render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 104, render_y+18, 0xFF00BB20);
+        guiGraphics.drawCenteredString(font, "Unlock", render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 52, render_y+4, 0xFFFFFFFF);
         // icon (drawn again in addition to the widghet drawing itself in the tab)
         this.widget.drawAbsolute(guiGraphics, render_x, render_y);
         // close button
-        guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
+        if (this.isMouseOverCloseButton(offsetX, offsetY, mouseX, mouseY)) 
+            guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_HIGHLIGHTED_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
+        else 
+            guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
     }
 
     public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
@@ -98,7 +110,7 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
 
     private boolean isMouseOverCloseButton(int offsetX, int offsetY, int mouseX, int mouseY) {
         int button_x = this.x + offsetX - H_MARGIN * 2 + WIDTH - CLOSE_BUTTON_WIDTH;
-        int button_y = this.y + offsetY - SECTION_PADDING - this.headerTextHeight - RESOURCE_V_MARGIN;
+        int button_y = this.y + offsetY - SECTION_V_MARGIN - this.headerTextHeight - RESOURCE_V_MARGIN;
         return 
             mouseX > button_x 
             && mouseX < button_x + CLOSE_BUTTON_WIDTH
@@ -106,9 +118,9 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
             && mouseY < button_y + CLOSE_BUTTON_HEIGHT;
     }
 
-    public boolean isMouseOverWindow(int offsetX, int offsetY, int mouseX, int mouseY) {
-        int actual_x = this.x + offsetX;
-        int actual_y = this.y + offsetY;
+    public boolean isMouseOverWindow(int offsetX, int offsetY, double mouseX, double mouseY) {
+        int actual_x = this.x + offsetX - H_MARGIN;
+        int actual_y = this.y + offsetY - SECTION_V_MARGIN - this.headerTextHeight - V_MARGIN - RESOURCE_V_MARGIN;
         /* System.out.println("xy: " + actual_x + "," + actual_y + " mouse: " + mouseX + "," + mouseY);
         if (mouseX > actual_x 
             && mouseX < actual_x + WIDTH
@@ -124,8 +136,11 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
 
     @Override
     public void scroll(double dragX, double dragY) {
-        this.x += (int)dragX;
-        this.y += (int)dragY;
+        this.scrollX += dragX;
+        this.scrollY += dragY;
+
+        this.x = (int)Math.round(this.scrollX);
+        this.y = (int)Math.round(this.scrollY);
     }
 
     public void discard() {

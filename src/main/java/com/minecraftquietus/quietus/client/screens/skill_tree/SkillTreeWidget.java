@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.client.screens.skill_tree;
 
-import com.minecraftquietus.quietus.skill_tree.SkillTreeNode;
+import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

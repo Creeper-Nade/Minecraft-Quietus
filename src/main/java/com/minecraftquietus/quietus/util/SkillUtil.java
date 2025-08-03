@@ -5,7 +5,7 @@ import com.minecraftquietus.quietus.core.skill.SkillComponent;
 
 import net.minecraft.world.entity.player.Player;
 
-public final class SkillUtil {
+public class SkillUtil {
 
     public static SkillComponent getSkills(Player player) {
         return player.getData(QuietusAttachments.SKILL_ATTACHMENT);

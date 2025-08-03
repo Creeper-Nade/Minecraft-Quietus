@@ -52,6 +52,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -75,7 +76,6 @@ import org.slf4j.Logger;
 
 @EventBusSubscriber(modid = MODID)
 public class QuietusCommonEvents {
-    // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
     
     @SubscribeEvent
