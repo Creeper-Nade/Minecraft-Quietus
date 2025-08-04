@@ -9,7 +9,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -21,6 +24,7 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 
 import net.neoforged.neoforge.resource.ContextAwareReloadListener;
+import net.minecraft.FileUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
@@ -43,6 +47,8 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
     private final Codec<? extends SkillCategory> skillCategoryCodec;
     private final FileToIdConverter lister = FileToIdConverter.json(DIR_NAME);
 
+    private ImmutableMap<ResourceLocation, SkillCategory> categories = ImmutableMap.of();
+
     public ServerSkillTreeManager(HolderLookup.Provider registries, Codec<? extends SkillCategory> codec1, Codec<? extends SkillPoint> codec2) {
         this.ops = registries.createSerializationContext(JsonOps.INSTANCE);
         this.skillCategoryCodec = codec1;
@@ -61,12 +67,24 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
 
     protected void apply(Map<ResourceLocation, SkillCategory> obj1, Map<ResourceLocation, SkillPoint> obj2, ResourceManager resourceManager,
             ProfilerFiller profiler) {
-        obj1.forEach((resource, skillCategory) -> {
-            LOGGER.info(resource.toString() + " -> " + skillCategory.toString());
+        /* obj1.forEach((location, skillCategory) -> {
+            LOGGER.info(location.toString() + " -> " + skillCategory.toString());
         });
-        obj2.forEach((resource, skillPoint) -> {
-            LOGGER.info(resource.toString() + " -> " + skillPoint.toString());
+        obj2.forEach((location, skillPoint) -> {
+            LOGGER.info(location.toString() + " -> " + skillPoint.toString());
+        }); */
+        ImmutableMap.Builder<ResourceLocation,SkillCategory> immutableMap$builder = ImmutableMap.builder();
+        obj1.forEach((location, skillCategory) -> {
+            SkillCategory category = new SkillCategory(location, skillCategory.getPrerequisites());
+            Map<ResourceLocation, SkillPoint> filtered_map = obj2.entrySet().stream()
+                .filter( // filter all the skill nodes that should be in this category, which should contain the location of this category in their paths (and obviously also same namespace)
+                    (entry) -> entry.getKey().getPath().startsWith(location.getPath()) && entry.getKey().getNamespace().equals(location.getNamespace())
+                )
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); 
+            category.addAll(filtered_map); // note: category::addAll should construct the SkillTreeNodes (and übrigens save their pointers for itself), so they do not have to be constructed here
+            immutableMap$builder.put(location,category);
         });
+        this.categories = immutableMap$builder.build();
     }
 
     /**
@@ -98,7 +116,7 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
             ResourceLocation id = lister.fileToId(location);
 
             try {
-                String filename = location.getPath().substring(location.getPath().lastIndexOf("/")+1);
+                String filename = location.getPath().substring(location.getPath().lastIndexOf("/")+1); // must have at least 1 "/" indicating it is in one tab directory.
                 boolean shouldProcess = scanningForCategory ? filename.equals(FILENAME_TAB_DATA) : !filename.equals(FILENAME_TAB_DATA);
                 
                 if (shouldProcess) {
@@ -118,6 +136,7 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
                 }
             } catch (IndexOutOfBoundsException e) {
                 LOGGER.info("Ignoring data file '{}' from '{}' because it is not in any directories for skill_tree category. Place it in at least one sub-directory under data/<namespace>/{}/skill_tree", id, location, MODID);
+                continue;
             }
         }
     }

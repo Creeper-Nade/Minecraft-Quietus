@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.skilltree;
 
+import java.util.Collection;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -17,11 +18,15 @@ public class SkillTreeNode {
         this.id = id;
         this.skillPoint = skillPoint;
         // all prerequisite nodes are parents
-        /* this.skillPoint.prerequisites().parentNodes().forEach(set -> {
-            set.forEach(location -> {
-                this.parents.add(QuietusRegistries.SKILL_NODE_REGISTRY.getValue(location));
-            });
-        }); */
+    }
+
+    public void setParents(Collection<SkillTreeNode> col) {
+        this.parents.clear();
+        this.parents.addAll(col);
+    }
+
+    public void addChild(SkillTreeNode child) {
+        this.children.add(child);
     }
 
     public SkillPoint getSkillPoint() {

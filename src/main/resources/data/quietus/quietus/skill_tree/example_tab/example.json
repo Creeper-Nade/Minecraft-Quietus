@@ -2,11 +2,7 @@
     "prerequisites": {
         "parent": [
             [
-                "modid:a_node"
-            ],
-            [
-                "modid:a_collection",
-                "modid:of_two_nodes"
+                "quietus:example_tab/example_root"
             ]
         ],
         "_comment": "vanilla criteria here",

@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public record Prerequisites(
     Map<String, Criterion<?>> criteria, 
-    Set<Set<ResourceLocation>> parentNodes 
+    Set<Set<ResourceLocation>> parents 
 ) {
     private static final Codec<Map<String, Criterion<?>>> CRITERIA_MAP_CODEC = Codec.unboundedMap(Codec.STRING, Criterion.CODEC);
     public static final Codec<Prerequisites> CODEC = RecordCodecBuilder.create(
@@ -33,16 +33,25 @@ public record Prerequisites(
             return new Prerequisites(criteriaMap, setset);
         })
     );
-
     private List<List<ResourceLocation>> encodeThisParentSetToList() {
         List<List<ResourceLocation>> out = new ArrayList<>();
-        for (Set<ResourceLocation> set : this.parentNodes) {
+        for (Set<ResourceLocation> set : this.parents) {
             List<ResourceLocation> list = new ArrayList<>();
             for (ResourceLocation i : set) {
                 list.add(i);
             }
             out.add(list);
         }
+        return out;
+    }
+
+    /**
+     * Gets all parent ever mentioned in the parents of set of set.
+     * @return Set of ResourceLocation of parents.
+     */
+    public Set<ResourceLocation> getAllParents() {
+        Set<ResourceLocation> out = new HashSet();
+        this.parents.forEach((set) -> set.forEach(out::add));
         return out;
     }
 
