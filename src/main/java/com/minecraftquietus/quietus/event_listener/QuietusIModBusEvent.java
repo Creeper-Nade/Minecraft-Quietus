@@ -3,11 +3,11 @@ package com.minecraftquietus.quietus.event_listener;
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.client.item.DecayBarDecorator;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
-import com.minecraftquietus.quietus.packet.DoDecayPacket;
-import com.minecraftquietus.quietus.packet.GhostStatePacket;
-import com.minecraftquietus.quietus.packet.ManaPacket;
-import com.minecraftquietus.quietus.packet.PlayerRevivalCooldownPacket;
-import com.minecraftquietus.quietus.packet.WeatherItemContainerPacket;
+import com.minecraftquietus.quietus.client.packet.DoDecayPacket;
+import com.minecraftquietus.quietus.client.packet.GhostStatePacket;
+import com.minecraftquietus.quietus.client.packet.ManaPacket;
+import com.minecraftquietus.quietus.client.packet.PlayerRevivalCooldownPacket;
+import com.minecraftquietus.quietus.client.packet.WeatherItemContainerPacket;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;

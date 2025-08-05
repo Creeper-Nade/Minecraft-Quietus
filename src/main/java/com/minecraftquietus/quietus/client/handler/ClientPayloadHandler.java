@@ -2,14 +2,14 @@ package com.minecraftquietus.quietus.client.handler;
 
 import java.util.Objects;
 
+import com.minecraftquietus.quietus.client.packet.DoDecayPacket;
+import com.minecraftquietus.quietus.client.packet.GhostStatePacket;
+import com.minecraftquietus.quietus.client.packet.ManaPacket;
+import com.minecraftquietus.quietus.client.packet.PlayerRevivalCooldownPacket;
+import com.minecraftquietus.quietus.client.packet.WeatherItemContainerPacket;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.item.QuietusComponents;
-import com.minecraftquietus.quietus.packet.DoDecayPacket;
-import com.minecraftquietus.quietus.packet.GhostStatePacket;
-import com.minecraftquietus.quietus.packet.ManaPacket;
-import com.minecraftquietus.quietus.packet.PlayerRevivalCooldownPacket;
-import com.minecraftquietus.quietus.packet.WeatherItemContainerPacket;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

@@ -75,7 +75,7 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
         }); */
         ImmutableMap.Builder<ResourceLocation,SkillCategory> immutableMap$builder = ImmutableMap.builder();
         obj1.forEach((location, skillCategory) -> {
-            SkillCategory category = new SkillCategory(location, skillCategory.getPrerequisites());
+            SkillCategory category = new SkillCategory(location, skillCategory.getPrerequisites(), skillCategory.getDisplay());
             Map<ResourceLocation, SkillPoint> filtered_map = obj2.entrySet().stream()
                 .filter( // filter all the skill nodes that should be in this category, which should contain the location of this category in their paths (and obviously also same namespace)
                     (entry) -> entry.getKey().getPath().startsWith(location.getPath()) && entry.getKey().getNamespace().equals(location.getNamespace())

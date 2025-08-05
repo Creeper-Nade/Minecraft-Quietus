@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.skilltree;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.advancements.Criterion;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 public record Prerequisites(
@@ -44,6 +50,8 @@ public record Prerequisites(
         }
         return out;
     }
+    public static final Codec<Prerequisites> STREAM_CODEC = StreamCodec.composite(
+        
 
     /**
      * Gets all parent ever mentioned in the parents of set of set.
@@ -56,6 +64,29 @@ public record Prerequisites(
     }
 
     public static final Prerequisites EMPTY = new Prerequisites(Map.of(), Set.of());
+
+
+    public record DisplayInfo(
+        Map<String, Component> criteria
+    ) {
+        private static final Codec<Map<String, Component>> CRITERIA_DISPLAY_MAP_CODEC = Codec.unboundedMap(Codec.STRING, ComponentSerialization.CODEC);
+        public static final Codec<Prerequisites.DisplayInfo> CODEC = RecordCodecBuilder.create(
+            instance -> instance.group(
+                CRITERIA_DISPLAY_MAP_CODEC.optionalFieldOf("criteria", Map.of()).forGetter(DisplayInfo::criteria)
+            ).apply(instance, DisplayInfo::new)
+        );
+        public static final StreamCodec<RegistryFriendlyByteBuf,Map<String,Component>> CRITIERIA_DISPLAY_MAP_STREAM_CODEC = ByteBufCodecs.map(
+            HashMap::new, 
+            ByteBufCodecs.STRING_UTF8, 
+            ComponentSerialization.STREAM_CODEC,
+            256
+        );
+        public static final StreamCodec<RegistryFriendlyByteBuf,DisplayInfo> STREAM_CODEC = StreamCodec.composite(
+            CRITIERIA_DISPLAY_MAP_STREAM_CODEC, DisplayInfo::criteria,
+            DisplayInfo::new
+        );
+
+    }
 
     @Override
     public String toString() {

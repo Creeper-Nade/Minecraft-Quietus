@@ -31,7 +31,7 @@
         "description": {
             "translate": "skillTree.quietus.node.example_root.description"
         },
-        "prerequisite": {
+        "prerequisites": {
             "criteria": {
                 "[criteria name here]": {
                     "translate": "skillTree.quietus.node.example_root.criteria1"

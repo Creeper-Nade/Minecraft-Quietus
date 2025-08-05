@@ -2,7 +2,10 @@
     "tab_display": {
         "icon": "quietus:textures/gui/icons/skill_tree/tab/example.png",
         "name": {
-            "translate": "skillTree.quietus.tab.example"
+            "translate": "skillTree.quietus.tab.example.name"
+        },
+        "description": {
+            "translate": "skillTree.quietus.tab.example.description"
         }
     },
     "prerequisites": {

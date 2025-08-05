@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.packet;
+package com.minecraftquietus.quietus.client.packet;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

@@ -17,7 +17,6 @@ public class SkillTreeNode {
     public SkillTreeNode(ResourceLocation id, SkillPoint skillPoint) {
         this.id = id;
         this.skillPoint = skillPoint;
-        // all prerequisite nodes are parents
     }
 
     public void setParents(Collection<SkillTreeNode> col) {
