@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import com.minecraftquietus.quietus.entity.monster.Bowslinger;
 import com.minecraftquietus.quietus.entity.monster.Paraboler;
 
+import com.minecraftquietus.quietus.entity.monster.PlayerGhost;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +22,13 @@ public class QuietusEntityTypes {
 
     public static final Supplier<EntityType<Bowslinger>> BOWSLINGER = ENTITY_TYPES.register("bowslinger", () -> EntityType.Builder.of(Bowslinger::new, MobCategory.MONSTER).sized(0.6F, 1.99F).eyeHeight(1.74F).ridingOffset(-0.7F).clientTrackingRange(8).build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "bowslinger"))));
     public static final Supplier<EntityType<Paraboler>> PARABOLER = ENTITY_TYPES.register("paraboler", () -> EntityType.Builder.of(Paraboler::new, MobCategory.MONSTER).sized(0.6F, 1.99F).eyeHeight(1.74F).ridingOffset(-0.7F).clientTrackingRange(8).build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "paraboler"))));
+
+    public static final Supplier<EntityType<PlayerGhost>> PLAYER_GHOST = ENTITY_TYPES.register(
+            "player_ghost",
+            () -> EntityType.Builder.of(PlayerGhost::new, MobCategory.MONSTER)
+                    .sized(0.6f, 1.8f)
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "player_ghost"))
+    ));
 
 
     public static void register (IEventBus eventBus) {

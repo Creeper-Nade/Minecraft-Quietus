@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentHelper;
 import com.minecraftquietus.quietus.item.property.QuietusProjectileProperty;
-import com.minecraftquietus.quietus.util.damage.QuietusDamageType;
+import com.minecraftquietus.quietus.util.Damage.QuietusDamageType;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;

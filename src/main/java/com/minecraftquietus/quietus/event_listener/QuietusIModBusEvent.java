@@ -2,7 +2,9 @@ package com.minecraftquietus.quietus.event_listener;
 
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.client.item.DecayBarDecorator;
+import com.minecraftquietus.quietus.client.model.mob.PlayerGhostRenderer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
+import com.minecraftquietus.quietus.entity.monster.PlayerGhost;
 import com.minecraftquietus.quietus.packet.DoDecayPacket;
 import com.minecraftquietus.quietus.packet.GhostStatePacket;
 import com.minecraftquietus.quietus.packet.ManaPacket;
@@ -104,11 +106,13 @@ public class QuietusIModBusEvent {
     public static void initiateAttributes(EntityAttributeCreationEvent event) {
         event.put(QuietusEntityTypes.BOWSLINGER.get(), Bowslinger.createAttributes().build());
         event.put(QuietusEntityTypes.PARABOLER.get(), Paraboler.createAttributes().build());
+        event.put(QuietusEntityTypes.PLAYER_GHOST.get(), PlayerGhost.createAttributes().build());
     }
     @SubscribeEvent
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(QuietusEntityTypes.BOWSLINGER.get(), BowslingerRenderer::new);
         event.registerEntityRenderer(QuietusEntityTypes.PARABOLER.get(), ParabolerRenderer::new);
+        event.registerEntityRenderer(QuietusEntityTypes.PLAYER_GHOST.get(), PlayerGhostRenderer::new);
     }
 
     @SubscribeEvent 

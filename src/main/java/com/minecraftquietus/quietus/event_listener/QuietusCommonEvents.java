@@ -4,6 +4,8 @@ import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
+import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
+import com.minecraftquietus.quietus.entity.monster.PlayerGhost;
 import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.component.CanDecay;
 import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
@@ -51,7 +53,9 @@ import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -318,6 +322,7 @@ public class QuietusCommonEvents {
 
         }
     }
+
 
     /* @SubscribeEvent
     public static void onProjectileLand(ProjectileImpactEvent event) {
