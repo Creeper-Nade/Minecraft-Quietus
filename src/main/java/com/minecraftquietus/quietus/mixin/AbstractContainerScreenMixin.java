@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import net.minecraft.client.Minecraft;
 
 import com.minecraftquietus.quietus.client.QuietusKeyBindings;
+import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeScreen;
 
 @Mixin(AbstractContainerScreen.class)
@@ -22,7 +23,7 @@ public abstract class AbstractContainerScreenMixin {
     )
     private void onKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
         if (QuietusKeyBindings.SKILL_TREE_KEY.get().matches(keyCode, scanCode)) {
-            Minecraft.getInstance().setScreen(new SkillTreeScreen());
+            Minecraft.getInstance().setScreen(new SkillTreeScreen(ClientSkillTreePayloadHandler.getSkillTree()));
             cir.setReturnValue(true);
         }
     }

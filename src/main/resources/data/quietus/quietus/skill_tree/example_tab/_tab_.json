@@ -6,9 +6,9 @@
         },
         "description": {
             "translate": "skillTree.quietus.tab.example.description"
-        }
-    },
-    "prerequisites": {
+        },
+        "prerequisites": {
 
+        }
     }
 }

@@ -16,7 +16,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.minecraftquietus.quietus.client.QuietusKeyBindings;
+import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
+import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
+import com.minecraftquietus.quietus.skilltree.SkillCategory;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -32,7 +35,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class SkillTreeScreen extends Screen {
+public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final ResourceLocation WINDOW_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/window.png");
     public static final int WINDOW_WIDTH = 248;
     public static final int WINDOW_HEIGHT = 166;
@@ -44,20 +47,27 @@ public class SkillTreeScreen extends Screen {
 
     private static final Component TITLE = Component.translatable("gui.skill_tree");
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
+
+    private final ClientSkillTree skillTree;
+    private final Map<ResourceLocation,SkillTreeTab> tabs = new LinkedHashMap<>();
+
     private final Map<SkillTreeWidget,SkillTreeWidgetScreen> widgetScreens = new LinkedHashMap<>();
 
     private SkillTreeScrollable focusedScrollable;
     @Nullable private SkillTreeTab selectedTab;
 
-    SkillTreeTab testTab;
+    /* SkillTreeTab testTab;
     SkillTreeNode testNode;
     SkillTreeWidget testWidget;
     SkillTreeNode testNode2;
-    SkillTreeWidget testWidget2;
+    SkillTreeWidget testWidget2; */
 
-    public SkillTreeScreen() {
+    public SkillTreeScreen(ClientSkillTree skillTree) {
         super(TITLE);
 
+        this.skillTree = skillTree;
+
+        /* // for testing
         testTab = new SkillTreeTab(Minecraft.getInstance(), this, 0, WINDOW_LOCATION, TITLE);
         testNode = new SkillTreeNode(ResourceLocation.fromNamespaceAndPath(MODID, "none"), null);
         testWidget = new SkillTreeWidget(testTab, Minecraft.getInstance(), testNode, 25, 25, WidgetType.SQUARE);
@@ -67,7 +77,7 @@ public class SkillTreeScreen extends Screen {
         this.testTab.testAdd(testNode2, testWidget2);
         this.focusedScrollable = testTab;
         
-        this.selectedTab = testTab;
+        this.selectedTab = testTab; */
     }
 
     @Override
@@ -91,7 +101,18 @@ public class SkillTreeScreen extends Screen {
 
     @Override
     public void init() {
+        /* Header */
         this.layout.addTitleHeader(TITLE, this.font);
+        /* Setup */ 
+        this.tabs.clear();
+        ClientSkillTreePayloadHandler.getCategories().forEach((id, category) -> {
+            SkillTreeTab createdtab = SkillTreeTab.create(minecraft, this, WINDOW_HEIGHT, category);
+            if (!Objects.isNull(createdtab))
+                this.tabs.put(id, createdtab);
+            category.setListener(this);
+            this.selectedTab = createdtab; // TODO: debug temp
+        });
+        /* Footer */
         this.layout.addToFooter(Button.builder(CommonComponents.GUI_DONE, button -> this.onClose()).width(200).build());
         this.layout.visitWidgets(widget -> {
             AbstractWidget abstractwidget = this.addRenderableWidget(widget);
@@ -177,6 +198,18 @@ public class SkillTreeScreen extends Screen {
         if (this.focusedScrollable.equals(this.widgetScreens.get(widget)))
             this.focusedScrollable = this.selectedTab;
         this.widgetScreens.remove(widget);
+    }
+
+    /* SkillCategory.Listener method */
+    @Override
+    public void onAddRootSkillNode(ResourceLocation categoryId, SkillTreeNode node) {
+        this.tabs.get(categoryId).addWidget(node);
+    }
+
+    /* SkillCategory.Listener method */
+    @Override
+    public void onAddDependantSkillNode(ResourceLocation categoryId, SkillTreeNode node) {
+        this.tabs.get(categoryId).addWidget(node);
     }
 
 }

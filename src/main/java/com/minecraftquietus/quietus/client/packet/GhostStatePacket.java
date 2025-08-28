@@ -16,15 +16,15 @@ public record GhostStatePacket(boolean isGhost, Component message,int Max_CD,boo
     public static final Type<GhostStatePacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"ghost_state"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, GhostStatePacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.BOOL,
-            GhostStatePacket::isGhost,
-            ComponentSerialization.TRUSTED_STREAM_CODEC,
-            GhostStatePacket::message,
-            ByteBufCodecs.INT,
-            GhostStatePacket::Max_CD,
-            ByteBufCodecs.BOOL,
-            GhostStatePacket::hardcore,
-            GhostStatePacket::new
+        ByteBufCodecs.BOOL,
+        GhostStatePacket::isGhost,
+        ComponentSerialization.TRUSTED_STREAM_CODEC,
+        GhostStatePacket::message,
+        ByteBufCodecs.INT,
+        GhostStatePacket::Max_CD,
+        ByteBufCodecs.BOOL,
+        GhostStatePacket::hardcore,
+        GhostStatePacket::new
     );
 
     @Override

@@ -1,16 +1,24 @@
 package com.minecraftquietus.quietus.skilltree;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
+import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.advancements.Criterion;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -20,51 +28,189 @@ import net.minecraft.resources.ResourceLocation;
 
 public record Prerequisites(
     Map<String, Criterion<?>> criteria, 
-    Set<Set<ResourceLocation>> parents 
+    Map<String, ResourceLocation> parents,
+    Requirements requirements
 ) {
+    /* Constructor for stream codec, which does not send criteria across network to client */
+    private Prerequisites(Map<String, ResourceLocation> parents, Requirements requirements) {
+        this(null, parents, requirements);
+    }
+    
+    public static final Prerequisites EMPTY = new Prerequisites(Map.of(), Map.of(), Requirements.EMPTY);
+
     private static final Codec<Map<String, Criterion<?>>> CRITERIA_MAP_CODEC = Codec.unboundedMap(Codec.STRING, Criterion.CODEC);
+    private static final Codec<Map<String, ResourceLocation>> PARENTS_MAP_CODEC = Codec.unboundedMap(Codec.STRING, ResourceLocation.CODEC);
     public static final Codec<Prerequisites> CODEC = RecordCodecBuilder.create(
         instance -> instance.group(
             CRITERIA_MAP_CODEC.optionalFieldOf("criteria", Map.of()).forGetter(Prerequisites::criteria),
-            ResourceLocation.CODEC.listOf().listOf().optionalFieldOf("parent", List.of()).forGetter(Prerequisites::encodeThisParentSetToList)
-        ).apply(instance, (criteriaMap, parentListList) -> {
-            Set<Set<ResourceLocation>> setset = new HashSet<>();
-            for (List<ResourceLocation> list : parentListList) {
-                Set<ResourceLocation> set = new HashSet<>();
-                for (ResourceLocation i : list) {
-                    set.add(i);
-                }
-                setset.add(set);
-            }
-            return new Prerequisites(criteriaMap, setset);
+            PARENTS_MAP_CODEC.optionalFieldOf("parents", Map.of()).forGetter(Prerequisites::parents),
+            Requirements.CODEC.optionalFieldOf("requirements").forGetter((prerequisites)-> Optional.of(prerequisites.requirements()))
+        ).apply(instance, (criteriaMap, parentsMap, optionalRequirements) -> {
+            Set<String> keys = new HashSet();
+            keys.addAll(criteriaMap.keySet());
+            keys.addAll(parentsMap.keySet());
+            return new Prerequisites(criteriaMap, parentsMap, optionalRequirements.orElseGet(() -> Requirements.allOf(keys)));
         })
     );
-    private List<List<ResourceLocation>> encodeThisParentSetToList() {
-        List<List<ResourceLocation>> out = new ArrayList<>();
-        for (Set<ResourceLocation> set : this.parents) {
-            List<ResourceLocation> list = new ArrayList<>();
-            for (ResourceLocation i : set) {
-                list.add(i);
-            }
-            out.add(list);
-        }
-        return out;
-    }
-    public static final Codec<Prerequisites> STREAM_CODEC = StreamCodec.composite(
+    
+    public static final StreamCodec<FriendlyByteBuf,Prerequisites> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ResourceLocation.STREAM_CODEC, 256), Prerequisites::parents,
+        Requirements.STREAM_CODEC, Prerequisites::requirements,
+        Prerequisites::new
+    );
         
 
     /**
-     * Gets all parent ever mentioned in the parents of set of set.
-     * @return Set of ResourceLocation of parents.
+     * Gets ids of all parent ever mentioned in the requirements (all including "must" and "or")
+     * @return Set of ResourceLocation of parents
      */
     public Set<ResourceLocation> getAllParents() {
-        Set<ResourceLocation> out = new HashSet();
-        this.parents.forEach((set) -> set.forEach(out::add));
+        Set<ResourceLocation> out = new HashSet<>();
+        this.parents.keySet().forEach((key) -> {
+            this.requirements.forEach((list) -> list.forEach((requirement) -> {
+                if (key.equals(requirement)) out.add(this.parents.get(key));
+            }));
+        });
         return out;
     }
 
-    public static final Prerequisites EMPTY = new Prerequisites(Map.of(), Set.of());
+    /**
+     * Gets ids of all parents ever mentioned in the requirements, 
+     * that are must demanded by this prerequisite
+     * @return Set of ResourceLocation of "must" parents
+     */
+    public Set<ResourceLocation> getAllMustParents() {
+        Set<ResourceLocation> out = new HashSet<>();
+        this.requirements.forEach((list) -> {
+            int i = 0;
+            ResourceLocation r = ResourceLocation.parse("quietus:none"); // just placeholder to avoid null pointer. It will be overriden by last id took from the list
+            for (String s : list) {
+                if (this.parents.containsKey(s)) { // excludes criteria requirements, sees only parents
+                    i += 1;
+                    r = this.parents.get(s);
+                }                    
+            }
+            if (i == 1) out.add(r); // only one present - "must"
+        });
+        return out;
+    }
+    /**
+     * Gets ids of all parents ever mentioned in the requirements, 
+     * that are demanded by this prerequisite as alternatives to other parents
+     * @return Set of ResourceLocation of "or" parents
+     */
+    public Set<ResourceLocation> getAllOrParents() {
+        Set<ResourceLocation> out = new HashSet<>();
+        this.requirements.forEach((list) -> {
+            Set<ResourceLocation> set = new HashSet<>();
+            for (String s : list) {
+                if (this.parents.containsKey(s)) { // excludes criteria requirements, sees only parents
+                    set.add(this.parents.get(s));
+                }                    
+            }
+            if (set.size() > 1) out.addAll(set); // multiple present - "or"
+        });
+        return out;
+    }
 
+    public record Requirements(
+        List<List<String>> requirements
+    ) {
+        public static final Requirements EMPTY = new Requirements(List.of());
+
+        public static final Codec<Requirements> CODEC = Codec.STRING.listOf().listOf().xmap(Requirements::new, Requirements::requirements);
+
+        public static final StreamCodec<FriendlyByteBuf,Requirements> STREAM_CODEC = StreamCodec.ofMember(
+            (requirements,buffer) -> {
+                ((FriendlyByteBuf)buffer).writeCollection(((Requirements)requirements).requirements(), (buffer2, list) -> buffer2.writeCollection(list, FriendlyByteBuf::writeUtf));
+            },
+            (buffer) -> {
+                return new Requirements(((FriendlyByteBuf)buffer).readList(buffer2-> buffer2.readList(FriendlyByteBuf::readUtf)));
+            }
+        );
+
+        public static Requirements allOf(Collection<String> args) {
+            return new Requirements(args.stream().map(List::of).toList());
+        }
+        public static Requirements anyOf(Collection<String> args) {
+            return new Requirements(List.of(List.copyOf(args)));
+        }
+
+        public int size() {
+            return this.requirements.size();
+        }
+        public boolean isEmpty() {
+            return this.requirements.isEmpty();
+        }
+        public void forEach(Consumer<? super List<String>> func) {
+            this.requirements.forEach(func);
+        }
+
+        public boolean test(Predicate<String> predicate) {
+            if (this.requirements.isEmpty()) {
+                return false;
+            } else {
+                for (List<String> list : this.requirements) {
+                    if (!anyMatch(list, predicate)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        public int count(Predicate<String> filter) {
+            int i = 0;
+
+            for (List<String> list : this.requirements) {
+                if (anyMatch(list, filter)) {
+                    i++;
+                }
+            }
+
+            return i;
+        }
+
+        private static boolean anyMatch(List<String> requirements, Predicate<String> predicate) {
+            for (String s : requirements) {
+                if (predicate.test(s)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public DataResult<Requirements> validate(Set<String> requirements) {
+            Set<String> set = new ObjectOpenHashSet<>();
+
+            for (List<String> list : this.requirements) {
+                if (list.isEmpty() && requirements.isEmpty()) {
+                    return DataResult.error(() -> "Requirement entry cannot be empty");
+                }
+
+                set.addAll(list);
+            }
+
+            if (!requirements.equals(set)) {
+                Set<String> set1 = Sets.difference(requirements, set);
+                Set<String> set2 = Sets.difference(set, requirements);
+                return DataResult.error(
+                    () -> "Skill tree node completion requirements did not exactly match specified criteria. Missing: " + set1 + ". Unknown: " + set2
+                );
+            } else {
+                return DataResult.success(this);
+            }
+        }
+
+        public interface Strategy {
+            Requirements.Strategy AND = Requirements::allOf;
+            Requirements.Strategy OR = Requirements::anyOf;
+
+            Requirements create(Collection<String> criteria);
+        }
+    }
 
     public record DisplayInfo(
         Map<String, Component> criteria

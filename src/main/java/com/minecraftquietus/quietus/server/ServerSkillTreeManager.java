@@ -23,6 +23,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.resource.ContextAwareReloadListener;
 import net.minecraft.FileUtil;
 import net.minecraft.core.HolderLookup;
@@ -35,6 +37,10 @@ import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.slf4j.Logger;
 
+
+/**
+ * The ServerSkillTreeManager is responsible for reading data, which is called upon by com.minecraftquietus.quietus.event_listener.ResourceEvent
+ */
 public class ServerSkillTreeManager extends ContextAwareReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -55,6 +61,14 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
         this.skillPointCodec = codec2;
     }
 
+    public Map<ResourceLocation, SkillCategory> get() {
+        return this.categories;
+    }
+
+    /** 
+     * What to do when datapack is reloaded
+     * Has used CompletableFuture for asynchronous functions
+     */
     @Override
     public final CompletableFuture<Void> reload(
         PreparableReloadListener.PreparationBarrier barrier, ResourceManager manager, Executor backgroundExecutor, Executor gameExecutor
@@ -65,6 +79,16 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
             .thenAcceptBothAsync(skillPointLoad, (skillCategory,skillPoint) -> this.apply(skillCategory, skillPoint, manager, Profiler.get()), gameExecutor);
     }
 
+    /**
+     * Takes in the decoded objects and further process them
+     * In this case it adds inheritance relations to each node, 
+     * and is lastly sorted into their appropriate categories, 
+     * fully prepared for use as Map<ResourceLocation,SkillCategory>. 
+     * @param obj1
+     * @param obj2
+     * @param resourceManager
+     * @param profiler
+     */
     protected void apply(Map<ResourceLocation, SkillCategory> obj1, Map<ResourceLocation, SkillPoint> obj2, ResourceManager resourceManager,
             ProfilerFiller profiler) {
         /* obj1.forEach((location, skillCategory) -> {
@@ -116,7 +140,7 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
             ResourceLocation id = lister.fileToId(location);
 
             try {
-                String filename = location.getPath().substring(location.getPath().lastIndexOf("/")+1); // must have at least 1 "/" indicating it is in one tab directory.
+                String filename = location.getPath().substring(location.getPath().lastIndexOf("/")+1); // skill nodes data files must be in one tab directory
                 boolean shouldProcess = scanningForCategory ? filename.equals(FILENAME_TAB_DATA) : !filename.equals(FILENAME_TAB_DATA);
                 
                 if (shouldProcess) {

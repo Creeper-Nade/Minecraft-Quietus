@@ -13,7 +13,6 @@ import com.minecraftquietus.quietus.item.QuietusComponents;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -59,7 +58,7 @@ public class ClientPayloadHandler {
     public boolean GetManaChargeStatus(){return ManaFastCharging;}
     public int GetManaFromPack() {return Mana;}
 
-    public static void handleGhostState(final GhostStatePacket payload,final IPayloadContext context) {
+    public static void handleGhostState(final GhostStatePacket payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
                     PlayerIsGhost = payload.isGhost();
                     MaxReviveCD = payload.Max_CD();

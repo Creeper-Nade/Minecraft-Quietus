@@ -11,7 +11,9 @@ public class SkillTreeNode {
     private final ResourceLocation id;
     private final SkillPoint skillPoint;
 
-    protected final Set<SkillTreeNode> parents = new ReferenceOpenHashSet<>();
+    private final Set<SkillTreeNode> parents = new ReferenceOpenHashSet<>();
+    private final Set<SkillTreeNode> mustParents = new ReferenceOpenHashSet<>();
+    private final Set<SkillTreeNode> orParents = new ReferenceOpenHashSet<>();
     protected final Set<SkillTreeNode> children = new ReferenceOpenHashSet<>();
 
     public SkillTreeNode(ResourceLocation id, SkillPoint skillPoint) {
@@ -22,6 +24,15 @@ public class SkillTreeNode {
     public void setParents(Collection<SkillTreeNode> col) {
         this.parents.clear();
         this.parents.addAll(col);
+
+        this.mustParents.clear();
+        this.orParents.clear();
+        col.forEach((node) -> {
+            if (this.getSkillPoint().prerequisites().getAllMustParents().contains(node.getId()))
+                this.mustParents.add(node);
+            if (this.getSkillPoint().prerequisites().getAllOrParents().contains(node.getId()))
+                this.orParents.add(node);
+        });
     }
 
     public void addChild(SkillTreeNode child) {
@@ -38,5 +49,15 @@ public class SkillTreeNode {
 
     public boolean isRoot() {
         return this.parents.size() == 0;
+    }
+    
+    public Collection<SkillTreeNode> parents() {
+        return this.parents;
+    }
+    public Collection<SkillTreeNode> mustParents() {
+        return this.mustParents;
+    }
+    public Collection<SkillTreeNode> orParents() {
+        return this.orParents;
     }
 }

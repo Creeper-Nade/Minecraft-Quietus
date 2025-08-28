@@ -2,6 +2,8 @@ package com.minecraftquietus.quietus.event_listener;
 
 import com.minecraftquietus.quietus.client.QuietusKeyBindings;
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
+import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
+import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
 import com.minecraftquietus.quietus.client.screens.CustomScreen;
 import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeScreen;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
@@ -59,6 +61,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
@@ -71,6 +74,8 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import org.slf4j.Logger;
 
 
@@ -169,7 +174,11 @@ public class QuietusCommonEvents {
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
             PlayerData.sendManaPackToPlayer(serverPlayer);
-        } 
+            if (!Objects.isNull(QuietusReloadableResources.getCategories()))
+                PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(QuietusReloadableResources.getCategories()));
+            else
+                PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(Map.of()));
+        }
     }
 
     @SubscribeEvent
@@ -282,7 +291,7 @@ public class QuietusCommonEvents {
 
         while (QuietusKeyBindings.SKILL_TREE_KEY.get().consumeClick()) {
             if (minecraft.screen == null) {
-                minecraft.setScreen(new SkillTreeScreen());
+                minecraft.setScreen(new SkillTreeScreen(ClientSkillTreePayloadHandler.getSkillTree()));
                 //minecraft.setScreen(new CustomScreen(player.connection.getAdvancements()));
             }
         }

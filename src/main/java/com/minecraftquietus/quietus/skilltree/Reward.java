@@ -5,6 +5,9 @@ import com.minecraftquietus.quietus.util.SkillUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
@@ -19,6 +22,13 @@ public record Reward(
             Codec.INT.optionalFieldOf("amount", 0).forGetter(Reward::amount),
             Codec.STRING.optionalFieldOf("source", "none").forGetter(Reward::source)
         ).apply(instance, Reward::new)
+    );
+
+    public static final StreamCodec<FriendlyByteBuf, Reward> STREAM_CODEC = StreamCodec.composite(
+        ResourceLocation.STREAM_CODEC, Reward::skillLocation,    
+        ByteBufCodecs.INT, Reward::amount,
+        ByteBufCodecs.STRING_UTF8, Reward::source,
+        Reward::new
     );
 
     public void apply(Player player) {

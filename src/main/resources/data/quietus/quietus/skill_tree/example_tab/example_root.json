@@ -1,10 +1,6 @@
 {
     "_comment": "no prerequisite if root node",
     "prerequisites": {
-        "parent": [
-            []
-        ],
-        
         "_comment": "vanilla criteria here",
         "criteria": {
             "killed_by_something": {
@@ -13,7 +9,10 @@
             "killed_something": {
                 "trigger": "minecraft:player_killed_entity"
             }
-        }
+        },
+        "requirements": [
+            
+        ]
     },
 
     "rewards": [

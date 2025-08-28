@@ -1,9 +1,11 @@
 package com.minecraftquietus.quietus.skilltree;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
@@ -17,13 +19,16 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.core.ClientAsset;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.StreamEncoder;
 import net.minecraft.resources.ResourceLocation;
 
 
@@ -39,12 +44,8 @@ public class SkillCategory {
 
     private final ResourceLocation id;
 
-    /* For CODEC decoding only, hence this constructor will not be visible */
-    private SkillCategory(Prerequisites prerequisites, Optional<DisplayInfo> display) {
-        this.prerequisites = prerequisites;
-        this.id = null;
-        this.display = display;
-    }
+    private SkillCategory.Listener listener;
+
     
     /* Constructs actual usable SkillCategory instances. */
     public SkillCategory(ResourceLocation id, Prerequisites prerequisites, Optional<DisplayInfo> display) {
@@ -53,14 +54,52 @@ public class SkillCategory {
         this.display = display;
     }
 
+    /* For CODEC decoding only */
+    public static SkillCategory makeDecodedInstance(Prerequisites prerequisites, Optional<DisplayInfo> display) {
+        return new SkillCategory(null, prerequisites, display);
+    }
+
     public static final Codec<SkillCategory> CODEC = RecordCodecBuilder.create(
         (instance) -> instance.group(
             Prerequisites.CODEC.optionalFieldOf("prerequisites",Prerequisites.EMPTY).forGetter(SkillCategory::getPrerequisites),
             DisplayInfo.CODEC.optionalFieldOf("tab_display").forGetter(SkillCategory::getDisplay)
-        ).apply(instance, SkillCategory::new) // should use the private constructor without id assignment.
+        ).apply(instance, SkillCategory::makeDecodedInstance) // should use the private constructor without id assignment.
     );
 
-    public static final Codec<SkillCategory> STREAM_CODEC = 
+    public static final StreamCodec<RegistryFriendlyByteBuf, SkillCategory> STREAM_CODEC = StreamCodec.ofMember(SkillCategory::serializeToNetwork, SkillCategory::deserializeFromNetwork);
+
+    private void serializeToNetwork(RegistryFriendlyByteBuf buffer) {
+        int i = 0;
+        if (this.display.isPresent()) {
+            i |= 1;
+        }
+        buffer.writeInt(i);
+        ResourceLocation.STREAM_CODEC.encode(buffer, this.id);
+        Map<ResourceLocation,SkillPoint> map = new HashMap<>();
+        this.nodes.forEach((key, value) -> map.put(key, value.getSkillPoint()));
+        buffer.writeMap(
+            map,
+            (StreamEncoder<FriendlyByteBuf, ResourceLocation>) ResourceLocation.STREAM_CODEC::encode,
+            (buf, value) -> SkillPoint.STREAM_CODEC.encode((RegistryFriendlyByteBuf) buf, value)
+            /* ResourceLocation.STREAM_CODEC::encode,
+            SkillPoint.STREAM_CODEC::encode */
+        );
+        Prerequisites.STREAM_CODEC.encode(buffer, this.prerequisites);
+        if (this.display.isPresent()) DisplayInfo.STREAM_CODEC.encode(buffer, this.display.get());
+    }
+    private static SkillCategory deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
+        int i = buffer.readInt();
+        ResourceLocation id = ResourceLocation.STREAM_CODEC.decode(buffer);
+        Map<ResourceLocation,SkillPoint> map = buffer.readMap(
+            buf -> ResourceLocation.STREAM_CODEC.decode((FriendlyByteBuf) buf),
+            buf -> SkillPoint.STREAM_CODEC.decode((RegistryFriendlyByteBuf) buf)
+        );
+        Prerequisites prerequisites = Prerequisites.STREAM_CODEC.decode(buffer);
+        Optional<DisplayInfo> display = ((i & 1) != 0) ? Optional.of(DisplayInfo.STREAM_CODEC.decode(buffer)) : Optional.empty();
+        SkillCategory out = new SkillCategory(id, prerequisites, display);
+        out.addAll(map);
+        return out;
+    }
 
     public record DisplayInfo(
         Optional<ClientAsset> icon,
@@ -132,16 +171,37 @@ public class SkillCategory {
                 /* Updating roots and dependants */
                 if (parents.isEmpty()) { // 没腐没木
                     this.roots.add(node);
+                    if (!Objects.isNull(listener))
+                        this.listener.onAddRootSkillNode(this.id, node);
                 } else {
                     this.dependants.add(node);
+                    if (!Objects.isNull(listener))
+                        this.listener.onAddDependantSkillNode(this.id, node);
                 }
 
                 return true;
             } else { // not all parents already created, AND this node should have more parents created: leave this node to be further improved
                 return false;
             }
-            
         }
+    }
+
+    public void setListener(@Nullable SkillCategory.Listener listener) {
+        this.listener = listener;
+        if (!Objects.isNull(listener)) {
+            for (SkillTreeNode node : this.roots) {
+                listener.onAddRootSkillNode(this.id, node);
+            }
+            for (SkillTreeNode node : this.dependants) {
+                listener.onAddDependantSkillNode(this.id, node);
+            }
+        }
+    }
+
+    public interface Listener {
+        void onAddRootSkillNode(ResourceLocation categoryId, SkillTreeNode node);
+        
+        void onAddDependantSkillNode(ResourceLocation categoryId, SkillTreeNode node);
     }
 
     public Prerequisites getPrerequisites() {

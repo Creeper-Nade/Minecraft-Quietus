@@ -4,22 +4,24 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import javax.annotation.Nullable;
+
+import com.minecraftquietus.quietus.skilltree.SkillCategory;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 
 public class SkillTreeTab implements SkillTreeScrollable {
     
     private final Minecraft minecraft;
     private final SkillTreeScreen screen;
     private final int index;
-    private final ResourceLocation icon;
-    private final Component title;
+    private final SkillCategory.DisplayInfo display;
 
     private final Map<SkillTreeNode,SkillTreeWidget> widgets = new LinkedHashMap();
     private double scrollX;
@@ -29,22 +31,43 @@ public class SkillTreeTab implements SkillTreeScrollable {
     private int maxX = Integer.MIN_VALUE;
     private int maxY = Integer.MIN_VALUE;
 
-    public SkillTreeTab(Minecraft minecraft, SkillTreeScreen screen, int index, ResourceLocation icon, Component title) {
+    public SkillTreeTab(Minecraft minecraft, SkillTreeScreen screen, int index, SkillCategory category, SkillCategory.DisplayInfo display, double scrollX, double scrollY) {
         this.minecraft = minecraft;
         this.screen = screen;
+
         this.index = index;
-        this.icon = icon;
-        this.title = title;
+        this.display = display;
 
-        this.scrollX = 0.0d;
-        this.scrollY = 0.0d;
+        this.scrollX = scrollX;
+        this.scrollY = scrollY;
 
     }
 
-    public void testAdd(SkillTreeNode node, SkillTreeWidget widget) {
+    @Nullable
+    public static SkillTreeTab create(Minecraft minecraft, SkillTreeScreen screen, int index, SkillCategory category) {
+        Optional<SkillCategory.DisplayInfo> display = category.getDisplay();
+        if (display.isPresent()) {
+            return new SkillTreeTab(minecraft, screen, index, category, display.get(), 0.0d, 0.0d);
+        } else {
+            return null;
+        }
+    }
+
+    /* public void testAdd(SkillTreeNode node, SkillTreeWidget widget) {
         this.widgets.put(node, widget);
-    }
+    } */
     
+    private static int offset = 0;
+    public void addWidget(SkillTreeNode node) {
+        if (node.getSkillPoint().display().isPresent()) {
+            this.widgets.put(node, new SkillTreeWidget(this, this.minecraft, node, offset, 0, node.getSkillPoint().display().get()));
+            offset += 50;
+            for (SkillTreeWidget widget : this.widgets.values()) {
+                widget.attachToParent();
+            }
+        }
+    }
+
     public void drawContents(GuiGraphics guiGraphics, int offsetX, int offsetY) {
         guiGraphics.enableScissor(offsetX, offsetY, offsetX + SkillTreeScreen.WINDOW_INSIDE_WIDTH, offsetY + SkillTreeScreen.WINDOW_INSIDE_HEIGHT);
         /* guiGraphics.pose().pushPose();
@@ -78,8 +101,18 @@ public class SkillTreeTab implements SkillTreeScrollable {
         return false;
     }
 
+    public SkillTreeWidget getWidget(SkillTreeNode node) {
+        return this.widgets.get(node);
+    }
+    public SkillTreeWidget getWidget(ResourceLocation id) {
+        for (SkillTreeNode node : this.widgets.keySet()) {
+            if (node.getId().equals(id))
+                return this.getWidget(node);
+        }
+        return null;
+    }
+
     public SkillTreeScreen getScreen() {
         return this.screen;
     }
-    
 }

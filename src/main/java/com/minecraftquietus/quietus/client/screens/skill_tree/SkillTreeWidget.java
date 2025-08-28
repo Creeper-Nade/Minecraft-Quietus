@@ -1,7 +1,11 @@
 package com.minecraftquietus.quietus.client.screens.skill_tree;
 
+import java.util.Set;
+
+import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
@@ -24,19 +28,25 @@ public class SkillTreeWidget {
 
     private final int x;
     private final int y;
+    private final Set<SkillTreeWidget> mustParents = new ReferenceOpenHashSet<>();
+    private final Set<SkillTreeWidget> orParents = new ReferenceOpenHashSet<>();
+    private final Set<SkillTreeWidget> children = new ReferenceOpenHashSet<>();
 
-    private final WidgetType widgettype;
+    private final SkillPointType widgettype;
 
-    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, SkillTreeNode node, int x, int y, WidgetType type) {
+    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, SkillTreeNode node, int x, int y, SkillPoint.DisplayInfo display) {
         this.tab = tab;
         this.minecraft = minecraft;
         this.node = node;
-        this.icon = ResourceLocation.fromNamespaceAndPath(node.getId().getNamespace(), "textures/gui/icons/skill_tree/node/" + node.getId().getPath() + ".png");
+        this.icon = display.icon().isPresent() ? 
+            display.icon().get().texturePath() : 
+            node.getId().withPath((id) -> "textures/gui/icons/skill_tree/node/" + id + ".png");
+            //ResourceLocation.fromNamespaceAndPath(node.getId().getNamespace(), "textures/gui/icons/skill_tree/node/" + node.getId().getPath() + ".png");
         this.languangeKey = node.getId().toLanguageKey();
         this.x = x;
         this.y = y;
 
-        this.widgettype = type;
+        this.widgettype = display.type();
     }
 
     public void draw(GuiGraphics guiGraphics, int offsetX, int offsetY) {
@@ -66,6 +76,19 @@ public class SkillTreeWidget {
             && mouseX < actual_x + WIDTH
             && mouseY > actual_y
             && mouseY < actual_y + HEIGHT;
+    }
+
+    public void addChild(SkillTreeWidget child) {
+        this.children.add(child);
+    }
+
+    public void attachToParent() {
+        if (this.node.parents().size() > 0) {
+            this.node.mustParents().forEach((node) -> this.mustParents.add(this.tab.getWidget(node)));
+            this.node.orParents().forEach((node) -> this.orParents.add(this.tab.getWidget(node)));
+
+            this.node.parents().forEach((node) -> this.tab.getWidget(node).addChild(this));
+        }
     }
 
     public String getLanguageKey() {
