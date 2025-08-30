@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentHelper;
+import com.minecraftquietus.quietus.entity.monster.PlayerGhost;
 import com.minecraftquietus.quietus.item.property.QuietusProjectileProperty;
 import com.minecraftquietus.quietus.util.Damage.QuietusDamageType;
 
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -108,6 +110,11 @@ public abstract class QuietusProjectile extends Projectile {
         }
 
 
+    }
+    @Override
+    protected boolean canHitEntity(Entity target) {
+        //this is for quietus projectile from player to work on ghost
+        return super.canHitEntity(target) || (this.getOwner() instanceof Player);
     }
 
     @Override
