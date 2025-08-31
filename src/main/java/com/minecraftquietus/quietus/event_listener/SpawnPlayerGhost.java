@@ -2,12 +2,17 @@ package com.minecraftquietus.quietus.event_listener;
 
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.monster.PlayerGhost;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +28,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -77,7 +83,7 @@ public class SpawnPlayerGhost {
                 PlayerGhost ghost = new PlayerGhost(QuietusEntityTypes.PLAYER_GHOST.get(), player.level());
                 ghost.setPos(player.position());
                 ghost.setLoot(ghostLoot);
-                ghost.setPlayerHead(getPlayerHead(player));
+                ghost.setPlayerHeadTexture(player);
 
                 // Make sure the entity can be spawned
                 if (player.level().addFreshEntity(ghost)) {
@@ -91,14 +97,6 @@ public class SpawnPlayerGhost {
                 }
             }
         }
-    }
-
-    private static ItemStack getPlayerHead(Player player) {
-        ItemStack head = new ItemStack(Items.PLAYER_HEAD);
-        // Use the new component system instead of NBT
-        ResolvableProfile profile = new ResolvableProfile(player.getGameProfile());
-        head.set(DataComponents.PROFILE, profile);
-        return head;
     }
 
     private static boolean isKeptSlot(int slot) {

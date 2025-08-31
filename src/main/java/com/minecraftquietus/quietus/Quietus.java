@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus;
 
 
+import com.minecraftquietus.quietus.client.model.mob.GhostHeadLayer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
 import com.minecraftquietus.quietus.core.QuietusRegistries;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
@@ -8,6 +9,7 @@ import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
+import com.minecraftquietus.quietus.entity.QuietusEntityDataSerializers;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
@@ -127,6 +129,7 @@ public class Quietus
         QuietusEntityTypes.register(modEventBus);
         QuietusProjectiles.register(modEventBus);
         QuietusSkills.register(modEventBus);
+        QuietusEntityDataSerializers.register(modEventBus);
 
         // register commands
         NeoForge.EVENT_BUS.addListener(QuietusCommands::registerCommands);
@@ -226,6 +229,7 @@ public class Quietus
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
         event.registerPipeline(GhostDeath.ghostPipeline);
+        event.registerPipeline(GhostHeadLayer.GRAY_SCALE);
         //event.registerPipeline(QuietusEmissiveLayer.FIXED_EMISSIVE);
     }
 

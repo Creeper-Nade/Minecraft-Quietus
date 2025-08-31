@@ -1,14 +1,19 @@
 package com.minecraftquietus.quietus.entity.monster;
 
 import com.minecraftquietus.quietus.client.model.mob.PlayerGhostRenderer;
+import com.minecraftquietus.quietus.entity.QuietusEntityDataSerializers;
 import com.minecraftquietus.quietus.entity.ai.goal.GhostAttackGoal;
 import com.minecraftquietus.quietus.entity.ai.goal.NoWallCheckAttackableGoal;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -54,7 +59,9 @@ import java.util.List;
 import java.util.UUID;
 
 public class PlayerGhost extends PathfinderMob implements GeoEntity {
-    private static final EntityDataAccessor<ItemStack> HEAD_ITEM = SynchedEntityData.defineId(PlayerGhost.class, EntityDataSerializers.ITEM_STACK);
+    //private static final EntityDataAccessor<ItemStack> HEAD_ITEM = SynchedEntityData.defineId(PlayerGhost.class, EntityDataSerializers.ITEM_STACK);
+    //private ResourceLocation HeadTexture;
+    private static final EntityDataAccessor<ResourceLocation> HeadTexture= SynchedEntityData.defineId(PlayerGhost.class, QuietusEntityDataSerializers.RESOURCE_LOCATION.get());
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private final SimpleContainer lootInventory = new SimpleContainer(27);
 
@@ -74,7 +81,8 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
 
     public PlayerGhost(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
-        this.moveControl = new FlyingMoveControl(this,20,true);
+        this.moveControl = new FlyingMoveControl(this,10,true);
+        //HeadTexture = DefaultPlayerSkin.getDefaultSkin().texture();
         setPersistenceRequired();
         //this.noPhysics = true;
         //this.setNoGravity(true);
@@ -83,7 +91,8 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder dataBuild) {
         super.defineSynchedData(dataBuild);;
-        dataBuild.define(HEAD_ITEM, ItemStack.EMPTY);
+        //dataBuild.define(HEAD_ITEM, ItemStack.EMPTY);
+        dataBuild.define(HeadTexture,DefaultPlayerSkin.getDefaultSkin().texture());
         dataBuild.define(HAS_TARGET, false);
     }
     public static AttributeSupplier.Builder createAttributes() {
@@ -96,18 +105,16 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
                 .add(Attributes.ARMOR, 2.0D);
     }
 
-    public void setPlayerHead(ItemStack headStack) {
-        // Ensure we don't set an empty ItemStack
-        if (headStack.isEmpty()) {
-            headStack = new ItemStack(Items.PLAYER_HEAD);
-        }
-        entityData.set(HEAD_ITEM, headStack);
+    public void setPlayerHeadTexture(Player player) {
+        Minecraft minecraft = Minecraft.getInstance();
+        ResourceLocation headTex=minecraft.getSkinManager().getInsecureSkin(player.getGameProfile()).texture();
+        entityData.set(HeadTexture, headTex);
+    }
+    public ResourceLocation getPlayerHeadTexture()
+    {
+        return entityData.get(HeadTexture);
     }
 
-    public ItemStack getPlayerHead() {
-        ItemStack head = entityData.get(HEAD_ITEM);
-        return head.isEmpty() ? new ItemStack(Items.PLAYER_HEAD) : head;
-    }
 
     public void setLoot(List<ItemStack> loot) {
         lootInventory.clearContent();
@@ -160,9 +167,10 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
         return false;
     }
     //bypasses rage from other mobs by setting ghost as ally.
+
     @Override
     protected boolean considersEntityAsAlly(Entity entity) {
-        return true;
+        return entity.getType()!=EntityType.PLAYER;
     }
     @Override
     public void die(DamageSource source) {
