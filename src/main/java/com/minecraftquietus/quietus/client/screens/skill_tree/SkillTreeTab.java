@@ -57,11 +57,9 @@ public class SkillTreeTab implements SkillTreeScrollable {
         this.widgets.put(node, widget);
     } */
     
-    private static int offset = 0;
     public void addWidget(SkillTreeNode node) {
         if (node.getSkillPoint().display().isPresent()) {
-            this.widgets.put(node, new SkillTreeWidget(this, this.minecraft, node, offset, 0, node.getSkillPoint().display().get()));
-            offset += 50;
+            this.widgets.put(node, new SkillTreeWidget(this, this.minecraft, node, node.getTreeX(), node.getTreeY(), node.getSkillPoint().display().get()));
             for (SkillTreeWidget widget : this.widgets.values()) {
                 widget.attachToParent();
             }

@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 
+import com.minecraftquietus.quietus.client.screens.skill_tree.TreeNodePosition;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -202,6 +203,11 @@ public class SkillCategory {
         void onAddRootSkillNode(ResourceLocation categoryId, SkillTreeNode node);
         
         void onAddDependantSkillNode(ResourceLocation categoryId, SkillTreeNode node);
+    }
+
+    public void addJGraphVertexes(TreeNodePosition inst) {
+        this.roots.forEach((node) -> node.makeJGraphVertex(inst));
+        this.dependants.forEach((node) -> node.makeJGraphVertex(inst));
     }
 
     public Prerequisites getPrerequisites() {

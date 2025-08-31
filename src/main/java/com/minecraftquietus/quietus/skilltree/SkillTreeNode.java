@@ -3,6 +3,10 @@ package com.minecraftquietus.quietus.skilltree;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
+import com.minecraftquietus.quietus.client.screens.skill_tree.TreeNodePosition;
+
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.resources.ResourceLocation;
 
@@ -15,6 +19,9 @@ public class SkillTreeNode {
     private final Set<SkillTreeNode> mustParents = new ReferenceOpenHashSet<>();
     private final Set<SkillTreeNode> orParents = new ReferenceOpenHashSet<>();
     protected final Set<SkillTreeNode> children = new ReferenceOpenHashSet<>();
+
+    private int treeX;
+    private int treeY;
 
     public SkillTreeNode(ResourceLocation id, SkillPoint skillPoint) {
         this.id = id;
@@ -39,6 +46,16 @@ public class SkillTreeNode {
         this.children.add(child);
     }
 
+    public void setTreePosition(int x, int y) {
+        this.treeX = x;
+        this.treeY = y;
+    }
+
+    public void makeJGraphVertex(TreeNodePosition inst) {
+        inst.addVertex(this);
+        this.parents.forEach((node) -> inst.addEdge(node, this));
+    }
+
     public SkillPoint getSkillPoint() {
         return this.skillPoint;
     }
@@ -59,5 +76,12 @@ public class SkillTreeNode {
     }
     public Collection<SkillTreeNode> orParents() {
         return this.orParents;
+    }
+
+    public int getTreeX() {
+        return this.treeX;
+    }
+    public int getTreeY() {
+        return this.treeY;
     }
 }

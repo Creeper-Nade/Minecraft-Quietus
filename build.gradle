@@ -18,6 +18,8 @@ version = mod_version
 group = mod_group_id
 
 repositories {
+    mavenCentral()
+
     mavenLocal()
     exclusiveContent {
         forRepository {
@@ -54,6 +56,7 @@ neoForge {
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
+
         client {
             client()
 
@@ -87,6 +90,7 @@ neoForge {
 
         // applies to all the run configs above
         configureEach {
+
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
             // "SCAN": For mods scan.
@@ -144,8 +148,19 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+    //implementation files("lib/jgrapht-core-1.5.2.jar")
+    implementation 'org.jgrapht:jgrapht-core:1.5.2'
+    implementation 'org.jgrapht:jgrapht-ext:1.5.2'
+    implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
+
+    jarJar(group: 'org.jgrapht', name: 'jgrapht-core', version: '[1.5.2,1.6.0)')
+    jarJar(group: 'org.jgrapht', name: 'jgrapht-ext', version: '[1.5.2,1.6.0)')
+    jarJar(group: 'com.github.vlsi.mxgraph', name: 'jgraphx', version: '[4.2.2,4.3.0)')
+
+    localRuntime 'org.jgrapht:jgrapht-core:1.5.2'
+    localRuntime 'org.jgrapht:jgrapht-ext:1.5.2'
+    localRuntime 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

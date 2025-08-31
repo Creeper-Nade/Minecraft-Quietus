@@ -3,27 +3,20 @@ package com.minecraftquietus.quietus.skilltree;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 import com.minecraftquietus.quietus.client.screens.skill_tree.SkillPointType;
-import com.minecraftquietus.quietus.core.QuietusRegistries;
-import com.minecraftquietus.quietus.util.SkillUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.advancements.Advancement;
 import net.minecraft.core.ClientAsset;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public record SkillPoint(
