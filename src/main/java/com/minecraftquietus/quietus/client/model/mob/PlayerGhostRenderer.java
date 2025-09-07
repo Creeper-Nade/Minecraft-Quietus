@@ -1,16 +1,25 @@
 package com.minecraftquietus.quietus.client.model.mob;
 
 import com.minecraftquietus.quietus.client.model.QuietusDataTickets;
+import com.minecraftquietus.quietus.client.model.QuietusEmissiveLayer;
 import com.minecraftquietus.quietus.entity.monster.PlayerGhost;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.TriState;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class PlayerGhostRenderer<R extends EntityRenderState & GeoRenderState> extends GeoEntityRenderer<PlayerGhost,R> {
     public PlayerGhostRenderer(EntityRendererProvider.Context context) {
         super(context, new PlayerGhostModel());
+        addRenderLayer(new QuietusEmissiveLayer<>(this));
         addRenderLayer(new GhostHeadLayer<>(this));
     }
 
@@ -21,4 +30,5 @@ public class PlayerGhostRenderer<R extends EntityRenderState & GeoRenderState> e
         renderState.addGeckolibData(QuietusDataTickets.PLAYER_GHOST_ENTITY, animatable);
         return renderState;
     }
+
 }

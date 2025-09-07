@@ -22,6 +22,9 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -82,6 +85,7 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
     public PlayerGhost(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
         this.moveControl = new FlyingMoveControl(this,10,true);
+        this.addEffect(new MobEffectInstance(MobEffects.GLOWING,-1, 1,false,false));
         //HeadTexture = DefaultPlayerSkin.getDefaultSkin().texture();
         setPersistenceRequired();
         //this.noPhysics = true;

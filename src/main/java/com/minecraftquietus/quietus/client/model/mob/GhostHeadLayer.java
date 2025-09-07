@@ -30,8 +30,10 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
 import software.bernie.geckolib.renderer.base.GeoRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 import software.bernie.geckolib.util.RenderUtil;
 
@@ -46,9 +48,8 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
             .withLocation(ResourceLocation.fromNamespaceAndPath(MODID, "grayscale"))
             .withVertexShader(ResourceLocation.fromNamespaceAndPath("quietus", "core/grayscale"))
             .withFragmentShader(ResourceLocation.fromNamespaceAndPath("quietus", "core/grayscale"))
-            .withUniform("LineWidth", UniformType.FLOAT)
-            .withUniform("ScreenSize", UniformType.VEC2)
-            .withBlend(BlendFunction.TRANSLUCENT)
+            .withSampler("Sampler1")
+            .withShaderDefine("ALPHA_CUTOUT", 0.1F)
             .withCull(false)
             .build();
 
@@ -87,18 +88,43 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
                     ResourceLocation texture = ghost.getPlayerHeadTexture();
 
                     // Use our custom grayscale render type
-                    VertexConsumer vertexConsumer = bufferSource.getBuffer(
-                            createGrayscaleRenderType(texture)
-                    );
-                    skullModel.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay);
+                    RenderType renderType1= getRenderType((R) renderState,texture);
+                    if(renderType1!=null)
+                    {
+                        VertexConsumer vertexConsumer = bufferSource.getBuffer(
+                                getRenderType((R) renderState,texture)
+                        );
+                        skullModel.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay);
+                    }
 
 
                     poseStack.popPose();
                 });
+                //super.render((R) renderState,poseStack,bakedModel,getRenderType((R) renderState,null),bufferSource,buffer,packedLight,packedOverlay,renderColor);
         }
     }
 
-    private RenderType createGrayscaleRenderType(ResourceLocation texture) {
+    protected RenderType getRenderType(R renderState, ResourceLocation texture) {
+
+        if (!(renderState instanceof EntityRenderState entityRenderState))
+            return createGrayscaleRenderType(texture,false);
+
+        boolean invisible = entityRenderState.isInvisible;
+
+        if (invisible && Boolean.FALSE.equals(renderState.getOrDefaultGeckolibData(DataTickets.INVISIBLE_TO_PLAYER, false)))
+            return RenderType.itemEntityTranslucentCull(texture);
+
+        if (Boolean.TRUE.equals(renderState.getOrDefaultGeckolibData(DataTickets.IS_GLOWING, false))) {
+            if (invisible)
+                return RenderType.outline(texture);
+
+            return createGrayscaleRenderType(texture,true);
+        }
+
+        return invisible ? null : createGrayscaleRenderType(texture,false);
+    }
+
+    private RenderType createGrayscaleRenderType(ResourceLocation texture, boolean outline) {
         // Create a custom render type with grayscale effect
         return RenderType.create(
                 "ghost_head_grayscale",
@@ -110,8 +136,9 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
                         .setTextureState(new RenderStateShard.TextureStateShard(texture, TriState.FALSE, false))
                         .setLightmapState(RenderStateShard.LIGHTMAP)
                         .setOverlayState(RenderStateShard.OVERLAY)
-                        .createCompositeState(false)
+                        .createCompositeState(outline)
         );
     }
+
 
 }
