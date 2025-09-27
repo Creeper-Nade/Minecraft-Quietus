@@ -3,6 +3,7 @@ package com.minecraftquietus.quietus;
 
 import com.minecraftquietus.quietus.client.model.mob.GhostHeadLayer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
+import com.minecraftquietus.quietus.client.particle.QuietusParticles;
 import com.minecraftquietus.quietus.core.QuietusRegistries;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
@@ -130,6 +131,7 @@ public class Quietus
         QuietusProjectiles.register(modEventBus);
         QuietusSkills.register(modEventBus);
         QuietusEntityDataSerializers.register(modEventBus);
+        QuietusParticles.register(modEventBus);
 
         // register commands
         NeoForge.EVENT_BUS.addListener(QuietusCommands::registerCommands);

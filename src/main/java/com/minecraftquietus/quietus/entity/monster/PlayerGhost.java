@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.entity.monster;
 
 import com.minecraftquietus.quietus.client.model.mob.PlayerGhostRenderer;
+import com.minecraftquietus.quietus.client.particle.particle_options.DustExplosionParticleOptions;
 import com.minecraftquietus.quietus.entity.QuietusEntityDataSerializers;
 import com.minecraftquietus.quietus.entity.ai.goal.GhostAttackGoal;
 import com.minecraftquietus.quietus.entity.ai.goal.NoWallCheckAttackableGoal;
@@ -8,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
@@ -47,6 +49,7 @@ import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
+import org.joml.Vector3f;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -196,6 +199,33 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
                 this.lootInventory.clearContent();
             }
         }
+    }
+    @Override
+    protected void actuallyHurt(ServerLevel level, DamageSource damageSource, float amount)
+    {
+        super.actuallyHurt(level,damageSource,amount);
+        // Get entity position
+        Vec3 pos = this.position();
+
+        // Create black particle options (using very dark gray)
+        DustExplosionParticleOptions particleOptions = new DustExplosionParticleOptions(
+                new Vec3(1, 1, 1), // Dark gray/black color
+                1.0f // Scale
+        );
+
+        // Spawn particles in an explosion pattern
+
+
+            // Send particles to all players
+            level.sendParticles(
+                    particleOptions,
+                    pos.x,
+                    pos.y + this.getBbHeight() / 2,  // Center of entity
+                    pos.z,
+                    50,  // Count
+                    0, 0, 0,
+                    0.5  // Speed multiplier
+            );
     }
 
 

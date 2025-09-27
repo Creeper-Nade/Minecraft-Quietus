@@ -21,7 +21,9 @@ void main() {
     // Convert to grayscale using luminance formula
     float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
     //fragColor = vec4(gray, gray, gray, color.a);
-    color=vec4(gray, gray, gray, color.a);
+    // Set semi-transparent alpha (50%)
+    float alpha = color.a * 0.5;
+    color=vec4(gray, gray, gray, alpha);
     #ifdef ALPHA_CUTOUT
     if (color.a < ALPHA_CUTOUT) {
         discard;

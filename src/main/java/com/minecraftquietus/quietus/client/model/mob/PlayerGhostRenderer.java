@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.TriState;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +20,6 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 public class PlayerGhostRenderer<R extends EntityRenderState & GeoRenderState> extends GeoEntityRenderer<PlayerGhost,R> {
     public PlayerGhostRenderer(EntityRendererProvider.Context context) {
         super(context, new PlayerGhostModel());
-        addRenderLayer(new QuietusEmissiveLayer<>(this));
         addRenderLayer(new GhostHeadLayer<>(this));
     }
 
@@ -30,5 +30,6 @@ public class PlayerGhostRenderer<R extends EntityRenderState & GeoRenderState> e
         renderState.addGeckolibData(QuietusDataTickets.PLAYER_GHOST_ENTITY, animatable);
         return renderState;
     }
+
 
 }

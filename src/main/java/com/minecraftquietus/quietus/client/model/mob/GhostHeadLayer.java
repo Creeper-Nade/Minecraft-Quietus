@@ -48,9 +48,15 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
             .withLocation(ResourceLocation.fromNamespaceAndPath(MODID, "grayscale"))
             .withVertexShader(ResourceLocation.fromNamespaceAndPath("quietus", "core/grayscale"))
             .withFragmentShader(ResourceLocation.fromNamespaceAndPath("quietus", "core/grayscale"))
-            .withSampler("Sampler1")
             .withShaderDefine("ALPHA_CUTOUT", 0.1F)
+            .withShaderDefine("EMISSIVE")
+            .withShaderDefine("NO_OVERLAY")
+            .withShaderDefine("NO_CARDINAL_LIGHTING")
+            .withSampler("Sampler0")
+            .withBlend(BlendFunction.TRANSLUCENT)
+
             .withCull(false)
+            .withVertexFormat(DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS)
             .build();
 
     public GhostHeadLayer(GeoRenderer<T, O, R> renderer) {
@@ -92,7 +98,7 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
                     if(renderType1!=null)
                     {
                         VertexConsumer vertexConsumer = bufferSource.getBuffer(
-                                getRenderType((R) renderState,texture)
+                                renderType1
                         );
                         skullModel.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay);
                     }
@@ -124,7 +130,7 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
         return invisible ? null : createGrayscaleRenderType(texture,false);
     }
 
-    private RenderType createGrayscaleRenderType(ResourceLocation texture, boolean outline) {
+    public static RenderType createGrayscaleRenderType(ResourceLocation texture, boolean outline) {
         // Create a custom render type with grayscale effect
         return RenderType.create(
                 "ghost_head_grayscale",
