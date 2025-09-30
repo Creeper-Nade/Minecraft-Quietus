@@ -39,7 +39,7 @@ public record SkillPoint(
 
     public static final Codec<SkillPoint> CODEC = RecordCodecBuilder.<SkillPoint>create(
         instance -> instance.group(
-            Codec.INT.optionalFieldOf("max", 1).forGetter(SkillPoint::maxLevel),
+            Codec.INT.optionalFieldOf("max_level", 1).forGetter(SkillPoint::maxLevel),
             Codec.INT.optionalFieldOf("levels_to_progress", 1).forGetter(SkillPoint::progressLevels),
             Prerequisites.CODEC.optionalFieldOf("prerequisites", Prerequisites.EMPTY).forGetter(SkillPoint::prerequisites),
             Reward.CODEC.listOf().fieldOf("rewards").forGetter(SkillPoint::rewards),

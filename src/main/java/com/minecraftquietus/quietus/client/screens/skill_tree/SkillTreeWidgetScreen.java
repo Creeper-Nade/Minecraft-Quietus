@@ -90,7 +90,7 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
         guiGraphics.drawWordWrap(font, description, render_x + CONTENT_H_MARGIN, render_y + SkillTreeWidget.ICON_HEIGHT + HEADER_CONTENTS_PADDING*2, WIDTH, 0xFFFFFFFF, true);
         
         guiGraphics.fill(render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 104, render_y+18, 0xFF00BB20);
-        guiGraphics.drawCenteredString(font, "Unlock", render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 52, render_y+4, 0xFFFFFFFF);
+        guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.unlock"), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 52, render_y+4, 0xFFFFFFFF);
         // icon (drawn again in addition to the widghet drawing itself in the tab)
         this.widget.drawAbsolute(guiGraphics, render_x, render_y);
         // close button
@@ -98,6 +98,8 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
             guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_HIGHLIGHTED_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
         else 
             guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
+        // unlock button
+        //TODO 
     }
 
     public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {

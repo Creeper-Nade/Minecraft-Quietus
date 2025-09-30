@@ -4,6 +4,7 @@ import java.util.Set;
 
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
+import com.minecraftquietus.quietus.skilltree.TreeNodePosition;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.Minecraft;
@@ -13,8 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class SkillTreeWidget {
     /* Width and height responsible for calculation of hover and clicking */
-    private static final int HEIGHT = 26;
-    private static final int WIDTH = 26;
+    protected static final int HEIGHT = 26;
+    protected static final int WIDTH = 26;
 
     /* Icon width and height */
     protected static final int ICON_HEIGHT = 26;
@@ -60,9 +61,50 @@ public class SkillTreeWidget {
         guiGraphics.blit(RenderType::guiTextured, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
     }
 
+    public void drawConnectivity(GuiGraphics guiGraphics, TreeNodePosition graph, int offsetX, int offsetY) {
+        
+    }
+    
+    /* public void drawConnectivity(GuiGraphics guiGraphics, int offsetX, int offsetY) {
+        int toX = offsetX + this.x + WIDTH/2;
+        int toY = offsetY + this.y + HEIGHT/2;
+        for (SkillTreeWidget widget : this.orParents) {
+            int fromX = offsetX + widget.x + WIDTH/2;
+            int fromY = offsetY + widget.y + HEIGHT/2;
+            if (this.x == widget.x) {
+                guiGraphics.vLine(fromX, fromY, toY, 0xFF000000);
+            } else {
+                int tp_1_x = fromX;
+                int tp_1_y = fromY + HEIGHT;
+                int tp_2_x = toX;
+                int tp_2_y = tp_1_y;
+                guiGraphics.vLine(fromX, fromY, tp_1_y, 0xFF000000);
+                guiGraphics.hLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
+                guiGraphics.vLine(tp_2_x, tp_2_y, toY, 0xFF000000);
+            }
+        }
+        for (SkillTreeWidget widget : this.mustParents) {
+            int fromX = offsetX + widget.x + WIDTH/2;
+            int fromY = offsetY + widget.y + HEIGHT/2;
+            if (this.x == widget.x) {
+                guiGraphics.vLine(fromX, fromY, toY, 0xFF000000);
+            } else {
+                int tp_1_x = fromX;
+                int tp_1_y = fromY + HEIGHT;
+                int tp_2_x = toX;
+                int tp_2_y = tp_1_y;
+                guiGraphics.vLine(fromX, fromY, tp_1_y, 0xFF000000);
+                guiGraphics.hLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
+                guiGraphics.vLine(tp_2_x, tp_2_y, toY, 0xFF000000);
+            }
+        }
+    } */
+
     public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
-        if (mouseButton == 0 && this.isMouseOver(offsetX, offsetY, (int)mouseX, (int)mouseY)) {
-            this.tab.getScreen().addWidgetScreen(this, new SkillTreeWidgetScreen(this.minecraft, this, this.tab.getScreen(), this.x, this.y));
+        int offsetWithScrollX = offsetX + (int)this.tab.scrollX;
+        int offsetWithScrollY = offsetY + (int)this.tab.scrollY;
+        if (mouseButton == 0 && this.isMouseOver(offsetWithScrollX, offsetWithScrollY, (int)mouseX, (int)mouseY)) {
+            this.tab.getScreen().addWidgetScreen(this, new SkillTreeWidgetScreen(this.minecraft, this, this.tab.getScreen(), this.x + (int)this.tab.scrollX, this.y + (int)this.tab.scrollY));
             return true;
         }
         return false;

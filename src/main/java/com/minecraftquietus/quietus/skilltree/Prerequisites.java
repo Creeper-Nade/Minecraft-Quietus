@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -146,17 +147,25 @@ public record Prerequisites(
             this.requirements.forEach(func);
         }
 
+        /**
+         * 
+         * @param predicate a string predicate
+         */
         public boolean test(Predicate<String> predicate) {
             if (this.requirements.isEmpty()) {
                 return false;
             } else {
-                for (List<String> list : this.requirements) {
-                    if (!anyMatch(list, predicate)) {
-                        return false;
-                    }
-                }
+                Iterator<List<String>> iter = this.requirements.iterator();
+                List<String> list;
 
-                return true;
+                do {
+                    if (!iter.hasNext()) {
+                        return true;
+                    }
+                    list = iter.next();
+                } while (anyMatch(list, predicate));
+
+                return false;
             }
         }
 

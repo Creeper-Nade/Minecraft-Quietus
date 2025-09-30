@@ -11,7 +11,7 @@
             }
         },
         "requirements": [
-            
+            ["killed_by_something","killed_something"]
         ]
     },
 

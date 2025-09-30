@@ -4,7 +4,7 @@
     
     "prerequisites": {
         "parents": {
-            "parent_1": "quietus:example_tab/example_root"
+            "parent_1": "quietus:world_dynamics/s4"
         },
         "_comment": "vanilla criteria here",
         "criteria": {
@@ -22,15 +22,15 @@
     "display": {
         "icon": "quietus:gui/icons/skill_tree/node/none",
         "header": {
-            "translate": "skillTree.quietus.node.example.header"
+            "translate": "skillTree.quietus.node.S5.header"
         },
         "description": {
-            "translate": "skillTree.quietus.node.example.description"
+            "translate": "skillTree.quietus.node.S5.description"
         },
         "prerequisites": {
             "criteria": {
                 "[criteria name here]": {
-                    "translate": "skillTree.quietus.node.example_root.criteria1"
+                    "translate": "skillTree.quietus.node.S5.criteria1"
                 }
             }
         }

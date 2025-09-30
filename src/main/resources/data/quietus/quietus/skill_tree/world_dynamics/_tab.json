@@ -1,0 +1,14 @@
+{
+    "tab_display": {
+        "icon": "quietus:textures/gui/icons/skill_tree/tab/world_dynamics.png",
+        "name": {
+            "translate": "skillTree.quietus.tab.world_dynamics.name"
+        },
+        "description": {
+            "translate": "skillTree.quietus.tab.world_dynamics.description"
+        },
+        "prerequisites": {
+
+        }
+    }
+}

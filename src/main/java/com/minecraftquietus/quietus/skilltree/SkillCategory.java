@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 
+import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeWidget;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -184,6 +185,14 @@ public class SkillCategory {
                 return false;
             }
         }
+    }
+
+    public ConnectivityPosition positionNodes(int nodeWidth, int nodeHeight) {
+        Set<SkillTreeNode> nodes = new HashSet<>();
+        nodes.addAll(this.roots);
+        nodes.addAll(this.dependants);
+        TreeNodePosition positioning = new TreeNodePosition(nodeWidth, nodeHeight);
+        return positioning.layout(nodes);
     }
 
     public void setListener(@Nullable SkillCategory.Listener listener) {

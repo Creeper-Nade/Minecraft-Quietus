@@ -16,6 +16,9 @@ public class SkillTreeNode {
     private final Set<SkillTreeNode> orParents = new ReferenceOpenHashSet<>();
     protected final Set<SkillTreeNode> children = new ReferenceOpenHashSet<>();
 
+    private int treeX;
+    private int treeY;
+
     public SkillTreeNode(ResourceLocation id, SkillPoint skillPoint) {
         this.id = id;
         this.skillPoint = skillPoint;
@@ -39,6 +42,14 @@ public class SkillTreeNode {
         this.children.add(child);
     }
 
+    public void setTreeLocation(int x, int y) {
+        this.treeX = x;
+        this.treeY = y;
+    }
+    public void addConnectivityPoint(int x, int y) {
+        
+    }
+
     public SkillPoint getSkillPoint() {
         return this.skillPoint;
     }
@@ -59,5 +70,12 @@ public class SkillTreeNode {
     }
     public Collection<SkillTreeNode> orParents() {
         return this.orParents;
+    }
+
+    public int getTreeX() {
+        return this.treeX;
+    }
+    public int getTreeY() {
+        return this.treeY;
     }
 }

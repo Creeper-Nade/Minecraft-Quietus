@@ -4,14 +4,18 @@
     
     "prerequisites": {
         "parents": {
-            "parent_1": "quietus:example_tab/example_root"
+            "parent_1": "quietus:world_dynamics/s5",
+            "parent_2": "quietus:world_dynamics/s22",
+            "parent_3": "quietus:world_dynamics/s32"
         },
         "_comment": "vanilla criteria here",
         "criteria": {
         },
         "requirements": [
             [
-                "parent_1"
+                "parent_1",
+                "parent_2",
+                "parent_3"
             ]
         ]
     },
@@ -22,15 +26,15 @@
     "display": {
         "icon": "quietus:gui/icons/skill_tree/node/none",
         "header": {
-            "translate": "skillTree.quietus.node.example.header"
+            "translate": "skillTree.quietus.node.S23.header"
         },
         "description": {
-            "translate": "skillTree.quietus.node.example.description"
+            "translate": "skillTree.quietus.node.S23.description"
         },
         "prerequisites": {
             "criteria": {
                 "[criteria name here]": {
-                    "translate": "skillTree.quietus.node.example_root.criteria1"
+                    "translate": "skillTree.quietus.node.S23.criteria1"
                 }
             }
         }

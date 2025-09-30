@@ -1,6 +1,8 @@
 {
   "skill.skillNotFound": "Unknown skill: %s",
 
+  "skillTree.quietus.unlock": "Unlock",
+
   "gamerule.enableGhostMode": "Enters ghost mode upon death",
   "gamerule.enableGhostMode": "Number of game ticks taken for all items to decay once",
   "death.attack.quietus:magic_projectile_damage": "%1$s magically disappeared",
@@ -105,4 +107,5 @@
   "commands.skill.set.single.failure": "Level of %s for %s is unchanged",
   "commands.skill.set.multiple.success": "Set %s levels of %s for %s players",
   "commands.skill.set.multiple.failure": "Levels of %s for %s players are unchanged"
+
 }

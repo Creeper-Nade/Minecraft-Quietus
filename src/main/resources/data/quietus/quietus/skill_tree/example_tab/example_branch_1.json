@@ -1,6 +1,6 @@
 {
-    "max_level": 1,
-    "levels_to_progress": 1,
+    "max_level": 10,
+    "levels_to_progress": 5,
     
     "prerequisites": {
         "parents": {

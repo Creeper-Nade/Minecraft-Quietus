@@ -4,15 +4,12 @@
     
     "prerequisites": {
         "parents": {
-            "parent_1": "quietus:example_tab/example_root"
         },
         "_comment": "vanilla criteria here",
         "criteria": {
         },
         "requirements": [
-            [
-                "parent_1"
-            ]
+            
         ]
     },
 
@@ -22,15 +19,15 @@
     "display": {
         "icon": "quietus:gui/icons/skill_tree/node/none",
         "header": {
-            "translate": "skillTree.quietus.node.example.header"
+            "translate": "skillTree.quietus.node.S30.header"
         },
         "description": {
-            "translate": "skillTree.quietus.node.example.description"
+            "translate": "skillTree.quietus.node.S30.description"
         },
         "prerequisites": {
             "criteria": {
                 "[criteria name here]": {
-                    "translate": "skillTree.quietus.node.example_root.criteria1"
+                    "translate": "skillTree.quietus.node.S30.criteria1"
                 }
             }
         }

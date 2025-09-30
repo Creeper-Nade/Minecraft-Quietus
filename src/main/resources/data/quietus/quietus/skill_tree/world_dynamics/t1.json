@@ -1,0 +1,50 @@
+{
+    "max_level": 1,
+    "levels_to_progress": 1,
+    
+    "prerequisites": {
+        "parents": {
+            "parent_1": "quietus:world_dynamics/s2",
+            "parent_2": "quietus:world_dynamics/s9",
+            "parent_3": "quietus:world_dynamics/s10",
+            "parent_4": "quietus:world_dynamics/s25",
+            "parent_5": "quietus:world_dynamics/s31",
+            "parent_6": "quietus:world_dynamics/s15",
+            "parent_7": "quietus:world_dynamics/s23"
+        },
+        "_comment": "vanilla criteria here",
+        "criteria": {
+        },
+        "requirements": [
+            [
+                "parent_1",
+                "parent_2",
+                "parent_3",
+                "parent_4",
+                "parent_5",
+                "parent_6",
+                "parent_7"
+            ]
+        ]
+    },
+
+    "rewards": [
+    ],
+
+    "display": {
+        "icon": "quietus:gui/icons/skill_tree/node/none",
+        "header": {
+            "translate": "skillTree.quietus.node.T1.header"
+        },
+        "description": {
+            "translate": "skillTree.quietus.node.T1.description"
+        },
+        "prerequisites": {
+            "criteria": {
+                "[criteria name here]": {
+                    "translate": "skillTree.quietus.node.T1.criteria1"
+                }
+            }
+        }
+    }
+}
