@@ -5,12 +5,17 @@ import com.minecraftquietus.quietus.client.particle.particle_options.DustExplosi
 import com.minecraftquietus.quietus.entity.QuietusEntityDataSerializers;
 import com.minecraftquietus.quietus.entity.ai.goal.GhostAttackGoal;
 import com.minecraftquietus.quietus.entity.ai.goal.NoWallCheckAttackableGoal;
+import com.minecraftquietus.quietus.sounds.QuietusSounds;
+import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -18,6 +23,9 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
@@ -30,6 +38,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.behavior.warden.SonicBoom;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.*;
@@ -70,6 +79,7 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
     private static final EntityDataAccessor<ResourceLocation> HeadTexture= SynchedEntityData.defineId(PlayerGhost.class, QuietusEntityDataSerializers.RESOURCE_LOCATION.get());
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private final SimpleContainer lootInventory = new SimpleContainer(27);
+    private int storedExperience; // Stores the total XP points
 
     private static final EntityDataAccessor<Boolean> HAS_TARGET = SynchedEntityData.defineId(PlayerGhost.class, EntityDataSerializers.BOOLEAN);
 
@@ -102,6 +112,32 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
         dataBuild.define(HeadTexture,DefaultPlayerSkin.getDefaultSkin().texture());
         dataBuild.define(HAS_TARGET, false);
     }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        //save experience
+        tag.putInt("StoredExperience", this.storedExperience);
+        // Save the texture location to the NBT tag
+        if (this.getPlayerHeadTexture() != DefaultPlayerSkin.getDefaultSkin().texture()) {
+            tag.putString("HeadTexture", this.getPlayerHeadTexture().toString());
+        }
+        // Save the loot inventory to the NBT tag
+        ContainerHelper.saveAllItems(tag, this.lootInventory.getItems(),this.level().registryAccess());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        // Read the texture location from the NBT tag
+        if (tag.contains("HeadTexture")) {
+            ResourceLocation savedTexture = ResourceLocation.parse(tag.getStringOr("HeadTexture","null"));
+            this.entityData.set(HeadTexture, savedTexture);
+        }
+        this.storedExperience = tag.getIntOr("StoredExperience",0);
+
+        ContainerHelper.loadAllItems(tag, this.lootInventory.getItems(),this.level().registryAccess());
+    }
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0D)
@@ -112,10 +148,13 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
                 .add(Attributes.ARMOR, 2.0D);
     }
 
-    public void setPlayerHeadTexture(Player player) {
+    public void setPlayerData(Player player) {
         Minecraft minecraft = Minecraft.getInstance();
         ResourceLocation headTex=minecraft.getSkinManager().getInsecureSkin(player.getGameProfile()).texture();
         entityData.set(HeadTexture, headTex);
+
+        this.setStoredExperience(player.totalExperience);
+        setPlayerName(player);
     }
     public ResourceLocation getPlayerHeadTexture()
     {
@@ -132,6 +171,21 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
                 lootInventory.setItem(i, stack);
             }
         }
+    }
+    // Method to set the experience from the player
+    public void setStoredExperience(int xp) {
+        this.storedExperience = xp;
+    }
+
+    // Method to get the stored experience
+    public int getStoredExperience() {
+        return this.storedExperience;
+    }
+
+    public void setPlayerName(Player player) {
+        // Set the custom name to player's name + "'s Fragment"
+        this.setCustomName(Component.translatable("entity.quietus.player_fragment.suffix", player.getName()));
+        this.setCustomNameVisible(true); // Make sure the name is always visible
     }
 
     @Override
@@ -180,15 +234,52 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
         return entity.getType()!=EntityType.PLAYER;
     }
     @Override
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return QuietusSounds.PLAYER_FRAGMENT_HURT.value();
+    }
+    @Override
+    protected SoundEvent getDeathSound() {
+        return QuietusSounds.PLAYER_FRAGMENT_DEATH.value();
+    }
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return QuietusSounds.PLAYER_FRAGMENT_AMBIENCE.value();
+    }
+
+    @Override
+    public boolean doHurtTarget(ServerLevel p_376574_, Entity p_219472_) {
+        this.playSound(QuietusSounds.PLAYER_FRAGMENT_ATTACK.value(), 10.0F, this.getVoicePitch());
+        return super.doHurtTarget(p_376574_, p_219472_);
+    }
+
+
+
+    @Override
     public void die(DamageSource source) {
         super.die(source);
         if (!this.level().isClientSide) {
             // Transfer loot to killer if it's a player
-            if (source.getEntity() instanceof Player player) {
+            if (source.getEntity() instanceof ServerPlayer player) {
+                //notification
+                Component notification = Component.translatable("message.quietus.killed_fragment",player.getName()).withStyle(ChatFormatting.GREEN);
+                player.sendSystemMessage(notification);
+
+                //retrieve stuffs
+                player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS,10.0f,1);
+                player.giveExperiencePoints(this.storedExperience);
+                boolean has_warned_full_inventory=false;
+                Component full_inventory_warning = Component.translatable("message.quietus.full_inventory",player.getName()).withStyle(ChatFormatting.RED);
                 for (ItemStack stack : this.lootInventory.getItems()) {
+                    // Try to add the stack to player's inventory
                     if (!player.getInventory().add(stack)) {
+                        if(!has_warned_full_inventory)
+                        {
+                            player.sendSystemMessage(full_inventory_warning);
+                        }
+                        has_warned_full_inventory=true;
                         this.spawnAtLocation((ServerLevel) this.level(),stack); // Drop if inventory is full
                     }
+
                 }
                 this.lootInventory.clearContent();
             } else {
@@ -227,8 +318,22 @@ public class PlayerGhost extends PathfinderMob implements GeoEntity {
                     0.5  // Speed multiplier
             );
     }
+//hit effect
+// Add method to get white overlay progress (similar to CreeperRenderer)
+    public float getWhiteOverlayProgress()
+    {
+        if (this.hurtTime <= 0) return 0.0f;
 
+        // Similar to creeper's flashing effect
+        return (float) this.hurtTime / this.hurtDuration;
+    }
 
+    // Helper method to check if entity is currently hurt
+    public boolean isHurt() {
+        return this.hurtTime > 0;
+    }
+
+//animation
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>("player_ghost.animation", 5, this::predicate));

@@ -30,4 +30,6 @@ public class PlayerGhostModel extends GeoModel<PlayerGhost> {
         return GhostHeadLayer.createGrayscaleRenderType(texture,true);
     }
 
+
+
 }

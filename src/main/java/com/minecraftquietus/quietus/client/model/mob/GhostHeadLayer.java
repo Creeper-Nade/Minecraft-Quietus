@@ -50,9 +50,8 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
             .withFragmentShader(ResourceLocation.fromNamespaceAndPath("quietus", "core/grayscale"))
             .withShaderDefine("ALPHA_CUTOUT", 0.1F)
             .withShaderDefine("EMISSIVE")
-            .withShaderDefine("NO_OVERLAY")
             .withShaderDefine("NO_CARDINAL_LIGHTING")
-            .withSampler("Sampler0")
+            .withSampler("Sampler1")
             .withBlend(BlendFunction.TRANSLUCENT)
 
             .withCull(false)

@@ -9,11 +9,13 @@ import java.util.function.Supplier;
 
 public class QuietusGameRules {
     public static GameRules.Key<GameRules.BooleanValue> GHOST_MODE_ENABLED;
+    public static GameRules.Key<GameRules.BooleanValue> FRAGMENT_SPAWNING;
     public static GameRules.Key<GameRules.IntegerValue> TICKS_PER_DECAY;
 
     public static void Init()
     {
-        GHOST_MODE_ENABLED = GameRules.register("enableGhostMode", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
+        GHOST_MODE_ENABLED = GameRules.register("doDeathSpectating", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
+        FRAGMENT_SPAWNING = GameRules.register("keepInventoryPartially", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
         TICKS_PER_DECAY = GameRules.register("ticksPerDecay", GameRules.Category.UPDATES, GameRules.IntegerValue.create(100));
     }
 

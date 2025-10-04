@@ -12,14 +12,12 @@ import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
-import com.minecraftquietus.quietus.util.ManaUtil;
-import com.minecraftquietus.quietus.util.PlayerData;
-import com.minecraftquietus.quietus.util.QuietusAttachments;
-import com.minecraftquietus.quietus.util.QuietusGameRules;
+import com.minecraftquietus.quietus.util.*;
 import com.minecraftquietus.quietus.tags.QuietusTags;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.logging.LogUtils;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
@@ -65,6 +63,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -163,12 +162,49 @@ public class QuietusCommonEvents {
     }
 
     @SubscribeEvent
+    public static void onServerStarting(ServerStartingEvent event) {
+        // Register your known conflicts
+        GameruleConflictManager.registerConflict(
+                GameRules.RULE_KEEPINVENTORY,
+                QuietusGameRules.FRAGMENT_SPAWNING
+        );
+        GameruleConflictManager.registerConflict(
+                GameRules.RULE_DO_IMMEDIATE_RESPAWN,
+                QuietusGameRules.GHOST_MODE_ENABLED
+        );
+    }
+
+    @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
             PlayerData.sendManaPackToPlayer(serverPlayer);
+
+            // Check for gamerule conflicts when a player logs in
+            checkForConflictsAndNotify(serverPlayer);
         } 
+    }
+
+    private static void checkForConflictsAndNotify(ServerPlayer player) {
+        // Conflict checking logic will go here
+        ServerLevel level = (ServerLevel) player.level();
+        List<GameruleConflictManager.ConflictPair> activeConflicts =
+                GameruleConflictManager.getActiveConflicts(level);
+
+        if (!activeConflicts.isEmpty()) {
+            Component warning = Component.translatable("message.quietus.gamerules_conflict_warning").withStyle(ChatFormatting.RED);
+            player.sendSystemMessage(warning);
+            for (GameruleConflictManager.ConflictPair conflict : activeConflicts) {
+                sendConflictMessage(player, conflict.firstRule(), conflict.secondRule());
+            }
+            Component reminder = Component.translatable("message.quietus.gamerules_conflict_reminder").withStyle(ChatFormatting.GRAY);
+            player.sendSystemMessage(reminder);
+        }
+    }
+    private static void sendConflictMessage(ServerPlayer player, GameRules.Key<?> rule1, GameRules.Key<?> rule2) {
+        Component conflictedGamerules = Component.literal(rule1.getId() + " & " + rule2.getId()).withStyle(ChatFormatting.YELLOW);
+        player.sendSystemMessage(conflictedGamerules);
     }
 
     @SubscribeEvent

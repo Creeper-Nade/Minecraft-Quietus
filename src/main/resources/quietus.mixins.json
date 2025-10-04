@@ -5,6 +5,7 @@
   "mixins": [
     "AbstractFurnaceBlockEntityMixin",
     "GuiMixin",
+    "PlayerMixin",
     "ProjectileMixin",
     "ServerPlayerMixin"
   ],

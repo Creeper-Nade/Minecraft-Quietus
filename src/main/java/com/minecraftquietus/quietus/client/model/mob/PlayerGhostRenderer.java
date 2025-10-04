@@ -8,8 +8,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.TriState;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.model.GeoModel;
@@ -29,6 +31,21 @@ public class PlayerGhostRenderer<R extends EntityRenderState & GeoRenderState> e
         // Add the entity to the render state using our custom data ticket
         renderState.addGeckolibData(QuietusDataTickets.PLAYER_GHOST_ENTITY, animatable);
         return renderState;
+    }
+
+    @Override
+    public int getPackedOverlay(PlayerGhost animatable, Void relatedObject, float u, float partialTick) {
+        if (!(animatable instanceof LivingEntity entity))
+            return OverlayTexture.NO_OVERLAY;
+
+        if (animatable.isHurt()) {
+            float whiteOverlayProgress = animatable.getWhiteOverlayProgress();
+
+            // Use overlay system to create white flash
+            return OverlayTexture.pack(OverlayTexture.u(whiteOverlayProgress), OverlayTexture.v(false));
+        }
+        return OverlayTexture.pack(OverlayTexture.u(u),
+                OverlayTexture.v(entity.deathTime > 0));
     }
 
 

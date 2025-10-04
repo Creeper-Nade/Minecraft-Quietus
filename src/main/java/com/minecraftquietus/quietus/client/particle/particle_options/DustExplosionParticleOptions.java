@@ -44,7 +44,6 @@ public class DustExplosionParticleOptions  extends ScalableParticleOptionsBase {
     public DustExplosionParticleOptions(Vec3 color, float scale) {
 
         this(ARGB.color(color), scale);
-        System.out.println((int)color.x);
     }
 
     @Override

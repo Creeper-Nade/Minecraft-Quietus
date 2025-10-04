@@ -26,7 +26,7 @@ public class QuietusEntityTypes {
     public static final Supplier<EntityType<PlayerGhost>> PLAYER_GHOST = ENTITY_TYPES.register(
             "player_ghost",
             () -> EntityType.Builder.of(PlayerGhost::new, MobCategory.MONSTER)
-                    .sized(0.6f, 1.8f)
+                    .sized(0.6f, 1.5f)
                     .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "player_ghost"))
     ));
 
