@@ -22,7 +22,8 @@ public class SkillTreeProgressComponent implements INBTSerializable<CompoundTag>
 
     @Override
     public @UnknownNullability CompoundTag serializeNBT(Provider provider) {
-        
+        throw new UnsupportedOperationException("Unimplemented method 'deserializeNBT'");
     }
+
 
 }

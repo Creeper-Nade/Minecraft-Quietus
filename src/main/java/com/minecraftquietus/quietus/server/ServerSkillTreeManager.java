@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 public class ServerSkillTreeManager extends ContextAwareReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final String DIR_NAME = String.join("/", MODID, "skill_tree");
+    public static final String DIR_NAME = String.join("/", MODID, "skill_tree"); // TODO: watch out for the separator here, likely different for different OS. Json reader seems to be able to convert it, but still find an alternative
 
     public static final String FILENAME_TAB_DATA = "_tab_.json";
     
