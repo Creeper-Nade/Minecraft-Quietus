@@ -1,13 +1,28 @@
 {
   "skill.skillNotFound": "Unknown skill: %s",
 
-  "gamerule.enableGhostMode": "Enters ghost mode upon death",
-  "gamerule.enableGhostMode": "Number of game ticks taken for all items to decay once",
+  "message.quietus.gamerules_conflict_warning": "Conflicting gamerules detected:",
+  "message.quietus.gamerules_conflict_reminder": "Please deactivate either one from each pair",
+  "message.quietus.killed_fragment": "Absorbed %s's lost fragment, items and experience retrieved",
+  "message.quietus.full_inventory": "Your inventory is full",
+
+  "gamerule.doDeathSpectating": "Enters ghost mode upon death",
+  "gamerule.ticksPerDecay": "Number of game ticks taken for all items to decay once",
+  "gamerule.keepInventoryPartially": "Preserves items in major slots while spawning Fragment upon death",
   "death.attack.quietus:magic_projectile_damage": "%1$s magically disappeared",
   "death.attack.quietus:magic_projectile_damage.player": "%1$s was voodooed by %2$s",
   "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame": "%1$s magically disappeared",
   "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame.player": "%1$s was voodooed by %2$s",
+
   "sounds.quietus.steve_uoh": "Player UOH",
+
+  "sounds.quietus.player_fragment_hurt": "Fragment hurts",
+  "sounds.quietus.player_fragment_ambience": "Echoes from the Past",
+  "sounds.quietus.player_fragment_death": "Fragment retrieved",
+  "sounds.quietus.player_fragment_attack": "Fragment attacks",
+  "sounds.quietus.player_fragment_pre_spawn": "Fragment forming",
+  "sounds.quietus.player_fragment_spawn": "Fragment spawns",
+  "entity.quietus.player_fragment.suffix": "%s — Fragmented past",
 
   "itemGroup.quietus": "Example Mod Tab",
   "block.quietus.example_block": "Example Block",

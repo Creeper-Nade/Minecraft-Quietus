@@ -43,6 +43,7 @@ public class QuietusTags {
     public static class Entity{
         public static final TagKey<EntityType<?>> MAGIC_PROJECTILE= createTag("magic_projectile");
         public static final TagKey<EntityType<?>> BOSS_MONSTER= createTag("boss_monster");
+        public static final TagKey<EntityType<?>> IMMUNE_PROJECTILE_FROM_MOB= createTag("immune_projectile_from_mob");
 
         private static TagKey<EntityType<?>> createTag(String name) {
             return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, name));

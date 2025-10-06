@@ -2,7 +2,7 @@ package com.minecraftquietus.quietus.data;
 
 import com.minecraftquietus.quietus.Quietus;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantments;
-import com.minecraftquietus.quietus.util.damage.QuietusDamageType;
+import com.minecraftquietus.quietus.util.Damage.QuietusDamageType;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
