@@ -1,7 +1,7 @@
 package com.minecraftquietus.quietus;
 
 
-import com.minecraftquietus.quietus.client.model.mob.GhostHeadLayer;
+import com.minecraftquietus.quietus.client.model.mob.FragmentHeadLayer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
 import com.minecraftquietus.quietus.client.particle.QuietusParticles;
 import com.minecraftquietus.quietus.core.QuietusRegistries;
@@ -18,7 +18,6 @@ import com.minecraftquietus.quietus.util.QuietusGameRules;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.world.level.GameRules;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import org.slf4j.Logger;
@@ -231,7 +230,7 @@ public class Quietus
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
         event.registerPipeline(GhostDeath.ghostPipeline);
-        event.registerPipeline(GhostHeadLayer.GRAY_SCALE);
+        event.registerPipeline(FragmentHeadLayer.GRAY_SCALE);
         //event.registerPipeline(QuietusEmissiveLayer.FIXED_EMISSIVE);
     }
 

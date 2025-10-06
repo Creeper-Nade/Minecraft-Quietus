@@ -39,6 +39,14 @@ public class QuietusSounds {
             "player_fragment_death",
             SoundEvent::createVariableRangeEvent
     );
+    public static final Holder<SoundEvent> PLAYER_FRAGMENT_PRE_SPAWN = SOUND_EVENTS.register(
+            "player_fragment_pre_spawn",
+            SoundEvent::createVariableRangeEvent
+    );
+    public static final Holder<SoundEvent> PLAYER_FRAGMENT_SPAWN = SOUND_EVENTS.register(
+            "player_fragment_spawn",
+            SoundEvent::createVariableRangeEvent
+    );
 
 
     public static void register(IEventBus eventBus) {

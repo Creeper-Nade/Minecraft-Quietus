@@ -16,10 +16,12 @@
 
   "sounds.quietus.steve_uoh": "Player UOH",
 
-  "sounds.quietus.player_fragment_hurt": "Fragment Hurts",
+  "sounds.quietus.player_fragment_hurt": "Fragment hurts",
   "sounds.quietus.player_fragment_ambience": "Echoes from the Past",
-  "sounds.quietus.player_fragment_death": "Fragment Retrieved",
-  "sounds.quietus.player_fragment_attack": "Fragment Attacks",
+  "sounds.quietus.player_fragment_death": "Fragment retrieved",
+  "sounds.quietus.player_fragment_attack": "Fragment attacks",
+  "sounds.quietus.player_fragment_pre_spawn": "Fragment forming",
+  "sounds.quietus.player_fragment_spawn": "Fragment spawns",
   "entity.quietus.player_fragment.suffix": "%s — Fragmented past",
 
   "itemGroup.quietus": "Example Mod Tab",

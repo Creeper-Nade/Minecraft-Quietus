@@ -3,15 +3,12 @@ package com.minecraftquietus.quietus.client.particle;
 import com.minecraftquietus.quietus.client.particle.particle_options.DustExplosionParticleOptions;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
-public class DustExplosion extends DustParticleBase<DustExplosionParticleOptions> {
-    public DustExplosion(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, DustExplosionParticleOptions options, SpriteSet sprites) {
+public class DustExplosionParticle extends DustParticleBase<DustExplosionParticleOptions> {
+    public DustExplosionParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, DustExplosionParticleOptions options, SpriteSet sprites) {
         super(level, x, y, z, xSpeed, ySpeed, zSpeed, options, sprites);
         this.xd = this.xd * (double)0.01F + xSpeed;
         this.yd = this.yd * (double)0.01F + ySpeed;
@@ -19,11 +16,6 @@ public class DustExplosion extends DustParticleBase<DustExplosionParticleOptions
         this.x += (double)((this.random.nextFloat() - this.random.nextFloat()) * 0.05F);
         this.y += (double)((this.random.nextFloat() - this.random.nextFloat()) * 0.05F);
         this.z += (double)((this.random.nextFloat() - this.random.nextFloat()) * 0.05F);
-        float f = this.random.nextFloat() * 0.4F + 0.6F;
-        Vector3f vector3f = options.getColor();
-       // this.rCol = this.randomizeColor(vector3f.x(), f);
-        //this.gCol = this.randomizeColor(vector3f.y(), f);
-        //this.bCol = this.randomizeColor(vector3f.z(), f);
     }
     public int getLightColor(float partialTick) {
         // Return a packed light value with maximum block and sky light
@@ -59,7 +51,7 @@ public class DustExplosion extends DustParticleBase<DustExplosionParticleOptions
                 double ySpeed,
                 double zSpeed
         ) {
-            return new DustExplosion(level, x, y, z, xSpeed, ySpeed, zSpeed, type, this.sprites);
+            return new DustExplosionParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, type, this.sprites);
         }
     }
 

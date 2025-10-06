@@ -1,11 +1,9 @@
 package com.minecraftquietus.quietus.client.model.mob;
 
 import com.minecraftquietus.quietus.client.model.QuietusDataTickets;
-import com.minecraftquietus.quietus.entity.monster.PlayerGhost;
+import com.minecraftquietus.quietus.entity.monster.PlayerFragment;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.DepthTestFunction;
-import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -18,14 +16,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.TriState;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PlayerHeadItem;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -33,7 +26,6 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.renderer.base.GeoRenderState;
 import software.bernie.geckolib.renderer.base.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 import software.bernie.geckolib.util.RenderUtil;
 
@@ -41,7 +33,7 @@ import java.util.Optional;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState> extends GeoRenderLayer<T,O,R> {
+public class FragmentHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState> extends GeoRenderLayer<T,O,R> {
     private final SkullModel skullModel;
 
     public static RenderPipeline GRAY_SCALE = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
@@ -58,7 +50,7 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
             .withVertexFormat(DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS)
             .build();
 
-    public GhostHeadLayer(GeoRenderer<T, O, R> renderer) {
+    public FragmentHeadLayer(GeoRenderer<T, O, R> renderer) {
         super(renderer);
         // Create the skull model once
         this.skullModel = new SkullModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_HEAD));
@@ -69,17 +61,24 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
                        @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer,
                        int packedLight, int packedOverlay, int renderColor) {
         // Get the entity from the render state using our custom data ticket
-        if (renderState.hasGeckolibData(QuietusDataTickets.PLAYER_GHOST_ENTITY)) {
-            PlayerGhost ghost = renderState.getGeckolibData(QuietusDataTickets.PLAYER_GHOST_ENTITY);
+        if (renderState.hasGeckolibData(QuietusDataTickets.PLAYER_FRAGMENT_ENTITY)) {
+            PlayerFragment ghost = renderState.getGeckolibData(QuietusDataTickets.PLAYER_FRAGMENT_ENTITY);
                 // Get head bone and apply transformations
                 Optional<GeoBone> headBone = getGeoModel().getBone("head");
                 headBone.ifPresent(bone -> {
                     poseStack.pushPose();
-
+                    //transform to parent
+                    RenderUtil.translateToPivotPoint(poseStack,bone.getParent());
+                    RenderUtil.scaleMatrixForBone(poseStack,bone.getParent());
+                    RenderUtil.rotateMatrixAroundBone(poseStack, bone.getParent());
+                    poseStack.translate(0, -0.8f, 0);
+                    
                     // Transform to bone position
                     RenderUtil.translateToPivotPoint(poseStack,bone);
                     RenderUtil.translateMatrixToBone(poseStack, bone);
                     RenderUtil.rotateMatrixAroundBone(poseStack, bone);
+
+
 
                     // Adjust these values to position the head correctly
                     // Adjust position to match ghost's head
@@ -132,7 +131,7 @@ public class GhostHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderState
     public static RenderType createGrayscaleRenderType(ResourceLocation texture, boolean outline) {
         // Create a custom render type with grayscale effect
         return RenderType.create(
-                "ghost_head_grayscale",
+                "fragment_head_grayscale",
                 256,
                 false,
                 true,

@@ -13,39 +13,39 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-public class DustExplosionParticleOptions  extends ScalableParticleOptionsBase {
-    public static final MapCodec<DustExplosionParticleOptions> CODEC = RecordCodecBuilder.mapCodec((instance) ->
+public class DustImplosionParticleOptions extends ScalableParticleOptionsBase {
+    public static final MapCodec<DustImplosionParticleOptions> CODEC = RecordCodecBuilder.mapCodec((instance) ->
             instance.group(
-                    ExtraCodecs.RGB_COLOR_CODEC.fieldOf("color").forGetter(DustExplosionParticleOptions::getColorAsInt),
+                    ExtraCodecs.RGB_COLOR_CODEC.fieldOf("color").forGetter(DustImplosionParticleOptions::getColorAsInt),
                     SCALE.fieldOf("scale").forGetter(ScalableParticleOptionsBase::getScale)
-            ).apply(instance, DustExplosionParticleOptions::new)
+            ).apply(instance, DustImplosionParticleOptions::new)
     );
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, DustExplosionParticleOptions> STREAM_CODEC =
+    public static final StreamCodec<RegistryFriendlyByteBuf, DustImplosionParticleOptions> STREAM_CODEC =
             StreamCodec.composite(
-                    ByteBufCodecs.INT, DustExplosionParticleOptions::getColorAsInt,
+                    ByteBufCodecs.INT, DustImplosionParticleOptions::getColorAsInt,
                     ByteBufCodecs.FLOAT, ScalableParticleOptionsBase::getScale,
-                    DustExplosionParticleOptions::new
+                    DustImplosionParticleOptions::new
             );
 
     // Remove the static initializer block and use the above declaration
 
     private final int color;
 
-    public DustExplosionParticleOptions(int color, float scale) {
+    public DustImplosionParticleOptions(int color, float scale) {
         super(scale);
         this.color = color;
     }
 
     // Alternative constructor for Vector3f color
-    public DustExplosionParticleOptions(Vec3 color, float scale) {
+    public DustImplosionParticleOptions(Vec3 color, float scale) {
 
         this(ARGB.color(color), scale);
     }
 
     @Override
     public ParticleType<?> getType() {
-        return QuietusParticles.DUST_EXPLOSION.get(); // Make sure this is properly registered
+        return QuietusParticles.DUST_IMPLOSION.get(); // Make sure this is properly registered
     }
 
     public Vector3f getColor() {
