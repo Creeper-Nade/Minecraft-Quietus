@@ -40,7 +40,7 @@ public class PlayerData {
         }
     }
     /**
-     * Load all the data of the player. May override previous data if this player was already loaded.
+     * Loads all the data of the player. May override previous data if this player was already loaded.
      * @param player a ServerPlayer instance
      */
     public void loadPlayer(ServerPlayer player) {

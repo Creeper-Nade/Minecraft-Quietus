@@ -7,14 +7,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.vault.VaultBlockEntity.Server;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
-
-import com.minecraftquietus.quietus.client.hud.ManaHudOverlay;
 
 
 public class ManaComponent implements INBTSerializable<CompoundTag> {

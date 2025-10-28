@@ -1,12 +1,11 @@
 package com.minecraftquietus.quietus.event_listener;
 
+import com.minecraftquietus.quietus.Quietus;
 import com.minecraftquietus.quietus.client.QuietusKeyBindings;
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
-import com.minecraftquietus.quietus.client.screens.CustomScreen;
 import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeScreen;
-import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.item.QuietusComponents;
@@ -15,29 +14,18 @@ import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
 import com.minecraftquietus.quietus.server.QuietusReloadableResources;
-import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.ManaUtil;
 import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.tags.QuietusTags;
-import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -55,7 +43,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
-import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -64,12 +51,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEnchantItemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
-import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -175,10 +160,23 @@ public class QuietusCommonEvents {
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
             PlayerData.sendManaPackToPlayer(serverPlayer);
-            if (!Objects.isNull(QuietusReloadableResources.getSkillCategories()))
+            if (Objects.nonNull(Quietus.playerData)) {
+                Quietus.playerData.loadPlayer(serverPlayer);
+            }
+            if (Objects.nonNull(QuietusReloadableResources.getSkillCategories()))
                 PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(QuietusReloadableResources.getSkillCategories()));
             else
                 PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(Map.of()));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        Player player = event.getEntity();
+        if (player instanceof ServerPlayer serverPlayer) {
+            if (Objects.nonNull(Quietus.playerData)) {
+                Quietus.playerData.savePlayer(serverPlayer);
+            }
         }
     }
 

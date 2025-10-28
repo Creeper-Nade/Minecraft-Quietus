@@ -67,20 +67,19 @@ public class PlayerSkillTree {
         if (Files.isRegularFile(this.playerSavePath, new LinkOption[0])) { // checks for whether the path is valid (i.e. file exists)
             try {
                 JsonReader jsonreader = new JsonReader(Files.newBufferedReader(this.playerSavePath, StandardCharsets.UTF_8));
-
                 try {
-                jsonreader.setLenient(false);
-                JsonElement jsonelement = Streams.parse(jsonreader);
-                Data playerskilltree$data = (Data)Data.CODEC.parse(JsonOps.INSTANCE, jsonelement).getOrThrow(JsonParseException::new);
-                this.applyFrom(manager, playerskilltree$data);
+                    jsonreader.setLenient(false);
+                    JsonElement jsonelement = Streams.parse(jsonreader);
+                    Data playerskilltree$data = (Data)Data.CODEC.parse(JsonOps.INSTANCE, jsonelement).getOrThrow(JsonParseException::new);
+                    this.applyFrom(manager, playerskilltree$data);
                 } catch (Throwable var6) {
-                try {
-                    jsonreader.close();
-                } catch (Throwable var5) {
-                    var6.addSuppressed(var5);
-                }
-
-                throw var6;
+                    try {
+                        jsonreader.close();
+                    } catch (Throwable var5) {
+                        var6.addSuppressed(var5);
+                    }
+    
+                    throw var6;
                 }
 
                 jsonreader.close();

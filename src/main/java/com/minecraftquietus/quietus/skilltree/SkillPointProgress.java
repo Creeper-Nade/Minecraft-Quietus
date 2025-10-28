@@ -68,6 +68,7 @@ public class SkillPointProgress implements Comparable<SkillPointProgress> {
     public List<Instant> obtainedTimes() {
         return this.times;
     }
+
     public int getAmount() {
         return this.times.size();
     }
