@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.minecraftquietus.quietus.client.screens.skill_tree.SkillPointType;
 import com.minecraftquietus.quietus.core.QuietusRegistries;
+import com.minecraftquietus.quietus.server.QuietusReloadableResources;
 import com.minecraftquietus.quietus.util.SkillUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -27,20 +28,20 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public record SkillPoint(
-    int maxLevel,
-    int progressLevels, // minimum amount of levels this skill point needs to be upgraded for its children to consider it "complete" (for prerequisites checking)
+    int maxAmount,
+    int progressAmount, // minimum amount of this skill point needs to be upgraded for its children to consider it "complete" (for prerequisites checking)
     Prerequisites prerequisites,
     List<Reward> rewards,
     Optional<DisplayInfo> display
 ) {
-    private SkillPoint(int maxLevel, Prerequisites prerequisites, List<Reward> rewards, Optional<DisplayInfo> display) {
-        this(maxLevel, 1, prerequisites, rewards, display);
+    private SkillPoint(int maxAmount, Prerequisites prerequisites, List<Reward> rewards, Optional<DisplayInfo> display) {
+        this(maxAmount, 1, prerequisites, rewards, display);
     }
 
     public static final Codec<SkillPoint> CODEC = RecordCodecBuilder.<SkillPoint>create(
         instance -> instance.group(
-            Codec.INT.optionalFieldOf("max_level", 1).forGetter(SkillPoint::maxLevel),
-            Codec.INT.optionalFieldOf("levels_to_progress", 1).forGetter(SkillPoint::progressLevels),
+            Codec.INT.optionalFieldOf("max_amount", 1).forGetter(SkillPoint::maxAmount),
+            Codec.INT.optionalFieldOf("amount_to_progress", 1).forGetter(SkillPoint::progressAmount),
             Prerequisites.CODEC.optionalFieldOf("prerequisites", Prerequisites.EMPTY).forGetter(SkillPoint::prerequisites),
             Reward.CODEC.listOf().fieldOf("rewards").forGetter(SkillPoint::rewards),
             DisplayInfo.CODEC.optionalFieldOf("display").forGetter(SkillPoint::display)
@@ -59,7 +60,7 @@ public record SkillPoint(
 
     private static DataResult<SkillPoint> validate(SkillPoint skillPoint) {
         Set<String> keys = new HashSet<>();
-        keys.addAll(skillPoint.prerequisites().criteria().keySet());
+        keys.addAll(skillPoint.prerequisites().advancements().keySet());
         keys.addAll(skillPoint.prerequisites().parents().keySet());
         return skillPoint.prerequisites().requirements().validate(keys).map(requirements -> skillPoint);
     }
@@ -70,18 +71,18 @@ public record SkillPoint(
             i |= 1;
         }
         buffer.writeInt(i);
-        buffer.writeInt(this.maxLevel);
+        buffer.writeInt(this.maxAmount);
         Prerequisites.STREAM_CODEC.encode(buffer, this.prerequisites);
         buffer.writeCollection(this.rewards, Reward.STREAM_CODEC::encode);
         this.display.ifPresent((display) -> DisplayInfo.STREAM_CODEC.encode(buffer, display));
     }
     private static SkillPoint deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
         int i = buffer.readInt();
-        int maxLevel = buffer.readInt();
+        int maxAmount = buffer.readInt();
         Prerequisites prerequisites = Prerequisites.STREAM_CODEC.decode(buffer);
         List<Reward> rewards = buffer.readCollection(ArrayList::new, Reward.STREAM_CODEC::decode);
         Optional<DisplayInfo> display = ((i & 1) != 0) ? Optional.of(DisplayInfo.STREAM_CODEC.decode(buffer)) : Optional.empty();
-        return new SkillPoint(maxLevel, prerequisites, rewards, display);
+        return new SkillPoint(maxAmount, prerequisites, rewards, display);
     }
 
 

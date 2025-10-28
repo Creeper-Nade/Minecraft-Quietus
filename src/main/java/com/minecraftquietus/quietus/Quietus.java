@@ -19,6 +19,9 @@ import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.level.GameRules;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -40,6 +43,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -48,12 +52,13 @@ import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
+import com.minecraftquietus.quietus.server.PlayerData;
+import com.minecraftquietus.quietus.server.QuietusReloadableResources;
 import com.minecraftquietus.quietus.skill.QuietusSkills;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.event_listener.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event_listener.QuietusIModBusEvent;
-import com.minecraftquietus.quietus.event_listener.QuietusReloadableResources;
 import com.minecraftquietus.quietus.event_listener.SpawnEvent;
 import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.hud.ManaHudOverlay;
@@ -82,29 +87,8 @@ public class Quietus
             }).build());
 
 
-
-    //MANA codec
-    /*private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
-            DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MODID);
-    private static final Codec<ManaComponent> MANA_CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    Codec.INT.fieldOf("mana").forGetter(ManaComponent::getMana),
-                    Codec.INT.fieldOf("maxMana").forGetter(ManaComponent::getMaxMana)
-            ).apply(instance, ManaComponent::new)
-    );
-    private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
-            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
-
-    public static final Supplier<AttachmentType<ManaComponent>> MANA =
-            ATTACHMENTS.register("mana", () ->
-                    AttachmentType.builder(() -> new ManaComponent())
-                            .serialize(MANA_CODEC)
-                            .build()
-            );*/
-
-
-
-
+    @Nullable
+    public static PlayerData playerData; // all the player data (that are not done as player attachments)
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -198,12 +182,26 @@ public class Quietus
         QuietusItems.addCreativeTabItems(event, event.getTabKey());
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
+    /**
+     * When server starts
+     * @param event
+     */
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-        // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+        playerData = new PlayerData(event.getServer());
+    }
+
+    /**
+     * When server shuts down
+     * @param event
+     */
+    @SubscribeEvent
+    public void onServerStopping(ServerStoppingEvent event)
+    {
+        QuietusReloadableResources.close();
+        playerData = null;
     }
 
     /* // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

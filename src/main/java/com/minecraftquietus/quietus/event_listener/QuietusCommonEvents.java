@@ -14,6 +14,7 @@ import com.minecraftquietus.quietus.item.component.CanDecay;
 import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
+import com.minecraftquietus.quietus.server.QuietusReloadableResources;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.ManaUtil;
 import com.minecraftquietus.quietus.util.PlayerData;
@@ -174,8 +175,8 @@ public class QuietusCommonEvents {
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
             PlayerData.sendManaPackToPlayer(serverPlayer);
-            if (!Objects.isNull(QuietusReloadableResources.getCategories()))
-                PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(QuietusReloadableResources.getCategories()));
+            if (!Objects.isNull(QuietusReloadableResources.getSkillCategories()))
+                PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(QuietusReloadableResources.getSkillCategories()));
             else
                 PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(Map.of()));
         }

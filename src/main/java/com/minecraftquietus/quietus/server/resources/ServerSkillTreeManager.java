@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.server;
+package com.minecraftquietus.quietus.server.resources;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -44,7 +45,7 @@ import org.slf4j.Logger;
 public class ServerSkillTreeManager extends ContextAwareReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final String DIR_NAME = String.join("/", MODID, "skill_tree"); // TODO: watch out for the separator here, likely different for different OS. Json reader seems to be able to convert it, but still find an alternative
+    public static final String DIR_NAME = String.join("/", MODID, "skill_tree"); 
 
     public static final String FILENAME_TAB_DATA = "_tab_.json";
     
@@ -61,7 +62,7 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
         this.skillPointCodec = codec2;
     }
 
-    public Map<ResourceLocation, SkillCategory> get() {
+    public Map<ResourceLocation, SkillCategory> getCategories() {
         return this.categories;
     }
 

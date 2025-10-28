@@ -195,6 +195,10 @@ public class SkillCategory {
         return positioning.layout(nodes);
     }
 
+    public @Nullable SkillTreeNode getNode(ResourceLocation location) {
+        return this.nodes.get(location);
+    }
+
     public void setListener(@Nullable SkillCategory.Listener listener) {
         this.listener = listener;
         if (!Objects.isNull(listener)) {
