@@ -90,6 +90,10 @@ public class Quietus
     @Nullable
     public static PlayerData playerData; // all the player data (that are not player attachments)
 
+    public PlayerData getPlayerData() {
+        return playerData;
+    }
+
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public Quietus(IEventBus modEventBus, ModContainer modContainer)
