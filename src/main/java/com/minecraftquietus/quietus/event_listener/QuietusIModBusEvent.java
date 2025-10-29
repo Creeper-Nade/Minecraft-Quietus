@@ -3,7 +3,12 @@ package com.minecraftquietus.quietus.event_listener;
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.item.DecayBarDecorator;
+import com.minecraftquietus.quietus.client.model.mob.PlayerFragmentRenderer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
+import com.minecraftquietus.quietus.client.particle.DustExplosionParticle;
+import com.minecraftquietus.quietus.client.particle.DustImplosionParticle;
+import com.minecraftquietus.quietus.client.particle.QuietusParticles;
+import com.minecraftquietus.quietus.entity.monster.PlayerFragment;
 import com.minecraftquietus.quietus.client.packet.DoDecayPacket;
 import com.minecraftquietus.quietus.client.packet.GhostStatePacket;
 import com.minecraftquietus.quietus.client.packet.ManaPacket;
@@ -16,17 +21,18 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -39,9 +45,6 @@ import com.minecraftquietus.quietus.client.renderer.ParabolerRenderer;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.monster.Bowslinger;
 import com.minecraftquietus.quietus.entity.monster.Paraboler;
-import com.minecraftquietus.quietus.item.QuietusComponents;
-import com.minecraftquietus.quietus.item.QuietusItems;
-import com.minecraftquietus.quietus.item.component.CanDecay;
 
 
 @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD)
@@ -111,11 +114,13 @@ public class QuietusIModBusEvent {
     public static void initiateAttributes(EntityAttributeCreationEvent event) {
         event.put(QuietusEntityTypes.BOWSLINGER.get(), Bowslinger.createAttributes().build());
         event.put(QuietusEntityTypes.PARABOLER.get(), Paraboler.createAttributes().build());
+        event.put(QuietusEntityTypes.PLAYER_FRAGMENT.get(), PlayerFragment.createAttributes().build());
     }
     @SubscribeEvent
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(QuietusEntityTypes.BOWSLINGER.get(), BowslingerRenderer::new);
         event.registerEntityRenderer(QuietusEntityTypes.PARABOLER.get(), ParabolerRenderer::new);
+        event.registerEntityRenderer(QuietusEntityTypes.PLAYER_FRAGMENT.get(), PlayerFragmentRenderer::new);
     }
 
     @SubscribeEvent 
@@ -126,6 +131,13 @@ public class QuietusIModBusEvent {
         event.modify(Items.POTION, builder ->    // suspicious stew
             builder.set(DataComponents.MAX_STACK_SIZE, 16)
         );
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(QuietusParticles.DUST_EXPLOSION.get(), DustExplosionParticle.Provider::new);
+        event.registerSpriteSet(QuietusParticles.DUST_IMPLOSION.get(), DustImplosionParticle.Provider::new);
     }
     
 }

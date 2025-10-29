@@ -9,7 +9,16 @@
   "death.attack.quietus:magic_projectile_damage.player": "%1$s was voodooed by %2$s",
   "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame": "%1$s magically disappeared",
   "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame.player": "%1$s was voodooed by %2$s",
+
   "sounds.quietus.steve_uoh": "Player UOH",
+
+  "sounds.quietus.player_fragment_hurt": "Fragment hurts",
+  "sounds.quietus.player_fragment_ambience": "Echoes from the Past",
+  "sounds.quietus.player_fragment_death": "Fragment retrieved",
+  "sounds.quietus.player_fragment_attack": "Fragment attacks",
+  "sounds.quietus.player_fragment_pre_spawn": "Fragment forming",
+  "sounds.quietus.player_fragment_spawn": "Fragment spawns",
+  "entity.quietus.player_fragment.suffix": "%s — Fragmented past",
 
   "itemGroup.quietus": "Example Mod Tab",
   "block.quietus.example_block": "Example Block",

@@ -1,7 +1,9 @@
 package com.minecraftquietus.quietus;
 
 
+import com.minecraftquietus.quietus.client.model.mob.FragmentHeadLayer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
+import com.minecraftquietus.quietus.client.particle.QuietusParticles;
 import com.minecraftquietus.quietus.commands.QuietusCommands;
 import com.minecraftquietus.quietus.core.QuietusRegistries;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
@@ -9,6 +11,7 @@ import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
+import com.minecraftquietus.quietus.entity.QuietusEntityDataSerializers;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
@@ -16,7 +19,6 @@ import com.minecraftquietus.quietus.util.QuietusGameRules;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.world.level.GameRules;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
@@ -121,6 +123,8 @@ public class Quietus
 
         // register resource loading listeners
         NeoForge.EVENT_BUS.addListener(QuietusReloadableResources::onServerResourceReload);
+        QuietusEntityDataSerializers.register(modEventBus);
+        QuietusParticles.register(modEventBus);
 
         // register commands
         NeoForge.EVENT_BUS.addListener(QuietusCommands::registerCommands);
@@ -218,6 +222,7 @@ public class Quietus
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
         event.registerPipeline(GhostDeath.ghostPipeline);
+        event.registerPipeline(FragmentHeadLayer.GRAY_SCALE);
         //event.registerPipeline(QuietusEmissiveLayer.FIXED_EMISSIVE);
     }
 

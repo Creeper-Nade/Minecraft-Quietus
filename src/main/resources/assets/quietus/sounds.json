@@ -4,5 +4,49 @@
     "sounds": [
       "quietus:steve_uoh"
     ]
+  },
+  "player_fragment_hurt": {
+    "subtitle": "sounds.quietus.player_fragment_hurt",
+    "sounds": [
+      "quietus:entity/player_fragment/player_fragment_hurt1",
+      "quietus:entity/player_fragment/player_fragment_hurt2",
+      "quietus:entity/player_fragment/player_fragment_hurt3"
+    ]
+  },
+  "player_fragment_ambience": {
+    "subtitle": "sounds.quietus.player_fragment_ambience",
+    "sounds": [
+      "quietus:entity/player_fragment/player_fragment_idle",
+      "quietus:entity/player_fragment/player_fragment_idle2",
+      "quietus:entity/player_fragment/player_fragment_idle3"
+    ]
+  },
+  "player_fragment_attack": {
+    "subtitle": "sounds.quietus.player_fragment_attack",
+    "sounds": [
+      "quietus:entity/player_fragment/player_fragment_attack1",
+      "quietus:entity/player_fragment/player_fragment_attack2"
+    ]
+  },
+  "player_fragment_death": {
+    "subtitle": "sounds.quietus.player_fragment_death",
+    "sounds": [
+      "quietus:entity/player_fragment/player_fragment_death1",
+      "quietus:entity/player_fragment/player_fragment_death2"
+    ]
+  },
+  "player_fragment_pre_spawn": {
+    "subtitle": "sounds.quietus.player_fragment_pre_spawn",
+    "sounds": [
+      "quietus:entity/player_fragment/player_fragment_pre_spawn"
+    ]
+  },
+  "player_fragment_spawn": {
+    "subtitle": "sounds.quietus.player_fragment_spawn",
+    "sounds": [
+      "quietus:entity/player_fragment/player_fragment_spawn1",
+      "quietus:entity/player_fragment/player_fragment_spawn2",
+      "quietus:entity/player_fragment/player_fragment_spawn3"
+    ]
   }
 }
