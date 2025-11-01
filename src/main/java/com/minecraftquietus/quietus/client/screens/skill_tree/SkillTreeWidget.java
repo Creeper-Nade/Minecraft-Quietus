@@ -136,5 +136,8 @@ public class SkillTreeWidget {
     public String getLanguageKey() {
         return this.languangeKey;
     }
+    protected SkillTreeNode getNode() {
+        return this.node;
+    }
 
 }

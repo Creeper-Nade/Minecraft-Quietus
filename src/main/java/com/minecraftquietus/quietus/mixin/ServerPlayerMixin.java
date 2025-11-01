@@ -3,7 +3,7 @@ package com.minecraftquietus.quietus.mixin;
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.tags.QuietusTags;
-import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.authlib.GameProfile;
@@ -63,8 +63,8 @@ public abstract class ServerPlayerMixin extends Player {
         String json = Component.Serializer.toJson(deathMessage, registries);
         data.putString("deathMessage", json);
 
-        PlayerData.sendGhostPackToPlayer(player,true,deathMessage,cooldown,hardcore);
-        PlayerData.sendRevivalCDToPlayer(player,cooldown);
+        PlayerClientPacketDistributor.sendGhostPackToPlayer(player,true,deathMessage,cooldown,hardcore);
+        PlayerClientPacketDistributor.sendRevivalCDToPlayer(player,cooldown);
     }
 
     @Inject(method = "die", at = @At("TAIL"))
@@ -103,7 +103,7 @@ public abstract class ServerPlayerMixin extends Player {
         // Handle cooldown
         if (cooldown%20==0)
         {
-            PlayerData.sendRevivalCDToPlayer(player,cooldown);
+            PlayerClientPacketDistributor.sendRevivalCDToPlayer(player,cooldown);
         }
        if (is_hardcore) return;
 
@@ -159,7 +159,7 @@ public abstract class ServerPlayerMixin extends Player {
         data.remove("ghostSafeX");
         data.remove("ghostSafeY");
         data.remove("ghostSafeZ");
-        PlayerData.sendGhostPackToPlayer(player,false, CommonComponents.EMPTY,0,hardcore);
+        PlayerClientPacketDistributor.sendGhostPackToPlayer(player,false, CommonComponents.EMPTY,0,hardcore);
         // Restore survival mode
         player.setGameMode(originalGameMode);
         player.onUpdateAbilities();

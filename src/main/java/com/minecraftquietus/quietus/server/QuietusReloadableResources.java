@@ -31,7 +31,7 @@ public class QuietusReloadableResources {
         skillTreeManager = new ServerSkillTreeManager(event.getRegistryAccess(), SkillCategory.CODEC, SkillPoint.CODEC);
         event.addListener(ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree"), skillTreeManager::reload);
         //PacketDistributor.sendToAllPlayers(new SkillTreeUpdatePacket(skillTree.get())); // also send packet to update skill trees on clients
-        ClientSkillTreePayloadHandler.getSkillTree().update(new SkillTreeUpdatePacket(skillTreeManager.getCategories()));
+        //ClientSkillTreePayloadHandler.getSkillTree().update(new SkillTreeUpdatePacket(skillTreeManager.getCategories()));
     }
 
     /**

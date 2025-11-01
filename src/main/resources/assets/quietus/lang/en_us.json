@@ -1,7 +1,8 @@
 {
   "skill.skillNotFound": "Unknown skill: %s",
 
-  "skillTree.quietus.unlock": "Unlock",
+  "skillTree.quietus.unlock": "Unlock (%1$d/%2$d)",
+  "skillTree.quietus.upgrade": "Upgrade (%1$d/%2$d)",
 
   "gamerule.enableGhostMode": "Enters ghost mode upon death",
   "gamerule.enableGhostMode": "Number of game ticks taken for all items to decay once",

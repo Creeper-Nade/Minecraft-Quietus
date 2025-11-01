@@ -121,7 +121,7 @@ public class PlayerSkillTree {
 
     }
 
-    private void applyFrom(ServerSkillTreeManager manager, Data data) {
+    public void applyFrom(ServerSkillTreeManager manager, Data data) {
         data.forEach((resourceLocation, progress) -> {
             SkillTreeNode node = null;
             for (SkillCategory category : manager.getCategories().values()) {
@@ -136,18 +136,22 @@ public class PlayerSkillTree {
         });
     }
 
-    private Data asData() {
+    public Data asData() {
         Map<ResourceLocation, SkillPointProgress> map = new LinkedHashMap<>();
         this.progresses.forEach((skillTreeNode, progress) -> {
             map.put(skillTreeNode.getId(), progress);
         });
         return new Data(map);
-   }
+    }
 
-    record Data(Map<ResourceLocation, SkillPointProgress> map) {
+    public Map<SkillTreeNode,SkillPointProgress> getProgresses() {
+        return this.progresses;
+    }
+
+    public record Data(Map<ResourceLocation, SkillPointProgress> map) {
         public static final Codec<Data> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, SkillPointProgress.CODEC).xmap(Data::new, Data::map);
 
-        Data(Map<ResourceLocation, SkillPointProgress> map) {
+        public Data(Map<ResourceLocation, SkillPointProgress> map) {
             this.map = map;
         }
 

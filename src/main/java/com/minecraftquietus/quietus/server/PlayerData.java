@@ -1,9 +1,12 @@
 package com.minecraftquietus.quietus.server;
 
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
+import com.minecraftquietus.quietus.Quietus;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +19,7 @@ public class PlayerData {
     private final MinecraftServer server;
     private final Path worldPath;
 
-    private Map<UUID, PlayerSkillTree> playerSkillTree;
+    private Map<UUID, PlayerSkillTree> playerSkillTree = new LinkedHashMap<>();
     private static final String PATHNAME_SKILLTREE = "skilltree";
 
     public PlayerData(MinecraftServer server) {
@@ -45,7 +48,7 @@ public class PlayerData {
      */
     public void loadPlayer(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        Path playerSavePath = this.worldPath.resolve(PATHNAME_SKILLTREE).resolve(uuid.toString());
+        Path playerSavePath = this.worldPath.resolve(Quietus.MODID).resolve(PATHNAME_SKILLTREE).resolve(uuid.toString());
         /* Skill tree */
         PlayerSkillTree tree = new PlayerSkillTree(playerSavePath, player, skillTreeManager);
         this.playerSkillTree.put(uuid, tree);

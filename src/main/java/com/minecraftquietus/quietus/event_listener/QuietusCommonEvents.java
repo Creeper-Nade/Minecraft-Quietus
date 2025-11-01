@@ -13,9 +13,11 @@ import com.minecraftquietus.quietus.item.component.CanDecay;
 import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
+import com.minecraftquietus.quietus.server.PlayerData;
 import com.minecraftquietus.quietus.server.QuietusReloadableResources;
+import com.minecraftquietus.quietus.skilltree.SkillCategory;
+import com.minecraftquietus.quietus.skilltree.SkillPointProgress;
 import com.minecraftquietus.quietus.util.ManaUtil;
-import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.util.*;
@@ -27,6 +29,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -176,11 +180,26 @@ public class QuietusCommonEvents {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
-            PlayerData.sendManaPackToPlayer(serverPlayer);
-
+            PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer);
+            /* Player data */
+            if (Objects.nonNull(Quietus.playerData)) {
+                Quietus.playerData.loadPlayer(serverPlayer);
+            }
             // Check for gamerule conflicts when a player logs in
             checkForConflictsAndNotify(serverPlayer);
-        } 
+            /* Send skill tree packet to client */
+            PlayerClientPacketDistributor.sendSkillTreePackToPlayer(serverPlayer);
+        }
+    }
+    @SubscribeEvent
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        Player player = event.getEntity();
+        if (player instanceof ServerPlayer serverPlayer) {
+            /* Player data */
+            if (Objects.nonNull(Quietus.playerData)) {
+                Quietus.playerData.savePlayer(serverPlayer);
+            }
+        }
     }
 
     private static void checkForConflictsAndNotify(ServerPlayer player) {
@@ -202,23 +221,8 @@ public class QuietusCommonEvents {
     private static void sendConflictMessage(ServerPlayer player, GameRules.Key<?> rule1, GameRules.Key<?> rule2) {
         Component conflictedGamerules = Component.literal(rule1.getId() + " & " + rule2.getId()).withStyle(ChatFormatting.YELLOW);
         player.sendSystemMessage(conflictedGamerules);
-            if (Objects.nonNull(Quietus.playerData)) {
-                Quietus.playerData.loadPlayer(serverPlayer);
-            }
-            if (Objects.nonNull(QuietusReloadableResources.getSkillCategories()))
-                PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(QuietusReloadableResources.getSkillCategories()));
-            else
-                PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(Map.of()));
-        }
-    }
-
-    @SubscribeEvent
-    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        Player player = event.getEntity();
-        if (player instanceof ServerPlayer serverPlayer) {
-            if (Objects.nonNull(Quietus.playerData)) {
-                Quietus.playerData.savePlayer(serverPlayer);
-            }
+        if (Objects.nonNull(Quietus.playerData)) {
+            Quietus.playerData.loadPlayer(player);
         }
     }
 

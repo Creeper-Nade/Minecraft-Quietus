@@ -8,7 +8,7 @@ import com.minecraftquietus.quietus.item.WeatheringIronItems;
 import com.minecraftquietus.quietus.item.WeatheringItem;
 import com.minecraftquietus.quietus.util.ContainerUtil;
 import com.minecraftquietus.quietus.util.ItemStackUtil;
-import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.mojang.logging.LogUtils;
 
@@ -217,8 +217,8 @@ public class WeatheringHandler {
                     WeatheringResult result = doWeatherItem(itemstack, armorItems, livingEntity.getRandom(), level, server);
                     if (result.isItemChanged()) replaceItem(livingEntity, result.get(), slots[i]);
                     else {
-                        if (result.hasDecayed()) PlayerData.sendPackToDecayItemFromSlotOfEntity(livingEntity, slots[i], 1);
-                        if (result.changedContainerContents().isPresent()) PlayerData.sendPackToWeatherItemContainerFromSlotOfEntity(livingEntity, slots[i], result.changedContainerContents.get());
+                        if (result.hasDecayed()) PlayerClientPacketDistributor.sendPackToDecayItemFromSlotOfEntity(livingEntity, slots[i], 1);
+                        if (result.changedContainerContents().isPresent()) PlayerClientPacketDistributor.sendPackToWeatherItemContainerFromSlotOfEntity(livingEntity, slots[i], result.changedContainerContents.get());
                     }
                 }
                 if (livingEntity instanceof Player player) { // also checks for player inventory for oxidizing
@@ -264,7 +264,7 @@ public class WeatheringHandler {
             /* ItemFrame */
             if (entity instanceof ItemFrame itemFrame) {
                 ItemStack itemstack = itemFrame.getItem();
-                if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) PlayerData.sendPackToDecayItemFromSlotOfEntity(entity, EquipmentSlot.MAINHAND, 1);
+                if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) PlayerClientPacketDistributor.sendPackToDecayItemFromSlotOfEntity(entity, EquipmentSlot.MAINHAND, 1);
                 WeatheringResult result = doWeatherItem(itemstack, new ItemStack[0], entity.getRandom(), level, server);
                 if (result.isItemChanged()) itemFrame.setItem(result.get());
             } else 

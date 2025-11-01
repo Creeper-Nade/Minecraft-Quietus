@@ -1,7 +1,7 @@
 package com.minecraftquietus.quietus.core.mana;
 
 import com.minecraftquietus.quietus.util.ManaUtil;
-import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -189,7 +189,7 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
     private void sendPacket(LivingEntity entity)
     {
         if (entity instanceof ServerPlayer serverPlayer) {
-            PlayerData.sendManaPackToPlayer(serverPlayer,this);
+            PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer,this);
         }
     }
 

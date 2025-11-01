@@ -3,17 +3,17 @@ package com.minecraftquietus.quietus.client.screens.skill_tree;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import static com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler.getSkillTree;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
 import java.util.List;
-
-import org.checkerframework.checker.units.qual.min;
 
 public class SkillTreeWidgetScreen implements SkillTreeScrollable {
     private static final ResourceLocation CONTAINER_CONTENTS_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
@@ -88,18 +88,26 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
         guiGraphics.drawWordWrap(font, header, render_x, render_y - SECTION_V_MARGIN - this.headerTextHeight, WIDTH, 0xFFFFFFFF, true);
         // description
         guiGraphics.drawWordWrap(font, description, render_x + CONTENT_H_MARGIN, render_y + SkillTreeWidget.ICON_HEIGHT + HEADER_CONTENTS_PADDING*2, WIDTH, 0xFFFFFFFF, true);
-        
-        guiGraphics.fill(render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 104, render_y+18, 0xFF00BB20);
-        guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.unlock"), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 52, render_y+4, 0xFFFFFFFF);
+        // unlock button
+        if (getSkillTree().getOrStartProgress(this.widget.getNode()).isMaxed()) {
+
+        } else {
+            guiGraphics.fill(render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y+4, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 134, render_y+18+4, 0xFF00BB20);
+            int amount = getSkillTree().getOrStartProgress(this.widget.getNode()).times();
+            int maxAmount = getSkillTree().getOrStartProgress(this.widget.getNode()).maxAmount();
+            if (amount == 0) 
+                guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.unlock", amount, maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
+            if (amount > 0) 
+                guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.upgrade", amount, maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
+        }
         // icon (drawn again in addition to the widghet drawing itself in the tab)
         this.widget.drawAbsolute(guiGraphics, render_x, render_y);
         // close button
         if (this.isMouseOverCloseButton(offsetX, offsetY, mouseX, mouseY)) 
-            guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_HIGHLIGHTED_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
+            guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_HIGHLIGHTED_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);  
         else 
             guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
         // unlock button
-        //TODO 
     }
 
     public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
@@ -107,7 +115,22 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
             this.discard();
             return true;
         };
+        if (isMouseOverUpgradeButton(offsetX, offsetY, (int)mouseX, (int)mouseY)) {
+            this.discard();
+            return true;
+        };
         return false;
+    }
+
+    private boolean isMouseOverUpgradeButton(int offsetX, int offsetY, int mouseX, int mouseY) {
+        int buttonX = this.x + offsetX + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH;
+        int buttonY = this.y + offsetY + 4;
+
+        return 
+            mouseX > buttonX 
+            && mouseX < buttonX + 134
+            && mouseY > buttonY
+            && mouseY < buttonY + 18;
     }
 
     private boolean isMouseOverCloseButton(int offsetX, int offsetY, int mouseX, int mouseY) {

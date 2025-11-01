@@ -14,9 +14,9 @@ import javax.annotation.Nullable;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.advancements.AdvancementProgress;
-import net.minecraft.advancements.CriterionProgress;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 
 public class SkillPointProgress implements Comparable<SkillPointProgress> {
@@ -31,11 +31,37 @@ public class SkillPointProgress implements Comparable<SkillPointProgress> {
         ).apply(instance, (listTimes, canProgress) -> new SkillPointProgress(listTimes))
     );
 
+    /**
+     * Data that are synced to client. Client does not need specific times, so 
+     * here is just giving the list size of times.
+     */
+    public record ClientData(
+        int times,
+        int maxAmount,
+        int progressAmount
+    ) {  
+        public static final StreamCodec<RegistryFriendlyByteBuf, ClientData> STREAM_CODEC = 
+            StreamCodec.composite(
+                ByteBufCodecs.INT, ClientData::times,
+                ByteBufCodecs.INT, ClientData::maxAmount,
+                ByteBufCodecs.INT, ClientData::progressAmount,
+                ClientData::new
+            );
+        public boolean isMaxed() {
+            return this.times >= this.maxAmount;
+        }
+        public boolean isProgressing() {
+            return this.times >= this.progressAmount;
+        }
+    }
+
+    public ClientData asClientData() {
+        return new ClientData(times.size(), maxAmount, progressAmount);
+    }
+
     private List<Instant> times = new ArrayList<>();
     private int maxAmount;
     private int progressAmount;
-
-    private ServerPlayer player;
 
     public SkillPointProgress(List<Instant> times) {
         this.times = times;
@@ -49,6 +75,8 @@ public class SkillPointProgress implements Comparable<SkillPointProgress> {
         this.maxAmount = maxAmount;
         this.progressAmount = progressAmount;
     }
+
+
 
     /**
      * Adds obtained time to this skill. Will discard the earliest time if reaches maximum 
@@ -71,6 +99,9 @@ public class SkillPointProgress implements Comparable<SkillPointProgress> {
 
     public int getAmount() {
         return this.times.size();
+    }
+    public int getMaxAmount() {
+        return this.maxAmount;
     }
 
     public boolean isProgressing() {

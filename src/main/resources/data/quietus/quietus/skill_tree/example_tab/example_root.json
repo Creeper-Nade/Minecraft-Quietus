@@ -1,18 +1,13 @@
 {
+
+    "max_amount": 10,
+    "amount_to_progress": 5,
+
     "_comment": "no prerequisite if root node",
     "prerequisites": {
-        "_comment": "vanilla criteria here",
-        "criteria": {
-            "killed_by_something": {
-                "trigger": "minecraft:entity_killed_player"
-            },
-            "killed_something": {
-                "trigger": "minecraft:player_killed_entity"
-            }
-        },
-        "requirements": [
-            ["killed_by_something","killed_something"]
-        ]
+        "_comment": "vanilla criteria here"
+        
+        
     },
 
     "rewards": [
