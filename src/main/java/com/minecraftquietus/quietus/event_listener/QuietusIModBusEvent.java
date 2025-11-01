@@ -16,6 +16,8 @@ import com.minecraftquietus.quietus.client.packet.PlayerRevivalCooldownPacket;
 import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
 import com.minecraftquietus.quietus.client.packet.WeatherItemContainerPacket;
 
+import com.minecraftquietus.quietus.server.handler.SkillTreeGUIPayloadHandler;
+import com.minecraftquietus.quietus.server.packet.SkillTreeGUIRequest;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -34,6 +36,7 @@ import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -51,7 +54,8 @@ import com.minecraftquietus.quietus.entity.monster.Paraboler;
 public class QuietusIModBusEvent {
     @SubscribeEvent
     public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(MODID);
+        PayloadRegistrar registrar = event.registrar(MODID)
+            .executesOn(HandlerThread.MAIN);
         registrar.playToClient(
             ManaPacket.TYPE, 
             ManaPacket.STREAM_CODEC, 
@@ -80,6 +84,12 @@ public class QuietusIModBusEvent {
             SkillTreeUpdatePacket.TYPE,
             SkillTreeUpdatePacket.STREAM_CODEC,
             ClientSkillTreePayloadHandler::handleSkillTreeUpdate
+        );
+        registrar = registrar.executesOn(HandlerThread.NETWORK);
+        registrar.playToServer(
+            SkillTreeGUIRequest.TYPE,
+            SkillTreeGUIRequest.STREAM_CODEC,
+            SkillTreeGUIPayloadHandler::handleSkillTreeRequest
         );
     }
 

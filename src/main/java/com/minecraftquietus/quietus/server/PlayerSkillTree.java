@@ -6,10 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
@@ -30,10 +31,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 
 import net.minecraft.FileUtil;
-import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerPlayer;
 
 public class PlayerSkillTree {
@@ -134,6 +132,25 @@ public class PlayerSkillTree {
                 this.progresses.put(node, newProgress);
             }
         });
+    }
+
+    /**
+     * Add progress to the said node
+     * @param node SkillTreeNode
+     * @return <code>true</code> if successfully added. <code>false</code> if unsuccessful, due to the progress already being maxed
+     */
+    public boolean addOrStartProgress(SkillTreeNode node) {
+        if (this.progresses.containsKey(node)) {
+            SkillPointProgress progress = this.progresses.get(node);
+            if (progress.isMaxed()) return false;
+            progress.addObtainedTime(Instant.now());
+            return true;
+        } else {
+            SkillPointProgress newProgress = new SkillPointProgress(List.of(), node.getSkillPoint());
+            newProgress.addObtainedTime(Instant.now());
+            this.progresses.put(node, newProgress);
+            return true;
+        }
     }
 
     public Data asData() {

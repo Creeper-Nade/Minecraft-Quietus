@@ -12,6 +12,8 @@ import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
 import com.minecraftquietus.quietus.entity.QuietusEntityDataSerializers;
+import com.minecraftquietus.quietus.server.handler.SkillTreeGUIPayloadHandler;
+import com.minecraftquietus.quietus.server.packet.SkillTreeGUIRequest;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;

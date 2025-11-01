@@ -1,5 +1,7 @@
 package com.minecraftquietus.quietus.client.screens.skill_tree;
 
+import com.minecraftquietus.quietus.util.ServerPacketDistributor;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -9,6 +11,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import org.slf4j.Logger;
+
 import static com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler.getSkillTree;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -16,6 +20,9 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 import java.util.List;
 
 public class SkillTreeWidgetScreen implements SkillTreeScrollable {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static final ResourceLocation CONTAINER_CONTENTS_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
     private static final ResourceLocation CONTAINER_HEADER_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_header");
     private static final ResourceLocation CLOSE_BUTTON_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/cross_button");
@@ -95,19 +102,19 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
             guiGraphics.fill(render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y+4, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 134, render_y+18+4, 0xFF00BB20);
             int amount = getSkillTree().getOrStartProgress(this.widget.getNode()).times();
             int maxAmount = getSkillTree().getOrStartProgress(this.widget.getNode()).maxAmount();
+            LOGGER.info("Times: {}", amount); // TODO: This is not up to date for some reason
             if (amount == 0) 
                 guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.unlock", amount, maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
             if (amount > 0) 
                 guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.upgrade", amount, maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
         }
-        // icon (drawn again in addition to the widghet drawing itself in the tab)
+        // icon (drawn again in addition to the widget drawing itself in the tab)
         this.widget.drawAbsolute(guiGraphics, render_x, render_y);
         // close button
         if (this.isMouseOverCloseButton(offsetX, offsetY, mouseX, mouseY)) 
             guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_HIGHLIGHTED_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);  
         else 
             guiGraphics.blitSprite(RenderType::guiTextured, CLOSE_BUTTON_SPRITE_LOCATION, window_x + WIDTH - H_MARGIN - CLOSE_BUTTON_WIDTH, window_y + V_MARGIN, CLOSE_BUTTON_WIDTH, CLOSE_BUTTON_HEIGHT);
-        // unlock button
     }
 
     public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
@@ -116,7 +123,7 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
             return true;
         };
         if (isMouseOverUpgradeButton(offsetX, offsetY, (int)mouseX, (int)mouseY)) {
-            this.discard();
+            ServerPacketDistributor.requestSkillTreeUpgrade(this.widget.getNode());
             return true;
         };
         return false;

@@ -48,20 +48,25 @@ public class PlayerClientPacketDistributor {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new WeatherItemContainerPacket(entity.getId(), slot, containerContents));
     }
 
-    public static void sendSkillTreePackToPlayer(ServerPlayer serverPlayer) {
-        Map<ResourceLocation,SkillCategory> categories = 
-            Objects.nonNull(QuietusReloadableResources.getSkillCategories()) ? 
-            QuietusReloadableResources.getSkillCategories() : 
-            Map.of();;
+    /* Skill tree */
+    public static SkillTreeUpdatePacket makeClientboundSkillTreePack(ServerPlayer player) {
+        Map<ResourceLocation,SkillCategory> categories =
+            Objects.nonNull(QuietusReloadableResources.getSkillCategories()) ?
+                QuietusReloadableResources.getSkillCategories() :
+                Map.of();;
         Map<ResourceLocation,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
-        if (Objects.nonNull(Quietus.playerData.getSkillTree(serverPlayer.getUUID()))) {
-            Quietus.playerData.getSkillTree(serverPlayer.getUUID()).asData().forEach(
+        if (Objects.nonNull(Quietus.playerData.getSkillTree(player.getUUID()))) {
+            Quietus.playerData.getSkillTree(player.getUUID()).asData().forEach(
                 (resourceLocation, progress) -> {
                     progresses.put(resourceLocation, progress.asClientData());
                 }
             );
         }
-        PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeUpdatePacket(categories, progresses));
+        return new SkillTreeUpdatePacket(categories,progresses);
+    }
+    public static void sendSkillTreePackToPlayer(ServerPlayer serverPlayer) {
+
+        PacketDistributor.sendToPlayer(serverPlayer, makeClientboundSkillTreePack(serverPlayer));
     }
 
 }

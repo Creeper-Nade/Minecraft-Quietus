@@ -11,8 +11,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+@OnlyIn(Dist.CLIENT)
 public class ClientSkillTreePayloadHandler {
     private static Minecraft minecraft = Minecraft.getInstance();
 
@@ -39,8 +42,6 @@ public class ClientSkillTreePayloadHandler {
     }
 
     public static Map<ResourceLocation, SkillCategory> getCategories() {
-        Map<ResourceLocation, SkillCategory> map = new HashMap<>();
-        skillTree.getCategories().forEach((resourceLocation, skillCategory) -> map.put(resourceLocation, skillCategory));
-        return map;
+        return skillTree.getCategories();
     }
 }

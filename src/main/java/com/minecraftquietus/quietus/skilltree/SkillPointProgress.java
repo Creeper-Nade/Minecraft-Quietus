@@ -64,13 +64,13 @@ public class SkillPointProgress implements Comparable<SkillPointProgress> {
     private int progressAmount;
 
     public SkillPointProgress(List<Instant> times) {
-        this.times = times;
+        this.times.addAll(times);
     }
     public SkillPointProgress(List<Instant> times, SkillPoint skill) {
         this(times, skill.maxAmount(), skill.progressAmount());
     }
     public SkillPointProgress(List<Instant> times, int maxAmount, int progressAmount) {
-        this.times = times;
+        this.times.addAll(times);
         this.times.sort(Instant::compareTo);
         this.maxAmount = maxAmount;
         this.progressAmount = progressAmount;

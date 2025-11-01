@@ -49,11 +49,7 @@ public class SkillTreeTab implements SkillTreeScrollable {
     @Nullable
     public static SkillTreeTab create(Minecraft minecraft, SkillTreeScreen screen, int index, SkillCategory category, ConnectivityPosition connectivity) {
         Optional<SkillCategory.DisplayInfo> display = category.getDisplay();
-        if (display.isPresent()) {
-            return new SkillTreeTab(minecraft, screen, index, category, display.get(), connectivity, 0.0d, 0.0d);
-        } else {
-            return null;
-        }
+        return display.map(displayInfo -> new SkillTreeTab(minecraft, screen, index, category, displayInfo, connectivity, 0.0d, 0.0d)).orElse(null);
     }
 
     /* public void testAdd(SkillTreeNode node, SkillTreeWidget widget) {

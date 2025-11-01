@@ -62,6 +62,7 @@ public class ClientSkillTree {
     }
 
     public void update(SkillTreeUpdatePacket packet) {
+        LOGGER.info("update!");
         ImmutableMap.Builder<ResourceLocation,SkillCategory> immutablemap$builder = ImmutableMap.builder();
         packet.skillTree().forEach((resourceLocation, skillCategory) -> immutablemap$builder.put(resourceLocation,skillCategory));
         this.categories = immutablemap$builder.build();

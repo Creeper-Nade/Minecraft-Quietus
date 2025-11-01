@@ -4,8 +4,8 @@
   "skillTree.quietus.unlock": "Unlock (%1$d/%2$d)",
   "skillTree.quietus.upgrade": "Upgrade (%1$d/%2$d)",
 
-  "gamerule.enableGhostMode": "Enters ghost mode upon death",
-  "gamerule.enableGhostMode": "Number of game ticks taken for all items to decay once",
+  "gamerule.doDeathSpectating": "Enters ghost mode upon death",
+  "gamerule.ticksPerDecay": "Number of game ticks taken for all items to decay once",
   "death.attack.quietus:magic_projectile_damage": "%1$s magically disappeared",
   "death.attack.quietus:magic_projectile_damage.player": "%1$s was voodooed by %2$s",
   "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame": "%1$s magically disappeared",
@@ -116,6 +116,9 @@
   "commands.skill.set.single.success": "Set %s levels of %s for %s",
   "commands.skill.set.single.failure": "Level of %s for %s is unchanged",
   "commands.skill.set.multiple.success": "Set %s levels of %s for %s players",
-  "commands.skill.set.multiple.failure": "Levels of %s for %s players are unchanged"
+  "commands.skill.set.multiple.failure": "Levels of %s for %s players are unchanged",
+
+
+  "quietus.client.networking.failed.skillTree": "Failed to request skill tree update from server"
 
 }

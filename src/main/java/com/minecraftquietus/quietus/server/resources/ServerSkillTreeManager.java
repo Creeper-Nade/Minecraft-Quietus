@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +20,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
+import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
@@ -37,6 +39,8 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.slf4j.Logger;
+
+import javax.annotation.Nullable;
 
 
 /**
@@ -64,6 +68,14 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
 
     public Map<ResourceLocation, SkillCategory> getCategories() {
         return this.categories;
+    }
+
+    public @Nullable SkillTreeNode getNode(ResourceLocation location) {
+        SkillTreeNode node = null;
+        for (SkillCategory category : this.categories.values()) {
+            if (Objects.nonNull(category.getNode(location))) node = category.getNode(location);
+        }
+        return node;
     }
 
     /** 

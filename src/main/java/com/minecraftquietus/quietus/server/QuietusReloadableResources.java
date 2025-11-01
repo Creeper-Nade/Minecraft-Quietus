@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
+import com.minecraftquietus.quietus.server.handler.SkillTreeGUIPayloadHandler;
 import com.minecraftquietus.quietus.server.resources.ServerSkillTreeManager;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
@@ -32,6 +33,8 @@ public class QuietusReloadableResources {
         event.addListener(ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree"), skillTreeManager::reload);
         //PacketDistributor.sendToAllPlayers(new SkillTreeUpdatePacket(skillTree.get())); // also send packet to update skill trees on clients
         //ClientSkillTreePayloadHandler.getSkillTree().update(new SkillTreeUpdatePacket(skillTreeManager.getCategories()));
+
+        SkillTreeGUIPayloadHandler.setManager(skillTreeManager);
     }
 
     /**

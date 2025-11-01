@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.minecraftquietus.quietus.util.ServerPacketDistributor;
 import org.slf4j.Logger;
 
 import com.minecraftquietus.quietus.client.QuietusKeyBindings;
@@ -107,6 +108,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     @Override
     public void init() {
+        ServerPacketDistributor.requestSkillTreeUpdate();
         /* Header */
         this.layout.addTitleHeader(TITLE, this.font);
         /* Setup */ 
