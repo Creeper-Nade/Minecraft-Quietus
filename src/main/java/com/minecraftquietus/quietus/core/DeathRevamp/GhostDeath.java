@@ -1,7 +1,7 @@
 package com.minecraftquietus.quietus.core.DeathRevamp;
 
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
-import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
@@ -88,8 +88,8 @@ public class GhostDeath{
         boolean hardcore = player.level().getLevelData().isHardcore();
         int ReviveCD = nbt.getIntOr("reviveCooldown",0);
 
-        PlayerData.sendGhostPackToPlayer(player,isGhost,deathMessage,ReviveCD,hardcore);
-        PlayerData.sendRevivalCDToPlayer(player,ReviveCD);
+        PlayerClientPacketDistributor.sendGhostPackToPlayer(player,isGhost,deathMessage,ReviveCD,hardcore);
+        PlayerClientPacketDistributor.sendRevivalCDToPlayer(player,ReviveCD);
 
     }
 

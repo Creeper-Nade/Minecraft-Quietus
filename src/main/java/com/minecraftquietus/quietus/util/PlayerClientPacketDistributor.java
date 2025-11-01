@@ -15,7 +15,7 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 
-public class PlayerData {
+public class PlayerClientPacketDistributor {
     public static void sendManaPackToPlayer(ServerPlayer serverPlayer, ManaComponent manaComponent) {
         PacketDistributor.sendToPlayer(serverPlayer, new ManaPacket(manaComponent.getMaxMana(), manaComponent.getMana(),manaComponent.getSpeedChargeStatus()));
     }

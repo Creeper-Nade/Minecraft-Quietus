@@ -15,10 +15,13 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.slf4j.Logger;
+
 import com.minecraftquietus.quietus.client.QuietusKeyBindings;
 import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
+import com.mojang.logging.LogUtils;
 import com.minecraftquietus.quietus.skilltree.ConnectivityPosition;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
 
@@ -37,6 +40,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static final ResourceLocation WINDOW_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/window.png");
     public static final int WINDOW_WIDTH = 248;
     public static final int WINDOW_HEIGHT = 166;

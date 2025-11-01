@@ -102,11 +102,11 @@ public class PlayerSkillTree {
                 GSON.toJson(jsonelement, GSON.newJsonWriter(writer));
             } catch (Throwable var6) {
                 if (writer != null) {
-                try {
-                    writer.close();
-                } catch (Throwable var5) {
-                    var6.addSuppressed(var5);
-                }
+                    try {
+                        writer.close();
+                    } catch (Throwable var5) {
+                        var6.addSuppressed(var5);
+                    }
                 }
 
                 throw var6;
