@@ -28,9 +28,9 @@ public class ClientSkillTree {
 
     private ImmutableMap<ResourceLocation, SkillCategory> categories = ImmutableMap.of();
 
-    private final Map<SkillTreeNode,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
+    private final Map<ResourceLocation,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
 
-    private final Map<SkillTreeNode,ClientSkillTreeListener> listeners = new HashMap<>();
+    private final Map<ResourceLocation,ClientSkillTreeListener> listeners = new HashMap<>();
 
     public ClientSkillTree(Minecraft minecraft) {
         this.minecraft = minecraft;
@@ -38,32 +38,32 @@ public class ClientSkillTree {
 
     public void addListener(SkillTreeNode node, ClientSkillTreeListener listener) {
         LOGGER.info("added listener: {}", node.getId());
-        this.listeners.put(node, listener);
+        this.listeners.put(node.getId(), listener);
         SkillPointProgress.ClientData progress = this.getOrStartProgress(node);
         listener.onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
     }
     public void removeListener(SkillTreeNode node) {
         LOGGER.info("removed listener: {}", node.getId());
-        this.listeners.remove(node);
+        this.listeners.remove(node.getId());
     }
 
     private SkillPointProgress.ClientData startProgress(SkillTreeNode node) {
-        if (!this.progresses.containsKey(node)) {
+        if (!this.progresses.containsKey(node.getId())) {
             SkillPointProgress.ClientData progress = new SkillPointProgress.ClientData(0, node.getSkillPoint().maxAmount(), node.getSkillPoint().progressAmount());
-            this.progresses.put(node, progress);
+            this.progresses.put(node.getId(), progress);
             return progress;
         }
-        return this.progresses.get(node);
+        return this.progresses.get(node.getId());
     }
 
     public ImmutableMap<ResourceLocation, SkillCategory> getCategories() {
         return this.categories;
     }
-    public Map<SkillTreeNode,SkillPointProgress.ClientData> getProgressesMap() {
+    public Map<ResourceLocation,SkillPointProgress.ClientData> getProgressesMap() {
         return this.progresses;
     }
     public SkillPointProgress.ClientData getOrStartProgress(SkillTreeNode node) {
-        if (this.progresses.containsKey(node)) {
+        if (this.progresses.containsKey(node.getId())) {
             return this.getProgress(node);
         } else {
             return this.startProgress(node);
@@ -71,7 +71,7 @@ public class ClientSkillTree {
 
     }
     private SkillPointProgress.ClientData getProgress(SkillTreeNode node) {
-        return this.progresses.get(node);
+        return this.progresses.get(node.getId());
     }
 
     public void update(SkillTreeUpdatePacket packet) {
@@ -90,8 +90,9 @@ public class ClientSkillTree {
                     LOGGER.info("Ignoring skill tree progress {} received from server - this skill tree node does not exist?", resourceLocation.toString());
                 } else {
                     LOGGER.info("Node: {}", node.getId());
-                    this.progresses.put(node, progress);
-                    this.listeners.get(node).onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
+                    this.progresses.put(node.getId(), progress);
+                    if (this.listeners.containsKey(node.getId()))
+                    this.listeners.get(node.getId()).onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
                 }
             }
         );
