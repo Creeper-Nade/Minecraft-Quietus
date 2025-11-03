@@ -30,8 +30,21 @@ public class ClientSkillTree {
 
     private final Map<SkillTreeNode,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
 
+    private final Map<SkillTreeNode,ClientSkillTreeListener> listeners = new HashMap<>();
+
     public ClientSkillTree(Minecraft minecraft) {
         this.minecraft = minecraft;
+    }
+
+    public void addListener(SkillTreeNode node, ClientSkillTreeListener listener) {
+        LOGGER.info("added listener: {}", node.getId());
+        this.listeners.put(node, listener);
+        SkillPointProgress.ClientData progress = this.getOrStartProgress(node);
+        listener.onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
+    }
+    public void removeListener(SkillTreeNode node) {
+        LOGGER.info("removed listener: {}", node.getId());
+        this.listeners.remove(node);
     }
 
     private SkillPointProgress.ClientData startProgress(SkillTreeNode node) {
@@ -64,8 +77,9 @@ public class ClientSkillTree {
     public void update(SkillTreeUpdatePacket packet) {
         LOGGER.info("update!");
         ImmutableMap.Builder<ResourceLocation,SkillCategory> immutablemap$builder = ImmutableMap.builder();
-        packet.skillTree().forEach((resourceLocation, skillCategory) -> immutablemap$builder.put(resourceLocation,skillCategory));
+        immutablemap$builder.putAll(packet.skillTree());
         this.categories = immutablemap$builder.build();
+        //this.progresses.clear();
         packet.progresses().forEach(
             (resourceLocation, progress) -> {
                 SkillTreeNode node = null;
@@ -75,7 +89,9 @@ public class ClientSkillTree {
                 if (node == null) {
                     LOGGER.info("Ignoring skill tree progress {} received from server - this skill tree node does not exist?", resourceLocation.toString());
                 } else {
+                    LOGGER.info("Node: {}", node.getId());
                     this.progresses.put(node, progress);
+                    this.listeners.get(node).onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
                 }
             }
         );

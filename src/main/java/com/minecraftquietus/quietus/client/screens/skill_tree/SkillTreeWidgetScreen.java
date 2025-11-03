@@ -1,5 +1,7 @@
 package com.minecraftquietus.quietus.client.screens.skill_tree;
 
+import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
+import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTreeListener;
 import com.minecraftquietus.quietus.util.ServerPacketDistributor;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -19,7 +21,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 import java.util.List;
 
-public class SkillTreeWidgetScreen implements SkillTreeScrollable {
+public class SkillTreeWidgetScreen implements SkillTreeScrollable, ClientSkillTreeListener {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -43,6 +45,7 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
     private static final int CONTENT_V_MARGIN = V_MARGIN;
 
     private final Minecraft minecraft;
+    private final ClientSkillTree skillTree;
     private final Font font;
     private final SkillTreeWidget widget;
     private final SkillTreeScreen screen;
@@ -57,10 +60,15 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
     private double scrollX;
     private double scrollY;
 
+    private int amount;
+    private int maxAmount;
+    private int progressAmount;
 
-    public SkillTreeWidgetScreen(Minecraft minecraft, SkillTreeWidget widget, SkillTreeScreen screen, int widgetDrawnX, int widgetDrawnY) {
+
+    public SkillTreeWidgetScreen(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeWidget widget, SkillTreeScreen screen, int widgetDrawnX, int widgetDrawnY) {
         this.minecraft = minecraft;
         this.font = this.minecraft.font;
+        this.skillTree = clientSkillTree;
         this.widget = widget;
         this.screen = screen;
         this.x = widgetDrawnX;
@@ -80,6 +88,12 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
             + CONTENT_V_MARGIN
             + HEADER_CONTENTS_PADDING * 2
             + RESOURCE_V_MARGIN * 2;
+
+        LOGGER.info("Node of this screen: {}", this.widget.getNode().getId());
+        this.skillTree.addListener(this.widget.getNode(), this);
+        /* this.amount = getSkillTree().getOrStartProgress(this.widget.getNode()).times();
+        this.maxAmount = getSkillTree().getOrStartProgress(this.widget.getNode()).maxAmount();
+        this.progressAmount = getSkillTree().getOrStartProgress(this.widget.getNode()).progressAmount(); */
     }
 
     public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
@@ -100,13 +114,11 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
 
         } else {
             guiGraphics.fill(render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y+4, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 134, render_y+18+4, 0xFF00BB20);
-            int amount = getSkillTree().getOrStartProgress(this.widget.getNode()).times();
-            int maxAmount = getSkillTree().getOrStartProgress(this.widget.getNode()).maxAmount();
             LOGGER.info("Times: {}", amount); // TODO: This is not up to date for some reason
-            if (amount == 0) 
-                guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.unlock", amount, maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
-            if (amount > 0) 
-                guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.upgrade", amount, maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
+            if (this.amount == 0) 
+                guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.unlock", this.amount, this.maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
+            if (this.amount > 0) 
+                guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.upgrade", this.amount, this.maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
         }
         // icon (drawn again in addition to the widget drawing itself in the tab)
         this.widget.drawAbsolute(guiGraphics, render_x, render_y);
@@ -176,6 +188,13 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable {
     }
 
     public void discard() {
+        this.skillTree.removeListener(this.widget.getNode());
         this.screen.removeWidgetScreen(this.widget);
+    }
+
+    public void onClientSkillTreeUpdate(int amount, int maxAmount, int progressAmount) {
+        this.amount = amount;
+        this.maxAmount = maxAmount;
+        this.progressAmount = progressAmount;
     }
 }

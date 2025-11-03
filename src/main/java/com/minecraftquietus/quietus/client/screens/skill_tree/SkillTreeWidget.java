@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus.client.screens.skill_tree;
 
 import java.util.Set;
 
+import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 import com.minecraftquietus.quietus.skilltree.TreeNodePosition;
@@ -24,6 +25,7 @@ public class SkillTreeWidget {
     private final SkillTreeTab tab;
     private final SkillTreeNode node;
     private final Minecraft minecraft;
+    private final ClientSkillTree skillTree;
     private final ResourceLocation icon;
     private final String languangeKey;
 
@@ -35,9 +37,10 @@ public class SkillTreeWidget {
 
     private final SkillPointType widgettype;
 
-    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, SkillTreeNode node, int x, int y, SkillPoint.DisplayInfo display) {
+    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, int x, int y, SkillPoint.DisplayInfo display) {
         this.tab = tab;
         this.minecraft = minecraft;
+        this.skillTree = clientSkillTree;
         this.node = node;
         this.icon = display.icon().isPresent() ? 
             display.icon().get().texturePath() : 
@@ -104,7 +107,7 @@ public class SkillTreeWidget {
         int offsetWithScrollX = offsetX + (int)this.tab.scrollX;
         int offsetWithScrollY = offsetY + (int)this.tab.scrollY;
         if (mouseButton == 0 && this.isMouseOver(offsetWithScrollX, offsetWithScrollY, (int)mouseX, (int)mouseY)) {
-            this.tab.getScreen().addWidgetScreen(this, new SkillTreeWidgetScreen(this.minecraft, this, this.tab.getScreen(), this.x + (int)this.tab.scrollX, this.y + (int)this.tab.scrollY));
+            this.tab.getScreen().addWidgetScreen(this, new SkillTreeWidgetScreen(this.minecraft, this.skillTree, this, this.tab.getScreen(), this.x + (int)this.tab.scrollX, this.y + (int)this.tab.scrollY));
             return true;
         }
         return false;

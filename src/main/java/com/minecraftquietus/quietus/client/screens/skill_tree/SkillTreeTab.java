@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.skilltree.ConnectivityPosition;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
@@ -20,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 public class SkillTreeTab implements SkillTreeScrollable {
     
     private final Minecraft minecraft;
+    private final ClientSkillTree skillTree;
     private final SkillTreeScreen screen;
     private final int index;
     private final SkillCategory.DisplayInfo display;
@@ -33,8 +35,9 @@ public class SkillTreeTab implements SkillTreeScrollable {
     private int maxY = Integer.MIN_VALUE;
     private final ConnectivityPosition connectivity;
 
-    public SkillTreeTab(Minecraft minecraft, SkillTreeScreen screen, int index, SkillCategory category, SkillCategory.DisplayInfo display, ConnectivityPosition connectivity, double scrollX, double scrollY) {
+    public SkillTreeTab(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, SkillCategory.DisplayInfo display, ConnectivityPosition connectivity, double scrollX, double scrollY) {
         this.minecraft = minecraft;
+        this.skillTree = clientSkillTree;
         this.screen = screen;
 
         this.index = index;
@@ -47,9 +50,9 @@ public class SkillTreeTab implements SkillTreeScrollable {
     }
 
     @Nullable
-    public static SkillTreeTab create(Minecraft minecraft, SkillTreeScreen screen, int index, SkillCategory category, ConnectivityPosition connectivity) {
+    public static SkillTreeTab create(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, ConnectivityPosition connectivity) {
         Optional<SkillCategory.DisplayInfo> display = category.getDisplay();
-        return display.map(displayInfo -> new SkillTreeTab(minecraft, screen, index, category, displayInfo, connectivity, 0.0d, 0.0d)).orElse(null);
+        return display.map(displayInfo -> new SkillTreeTab(minecraft, clientSkillTree, screen, index, category, displayInfo, connectivity, 0.0d, 0.0d)).orElse(null);
     }
 
     /* public void testAdd(SkillTreeNode node, SkillTreeWidget widget) {
@@ -58,7 +61,7 @@ public class SkillTreeTab implements SkillTreeScrollable {
     
     public void addWidget(SkillTreeNode node) {
         if (node.getSkillPoint().display().isPresent()) {
-            this.widgets.put(node, new SkillTreeWidget(this, this.minecraft, node, node.getTreeX(), node.getTreeY(), node.getSkillPoint().display().get()));
+            this.widgets.put(node, new SkillTreeWidget(this, this.minecraft, this.skillTree, node, node.getTreeX(), node.getTreeY(), node.getSkillPoint().display().get()));
             for (SkillTreeWidget widget : this.widgets.values()) {
                 widget.attachToParent();
             }

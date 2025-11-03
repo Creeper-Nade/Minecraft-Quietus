@@ -53,7 +53,7 @@ public class PlayerClientPacketDistributor {
         Map<ResourceLocation,SkillCategory> categories =
             Objects.nonNull(QuietusReloadableResources.getSkillCategories()) ?
                 QuietusReloadableResources.getSkillCategories() :
-                Map.of();;
+                Map.of();
         Map<ResourceLocation,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
         if (Objects.nonNull(Quietus.playerData.getSkillTree(player.getUUID()))) {
             Quietus.playerData.getSkillTree(player.getUUID()).asData().forEach(
@@ -65,7 +65,6 @@ public class PlayerClientPacketDistributor {
         return new SkillTreeUpdatePacket(categories,progresses);
     }
     public static void sendSkillTreePackToPlayer(ServerPlayer serverPlayer) {
-
         PacketDistributor.sendToPlayer(serverPlayer, makeClientboundSkillTreePack(serverPlayer));
     }
 
