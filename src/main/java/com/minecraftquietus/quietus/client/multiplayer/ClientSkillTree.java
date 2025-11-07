@@ -37,13 +37,11 @@ public class ClientSkillTree {
     }
 
     public void addListener(SkillTreeNode node, ClientSkillTreeListener listener) {
-        LOGGER.info("added listener: {}", node.getId());
         this.listeners.put(node, listener);
         SkillPointProgress.ClientData progress = this.getOrStartProgress(node);
         listener.onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
     }
     public void removeListener(SkillTreeNode node) {
-        LOGGER.info("removed listener: {}", node.getId());
         this.listeners.remove(node);
     }
 
@@ -75,7 +73,6 @@ public class ClientSkillTree {
     }
 
     public void update(SkillTreeUpdatePacket packet) {
-        LOGGER.info("update!");
         ImmutableMap.Builder<ResourceLocation,SkillCategory> immutablemap$builder = ImmutableMap.builder();
         immutablemap$builder.putAll(packet.skillTree());
         this.categories = immutablemap$builder.build();
@@ -91,15 +88,14 @@ public class ClientSkillTree {
                 } else {
                     this.progresses.put(node, progress);
                     if (this.listeners.containsKey(node)) {
-                        LOGGER.info("found 'em! amount: {}",progress.times());
                         this.listeners.get(node).onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
                     }
                 }
             }
         );
-        LOGGER.info("got a total number of progresses: {}", this.progresses.size());
+        /* LOGGER.info("got a total number of progresses: {}", this.progresses.size());
         for (SkillTreeNode node : this.progresses.keySet()) {
             LOGGER.info("{}", node.getId());
-        }
+        } */
     }
 }
