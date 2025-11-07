@@ -28,7 +28,7 @@ public class ClientSkillTree {
 
     private ImmutableMap<ResourceLocation, SkillCategory> categories = ImmutableMap.of();
 
-    private final Map<SkillTreeNode,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
+    private final Map<SkillTreeNode,SkillPointProgress.ClientData> progresses = new HashMap<>();
 
     private final Map<SkillTreeNode,ClientSkillTreeListener> listeners = new HashMap<>();
 
@@ -89,11 +89,17 @@ public class ClientSkillTree {
                 if (node == null) {
                     LOGGER.info("Ignoring skill tree progress {} received from server - this skill tree node does not exist?", resourceLocation.toString());
                 } else {
-                    LOGGER.info("Node: {}", node.getId());
                     this.progresses.put(node, progress);
-                    this.listeners.get(node).onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
+                    if (this.listeners.containsKey(node)) {
+                        LOGGER.info("found 'em! amount: {}",progress.times());
+                        this.listeners.get(node).onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
+                    }
                 }
             }
         );
+        LOGGER.info("got a total number of progresses: {}", this.progresses.size());
+        for (SkillTreeNode node : this.progresses.keySet()) {
+            LOGGER.info("{}", node.getId());
+        }
     }
 }

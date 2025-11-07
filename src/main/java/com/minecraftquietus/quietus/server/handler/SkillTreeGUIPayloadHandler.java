@@ -27,10 +27,10 @@ public class SkillTreeGUIPayloadHandler {
     }
 
     public static void handleSkillTreeRequest(SkillTreeGUIRequest packet, final IPayloadContext context) {
-        if (context.player() instanceof ServerPlayer serverPlayer) {
+        /* if (context.player() instanceof ServerPlayer serverPlayer) {
             SkillTreeUpdatePacket returnPacket = PlayerClientPacketDistributor.makeClientboundSkillTreePack(serverPlayer);
             context.reply(returnPacket);
-        }
+        } */
         MinecraftServer server = context.player().getServer();
         if (Objects.nonNull(server)) {
             ServerPlayer player = server.getPlayerList().getPlayer(context.player().getUUID());
@@ -44,9 +44,11 @@ public class SkillTreeGUIPayloadHandler {
                                 SkillTreeNode node = manager.getNode(packet.skillTreeNode());
                                 skillTree.addOrStartProgress(node);
                             }
+                            context.reply(PlayerClientPacketDistributor.makeClientboundSkillTreePack(player));
                         }
+                    } else {
+                        context.reply(returnPacket);
                     }
-                    context.reply(returnPacket);
                 }).exceptionally(e -> {
                     context.disconnect(Component.translatable("quietus.client.networking.failed.skillTree", e.getMessage()));
                     return null;

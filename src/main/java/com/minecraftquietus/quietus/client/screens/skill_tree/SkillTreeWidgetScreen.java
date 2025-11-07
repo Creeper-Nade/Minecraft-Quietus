@@ -110,11 +110,11 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable, ClientSkillTr
         // description
         guiGraphics.drawWordWrap(font, description, render_x + CONTENT_H_MARGIN, render_y + SkillTreeWidget.ICON_HEIGHT + HEADER_CONTENTS_PADDING*2, WIDTH, 0xFFFFFFFF, true);
         // unlock button
-        if (getSkillTree().getOrStartProgress(this.widget.getNode()).isMaxed()) {
+        if (this.isMaxed()) {
 
         } else {
             guiGraphics.fill(render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y+4, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 134, render_y+18+4, 0xFF00BB20);
-            LOGGER.info("Times: {}", amount); // TODO: This is not up to date for some reason
+            /* LOGGER.info("Times: {}", amount); // TODO: This is not up to date for some reason */
             if (this.amount == 0) 
                 guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.unlock", this.amount, this.maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
             if (this.amount > 0) 
@@ -196,5 +196,14 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable, ClientSkillTr
         this.amount = amount;
         this.maxAmount = maxAmount;
         this.progressAmount = progressAmount;
+    }
+
+    private boolean isMaxed() {
+        if (this.amount > this.maxAmount) {
+            this.amount = this.maxAmount;
+            return true;
+        } else {
+            return this.amount == this.maxAmount;
+        }
     }
 }

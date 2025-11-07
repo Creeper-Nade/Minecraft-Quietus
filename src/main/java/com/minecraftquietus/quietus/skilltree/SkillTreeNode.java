@@ -78,4 +78,20 @@ public class SkillTreeNode {
     public int getTreeY() {
         return this.treeY;
     }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    }
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        } else if (other instanceof SkillTreeNode otherNode) {
+            if (this.id.equals(otherNode.id)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

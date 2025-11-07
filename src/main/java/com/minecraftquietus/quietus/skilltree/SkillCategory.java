@@ -225,4 +225,20 @@ public class SkillCategory {
         return this.display;
     }
 
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    }
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        } else if (other instanceof SkillCategory otherCategory) {
+            if (this.id == otherCategory.id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
