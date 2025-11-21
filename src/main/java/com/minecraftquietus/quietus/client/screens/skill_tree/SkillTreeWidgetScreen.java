@@ -27,10 +27,13 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable, ClientSkillTr
 
     private static final ResourceLocation CONTAINER_CONTENTS_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
     private static final ResourceLocation CONTAINER_HEADER_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_header");
+    private static final ResourceLocation UPGRADE_BUTTON_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button");
     private static final ResourceLocation CLOSE_BUTTON_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/cross_button");
     private static final ResourceLocation CLOSE_BUTTON_HIGHLIGHTED_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/cross_button_highlighted");
     private static final int CLOSE_BUTTON_WIDTH = 20;
     private static final int CLOSE_BUTTON_HEIGHT = 20;
+    private static final int UPGRADE_BUTTON_WIDTH = 134;
+    private static final int UPGRADE_BUTTON_HEIGHT = 18;
 
     /* In pixels (GUI) */
     private static final int WIDTH = 180;
@@ -110,7 +113,8 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable, ClientSkillTr
         if (this.isMaxed()) {
             
         } else {
-            guiGraphics.fill(render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y+4, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 134, render_y+18+4, 0xFF00BB20);
+            guiGraphics.blitSprite(RenderType::guiTextured, UPGRADE_BUTTON_SPRITE_LOCATION, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y+4, UPGRADE_BUTTON_WIDTH, UPGRADE_BUTTON_HEIGHT);
+            //guiGraphics.fill(render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH, render_y+4, render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 134, render_y+18+4, 0xFF00BB20);
             if (this.amount == 0) 
                 guiGraphics.drawCenteredString(font, Component.translatable("skillTree.quietus.unlock", this.amount, this.maxAmount), render_x + SECTION_H_MARGIN + SkillTreeWidget.ICON_WIDTH + 67, render_y+4+4, 0xFFFFFFFF);
             if (this.amount > 0) 
