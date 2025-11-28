@@ -45,7 +45,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     private static final ResourceLocation WINDOW_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/window.png");
     public static final int WINDOW_WIDTH = 248;
-    public static final int WINDOW_HEIGHT = 166;
+    public static final int WINDOW_HEIGHT = 186;
     private static final int WINDOW_INSIDE_X = 9;
     private static final int WINDOW_INSIDE_Y = 9;
     private static final int WINDOW_INSIDE_TOP_Y = 18;
