@@ -27,6 +27,7 @@ import com.minecraftquietus.quietus.skilltree.ConnectivityPosition;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -43,14 +44,30 @@ import net.minecraft.resources.ResourceLocation;
 public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final ResourceLocation WINDOW_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/window.png");
+    //private static final ResourceLocation WINDOW_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/window.png");
+    private static final ResourceLocation WINDOW_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/window");
+    private static final ResourceLocation INFO_CONTENTS_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
+    private static final ResourceLocation INFO_HEADER_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_header");
+
     public static final int WINDOW_WIDTH = 248;
     public static final int WINDOW_HEIGHT = 186;
+    public static final int WINDOW_WIDTH_INFO_CHANGE = -68;
+    private int infoWindowDynamicWidth = WINDOW_WIDTH;
     private static final int WINDOW_INSIDE_X = 9;
+    private int infoWindowInsideDynamicWidth = WINDOW_INSIDE_X;
     private static final int WINDOW_INSIDE_Y = 9;
     private static final int WINDOW_INSIDE_TOP_Y = 18;
     protected static final int WINDOW_INSIDE_WIDTH = WINDOW_WIDTH-WINDOW_INSIDE_X*2;
-    protected static final int WINDOW_INSIDE_HEIGHT = WINDOW_HEIGHT-WINDOW_INSIDE_Y*2;
+    protected static final int WINDOW_INSIDE_HEIGHT = WINDOW_HEIGHT-WINDOW_INSIDE_Y-WINDOW_INSIDE_TOP_Y;
+    private static final int INFO_WIDTH = 180;
+    private static final int INFO_HEIGHT = WINDOW_HEIGHT;
+    private static final int GAP_WINDOW_INFO = 7;
+
+    private static final int INFO_DYNAMIC_OFFSET_FROM_CENTER = - (GAP_WINDOW_INFO + INFO_WIDTH)/2;
+    private int infoDynamicOffset = 0;
+    private static final int DYNAMIC_POSITIONING_TICKS = 40;
+    private int infoDynamicTicks = DYNAMIC_POSITIONING_TICKS;
+    
 
     private static final Component TITLE = Component.translatable("gui.skill_tree");
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
@@ -60,31 +77,15 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     private final Map<SkillTreeWidget,SkillTreeWidgetScreen> widgetScreens = new LinkedHashMap<>();
 
-    private SkillTreeScrollable focusedScrollable;
+    //private SkillTreeScrollable focusedScrollable;
     @Nullable private SkillTreeTab selectedTab;
+    @Nullable private SkillTreeWidget selectedWidget;
 
-    /* SkillTreeTab testTab;
-    SkillTreeNode testNode;
-    SkillTreeWidget testWidget;
-    SkillTreeNode testNode2;
-    SkillTreeWidget testWidget2; */
 
     public SkillTreeScreen(ClientSkillTree skillTree) {
         super(TITLE);
 
         this.skillTree = skillTree;
-
-        /* // for testing
-        testTab = new SkillTreeTab(Minecraft.getInstance(), this, 0, WINDOW_LOCATION, TITLE);
-        testNode = new SkillTreeNode(ResourceLocation.fromNamespaceAndPath(MODID, "none"), null);
-        testWidget = new SkillTreeWidget(testTab, Minecraft.getInstance(), testNode, 25, 25, WidgetType.SQUARE);
-        testNode2 = new SkillTreeNode(ResourceLocation.fromNamespaceAndPath(MODID, "example"), null);
-        testWidget2 = new SkillTreeWidget(testTab, Minecraft.getInstance(), testNode2, 25, 25 + 26 + 6, WidgetType.SQUARE);
-        this.testTab.testAdd(testNode, testWidget);
-        this.testTab.testAdd(testNode2, testWidget2);
-        this.focusedScrollable = testTab;
-        
-        this.selectedTab = testTab; */
     }
 
     @Override
@@ -137,51 +138,77 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     @Override
     public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        int offsetX = (this.width - WINDOW_WIDTH) / 2;
+
+        this.renderTick();
+
+        int treeOffsetX = (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
+        int infoOffsetX = (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
         int offsetY = (this.height - WINDOW_HEIGHT) / 2;
-        this.renderInside(guiGraphics, mouseX, mouseY, offsetX, offsetY);
-        this.renderWindow(guiGraphics, offsetX, offsetY);
-        this.renderScreens(guiGraphics, mouseX, mouseY, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y); // offset from the inside content
+
+        this.renderTreeWindow(guiGraphics, mouseX, mouseY, treeOffsetX, offsetY);
+        if (this.selectedWidget != null) {
+            this.renderInfoWindow(guiGraphics, mouseX, mouseY, infoOffsetX, offsetY);
+        }
+        /* this.renderWindow(guiGraphics, offsetX, offsetY); */
+        /* this.renderScreens(guiGraphics, mouseX, mouseY, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y); // offset from the inside content */
+        //LOGGER.info("partialTick: {}",partialTick);
     }
 
-    private void renderWindow(GuiGraphics guiGraphics, int offsetX, int offsetY) {
-        guiGraphics.blit(RenderType::guiTextured, WINDOW_LOCATION, offsetX, offsetY, 0.0F, 0.0F, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT);
+    /* private void renderWindow(GuiGraphics guiGraphics, int offsetX, int offsetY) {
+        //guiGraphics.blit(RenderType::guiTextured, WINDOW_LOCATION, offsetX, offsetY, 0.0F, 0.0F, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT);
+        guiGraphics.blitSprite(RenderType::guiTextured, WINDOW_SPRITE_LOCATION, offsetX, offsetY, WINDOW_WIDTH, WINDOW_HEIGHT);
+    } */
+
+    private void renderTreeWindow(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
+        guiGraphics.blitSprite(RenderType::guiTextured, WINDOW_SPRITE_LOCATION, offsetX, offsetY, this.infoWindowDynamicWidth, WINDOW_HEIGHT);
+        this.selectedTab.drawContents(guiGraphics, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.infoWindowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT);
     }
 
-    private void renderInside(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
-        this.selectedTab.drawContents(guiGraphics, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y);
+    private void renderInfoWindow(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
+        guiGraphics.blitSprite(RenderType::guiTextured, INFO_CONTENTS_SPRITE_LOCATION, offsetX, offsetY, INFO_WIDTH, INFO_HEIGHT);
     }
 
-    private void renderScreens(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
+    /* private void renderScreens(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
         for (SkillTreeWidgetScreen screen : this.widgetScreens.values()) {
             screen.draw(guiGraphics, mouseX, mouseY, offsetX, offsetY);
         }
-    }
+    } */
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int offsetX = (this.width - WINDOW_WIDTH) / 2;
-        int offsetY = (this.height - WINDOW_HEIGHT) / 2;
-        List<SkillTreeWidgetScreen> list = new ArrayList<>(this.widgetScreens.values());
-        SkillTreeWidgetScreen outmost_focused_screen = null;
-        for (SkillTreeWidgetScreen screen : list) {
-            if (screen.isMouseOverWindow(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY)) {
-                this.focusedScrollable = screen;
-                outmost_focused_screen = screen;
+        // int offsetX = (this.width - WINDOW_WIDTH) / 2;
+        // int offsetY = (this.height - WINDOW_HEIGHT) / 2;
+        // List<SkillTreeWidgetScreen> list = new ArrayList<>(this.widgetScreens.values());
+        // SkillTreeWidgetScreen outmost_focused_screen = null;
+        // for (SkillTreeWidgetScreen screen : list) {
+        //     if (screen.isMouseOverWindow(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY)) {
+        //         this.focusedScrollable = screen;
+        //         outmost_focused_screen = screen;
+        //     }
+        // }
+        // if (outmost_focused_screen != null) {
+        //     /* no matter clicked or not, return the interaction boolean, 
+        //     to avoid clicking onto screens below the outmost screen, or the Widgets on selected tab. */
+        //     return outmost_focused_screen.click(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY, button); 
+        // } else {
+        //     if (!Objects.isNull(this.selectedTab)) {
+        //         this.focusedScrollable = this.selectedTab;
+        //         if (this.selectedTab.click(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY, button)) {
+        //             return true;
+        //         }
+        //     }
+        // }
+        // return super.mouseClicked(mouseX, mouseY, button);
+        
+        int offsetX = WINDOW_INSIDE_X + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
+        int offsetY = WINDOW_INSIDE_TOP_Y + (this.height - WINDOW_HEIGHT) / 2;
+
+        if (this.selectedTab != null) {
+            if (this.selectedTab.click(offsetX, offsetY, mouseX, mouseY, button)) {
+                return true;
             }
         }
-        if (outmost_focused_screen != null) {
-            /* no matter clicked or not, return the interaction boolean, 
-            to avoid clicking onto screens below the outmost screen, or the Widgets on selected tab. */
-            return outmost_focused_screen.click(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY, button); 
-        } else {
-            if (!Objects.isNull(this.selectedTab)) {
-                this.focusedScrollable = this.selectedTab;
-                if (this.selectedTab.click(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY, button)) {
-                    return true;
-                }
-            }
-        }
+
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
@@ -190,8 +217,54 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         if (button != 0) {
             return false;
         } else {
-            this.focusedScrollable.scroll(dragX, dragY);
+            if (this.selectedTab != null) this.selectedTab.scroll(dragX, dragY);
+            /* this.focusedScrollable.scroll(dragX, dragY); */
             return true;
+        }
+    }
+
+    private void renderTick() {
+        this.infoDynamicTicks = this.selectedWidget == null ?
+            Math.min(this.infoDynamicTicks+1, DYNAMIC_POSITIONING_TICKS)
+            : Math.max(this.infoDynamicTicks-1, 0);
+        this.infoWindowDynamicWidth = WINDOW_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
+        this.infoWindowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
+        
+        this.infoDynamicOffset = calcInverse((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 80.0d, this.infoDynamicTicks, this.selectedWidget == null);
+
+        this.infoWindowDynamicWidth = WINDOW_WIDTH + calcInverse((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 45.0d, this.infoDynamicTicks, this.selectedWidget == null);
+        this.infoWindowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + calcInverse((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 45.0d, this.infoDynamicTicks, this.selectedWidget == null);
+    }
+
+    private int calcInverse(double yIntercept, double xIntercept, double smoothnessMult, double x, boolean pn) {
+        //final double pn_mult = this.selectedWidget == null ? 1.0d : -1.0d; // positive or negative for √(sigma)
+        double pn_mult = pn ? 1.0d : -1.0d; // positive or negative for √(sigma)
+        double yIntercept_abs = Math.abs(yIntercept);
+        float sigma = (float) (
+            Math.pow(xIntercept,2)*Math.pow(yIntercept,2) 
+            + 4*xIntercept*smoothnessMult*yIntercept_abs
+        );
+        float a = (float) (
+            xIntercept/2 
+            + pn_mult * (Math.sqrt(sigma)) / ((-2)*yIntercept_abs)
+        );
+        float b = (float) (
+            yIntercept_abs/2 
+            + pn_mult * (Math.sqrt(sigma)) / ((-2)*xIntercept)
+        );
+        return (int)Math.round(
+            Math.signum(yIntercept) 
+            * (smoothnessMult / (x - a) + b)
+        );
+    }
+
+    public record InfoScreen(
+        Font font,
+        String heading,
+        String description
+    ) {
+        protected static InfoScreen create(SkillTreeWidget widget, Font font) {
+            return new InfoScreen(font, MODID, MODID);
         }
     }
 
@@ -204,9 +277,16 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.widgetScreens.put(widget, screen);
     }
     protected void removeWidgetScreen(SkillTreeWidget widget) {
-        if (this.focusedScrollable.equals(this.widgetScreens.get(widget)))
-            this.focusedScrollable = this.selectedTab;
+        /* if (this.focusedScrollable.equals(this.widgetScreens.get(widget)))
+            this.focusedScrollable = this.selectedTab; */
         this.widgetScreens.remove(widget);
+    }
+
+    protected void setSelectedWidget(SkillTreeWidget widget) {
+        this.selectedWidget = widget;
+    }
+    protected SkillTreeWidget getSelectedWidget() {
+        return this.selectedWidget;
     }
 
     /* SkillCategory.Listener method */

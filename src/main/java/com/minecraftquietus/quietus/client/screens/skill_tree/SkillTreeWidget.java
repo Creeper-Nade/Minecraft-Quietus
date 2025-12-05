@@ -107,7 +107,12 @@ public class SkillTreeWidget {
         int offsetWithScrollX = offsetX + (int)this.tab.scrollX;
         int offsetWithScrollY = offsetY + (int)this.tab.scrollY;
         if (mouseButton == 0 && this.isMouseOver(offsetWithScrollX, offsetWithScrollY, (int)mouseX, (int)mouseY)) {
-            this.tab.getScreen().addWidgetScreen(this, new SkillTreeWidgetScreen(this.minecraft, this.skillTree, this, this.tab.getScreen(), this.x + (int)this.tab.scrollX, this.y + (int)this.tab.scrollY));
+            //this.tab.getScreen().addWidgetScreen(this, new SkillTreeWidgetScreen(this.minecraft, this.skillTree, this, this.tab.getScreen(), this.x + (int)this.tab.scrollX, this.y + (int)this.tab.scrollY));
+            if (this.matches(this.tab.getScreen().getSelectedWidget())) {
+                this.tab.getScreen().setSelectedWidget(null);
+            } else {
+                this.tab.getScreen().setSelectedWidget(this);
+            }
             return true;
         }
         return false;
@@ -141,6 +146,23 @@ public class SkillTreeWidget {
     }
     protected SkillTreeNode getNode() {
         return this.node;
+    }
+
+    /**
+     * Checks if this widget has equal node as other widget using {@link SkillTreeNode#equals(Object)}
+     * @param other other widget
+     * @return true if matching, else false
+     */
+    public boolean matches(Object other) {
+        if (other == null) return false;
+        if (this == other) {
+            return true;
+        } else if (other instanceof SkillTreeWidget otherWidget) {
+            if (this.node.equals(otherWidget.node)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

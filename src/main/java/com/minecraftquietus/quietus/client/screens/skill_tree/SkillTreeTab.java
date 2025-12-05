@@ -68,13 +68,13 @@ public class SkillTreeTab implements SkillTreeScrollable {
         }
     }
 
-    public void drawContents(GuiGraphics guiGraphics, int offsetX, int offsetY) {
-        guiGraphics.enableScissor(offsetX, offsetY, offsetX + SkillTreeScreen.WINDOW_INSIDE_WIDTH, offsetY + SkillTreeScreen.WINDOW_INSIDE_HEIGHT);
+    public void drawContents(GuiGraphics guiGraphics, int offsetX, int offsetY, int width, int height) {
+        guiGraphics.enableScissor(offsetX, offsetY, offsetX + width, offsetY + height);
         /* guiGraphics.pose().pushPose();
         guiGraphics.pose().translate((float)offsetX, (float)offsetY, 0.0F); */
 
 
-        guiGraphics.fill(offsetX, offsetY, offsetX+SkillTreeScreen.WINDOW_INSIDE_WIDTH, offsetY+SkillTreeScreen.WINDOW_INSIDE_HEIGHT, 0xFFFFFFFF);
+        guiGraphics.fill(offsetX, offsetY, offsetX+width, offsetY+height, 0xFFFFFFFF);
 
         int relX = offsetX + (int)this.scrollX;
         int relY = offsetY + (int)this.scrollY;
