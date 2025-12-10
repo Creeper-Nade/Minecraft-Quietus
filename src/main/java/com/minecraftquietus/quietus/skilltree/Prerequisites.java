@@ -219,12 +219,12 @@ public record Prerequisites(
     }
 
     public record DisplayInfo(
-        Map<String, Component> criteria
+        Map<String, Component> advancements
     ) {
         private static final Codec<Map<String, Component>> CRITERIA_DISPLAY_MAP_CODEC = Codec.unboundedMap(Codec.STRING, ComponentSerialization.CODEC);
         public static final Codec<Prerequisites.DisplayInfo> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                CRITERIA_DISPLAY_MAP_CODEC.optionalFieldOf("advancements", Map.of()).forGetter(DisplayInfo::criteria)
+                CRITERIA_DISPLAY_MAP_CODEC.optionalFieldOf("advancements", Map.of()).forGetter(DisplayInfo::advancements)
             ).apply(instance, DisplayInfo::new)
         );
         public static final StreamCodec<RegistryFriendlyByteBuf,Map<String,Component>> CRITIERIA_DISPLAY_MAP_STREAM_CODEC = ByteBufCodecs.map(
@@ -234,7 +234,7 @@ public record Prerequisites(
             256
         );
         public static final StreamCodec<RegistryFriendlyByteBuf,DisplayInfo> STREAM_CODEC = StreamCodec.composite(
-            CRITIERIA_DISPLAY_MAP_STREAM_CODEC, DisplayInfo::criteria,
+            CRITIERIA_DISPLAY_MAP_STREAM_CODEC, DisplayInfo::advancements,
             DisplayInfo::new
         );
 

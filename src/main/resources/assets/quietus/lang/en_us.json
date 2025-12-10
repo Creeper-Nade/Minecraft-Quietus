@@ -119,6 +119,21 @@
   "commands.skill.set.multiple.failure": "Levels of %s for %s players are unchanged",
 
 
-  "quietus.client.networking.failed.skillTree": "Failed to request skill tree update from server"
+  "quietus.client.networking.failed.skillTree": "Failed to request skill tree update from server",
+
+
+
+
+
+
+
+
+
+
+
+  "__comment": "SKILL TREE LOCALISATIONS",
+  "skillTree.quietus.example_tab/example_root.header": "Provisional Findings Regarding the Unresolved Matter",
+  "skillTree.quietus.example_tab/example_root.description": "The procedure was officially advanced, though not entirely completed. He might have agreed, if previously consulted, but the matter was left unresolved. It should be concluded without being resolved, which is generally understood. They are neither for nor against the prevailing circumstances. Having been thoroughly re-examined, the entire concept was quietly abandoned. Above text is gibberish, only for testing."
+
 
 }

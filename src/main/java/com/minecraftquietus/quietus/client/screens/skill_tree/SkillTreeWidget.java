@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.client.screens.skill_tree;
 
+import java.util.Optional;
 import java.util.Set;
 
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
@@ -7,13 +8,17 @@ import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 import com.minecraftquietus.quietus.skilltree.TreeNodePosition;
 
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
+import static com.minecraftquietus.quietus.Quietus.MODID;
+
 public class SkillTreeWidget {
+
     /* Width and height responsible for calculation of hover and clicking */
     protected static final int HEIGHT = 26;
     protected static final int WIDTH = 26;
@@ -21,6 +26,8 @@ public class SkillTreeWidget {
     /* Icon width and height */
     protected static final int ICON_HEIGHT = 26;
     protected static final int ICON_WIDTH = 26;
+
+    private static final ResourceLocation DEFAULT_ICON = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/icons/skill_tree/node/none.png");
 
     private final SkillTreeTab tab;
     private final SkillTreeNode node;
@@ -61,7 +68,12 @@ public class SkillTreeWidget {
 
     public void drawAbsolute(GuiGraphics guiGraphics, int x, int y) {
         guiGraphics.blit(RenderType::guiTextured, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
-        guiGraphics.blit(RenderType::guiTextured, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+        if (this.minecraft.getResourceManager().getResource(this.icon).isPresent()) {
+            guiGraphics.blit(RenderType::guiTextured, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+        } else {
+            guiGraphics.blit(RenderType::guiTextured, DEFAULT_ICON, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+        }
+        //guiGraphics.blit(RenderType::guiTextured, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
     }
 
     public void drawConnectivity(GuiGraphics guiGraphics, TreeNodePosition graph, int offsetX, int offsetY) {
@@ -146,6 +158,9 @@ public class SkillTreeWidget {
     }
     protected SkillTreeNode getNode() {
         return this.node;
+    }
+    public Optional<SkillPoint.DisplayInfo> getDisplay() {
+        return this.node.getSkillPoint().display();
     }
 
     /**

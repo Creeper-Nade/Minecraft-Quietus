@@ -2,19 +2,14 @@ package com.minecraftquietus.quietus.client.screens.skill_tree;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.util.ServerPacketDistributor;
 import org.slf4j.Logger;
 
@@ -26,15 +21,12 @@ import com.mojang.logging.LogUtils;
 import com.minecraftquietus.quietus.skilltree.ConnectivityPosition;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
@@ -80,6 +72,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     //private SkillTreeScrollable focusedScrollable;
     @Nullable private SkillTreeTab selectedTab;
     @Nullable private SkillTreeWidget selectedWidget;
+    @Nullable private InfoScreen selectedWidgetInfo;
 
 
     public SkillTreeScreen(ClientSkillTree skillTree) {
@@ -139,7 +132,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
-        this.renderTick();
+        this.tickRender();
 
         int treeOffsetX = (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
         int infoOffsetX = (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
@@ -223,7 +216,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
     }
 
-    private void renderTick() {
+    private void tickRender() {
         this.infoDynamicTicks = this.selectedWidget == null ?
             Math.min(this.infoDynamicTicks+1, DYNAMIC_POSITIONING_TICKS)
             : Math.max(this.infoDynamicTicks-1, 0);
@@ -260,11 +253,27 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     public record InfoScreen(
         Font font,
-        String heading,
-        String description
+        Component heading,
+        Component description,
+        SkillTreeWidget widget,
+        SkillTreeScreen screen
     ) {
-        protected static InfoScreen create(SkillTreeWidget widget, Font font) {
-            return new InfoScreen(font, MODID, MODID);
+        private static InfoScreen create(SkillTreeWidget widget, Font font, SkillTreeScreen screen) {
+            Component heading = null;
+            Component description = null;
+            if (widget.getDisplay().isPresent()) {
+                SkillPoint.DisplayInfo display = widget.getDisplay().get();
+                heading = display.header();
+                description = display.description();
+            }
+            heading = Objects.requireNonNullElse(heading, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "header")));
+            description = Objects.requireNonNullElse(description, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "description")));
+
+            return new InfoScreen(font, heading, description, widget, screen);
+        }
+
+        public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
+            
         }
     }
 
@@ -284,8 +293,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     protected void setSelectedWidget(SkillTreeWidget widget) {
         this.selectedWidget = widget;
+        this.selectedWidgetInfo = widget == null ? null : InfoScreen.create(widget, this.font, this);
     }
-    protected SkillTreeWidget getSelectedWidget() {
+    public SkillTreeWidget getSelectedWidget() {
         return this.selectedWidget;
     }
 

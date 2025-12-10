@@ -26,7 +26,7 @@
             "translate": "skillTree.quietus.node.example_root.description"
         },
         "prerequisites": {
-            "criteria": {
+            "advancements": {
                 "[criteria name here]": {
                     "translate": "skillTree.quietus.node.example_root.criteria1"
                 }
