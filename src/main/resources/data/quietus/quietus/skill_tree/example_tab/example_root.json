@@ -20,10 +20,10 @@
 
     "display": {
         "header": {
-            "translate": "skillTree.quietus.node.example_root.header"
+            "translate": "skillTree.quietus.example_tab/example_root.header"
         },
         "description": {
-            "translate": "skillTree.quietus.node.example_root.description"
+            "translate": "skillTree.quietus.example_tab/example_root.description"
         },
         "prerequisites": {
             "advancements": {

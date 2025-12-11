@@ -38,8 +38,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     //private static final ResourceLocation WINDOW_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/window.png");
     private static final ResourceLocation WINDOW_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/window");
-    private static final ResourceLocation INFO_CONTENTS_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
-    private static final ResourceLocation INFO_HEADER_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_header");
 
     public static final int WINDOW_WIDTH = 248;
     public static final int WINDOW_HEIGHT = 186;
@@ -51,11 +49,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final int WINDOW_INSIDE_TOP_Y = 18;
     protected static final int WINDOW_INSIDE_WIDTH = WINDOW_WIDTH-WINDOW_INSIDE_X*2;
     protected static final int WINDOW_INSIDE_HEIGHT = WINDOW_HEIGHT-WINDOW_INSIDE_Y-WINDOW_INSIDE_TOP_Y;
-    private static final int INFO_WIDTH = 180;
-    private static final int INFO_HEIGHT = WINDOW_HEIGHT;
     private static final int GAP_WINDOW_INFO = 7;
 
-    private static final int INFO_DYNAMIC_OFFSET_FROM_CENTER = - (GAP_WINDOW_INFO + INFO_WIDTH)/2;
+    private static final int INFO_DYNAMIC_OFFSET_FROM_CENTER = - (GAP_WINDOW_INFO + SkillTreeInfoScreen.WIDTH)/2;
     private int infoDynamicOffset = 0;
     private static final int DYNAMIC_POSITIONING_TICKS = 40;
     private int infoDynamicTicks = DYNAMIC_POSITIONING_TICKS;
@@ -72,7 +68,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     //private SkillTreeScrollable focusedScrollable;
     @Nullable private SkillTreeTab selectedTab;
     @Nullable private SkillTreeWidget selectedWidget;
-    @Nullable private InfoScreen selectedWidgetInfo;
+    @Nullable private SkillTreeInfoScreen selectedWidgetInfo;
 
 
     public SkillTreeScreen(ClientSkillTree skillTree) {
@@ -153,12 +149,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     } */
 
     private void renderTreeWindow(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
-        guiGraphics.blitSprite(RenderType::guiTextured, WINDOW_SPRITE_LOCATION, offsetX, offsetY, this.infoWindowDynamicWidth, WINDOW_HEIGHT);
         this.selectedTab.drawContents(guiGraphics, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.infoWindowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT);
+        guiGraphics.blitSprite(RenderType::guiTextured, WINDOW_SPRITE_LOCATION, offsetX, offsetY, this.infoWindowDynamicWidth, WINDOW_HEIGHT);
     }
 
     private void renderInfoWindow(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
-        guiGraphics.blitSprite(RenderType::guiTextured, INFO_CONTENTS_SPRITE_LOCATION, offsetX, offsetY, INFO_WIDTH, INFO_HEIGHT);
+        this.selectedWidgetInfo.draw(guiGraphics, mouseX, mouseY, offsetX, offsetY);
+        //guiGraphics.blitSprite(RenderType::guiTextured, INFO_CONTENTS_SPRITE_LOCATION, offsetX, offsetY, INFO_WIDTH, INFO_HEIGHT);
     }
 
     /* private void renderScreens(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
@@ -251,31 +248,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         );
     }
 
-    public record InfoScreen(
-        Font font,
-        Component heading,
-        Component description,
-        SkillTreeWidget widget,
-        SkillTreeScreen screen
-    ) {
-        private static InfoScreen create(SkillTreeWidget widget, Font font, SkillTreeScreen screen) {
-            Component heading = null;
-            Component description = null;
-            if (widget.getDisplay().isPresent()) {
-                SkillPoint.DisplayInfo display = widget.getDisplay().get();
-                heading = display.header();
-                description = display.description();
-            }
-            heading = Objects.requireNonNullElse(heading, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "header")));
-            description = Objects.requireNonNullElse(description, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "description")));
-
-            return new InfoScreen(font, heading, description, widget, screen);
-        }
-
-        public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
-            
-        }
-    }
 
     @Override
     public boolean isPauseScreen() {
@@ -293,7 +265,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     protected void setSelectedWidget(SkillTreeWidget widget) {
         this.selectedWidget = widget;
-        this.selectedWidgetInfo = widget == null ? null : InfoScreen.create(widget, this.font, this);
+        this.selectedWidgetInfo = widget == null ? null : SkillTreeInfoScreen.create(widget, this.font, this);
     }
     public SkillTreeWidget getSelectedWidget() {
         return this.selectedWidget;
