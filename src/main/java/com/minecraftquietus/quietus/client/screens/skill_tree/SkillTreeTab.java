@@ -18,7 +18,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class SkillTreeTab implements SkillTreeScrollable {
+public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     
     private final Minecraft minecraft;
     private final ClientSkillTree skillTree;
@@ -59,7 +59,7 @@ public class SkillTreeTab implements SkillTreeScrollable {
         this.widgets.put(node, widget);
     } */
     
-    public void addWidget(SkillTreeNode node) {
+    public void addWidget(SkillTreeNode node) { // TODO: Widget will not be rendered on client (invisible) if has no DisplayInfo.
         if (node.getSkillPoint().display().isPresent()) {
             this.widgets.put(node, new SkillTreeWidget(this, this.minecraft, this.skillTree, node, node.getTreeX(), node.getTreeY(), node.getSkillPoint().display().get()));
             for (SkillTreeWidget widget : this.widgets.values()) {
@@ -95,9 +95,14 @@ public class SkillTreeTab implements SkillTreeScrollable {
     }
 
     @Override
-    public void scroll(double dragX, double dragY) {
+    public void drag(double dragX, double dragY) {
         this.scrollX += dragX;
         this.scrollY += dragY;
+    }
+    @Override 
+    public void scroll(double scollX, double scollY) {
+        this.scrollX += scollX*4;
+        this.scrollY += scollY*4;
     }
 
     public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {

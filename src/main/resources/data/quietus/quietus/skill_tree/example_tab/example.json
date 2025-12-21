@@ -22,10 +22,10 @@
     "display": {
         "icon": "quietus:gui/icons/skill_tree/node/none",
         "header": {
-            "translate": "skillTree.quietus.node.example.header"
+            "translate": "skillTree.quietus.example_tab/example.header"
         },
         "description": {
-            "translate": "skillTree.quietus.node.example.description"
+            "translate": "skillTree.quietus.example_tab/example.description"
         },
         "prerequisites": {
             "criteria": {

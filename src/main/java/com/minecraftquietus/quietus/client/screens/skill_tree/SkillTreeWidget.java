@@ -149,7 +149,8 @@ public class SkillTreeWidget {
             this.node.mustParents().forEach((node) -> this.mustParents.add(this.tab.getWidget(node)));
             this.node.orParents().forEach((node) -> this.orParents.add(this.tab.getWidget(node)));
 
-            this.node.parents().forEach((node) -> this.tab.getWidget(node).addChild(this));
+            this.node.parents().forEach((node) -> {
+                if (this.tab.getWidget(node) != null) this.tab.getWidget(node).addChild(this);});
         }
     }
 

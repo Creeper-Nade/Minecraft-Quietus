@@ -11,6 +11,8 @@ import javax.annotation.Nullable;
 
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.util.ServerPacketDistributor;
+
+import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import com.minecraftquietus.quietus.client.QuietusKeyBindings;
@@ -65,7 +67,8 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     private final Map<SkillTreeWidget,SkillTreeWidgetScreen> widgetScreens = new LinkedHashMap<>();
 
-    //private SkillTreeScrollable focusedScrollable;
+    private SkillTreeDraggable focusedDraggable = null;
+    private SkillTreeScrollable focusedScrollable = null;
     @Nullable private SkillTreeTab selectedTab;
     @Nullable private SkillTreeWidget selectedWidget;
     @Nullable private SkillTreeInfoScreen selectedWidgetInfo;
@@ -89,6 +92,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             } else {
                 this.minecraft.setScreen(new InventoryScreen(this.minecraft.player));
             }
+            return true;
+        } else if (keyCode == GLFW.GLFW_KEY_ESCAPE && this.selectedWidgetInfo != null) {
+            this.selectedWidget = null;
+            this.selectedWidgetInfo = null;
             return true;
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);
@@ -124,11 +131,25 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.layout.arrangeElements();
     }
 
+    /* @Override
+    public void tick() {
+        this.infoDynamicTicks = this.selectedWidget == null ?
+            Math.min(this.infoDynamicTicks+1, DYNAMIC_POSITIONING_TICKS)
+            : Math.max(this.infoDynamicTicks-1, 0);
+        this.infoWindowDynamicWidth = WINDOW_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
+        this.infoWindowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
+        
+        this.infoDynamicOffset = calcInverse((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 80.0d, this.infoDynamicTicks, this.selectedWidget == null);
+
+        this.infoWindowDynamicWidth = WINDOW_WIDTH + calcInverse((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 45.0d, this.infoDynamicTicks, this.selectedWidget == null);
+        this.infoWindowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + calcInverse((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 45.0d, this.infoDynamicTicks, this.selectedWidget == null);
+    } */
+
     @Override
     public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
-        this.tickRender();
+        this.renderTick();
 
         int treeOffsetX = (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
         int infoOffsetX = (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
@@ -138,15 +159,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         if (this.selectedWidget != null) {
             this.renderInfoWindow(guiGraphics, mouseX, mouseY, infoOffsetX, offsetY);
         }
-        /* this.renderWindow(guiGraphics, offsetX, offsetY); */
-        /* this.renderScreens(guiGraphics, mouseX, mouseY, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y); // offset from the inside content */
-        //LOGGER.info("partialTick: {}",partialTick);
     }
-
-    /* private void renderWindow(GuiGraphics guiGraphics, int offsetX, int offsetY) {
-        //guiGraphics.blit(RenderType::guiTextured, WINDOW_LOCATION, offsetX, offsetY, 0.0F, 0.0F, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT);
-        guiGraphics.blitSprite(RenderType::guiTextured, WINDOW_SPRITE_LOCATION, offsetX, offsetY, WINDOW_WIDTH, WINDOW_HEIGHT);
-    } */
 
     private void renderTreeWindow(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
         this.selectedTab.drawContents(guiGraphics, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.infoWindowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT);
@@ -158,43 +171,28 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         //guiGraphics.blitSprite(RenderType::guiTextured, INFO_CONTENTS_SPRITE_LOCATION, offsetX, offsetY, INFO_WIDTH, INFO_HEIGHT);
     }
 
-    /* private void renderScreens(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
-        for (SkillTreeWidgetScreen screen : this.widgetScreens.values()) {
-            screen.draw(guiGraphics, mouseX, mouseY, offsetX, offsetY);
-        }
-    } */
-
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // int offsetX = (this.width - WINDOW_WIDTH) / 2;
-        // int offsetY = (this.height - WINDOW_HEIGHT) / 2;
-        // List<SkillTreeWidgetScreen> list = new ArrayList<>(this.widgetScreens.values());
-        // SkillTreeWidgetScreen outmost_focused_screen = null;
-        // for (SkillTreeWidgetScreen screen : list) {
-        //     if (screen.isMouseOverWindow(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY)) {
-        //         this.focusedScrollable = screen;
-        //         outmost_focused_screen = screen;
-        //     }
-        // }
-        // if (outmost_focused_screen != null) {
-        //     /* no matter clicked or not, return the interaction boolean, 
-        //     to avoid clicking onto screens below the outmost screen, or the Widgets on selected tab. */
-        //     return outmost_focused_screen.click(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY, button); 
-        // } else {
-        //     if (!Objects.isNull(this.selectedTab)) {
-        //         this.focusedScrollable = this.selectedTab;
-        //         if (this.selectedTab.click(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, mouseX, mouseY, button)) {
-        //             return true;
-        //         }
-        //     }
-        // }
-        // return super.mouseClicked(mouseX, mouseY, button);
-        
-        int offsetX = WINDOW_INSIDE_X + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
-        int offsetY = WINDOW_INSIDE_TOP_Y + (this.height - WINDOW_HEIGHT) / 2;
+        int treeOffsetX = WINDOW_INSIDE_X + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
+        int infoOffsetX =  + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
+        int offsetY = (this.height - WINDOW_HEIGHT) / 2;
+        int treeOffsetY = WINDOW_INSIDE_TOP_Y + offsetY;
+
+        if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, offsetY, mouseX, mouseY)) {
+            this.focusedDraggable = this.selectedWidgetInfo;
+        } else if (
+            mouseX > treeOffsetX 
+            && mouseY > treeOffsetY
+            && mouseX < treeOffsetX + this.width
+            && mouseY < treeOffsetY + WINDOW_HEIGHT
+        ) {
+            this.focusedDraggable = this.selectedTab;
+        } else {
+            this.focusedDraggable = null;
+        }
 
         if (this.selectedTab != null) {
-            if (this.selectedTab.click(offsetX, offsetY, mouseX, mouseY, button)) {
+            if (this.selectedTab.click(treeOffsetX, treeOffsetY, mouseX, mouseY, button)) {
                 return true;
             }
         }
@@ -204,16 +202,43 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (button != 0) {
-            return false;
-        } else {
-            if (this.selectedTab != null) this.selectedTab.scroll(dragX, dragY);
-            /* this.focusedScrollable.scroll(dragX, dragY); */
-            return true;
+        if (button == 0) { 
+            if (this.focusedDraggable != null) {
+                this.focusedDraggable.drag(dragX, dragY); 
+                return true;
+            }
         }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
-    private void tickRender() {
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        int treeOffsetX = WINDOW_INSIDE_X + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
+        int infoOffsetX =  + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
+        int offsetY = (this.height - WINDOW_HEIGHT) / 2;
+        int treeOffsetY = WINDOW_INSIDE_TOP_Y + offsetY;
+
+        if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, offsetY, mouseX, mouseY)) {
+            this.focusedScrollable = this.selectedWidgetInfo;
+        } else if (
+            mouseX > treeOffsetX 
+            && mouseY > treeOffsetY
+            && mouseX < treeOffsetX + this.width
+            && mouseY < treeOffsetY + WINDOW_HEIGHT
+        ) {
+            this.focusedScrollable = this.selectedTab;
+        } else {
+            this.focusedScrollable = null;
+        }
+
+        if (this.focusedScrollable != null) {
+            this.focusedScrollable.scroll(scrollX,scrollY);
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    private void renderTick() {
         this.infoDynamicTicks = this.selectedWidget == null ?
             Math.min(this.infoDynamicTicks+1, DYNAMIC_POSITIONING_TICKS)
             : Math.max(this.infoDynamicTicks-1, 0);
@@ -247,7 +272,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             * (smoothnessMult / (x - a) + b)
         );
     }
-
 
     @Override
     public boolean isPauseScreen() {

@@ -21,7 +21,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 import java.util.List;
 
-public class SkillTreeWidgetScreen implements SkillTreeScrollable, ClientSkillTreeListener {
+public class SkillTreeWidgetScreen implements SkillTreeDraggable, ClientSkillTreeListener {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -179,7 +179,7 @@ public class SkillTreeWidgetScreen implements SkillTreeScrollable, ClientSkillTr
     }
 
     @Override
-    public void scroll(double dragX, double dragY) {
+    public void drag(double dragX, double dragY) {
         this.scrollX += dragX;
         this.scrollY += dragY;
 
