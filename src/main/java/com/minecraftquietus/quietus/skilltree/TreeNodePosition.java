@@ -5,9 +5,9 @@ import java.util.stream.Collectors;
 
 public class TreeNodePosition {
 
-    public static final int HORIZONTAL_MARGIN = 26;
-    public static final int VERTICAL_MARGIN = 30;
-    public static final int EDGE_MARGIN = 4;
+    private static final int HORIZONTAL_MARGIN = 12;
+    private static final int VERTICAL_MARGIN = 12;
+    private static final int EDGE_MARGIN = 4;
 
     private final int nodeWidth;
     private final int nodeHeight;
