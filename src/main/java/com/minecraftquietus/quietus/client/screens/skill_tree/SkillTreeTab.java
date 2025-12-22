@@ -101,8 +101,9 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     }
     @Override 
     public void scroll(double scollX, double scollY) {
-        this.scrollX += scollX*4;
-        this.scrollY += scollY*4;
+        // same as scroll multiplier in AdvancementsScreen.java vanilla
+        this.scrollX += scollX*16;
+        this.scrollY += scollY*16;
     }
 
     public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {

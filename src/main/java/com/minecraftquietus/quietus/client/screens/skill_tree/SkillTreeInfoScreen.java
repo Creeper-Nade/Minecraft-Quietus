@@ -227,11 +227,11 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     @Override
     public void scroll(double scrollX, double scollY) {
         if (this.scrollingHeading) {
-            this.headingScrollY += scollY*1.2;
+            this.headingScrollY += scollY*5;
             this.headingScrollY = Math.clamp(this.headingScrollY, -(this.totalHeadingParHeight-this.headingParHeight), 0);
         }
         if (this.scrollingDescription) {
-            this.descriptionScrollY += scollY*3;
+            this.descriptionScrollY += scollY*12;
             this.descriptionScrollY = Math.clamp(this.descriptionScrollY, -(this.totalDescriptionParHeight-this.descriptionParHeight), 0);
         }
     }
