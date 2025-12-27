@@ -1,6 +1,8 @@
 package com.minecraftquietus.quietus.entity.projectiles;
 
 import com.minecraftquietus.quietus.entity.projectiles.magic.SmallAmethystShardProjectile;
+import com.minecraftquietus.quietus.entity.projectiles.misc.GrapplingHookProjectile;
+import com.minecraftquietus.quietus.entity.projectiles.misc.grapples.ChainGrapplingHookProjectile;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -36,6 +38,8 @@ public class QuietusProjectiles {
             registerProjectile("amethyst_projectile", createKey("amethyst_projectile"), AmethystShardProjectile::new, 0.5F, 0.5f);
     public static final Supplier<EntityType<SmallAmethystShardProjectile>> SMALL_AMETHYST_PROJECTILE =
             registerProjectile("small_amethyst_projectile", createKey("small_amethyst_projectile"), SmallAmethystShardProjectile::new, 0.3F, 0.3f);
+    public static final Supplier<EntityType<GrapplingHookProjectile>> CHAIN_GRAPPLING_HOOK_PROJECTILE =
+            registerGrappleProjectile("chain_grappling_hook_projectile", createKey("chain_grappling_hook_projectile"), ChainGrapplingHookProjectile::new, 0.8F, 0.8f);
     /*
 
     public static final Supplier<EntityType<MagicalProjectile>> MAGIC_PROJECTILE =
@@ -56,6 +60,21 @@ public class QuietusProjectiles {
     }
 
     private static <T extends QuietusProjectile> Supplier<EntityType<T>> registerProjectile(
+            String name,
+            ResourceKey<EntityType<?>> key,
+            EntityType.EntityFactory<T> factory,
+            float width, float height
+    ) {
+        return REGISTRAR.register(name, () ->
+                EntityType.Builder.of(factory, MobCategory.MISC)
+                        .sized(width, height)
+                        .clientTrackingRange(4)
+                        .updateInterval(10)
+                        .setShouldReceiveVelocityUpdates(true)
+                        .build(key)
+        );
+    }
+    private static <T extends GrapplingHookProjectile> Supplier<EntityType<T>> registerGrappleProjectile(
             String name,
             ResourceKey<EntityType<?>> key,
             EntityType.EntityFactory<T> factory,

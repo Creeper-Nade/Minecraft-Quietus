@@ -34,11 +34,41 @@ public class QuietusModelProvider extends ModelProvider {
         RegisterBasicModel(itemModels,QuietusItems.HARDENED_FUR.get(),"item/ingredients/");
        // itemModels.generateFlatItem(QuietusItems.HARDENED_FUR.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(QuietusItems.EXAMPLE_ITEM.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(QuietusItems.MOLD.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(QuietusItems.MOLD_BOWL.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(QuietusItems.MOLD_BUCKET.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(QuietusItems.YOGHURT_BUCKET.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(QuietusItems.CHEESE_BUCKET.get(), ModelTemplates.FLAT_ITEM);
 
-        //handheld
+    //handheld
         RegisterBasicModel(itemModels,QuietusItems.AMETHYST_STAFF.get(),"item/combat/magic_weapon/");
-        //itemModels.generateFlatItem(QuietusItems.AMETHYST_STAFF.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.WEIRD_AMETHYST_STAFF.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.CHAIN_GRAPPLING_HOOK.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        //copper tools
+        itemModels.generateFlatItem(QuietusItems.COPPER_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+
+        itemModels.generateFlatItem(QuietusItems.COPPER_HOE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_HOE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_HOE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_HOE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+
+        itemModels.generateFlatItem(QuietusItems.COPPER_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+
+        itemModels.generateFlatItem(QuietusItems.COPPER_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+
+        itemModels.generateFlatItem(QuietusItems.COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 
         //bows
         RegisterBow(itemModels,QuietusItems.TRIPLEBOW.get(),"item/combat/");

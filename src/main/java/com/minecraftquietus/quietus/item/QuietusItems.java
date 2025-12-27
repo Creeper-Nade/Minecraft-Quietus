@@ -1,6 +1,8 @@
 package com.minecraftquietus.quietus.item;
 
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
+import com.minecraftquietus.quietus.entity.projectiles.misc.grapples.ChainGrapplingHookProjectile;
+import com.minecraftquietus.quietus.item.tool.*;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 
 import net.minecraft.core.registries.Registries;
@@ -36,12 +38,6 @@ import static com.minecraftquietus.quietus.block.QuietusBlocks.EXAMPLE_BLOCK;
 import com.minecraftquietus.quietus.item.component.UsesMana;
 import com.minecraftquietus.quietus.item.equipment.AmethystArmorItem;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
-import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
-import com.minecraftquietus.quietus.item.tool.CopperAxeItem;
-import com.minecraftquietus.quietus.item.tool.CopperHoeItem;
-import com.minecraftquietus.quietus.item.tool.CopperShovelItem;
-import com.minecraftquietus.quietus.item.tool.QuietusProjectileWeaponItem;
-import com.minecraftquietus.quietus.item.tool.QuietusToolMaterial;
 
 import java.util.function.Consumer;
 
@@ -295,6 +291,23 @@ public class QuietusItems {
                         .durability(384)
                         .useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:weird_amethyst_staff"))).stacksTo(1).useCooldown(0.75f))
                     );
+        public static final DeferredItem<GrapplingHookItem> CHAIN_GRAPPLING_HOOK =  REGISTRAR.register("chain_grappling_hook", () -> new GrapplingHookItem(
+                new QuietusItemProperties()
+                        .grapplingHook(
+                                100.0F,    // maxRange
+                                2.0D,      // speed
+                                0.1F,      // pullStrength
+                                0.99F,     // frictionMultiplier
+                                QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get(),
+                                ChainGrapplingHookProjectile::new
+                        )
+                        .addSound("shoot", SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL)
+                        .addSound("retrieve", SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL)
+                        .durability(100)
+                        .stacksTo(1)
+                        .useItemDescriptionPrefix()
+                        .setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("chain_grappling_hook")))
+        ));
 
         public static final DeferredItem<Item> COPPER_SWORD = REGISTRAR.registerItem("copper_sword", properties -> new WeatheringCopperItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().sword(QuietusToolMaterial.COPPER, 3.0f, -2.4f).setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MODID, "copper_sword")))));    
         public static final DeferredItem<Item> COPPER_SHOVEL = REGISTRAR.registerItem("copper_shovel", properties -> new CopperShovelItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().shovel(QuietusToolMaterial.COPPER, 1.5f, -3.0f).setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MODID, "copper_shovel")))));
@@ -316,8 +329,7 @@ public class QuietusItems {
         public static final DeferredItem<Item> OXIDIZED_COPPER_PICKAXE = REGISTRAR.registerItem("oxidized_copper_pickaxe", properties -> new WeatheringCopperItem(WeatheringCopperItems.WeatherState.OXIDIZED, new QuietusItemProperties().pickaxe(QuietusToolMaterial.OXIDIZED_COPPER, 3.0f, -3.1f).setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_copper_pickaxe")))));    
         public static final DeferredItem<Item> OXIDIZED_COPPER_AXE = REGISTRAR.registerItem("oxidized_copper_axe", properties -> new CopperAxeItem(WeatheringCopperItems.WeatherState.OXIDIZED, new QuietusItemProperties().axe(QuietusToolMaterial.OXIDIZED_COPPER, 6.5f, -3.2f).setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_copper_axe")))));
         public static final DeferredItem<Item> OXIDIZED_COPPER_HOE = REGISTRAR.registerItem("oxidized_copper_hoe", properties -> new CopperHoeItem(WeatheringCopperItems.WeatherState.OXIDIZED, new QuietusItemProperties().hoe(QuietusToolMaterial.OXIDIZED_COPPER, 0.0f, -1.5f).setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_copper_hoe")))));
-        
-        
+
     //#endregion
 
     public static void addCreativeTabItems(BuildCreativeModeTabContentsEvent event, ResourceKey<CreativeModeTab> tabKey) {

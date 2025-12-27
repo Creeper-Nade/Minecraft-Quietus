@@ -3,6 +3,7 @@ package com.minecraftquietus.quietus;
 
 import com.minecraftquietus.quietus.client.model.mob.FragmentHeadLayer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
+import com.minecraftquietus.quietus.client.model.projectile.misc.ChainHookRenderer;
 import com.minecraftquietus.quietus.client.particle.QuietusParticles;
 import com.minecraftquietus.quietus.core.QuietusRegistries;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
@@ -11,6 +12,7 @@ import com.minecraftquietus.quietus.data.DataGenerator;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
 import com.minecraftquietus.quietus.entity.QuietusEntityDataSerializers;
+import com.minecraftquietus.quietus.event_listener.GrapplingEvent;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
@@ -144,9 +146,8 @@ public class Quietus
        // NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
         NeoForge.EVENT_BUS.register(GhostMovementHandler.class);
         NeoForge.EVENT_BUS.register(GhostDeath.class);
-        // CreeperNade: The SpawnEvent class is never registered, so I'm adding it here for you 👀
         NeoForge.EVENT_BUS.register(SpawnEvent.class);
-        //NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
+        NeoForge.EVENT_BUS.register(GrapplingEvent.class);
         modEventBus.register(QuietusIModBusEvent.class);
         modEventBus.register(DataGenerator.class);
 
@@ -223,6 +224,7 @@ public class Quietus
             LOGGER.info("  ##        ##  ");
             LOGGER.info("    ########    ");
             EntityRenderers.register(QuietusProjectiles.AMETHYST_PROJECTILE.get(), AmethystProjectileRenderer::new);
+            EntityRenderers.register(QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get(), ChainHookRenderer::new);
             EntityRenderers.register(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get(), AmethystProjectileSmallRenderer::new);
         }
     }

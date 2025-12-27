@@ -4,6 +4,8 @@ import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.client.item.DecayBarDecorator;
 import com.minecraftquietus.quietus.client.model.mob.PlayerFragmentRenderer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
+import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallModel;
+import com.minecraftquietus.quietus.client.model.projectile.misc.ChainHookModel;
 import com.minecraftquietus.quietus.client.particle.DustExplosionParticle;
 import com.minecraftquietus.quietus.client.particle.DustImplosionParticle;
 import com.minecraftquietus.quietus.client.particle.QuietusParticles;
@@ -79,6 +81,8 @@ public class QuietusIModBusEvent {
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(AmethystProjectileModel.LAYER_LOCATION, AmethystProjectileModel::createBodyLayer);
+        event.registerLayerDefinition(AmethystProjectileSmallModel.LAYER_LOCATION, AmethystProjectileSmallModel::createBodyLayer);
+        event.registerLayerDefinition(ChainHookModel.LAYER_LOCATION, ChainHookModel::createBodyLayer);
     }
 
 

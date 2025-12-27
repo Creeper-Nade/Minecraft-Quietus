@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import com.minecraftquietus.quietus.item.component.CanDecay;
 import com.minecraftquietus.quietus.item.component.UsesMana;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterial;
+import com.minecraftquietus.quietus.item.property.GrapplingHookProperty;
 import com.minecraftquietus.quietus.item.property.SoundAsset;
 import com.minecraftquietus.quietus.item.property.QuietusProjectileProperty;
 import com.minecraftquietus.quietus.item.tool.QuietusToolMaterial;
@@ -27,6 +28,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +37,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
 import static com.minecraftquietus.quietus.item.QuietusItems.BASE_MAX_MANA_ID;
@@ -147,5 +150,31 @@ public class QuietusItemProperties extends Item.Properties {
             .build());
         return (QuietusItemProperties)this;
     }
-   
+//-------------------------------------------------------------------------------------------------------
+    // Add grappling hook properties
+    private GrapplingHookProperty grapplingHookProperty;
+
+    public QuietusItemProperties grapplingHook(
+            float maxRange,
+            double speed,
+            float pullStrength,
+            float frictionMultiplier,
+            EntityType<? extends Projectile> projectileType,
+            BiFunction<Level, Player, ? extends Projectile> projectileFactory
+    ) {
+        this.grapplingHookProperty = GrapplingHookProperty.builder()
+                .maxRange(maxRange)
+                .speed(speed)
+                .pullStrength(pullStrength)
+                .frictionMultiplier(frictionMultiplier)
+                .projectileType(projectileType)
+                .projectileFactory(projectileFactory)
+                .build();
+        return this;
+    }
+
+    // Add getter method
+    public GrapplingHookProperty getGrapplingHookProperty() {
+        return this.grapplingHookProperty;
+    }
 }
