@@ -293,13 +293,22 @@ public class QuietusItems {
                     );
         public static final DeferredItem<GrapplingHookItem> CHAIN_GRAPPLING_HOOK =  REGISTRAR.register("chain_grappling_hook", () -> new GrapplingHookItem(
                 new QuietusItemProperties()
+                        .addProjectile(0, 0.0F, 0.0D, (damage) -> damage, 0.0F, 0.03F, 600, QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get())
                         .grapplingHook(
-                                100.0F,    // maxRange
-                                2.0D,      // speed
+                                10.0F,    // maxRange
                                 0.1F,      // pullStrength
-                                0.99F,     // frictionMultiplier
-                                QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get(),
-                                ChainGrapplingHookProjectile::new
+                                0.99F     // frictionMultiplier
+                        )
+                        .weaponProperty(
+                                1,
+                                (xRot,index,random)-> xRot,
+                                (yRot,index,random)-> yRot,
+                                2.0f,
+                                0f,
+                                (itemstack)-> true,
+                                0,
+                                -1,
+                                10
                         )
                         .addSound("shoot", SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL)
                         .addSound("retrieve", SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL)

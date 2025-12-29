@@ -18,8 +18,10 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 public class GrapplingEvent {
 
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Pre event) {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
+        if (player.level().isClientSide) return;  // Only run on server
+
         GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
 
         if (attachment.hasActiveHook()) {
@@ -34,6 +36,8 @@ public class GrapplingEvent {
     @SubscribeEvent
     public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
         if (event.getEntity() instanceof Player player) {
+            if (player.level().isClientSide) return;
+
             GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
             if (attachment.hasActiveHook()) {
                 GrapplingHookItem.retrieveHookForPlayer(player);
@@ -42,47 +46,65 @@ public class GrapplingEvent {
     }
 
     private static void applyGrapplingPhysics(Player player, GrapplingHookProjectile hook) {
-        player.resetFallDistance();
+        // Get the rope length from the hook (set when it hit the block)
+        float ropeLength = hook.getLength();
+        if (ropeLength <= 0) return;  // No valid rope length
 
         Vec3 hookPos = hook.position();
         Vec3 playerPos = player.getEyePosition();
-        Vec3 pullDirection = hookPos.subtract(playerPos);
-        float ropeLength = hook.getLength();
-        double currentDistance = pullDirection.length();
+        Vec3 toHook = hookPos.subtract(playerPos);
+        double currentDistance = toHook.length();
 
+        // If we're beyond the rope length, pull towards the hook
         if (currentDistance > ropeLength) {
-            // Calculate pull strength based on how much we're over the rope length
             double overDistance = currentDistance - ropeLength;
-            double pullStrength = hook.getPullStrength() * (overDistance / ropeLength);
+            double pullStrength = hook.getPullStrength();
 
-            // Apply pull towards the hook
-            Vec3 pullVector = pullDirection.normalize().scale(pullStrength);
-            player.addDeltaMovement(pullVector);
+            // Calculate how much to pull (stronger when farther away)
+            double pullFactor = Math.min(overDistance / ropeLength, 1.0);
+            double pullForce = pullStrength * (0.5 + pullFactor * 1.5);
+
+            // Normalize direction and apply pull force
+            Vec3 pullDirection = toHook.normalize();
+            Vec3 pullVector = pullDirection.scale(pullForce);
+
+            // Apply to player velocity
+            Vec3 currentMotion = player.getDeltaMovement();
+            player.setDeltaMovement(
+                    currentMotion.x + pullVector.x,
+                    currentMotion.y + pullVector.y * 0.8,  // Less vertical pull
+                    currentMotion.z + pullVector.z
+            );
+            player.setPos(playerPos.add(player.getDeltaMovement()));
+            System.out.println(currentMotion+"target"+player.getDeltaMovement());
+
+            // Reset fall distance when grappling
+            player.resetFallDistance();
         }
-    }
 
-    @SubscribeEvent
-    public static void onPlayerTravel(PlayerTickEvent.Post event) {
-        Player player = event.getEntity();
-        GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
+        // Apply swinging physics (like a pendulum)
+        if (currentDistance > 0) {
+            Vec3 toHookNormalized = toHook.normalize();
+            Vec3 currentVelocity = player.getDeltaMovement();
 
-        if (attachment.hasActiveHook()) {
-            GrapplingHookProjectile hook = getHookFromAttachment(player.level(), player, attachment);
-            if (hook != null && hook.isInBlock() && !player.onGround()) {
-                // Apply air resistance/friction
-                float friction = hook.getFrictionMultiplier();
-                Vec3 motion = player.getDeltaMovement();
-                player.setDeltaMovement(
-                        motion.x * friction,
-                        motion.y,
-                        motion.z * friction
-                );
+            // Calculate velocity component perpendicular to rope
+            Vec3 velocityAlongRope = toHookNormalized.scale(currentVelocity.dot(toHookNormalized));
+            Vec3 perpendicularVelocity = currentVelocity.subtract(velocityAlongRope);
 
-                // Apply slight upward force to prevent falling too fast
-                if (motion.y < 0) {
-                    player.setDeltaMovement(motion.x, motion.y * 0.95, motion.z);
-                }
+            // Apply friction to perpendicular motion for swinging
+            float friction = hook.getFrictionMultiplier();
+            Vec3 newPerpendicularVelocity = perpendicularVelocity.scale(friction);
+
+            // Combine velocities
+            Vec3 newVelocity = velocityAlongRope.add(newPerpendicularVelocity);
+
+            // Limit maximum speed
+            double speed = newVelocity.length();
+            if (speed > 2.0) {
+                newVelocity = newVelocity.scale(2.0 / speed);
             }
+
+            player.setDeltaMovement(newVelocity);
         }
     }
 

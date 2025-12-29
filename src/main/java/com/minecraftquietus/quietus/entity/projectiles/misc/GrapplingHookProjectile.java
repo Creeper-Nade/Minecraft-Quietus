@@ -5,115 +5,186 @@ import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.property.GrapplingHookProperty;
+import com.minecraftquietus.quietus.tags.QuietusTags;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class GrapplingHookProjectile extends Projectile {
+public class GrapplingHookProjectile extends QuietusProjectile {
     private static final EntityDataAccessor<Boolean> IN_BLOCK =
             SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> LENGTH =
             SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.FLOAT);
 
     private GrapplingHookProperty grapplingHookProperty;
-    private int timeInAir = 0;
 
     public GrapplingHookProjectile(EntityType<? extends GrapplingHookProjectile> type, Level level) {
         super(type, level);
-        this.setNoGravity(false); // Enable gravity
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
         builder.define(IN_BLOCK, false);
         builder.define(LENGTH, 0.0F);
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    protected void spawnImpactParticles() {
 
-        Player player = this.getPlayerOwner();
-        if (player == null) {
-            this.discard();
+    }
+
+    @Override
+    protected void spawnTrailParticles() {
+
+    }
+    @Override
+    public void tick() {
+        // If we're stuck in a block, don't move
+        if (this.isInBlock()) {
+            // Maintain position and don't apply gravity
+            this.setDeltaMovement(Vec3.ZERO);
+            this.setNoGravity(true);
+
+            // Check for discard
+            if (this.tickCount > this.persistanceTicks) {
+                discardAction();
+            }
             return;
         }
 
-        if (!this.isInBlock()) {
-            timeInAir++;
+        // Use arrow-like collision detection
+        boolean flag = true; // Always enable physics for grappling hook
+        Vec3 vec3 = this.getDeltaMovement();
+        BlockPos blockpos = this.blockPosition();
+        BlockState blockstate = this.level().getBlockState(blockpos);
 
-            // Apply gravity
-            applyGravity();
+        // Check for voxel shape collision like arrows do
+        if (!blockstate.isAir() && flag) {
+            VoxelShape voxelshape = blockstate.getCollisionShape(this.level(), blockpos);
+            if (!voxelshape.isEmpty()) {
+                Vec3 vec31 = this.position();
 
-            // Move the projectile
-            Vec3 motion = this.getDeltaMovement();
-            double nextX = this.getX() + motion.x;
-            double nextY = this.getY() + motion.y;
-            double nextZ = this.getZ() + motion.z;
+                for (AABB aabb : voxelshape.toAabbs()) {
+                    if (aabb.move(blockpos).contains(vec31)) {
+                        this.setDeltaMovement(Vec3.ZERO);
+                        this.setInBlock(true);
+                        this.setNoGravity(true);
 
-            // Check for collisions
-            this.setPos(nextX, nextY, nextZ);
-            HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-
-            if (hitResult.getType() != HitResult.Type.MISS) {
-                this.onHit(hitResult);
-            }
-
-            // Check max range
-            if (grapplingHookProperty != null) {
-                double distanceSqr = this.distanceToSqr(player);
-                if (distanceSqr > grapplingHookProperty.maxRange() * grapplingHookProperty.maxRange()) {
-                    this.discard();
-                    return;
+                        if (this.getOwner() != null && grapplingHookProperty != null) {
+                            // Calculate rope length based on distance
+                            double distance = this.getOwner().getEyePosition().distanceTo(vec31);
+                            float length = (float) Math.min(distance, grapplingHookProperty.maxRange());
+                            this.setLength(length);
+                        }
+                        return;
+                    }
                 }
             }
-
-            // Update rotation
-            this.updateRotation();
         }
 
-        // Remove if owner is gone
-        if (player.isRemoved() || !player.isAlive()) {
-            this.discard();
+        // Only apply gravity if not in block
+        if (!this.isNoGravity()) {
+            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -this.gravity, 0.0D));
+        }
+
+        // Calculate movement
+        Vec3 vec32 = this.position();
+        Vec3 vec33 = vec32.add(this.getDeltaMovement());
+
+        // Perform raycast for collision
+        HitResult hitresult = this.level().clip(new ClipContext(
+                vec32,
+                vec33,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                this
+        ));
+
+        if (hitresult.getType() != HitResult.Type.MISS) {
+            vec33 = hitresult.getLocation();
+        }
+
+        // Set new position
+        this.setPos(vec33);
+
+        // Update rotation
+        Vec3 vec34 = this.getDeltaMovement();
+        float f = (float)(Math.atan2(vec34.x, vec34.z) * 180.0D / Math.PI);
+        this.setYRot(f);
+        f = (float)(Math.atan2(vec34.y, Math.sqrt(vec34.x * vec34.x + vec34.z * vec34.z)) * 180.0D / Math.PI);
+        this.setXRot(f);
+
+        // Apply inertia/friction
+        if (this.isInWater()) {
+            this.setDeltaMovement(vec34.scale(0.8D));
+        } else {
+            this.setDeltaMovement(vec34.scale(0.99D)); // Air friction
+        }
+
+        // Check for timeout
+        if (this.tickCount > this.persistanceTicks) {
+            discardAction();
         }
     }
 
     @Override
     protected void onHitBlock(BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
-
+        //System.out.println("1");
+        //discardAction();
+/*
         if (!this.isInBlock()) {
-            // Stick to the block
-            this.setDeltaMovement(Vec3.ZERO);
             this.setInBlock(true);
 
-            Player player = this.getPlayerOwner();
-            if (player != null && grapplingHookProperty != null) {
+            if (this.getOwner() != null && grapplingHookProperty != null) {
                 // Calculate rope length based on distance
-                double distance = player.getEyePosition().distanceTo(hitResult.getLocation());
+                double distance = this.getOwner().getEyePosition().distanceTo(hitResult.getLocation());
                 float length = (float) Math.min(distance, grapplingHookProperty.maxRange());
                 this.setLength(length);
             }
         }
+        this.setDeltaMovement(Vec3.ZERO);*/
+
+        //this.setPos(hitResult.getLocation());
+        //this.setDeltaMovement(this.getDeltaMovement().normalize().scale(hitResult.distanceTo(this)));
+    }
+    @Override
+    protected void onHitEntity(EntityHitResult hitResult)
+    {
+        //might implement grappling of entity in the future
     }
 
     @Override
     protected boolean canHitEntity(Entity entity) {
         // Don't hit entities, only blocks
         return false;
+    }
+
+    @Override
+    protected void applyImpactEffects(Entity Target, float damage, boolean is_crit, Entity Owner) {
+
+    }
+
+    @Override
+    protected DamageSource getDamageSource(Entity owner) {
+        return null;
     }
 
     public void setInBlock(boolean inBlock) {
@@ -131,14 +202,13 @@ public class GrapplingHookProjectile extends Projectile {
     public float getLength() {
         return this.entityData.get(LENGTH);
     }
+    public float getMaxRange()
+    {
+        return this.grapplingHookProperty.maxRange();
+    }
 
     public void setGrapplingHookProperty(GrapplingHookProperty property) {
         this.grapplingHookProperty = property;
-    }
-
-    public Player getPlayerOwner() {
-        Entity owner = this.getOwner();
-        return owner instanceof Player ? (Player) owner : null;
     }
 
     public float getPullStrength() {
@@ -163,11 +233,4 @@ public class GrapplingHookProjectile extends Projectile {
         this.setLength(tag.getFloatOr("length",0));
     }
 
-    public void updateRotation() {
-        Vec3 motion = this.getDeltaMovement();
-        if (motion.lengthSqr() != 0.0D) {
-            this.setYRot((float)(Math.atan2(motion.x, motion.z) * (180.0D / Math.PI)));
-            this.setXRot((float)(Math.atan2(motion.y, Math.sqrt(motion.x * motion.x + motion.z * motion.z)) * (180.0D / Math.PI)));
-        }
-    }
 }

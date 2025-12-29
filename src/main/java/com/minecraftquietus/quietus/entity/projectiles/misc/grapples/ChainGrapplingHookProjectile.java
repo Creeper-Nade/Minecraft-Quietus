@@ -12,9 +12,4 @@ public class ChainGrapplingHookProjectile extends GrapplingHookProjectile {
     public ChainGrapplingHookProjectile(EntityType<? extends GrapplingHookProjectile> type, Level level) {
         super(type, level);
     }
-
-    public ChainGrapplingHookProjectile(Level level, Player player) {
-        this(QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get(), level);
-        this.setOwner(player);
-    }
 }

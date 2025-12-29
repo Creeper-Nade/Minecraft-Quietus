@@ -78,8 +78,6 @@ public abstract class QuietusProjectile extends Projectile {
 
         if ((hitresult.getType() == HitResult.Type.BLOCK) && !level().isClientSide) {
             this.onHitBlock((BlockHitResult) hitresult);
-            // Creepernade: use discard Action to discard so that it triggers particles and stuffs
-            discardAction();
             return;
         }
         if (hitresult.getType() == HitResult.Type.ENTITY) {

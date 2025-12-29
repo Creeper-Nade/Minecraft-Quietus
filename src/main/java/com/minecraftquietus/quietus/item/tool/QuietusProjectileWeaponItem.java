@@ -110,20 +110,27 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
             player.startUsingItem(hand);
             return InteractionResult.CONSUME; 
         } else {
-            if (player instanceof ServerPlayer) {
-                List<ItemStack> list = new ArrayList<>();
-                if (level instanceof ServerLevel serverlevel) {
-                    this.shoot(
-                        serverlevel, player, player.getUsedItemHand(), itemstack, 
-                        list, 
-                        this.shootVelocity, 
-                        this.shootInaccuracy, 
+           return InteractionAction(player,level,itemstack);
+        }
+        /* player.startUsingItem(hand);
+        return InteractionResult.CONSUME; */
+    }
+    protected InteractionResult InteractionAction(Player player, Level level, ItemStack itemstack)
+    {
+        if (player instanceof ServerPlayer) {
+            List<ItemStack> list = new ArrayList<>();
+            if (level instanceof ServerLevel serverlevel) {
+                this.shoot(
+                        serverlevel, player, player.getUsedItemHand(), itemstack,
+                        list,
+                        this.shootVelocity,
+                        this.shootInaccuracy,
                         false, // not taken in account
                         null
-                    );
-                }
+                );
+            }
 
-                level.playSound(
+            level.playSound(
                     null,
                     player.getX(),
                     player.getY(),
@@ -132,15 +139,12 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
                     this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundSource(),
                     1.0F,
                     1.0F / (level.getRandom().nextFloat() * 0.4F + 1.2F) + shootVelocity * 0.5F
-                );
-                player.awardStat(Stats.ITEM_USED.get(this));
-                return InteractionResult.SUCCESS_SERVER;
-            } else {
-                return InteractionResult.SUCCESS;
-            }
+            );
+            player.awardStat(Stats.ITEM_USED.get(this));
+            return InteractionResult.SUCCESS_SERVER;
+        } else {
+            return InteractionResult.SUCCESS;
         }
-        /* player.startUsingItem(hand);
-        return InteractionResult.CONSUME; */
     }
 
     @Override
