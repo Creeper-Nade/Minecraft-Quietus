@@ -145,28 +145,25 @@ public record Prerequisites(
         }
 
         /**
-         * 
-         * @param predicate a string predicate
+         * Testing for completion of this prerequisite
+         * @param predicate a string predicate to decide whether the said string is finished.
+         * @return true if passed (including when there are no requirements), false if any failed.
          */
         public boolean test(Predicate<String> predicate) {
-            if (this.requirements.isEmpty()) {
-                return false;
-            } else {
-                Iterator<List<String>> iter = this.requirements.iterator();
-                List<String> list;
+            Iterator<List<String>> iter = this.requirements.iterator();
 
-                do {
-                    if (!iter.hasNext()) {
-                        return true;
-                    }
-                    list = iter.next();
-                } while (anyMatch(list, predicate));
+            List<String> list;
+            do {
+                if (!iter.hasNext()) {
+                    return true;
+                }
+                list = iter.next();
+            } while (anyMatch(list, predicate));
 
-                return false;
-            }
+            return false;
         }
 
-        public int count(Predicate<String> filter) {
+        /*public int count(Predicate<String> filter) {
             int i = 0;
 
             for (List<String> list : this.requirements) {
@@ -176,7 +173,7 @@ public record Prerequisites(
             }
 
             return i;
-        }
+        }*/
 
         private static boolean anyMatch(List<String> requirements, Predicate<String> predicate) {
             for (String s : requirements) {

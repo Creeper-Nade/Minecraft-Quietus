@@ -1,13 +1,18 @@
 {
 
     "max_amount": 10,
-    "amount_to_progress": 5,
 
-    "_comment": "no prerequisite if root node",
-    "prerequisites": {
-        "_comment": "vanilla criteria here"
-        
-        
+    "layout": {
+        "top": true,
+        "prerequisites": {
+
+        }
+    },
+
+    "unlock": {
+        "progress": 5,
+        "prerequisites": {
+        }
     },
 
     "rewards": [
@@ -27,7 +32,7 @@
         },
         "prerequisites": {
             "advancements": {
-                "[criteria name here]": {
+                "[advancement name here]": {
                     "translate": "skillTree.quietus.node.example_root.criteria1"
                 }
             }

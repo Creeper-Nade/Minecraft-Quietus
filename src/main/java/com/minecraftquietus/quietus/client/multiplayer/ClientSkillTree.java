@@ -47,7 +47,7 @@ public class ClientSkillTree {
 
     private SkillPointProgress.ClientData startProgress(SkillTreeNode node) {
         if (!this.progresses.containsKey(node)) {
-            SkillPointProgress.ClientData progress = new SkillPointProgress.ClientData(0, node.getSkillPoint().maxAmount(), node.getSkillPoint().progressAmount());
+            SkillPointProgress.ClientData progress = new SkillPointProgress.ClientData(0, node.getSkillPoint().maxAmount(), node.getSkillPoint().unlock().progress());
             this.progresses.put(node, progress);
             return progress;
         }

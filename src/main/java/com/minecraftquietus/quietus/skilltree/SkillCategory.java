@@ -154,7 +154,7 @@ public class SkillCategory {
     }
 
     private boolean tryInsert(ResourceLocation location, SkillPoint skillPoint) {
-        Set<ResourceLocation> parents = skillPoint.prerequisites().getAllParents();
+        Set<ResourceLocation> parents = skillPoint.unlock().prerequisites().getAllParents();
         List<SkillTreeNode> parentNodes = parents.isEmpty() ? new ArrayList<>() : parents.stream().map(this.nodes::get).collect(Collectors.toList());
 
         if (parentNodes.contains(null) && !parents.isEmpty()) { // this node should have parents, and that any of its parents are not created yet.

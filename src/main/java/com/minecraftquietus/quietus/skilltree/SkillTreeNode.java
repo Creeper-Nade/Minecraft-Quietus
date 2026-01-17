@@ -31,9 +31,9 @@ public class SkillTreeNode {
         this.mustParents.clear();
         this.orParents.clear();
         col.forEach((node) -> {
-            if (this.getSkillPoint().prerequisites().getAllMustParents().contains(node.getId()))
+            if (this.getSkillPoint().unlock().prerequisites().getAllMustParents().contains(node.getId()))
                 this.mustParents.add(node);
-            if (this.getSkillPoint().prerequisites().getAllOrParents().contains(node.getId()))
+            if (this.getSkillPoint().unlock().prerequisites().getAllOrParents().contains(node.getId()))
                 this.orParents.add(node);
         });
     }
