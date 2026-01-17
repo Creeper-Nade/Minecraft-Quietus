@@ -1,8 +1,6 @@
 package com.minecraftquietus.quietus.client.screens.skill_tree;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,7 +13,6 @@ import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
@@ -51,7 +48,7 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
 
     @Nullable
     public static SkillTreeTab create(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, ConnectivityPosition connectivity) {
-        Optional<SkillCategory.DisplayInfo> display = category.getDisplay();
+        Optional<SkillCategory.DisplayInfo> display = category.display();
         return display.map(displayInfo -> new SkillTreeTab(minecraft, clientSkillTree, screen, index, category, displayInfo, connectivity, 0.0d, 0.0d)).orElse(null);
     }
 

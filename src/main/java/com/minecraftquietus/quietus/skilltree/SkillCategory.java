@@ -8,19 +8,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 
-import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeWidget;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.core.ClientAsset;
@@ -39,7 +36,10 @@ public class SkillCategory {
     private final Map<ResourceLocation, SkillTreeNode> nodes = new Object2ObjectOpenHashMap<>();
     private final Set<SkillTreeNode> roots = new ObjectLinkedOpenHashSet<>();
     private final Set<SkillTreeNode> dependants = new ObjectLinkedOpenHashSet<>();
-    
+
+    private static final int DEFAULT_MAX_WIDTH = 16;
+
+    private final int maxWidth;
     private final Prerequisites prerequisites;
     private final Optional<DisplayInfo> display;
 
@@ -49,21 +49,23 @@ public class SkillCategory {
 
     
     /* Constructs actual usable SkillCategory instances. */
-    public SkillCategory(ResourceLocation id, Prerequisites prerequisites, Optional<DisplayInfo> display) {
+    public SkillCategory(ResourceLocation id, int maxWidth, Prerequisites prerequisites, Optional<DisplayInfo> display) {
         this.id = id;
+        this.maxWidth = maxWidth;
         this.prerequisites = prerequisites;
         this.display = display;
     }
 
     /* For CODEC decoding only */
-    public static SkillCategory makeDecodedInstance(Prerequisites prerequisites, Optional<DisplayInfo> display) {
-        return new SkillCategory(null, prerequisites, display);
+    public static SkillCategory makeDecodedInstance(int maxWidth, Prerequisites prerequisites, Optional<DisplayInfo> display) {
+        return new SkillCategory(null, maxWidth, prerequisites, display);
     }
 
     public static final Codec<SkillCategory> CODEC = RecordCodecBuilder.create(
         (instance) -> instance.group(
-            Prerequisites.CODEC.optionalFieldOf("prerequisites",Prerequisites.EMPTY).forGetter(SkillCategory::getPrerequisites),
-            DisplayInfo.CODEC.optionalFieldOf("tab_display").forGetter(SkillCategory::getDisplay)
+            Codec.INT.optionalFieldOf("max_nodes_per_layer",DEFAULT_MAX_WIDTH).forGetter(SkillCategory::maxWidth),
+            Prerequisites.CODEC.optionalFieldOf("prerequisites",Prerequisites.EMPTY).forGetter(SkillCategory::prerequisites),
+            DisplayInfo.CODEC.optionalFieldOf("tab_display").forGetter(SkillCategory::display)
         ).apply(instance, SkillCategory::makeDecodedInstance) // should use the private constructor without id assignment.
     );
 
@@ -75,6 +77,7 @@ public class SkillCategory {
             i |= 1;
         }
         buffer.writeInt(i);
+        buffer.writeInt(this.maxWidth);
         ResourceLocation.STREAM_CODEC.encode(buffer, this.id);
         Map<ResourceLocation,SkillPoint> map = new HashMap<>();
         this.nodes.forEach((key, value) -> map.put(key, value.getSkillPoint()));
@@ -90,6 +93,7 @@ public class SkillCategory {
     }
     private static SkillCategory deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
         int i = buffer.readInt();
+        int maxWidth = buffer.readInt();
         ResourceLocation id = ResourceLocation.STREAM_CODEC.decode(buffer);
         Map<ResourceLocation,SkillPoint> map = buffer.readMap(
             buf -> ResourceLocation.STREAM_CODEC.decode((FriendlyByteBuf) buf),
@@ -97,7 +101,7 @@ public class SkillCategory {
         );
         Prerequisites prerequisites = Prerequisites.STREAM_CODEC.decode(buffer);
         Optional<DisplayInfo> display = ((i & 1) != 0) ? Optional.of(DisplayInfo.STREAM_CODEC.decode(buffer)) : Optional.empty();
-        SkillCategory out = new SkillCategory(id, prerequisites, display);
+        SkillCategory out = new SkillCategory(id, maxWidth, prerequisites, display);
         out.addAll(map);
         return out;
     }
@@ -154,7 +158,7 @@ public class SkillCategory {
     }
 
     private boolean tryInsert(ResourceLocation location, SkillPoint skillPoint) {
-        Set<ResourceLocation> parents = skillPoint.unlock().prerequisites().getAllParents();
+        Set<ResourceLocation> parents = skillPoint.unlock().prerequisites().getAllParents(); // parents from unlock prerequisites, not layout prerequisites
         List<SkillTreeNode> parentNodes = parents.isEmpty() ? new ArrayList<>() : parents.stream().map(this.nodes::get).collect(Collectors.toList());
 
         if (parentNodes.contains(null) && !parents.isEmpty()) { // this node should have parents, and that any of its parents are not created yet.
@@ -217,11 +221,13 @@ public class SkillCategory {
         void onAddDependantSkillNode(ResourceLocation categoryId, SkillTreeNode node);
     }
 
-    public Prerequisites getPrerequisites() {
+    public int maxWidth() {
+        return this.maxWidth;
+    }
+    public Prerequisites prerequisites() {
         return this.prerequisites;
     }
-
-    public Optional<DisplayInfo> getDisplay() {
+    public Optional<DisplayInfo> display() {
         return this.display;
     }
 
