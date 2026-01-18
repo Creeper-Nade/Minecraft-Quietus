@@ -6,9 +6,8 @@ import java.util.Set;
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
-import com.minecraftquietus.quietus.skilltree.TreeNodePosition;
+import com.minecraftquietus.quietus.skilltree.LegacyPosition;
 
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -76,7 +75,7 @@ public class SkillTreeWidget {
         //guiGraphics.blit(RenderType::guiTextured, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
     }
 
-    public void drawConnectivity(GuiGraphics guiGraphics, TreeNodePosition graph, int offsetX, int offsetY) {
+    public void drawConnectivity(GuiGraphics guiGraphics, LegacyPosition graph, int offsetX, int offsetY) {
         
     }
     

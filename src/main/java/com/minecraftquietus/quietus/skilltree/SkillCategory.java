@@ -195,7 +195,7 @@ public class SkillCategory {
         Set<SkillTreeNode> nodes = new HashSet<>();
         nodes.addAll(this.roots);
         nodes.addAll(this.dependants);
-        TreeNodePosition positioning = new TreeNodePosition(nodeWidth, nodeHeight);
+        LegacyPosition positioning = new LegacyPosition(nodeWidth, nodeHeight);
         return positioning.layout(nodes);
     }
 
