@@ -203,6 +203,10 @@ public class SkillCategory {
         return this.nodes.get(location);
     }
 
+    protected Map<ResourceLocation, SkillTreeNode> getNodesMap() {
+        return this.nodes;
+    }
+
     public void setListener(@Nullable SkillCategory.Listener listener) {
         this.listener = listener;
         if (!Objects.isNull(listener)) {

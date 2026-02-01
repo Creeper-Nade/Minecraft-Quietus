@@ -1,0 +1,52 @@
+{
+
+    "max_amount": 5,
+
+    "layout": {
+        "prerequisites": {
+            "parents": {
+                "p1": "quietus:example_tab/example_root"
+            },
+            "requirements": [
+                ["p1"]
+            ]
+        }
+    },
+
+    "unlock": {
+        "progress": 1,
+        "prerequisites": {
+            "parents": {
+                "p1": "quietus:example_tab/example",
+                "p2": "quietus:example_tab/example_second_root"
+            },
+            "requirements": [
+                ["p1","p2"]
+            ]
+        }
+    },
+
+    "rewards": [
+        {
+            "skill": "quietus:example_skill",
+            "amount": 1,
+            "source": "quietus:skill_tree"
+        }
+    ],
+
+    "display": {
+        "header": {
+            "translate": "skillTree.quietus.example_tab/example_branch_off.header"
+        },
+        "description": {
+            "translate": "skillTree.quietus.example_tab/example_branch_off.description"
+        },
+        "prerequisites": {
+            "advancements": {
+                "[advancement name here]": {
+                    "translate": "skillTree.quietus.node.example_branch_off.criteria1"
+                }
+            }
+        }
+    }
+}

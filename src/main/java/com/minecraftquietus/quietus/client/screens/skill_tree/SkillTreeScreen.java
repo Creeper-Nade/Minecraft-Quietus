@@ -19,6 +19,7 @@ import com.minecraftquietus.quietus.client.QuietusKeyBindings;
 import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
+import com.minecraftquietus.quietus.skilltree.TreePosition;
 import com.mojang.logging.LogUtils;
 import com.minecraftquietus.quietus.skilltree.ConnectivityPosition;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
@@ -111,6 +112,8 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         /* Setup */ 
         this.tabs.clear();
         ClientSkillTreePayloadHandler.getCategories().forEach((id, category) -> {
+            TreePosition positioning = new TreePosition(SkillTreeWidget.ICON_WIDTH, SkillTreeWidget.ICON_WIDTH, 4, 4, 2026);
+            positioning.makeGraphOf(category);
             ConnectivityPosition connectivityPosition = category.positionNodes(SkillTreeWidget.WIDTH, SkillTreeWidget.HEIGHT);
             SkillTreeTab createdtab = SkillTreeTab.create(this.minecraft, this.skillTree, this, WINDOW_HEIGHT, category, connectivityPosition);
             if (!Objects.isNull(createdtab))
