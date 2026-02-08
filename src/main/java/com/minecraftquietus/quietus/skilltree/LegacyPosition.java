@@ -97,7 +97,7 @@ public class LegacyPosition {
             Map<SkillTreeNode, Double> medianMap = new HashMap<>();
             for (SkillTreeNode node : currentLayer) {
                 List<Integer> parentOrders = node.parents().stream()
-                        .filter(parent -> layerMap.get(parent) == layerIndex - 1)
+                        .filter(parent -> layerMap.get(parent) == layerIndex - 1) // direct parent
                         .map(orderMap::get)
                         .sorted()
                         .collect(Collectors.toList());

@@ -35,3 +35,4 @@ src/generated/resources/.cache/ce4c56409eea8d38d71666e699f49c1e4bfd3226
 gradle/gradle-daemon-jvm.properties
 gradle/gradle-daemon-jvm.properties
 src/main/java/com/minecraftquietus/.DS_Store
+.DS_Store

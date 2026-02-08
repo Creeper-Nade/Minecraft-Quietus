@@ -5,19 +5,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 
+import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeWidget;
 import com.mojang.logging.LogUtils;
 
-import it.unimi.dsi.fastutil.Hash;
 import net.minecraft.util.RandomSource;
-import net.minecraft.resources.ResourceLocation;
 
 public class TreePosition {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -47,12 +50,17 @@ public class TreePosition {
         
         List<SkillTreeNode> topOrder = this.topoSort(inDeg);
 
-        topOrder.forEach((node)->LOGGER.info(node.getId().toString())); 
-
         Map<SkillTreeNode,Integer> layer = this.basicLayer(topOrder);
 
-        LOGGER.info("Final: ");
-        layer.forEach((node,l) -> LOGGER.info("{}: {}",node.getId(),l));
+        Map<SkillTreeNode,Integer> constrainedLayer = widthConstrainedLayer(layer, skillCategory.maxWidth());
+
+        Map<Integer,Integer> layerToCount = new HashMap<>();
+        constrainedLayer.forEach((n,l) -> {
+            int order = layerToCount.getOrDefault(l, 0);
+            Vertex v = new Vertex(order, l);
+            this.vertices.put(n, v);
+            layerToCount.put(l, order+1);
+        });
     }
 
     /**
@@ -96,7 +104,7 @@ public class TreePosition {
     
     private Map<SkillTreeNode,Integer> basicLayer(List<SkillTreeNode> topOrder) {
         List<SkillTreeNode> order = new ArrayList<>(topOrder);
-        Map<SkillTreeNode,Integer> out = new HashMap<>();
+        Map<SkillTreeNode,Integer> out = new LinkedHashMap<>();
 
         /** 
          * Forward pass
@@ -109,8 +117,6 @@ public class TreePosition {
             out.put(node, earliest);
         }
 
-        LOGGER.info("before backward pass");
-        out.forEach((node,l) -> LOGGER.info("{}: {}",node.getId(),l));
 
         /**
          * Backward pass
@@ -131,6 +137,64 @@ public class TreePosition {
         return out;
     }
 
+    private Map<SkillTreeNode,Integer> widthConstrainedLayer(Map<SkillTreeNode,Integer> basicLayerMap, int width) {
+        Map<SkillTreeNode,Integer> out = new LinkedHashMap<>();
+        
+        int l = 0;
+        int o = 0;
+        int count = 0;
+
+        while (out.size() < basicLayerMap.size()) {
+            for (Entry<SkillTreeNode,Integer> entry : basicLayerMap.entrySet()) {
+                SkillTreeNode node = entry.getKey();
+                int layer = entry.getValue();
+                
+                if (layer == l) {
+                    count += 1;
+                    if (count > width) {
+                        o += 1;
+                        count = 0;
+                    }
+                    out.put(node, o);
+                }
+            }
+            
+            l += 1;
+            o += 1;
+            count = 0;
+        }
+
+        return out;
+
+    }
+
+    public Map<SkillTreeNode,Vertex> getVertices() {
+        return this.vertices;
+    }
+
+    public List<Edge> getEdges() {
+        return this.edges;
+    }
+
+    private static class Node {
+        final List<Node> parents = new ArrayList<>();
+        final List<Node> children = new ArrayList<>();
+
+        final Optional<SkillTreeNode> node;
+
+        Node(@Nullable SkillTreeNode node) {
+            this.node = node == null ? Optional.empty() : Optional.of(node);
+        }
+
+        void addParent(Node n) {
+            this.parents.add(n);
+        }
+
+        void addChild(Node n) {
+            this.children.add(n);
+        }
+    }
+
     public static record Vertex(
         int x,
         int y
@@ -139,6 +203,7 @@ public class TreePosition {
     public static record Edge(
         int startX,
         int startY,
+        int midY,
         int finalX,
         int finalY,
         boolean dotted

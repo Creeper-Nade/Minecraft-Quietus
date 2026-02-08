@@ -64,13 +64,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
 
     private final ClientSkillTree skillTree;
-    private final Map<ResourceLocation,SkillTreeTab> tabs = new LinkedHashMap<>();
+    private final Map<ResourceLocation,LegacySkillTreeTab> tabs = new LinkedHashMap<>();
 
     private final Map<SkillTreeWidget,SkillTreeWidgetScreen> widgetScreens = new LinkedHashMap<>();
 
     private SkillTreeDraggable focusedDraggable = null;
     private SkillTreeScrollable focusedScrollable = null;
-    @Nullable private SkillTreeTab selectedTab;
+    @Nullable private LegacySkillTreeTab selectedTab;
     @Nullable private SkillTreeWidget selectedWidget;
     @Nullable private SkillTreeInfoScreen selectedWidgetInfo;
 
@@ -113,9 +113,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.tabs.clear();
         ClientSkillTreePayloadHandler.getCategories().forEach((id, category) -> {
             TreePosition positioning = new TreePosition(SkillTreeWidget.ICON_WIDTH, SkillTreeWidget.ICON_WIDTH, 4, 4, 2026);
-            positioning.makeGraphOf(category);
+            positioning.makeGraphOf(category); 
             ConnectivityPosition connectivityPosition = category.positionNodes(SkillTreeWidget.WIDTH, SkillTreeWidget.HEIGHT);
-            SkillTreeTab createdtab = SkillTreeTab.create(this.minecraft, this.skillTree, this, WINDOW_HEIGHT, category, connectivityPosition);
+            LegacySkillTreeTab createdtab = LegacySkillTreeTab.create(this.minecraft, this.skillTree, this, WINDOW_HEIGHT, category, connectivityPosition);
             if (!Objects.isNull(createdtab))
                 this.tabs.put(id, createdtab);
             category.setListener(this);

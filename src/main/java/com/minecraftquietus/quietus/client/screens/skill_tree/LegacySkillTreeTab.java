@@ -15,7 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
-public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
+public class LegacySkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     
     private final Minecraft minecraft;
     private final ClientSkillTree skillTree;
@@ -32,7 +32,7 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     private int maxY = Integer.MIN_VALUE;
     private final ConnectivityPosition connectivity;
 
-    public SkillTreeTab(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, SkillCategory.DisplayInfo display, ConnectivityPosition connectivity, double scrollX, double scrollY) {
+    public LegacySkillTreeTab(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, SkillCategory.DisplayInfo display, ConnectivityPosition connectivity, double scrollX, double scrollY) {
         this.minecraft = minecraft;
         this.skillTree = clientSkillTree;
         this.screen = screen;
@@ -47,9 +47,9 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     }
 
     @Nullable
-    public static SkillTreeTab create(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, ConnectivityPosition connectivity) {
+    public static LegacySkillTreeTab create(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, ConnectivityPosition connectivity) {
         Optional<SkillCategory.DisplayInfo> display = category.display();
-        return display.map(displayInfo -> new SkillTreeTab(minecraft, clientSkillTree, screen, index, category, displayInfo, connectivity, 0.0d, 0.0d)).orElse(null);
+        return display.map(displayInfo -> new LegacySkillTreeTab(minecraft, clientSkillTree, screen, index, category, displayInfo, connectivity, 0.0d, 0.0d)).orElse(null);
     }
 
     /* public void testAdd(SkillTreeNode node, SkillTreeWidget widget) {

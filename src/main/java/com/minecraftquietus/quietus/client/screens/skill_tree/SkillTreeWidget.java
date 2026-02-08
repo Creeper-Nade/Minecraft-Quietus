@@ -28,7 +28,7 @@ public class SkillTreeWidget {
 
     private static final ResourceLocation DEFAULT_ICON = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/icons/skill_tree/node/none.png");
 
-    private final SkillTreeTab tab;
+    private final LegacySkillTreeTab tab;
     private final SkillTreeNode node;
     private final Minecraft minecraft;
     private final ClientSkillTree skillTree;
@@ -43,7 +43,7 @@ public class SkillTreeWidget {
 
     private final SkillPointType widgettype;
 
-    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, int x, int y, SkillPoint.DisplayInfo display) {
+    public SkillTreeWidget(LegacySkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, int x, int y, SkillPoint.DisplayInfo display) {
         this.tab = tab;
         this.minecraft = minecraft;
         this.skillTree = clientSkillTree;
