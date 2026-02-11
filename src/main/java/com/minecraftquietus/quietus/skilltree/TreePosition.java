@@ -4,14 +4,19 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -46,21 +51,28 @@ public class TreePosition {
 
     public void makeGraphOf(SkillCategory skillCategory) {
         Collection<SkillTreeNode> nodes = skillCategory.getNodesMap().values();
+        Collection<SkillTreeNode> roots = skillCategory.getRoots();
         Map<SkillTreeNode,Integer> inDeg = nodes.stream().collect(Collectors.toMap((node) -> node, (node) -> node.parents().size()));
         
         List<SkillTreeNode> topOrder = this.topoSort(inDeg);
 
         Map<SkillTreeNode,Integer> layer = this.basicLayer(topOrder);
 
-        Map<SkillTreeNode,Integer> constrainedLayer = widthConstrainedLayer(layer, skillCategory.maxWidth());
+        LinkedHashMap<SkillTreeNode,Integer> constrainedLayer = widthConstrainedLayer(layer, skillCategory.maxWidth());
 
-        Map<Integer,Integer> layerToCount = new HashMap<>();
-        constrainedLayer.forEach((n,l) -> {
-            int order = layerToCount.getOrDefault(l, 0);
-            Vertex v = new Vertex(order, l);
-            this.vertices.put(n, v);
-            layerToCount.put(l, order+1);
-        });
+        Map<SkillTreeNode,Node> conversionMap = conversionMap(nodes);
+
+        Map<Node,Integer> layersWithDummies = 
+            addDummyVertices(
+                constrainedLayer.entrySet().stream().collect(Collectors.toMap(entry -> conversionMap.get(entry.getKey()), Map.Entry::getValue, (existing, replacement) -> existing, LinkedHashMap::new)), 
+                roots.stream().map(conversionMap::get).collect(Collectors.toList())
+            );
+
+        List<List<Node>> layeredNodes = groupNodesByLayer(layersWithDummies);
+        layeredNodes.forEach(this::updateIndices);
+        minimizeCrossings(layeredNodes);
+        makeCoordinates(layeredNodes);
+        makeEdges(layeredNodes);
     }
 
     /**
@@ -137,11 +149,11 @@ public class TreePosition {
         return out;
     }
 
-    private Map<SkillTreeNode,Integer> widthConstrainedLayer(Map<SkillTreeNode,Integer> basicLayerMap, int width) {
-        Map<SkillTreeNode,Integer> out = new LinkedHashMap<>();
+    private LinkedHashMap<SkillTreeNode,Integer> widthConstrainedLayer(Map<SkillTreeNode,Integer> basicLayerMap, int width) {
+        LinkedHashMap<SkillTreeNode,Integer> out = new LinkedHashMap<>();
         
-        int l = 0;
-        int o = 0;
+        int l = Collections.min(basicLayerMap.values());
+        int o = l;
         int count = 0;
 
         while (out.size() < basicLayerMap.size()) {
@@ -168,6 +180,197 @@ public class TreePosition {
 
     }
 
+    /**
+     * Make a mapping of given SkillTreeNode to new initiated Node
+     * @param col {@link java.util.Collection} of SkillTreeNode
+     * @return conversion map
+     */
+    private Map<SkillTreeNode,Node> conversionMap(Collection<SkillTreeNode> col) {
+        Map<SkillTreeNode,Node> conversionMap = col.stream().collect(Collectors.toMap(e->e, e -> new Node(e), (existing, replacement) -> existing, HashMap::new));
+        col.forEach((skillTreeNode) -> conversionMap.get(skillTreeNode).addParents(skillTreeNode.parents().stream().map(conversionMap::get).collect(Collectors.toList())));
+        col.forEach((skillTreeNode) -> conversionMap.get(skillTreeNode).addChildren(skillTreeNode.children.stream().map(conversionMap::get).collect(Collectors.toList())));
+        col.forEach((skillTreeNode) -> conversionMap.get(skillTreeNode).noDummyParents.addAll(skillTreeNode.parents()));
+        col.forEach((skillTreeNode) -> conversionMap.get(skillTreeNode).noDummyChildren.addAll(skillTreeNode.children));
+        return conversionMap;
+    }
+
+    private Map<Node,Integer> addDummyVertices(LinkedHashMap<Node,Integer> nodeLayersMap, Collection<Node> roots) {
+        for (Node node : roots) {
+            node.recursiveMakeDummy(nodeLayersMap);
+        }
+
+        return nodeLayersMap;
+    }
+
+    private List<List<Node>> groupNodesByLayer(Map<Node, Integer> layerMap) {
+        int maxLayer = layerMap.values().stream().max(Integer::compare).orElse(0);
+        List<List<Node>> layers = new ArrayList<>(maxLayer + 1);
+        for (int i = 0; i <= maxLayer; i++) {
+            layers.add(new ArrayList<>());
+        }
+        for (Map.Entry<Node, Integer> entry : layerMap.entrySet()) {
+            layers.get(entry.getValue()).add(entry.getKey());
+        }
+        return layers;
+    }
+
+    private void minimizeCrossings(List<List<Node>> layers) {
+        // Barycenter heuristic
+        for (int i = 0; i < 10; i++) {
+            // Down sweep
+            for (int l = 1; l < layers.size(); l++) {
+                barycenterSort(layers.get(l), layers.get(l - 1), true);
+            }
+            // Up sweep
+            for (int l = layers.size() - 2; l >= 0; l--) {
+                barycenterSort(layers.get(l), layers.get(l + 1), false);
+            }
+        }
+
+        // Sifting
+        for (int l = 0; l < layers.size(); l++) {
+            siftLayer(layers, l);
+        }
+    }
+
+    private void barycenterSort(List<Node> layer, List<Node> relativeLayer, boolean parents) {
+        for (Node node : layer) {
+            double sum = 0;
+            int count = 0;
+            Collection<Node> relatives = parents ? node.parents : node.children;
+            for (Node relative : relatives) {
+                if (relativeLayer.contains(relative)) {
+                    sum += relative.tempIndex;
+                    count++;
+                }
+            }
+            node.barycenter = count == 0 ? node.tempIndex : sum / count;
+        }
+        layer.sort(Comparator.comparingDouble(n -> n.barycenter));
+        updateIndices(layer);
+    }
+
+    private void updateIndices(List<Node> layer) {
+        for (int i = 0; i < layer.size(); i++) {
+            layer.get(i).tempIndex = i;
+        }
+    }
+
+    private void siftLayer(List<List<Node>> layers, int layerIndex) {
+        List<Node> layer = layers.get(layerIndex);
+        List<Node> nodesToSift = new ArrayList<>(layer);
+        shuffle(nodesToSift);
+
+        for (Node node : nodesToSift) {
+            int bestPos = node.tempIndex;
+            int minCrossings = Integer.MAX_VALUE;
+
+            int currentPos = layer.indexOf(node);
+            layer.remove(currentPos);
+
+            for (int i = 0; i <= layer.size(); i++) {
+                layer.add(i, node);
+                updateIndices(layer);
+                int crossings = countLocalCrossings(layers, layerIndex);
+                if (crossings < minCrossings) {
+                    minCrossings = crossings;
+                    bestPos = i;
+                }
+                layer.remove(i);
+            }
+            layer.add(bestPos, node);
+            updateIndices(layer);
+        }
+    }
+
+    private int countLocalCrossings(List<List<Node>> layers, int layerIndex) {
+        int crossings = 0;
+        if (layerIndex > 0) {
+            crossings += countCrossingsBetween(layers.get(layerIndex - 1), layers.get(layerIndex));
+        }
+        if (layerIndex < layers.size() - 1) {
+            crossings += countCrossingsBetween(layers.get(layerIndex), layers.get(layerIndex + 1));
+        }
+        return crossings;
+    }
+
+    private int countCrossingsBetween(List<Node> upper, List<Node> lower) {
+        int crossings = 0;
+        for (int i = 0; i < upper.size(); i++) {
+            Node u1 = upper.get(i);
+            for (int j = i + 1; j < upper.size(); j++) {
+                Node u2 = upper.get(j);
+                for (Node v1 : u1.children) {
+                    if (!lower.contains(v1)) continue;
+                    for (Node v2 : u2.children) {
+                        if (!lower.contains(v2)) continue;
+                        if (v1.tempIndex > v2.tempIndex) crossings++;
+                    }
+                }
+            }
+        }
+        return crossings;
+    }
+
+    private void shuffle(List<Node> list) {
+        for (int i = list.size(); i > 1; i--) {
+            int j = this.random.nextInt(i);
+            Collections.swap(list, i - 1, j);
+        }
+    }
+
+    private void makeCoordinates(List<List<Node>> layers) {
+        int maxNodesInLayer = layers.stream().mapToInt(List::size).max().orElse(0);
+        int maxWidth = maxNodesInLayer * (this.nodePaddingWidth + this.nodeMarginWidth) - this.nodeMarginWidth;
+
+        for (int i = 0; i < layers.size(); i++) {
+            List<Node> layer = layers.get(i);
+            int layerWidth = layer.size() * (this.nodePaddingWidth + this.nodeMarginWidth) - this.nodeMarginWidth;
+            int startX = (maxWidth - layerWidth) / 2;
+
+            for (int j = 0; j < layer.size(); j++) {
+                Node node = layer.get(j);
+                int x = startX + j * (this.nodePaddingWidth + this.nodeMarginWidth);
+                int y = i * (this.nodePaddingHeight + this.nodeMarginHeight);
+                node.x = x;
+                node.y = y;
+                if (node.node.isPresent()) {
+                    this.vertices.put(node.node.get(), new Vertex(x, y));
+                }
+            }
+        }
+    }
+
+    private void makeEdges(List<List<Node>> layers) {
+        for (List<Node> layer : layers) {
+            for (Node node : layer) {
+                for (Node child : node.children) {
+                    Set<SkillTreeNode> ultimateSources = node.node.map(Set::of).orElse(node.noDummyParents);
+                    Set<SkillTreeNode> ultimateDestinations = child.node.map(Set::of).orElse(child.noDummyChildren);
+
+                    boolean isDotted = false;
+                    // An edge is dotted if any of the logical paths it represents is an "or" dependency.
+                    for (SkillTreeNode source : ultimateSources) {
+                        for (SkillTreeNode destination : ultimateDestinations) {
+                            if (destination.orParents().contains(source)) {
+                                isDotted = true;
+                                break;
+                            }
+                        }
+                        if (isDotted) break;
+                    }
+
+                    int startX = node.x + this.nodePaddingWidth / 2;
+                    int startY = node.y + this.nodePaddingHeight / 2 - 1;
+                    int finalX = child.x + this.nodePaddingWidth / 2;
+                    int finalY = child.y + this.nodePaddingHeight / 2;
+                    int midY = startY + (finalY - startY) / 2;
+                    this.edges.add(new Edge(startX, startY, midY, finalX, finalY, isDotted));
+                }
+            }
+        }
+    }
+
     public Map<SkillTreeNode,Vertex> getVertices() {
         return this.vertices;
     }
@@ -177,21 +380,166 @@ public class TreePosition {
     }
 
     private static class Node {
-        final List<Node> parents = new ArrayList<>();
-        final List<Node> children = new ArrayList<>();
+        final Set<Node> parents = new HashSet<>();
+        final Set<Node> children = new HashSet<>();
 
-        final Optional<SkillTreeNode> node;
+        final Set<SkillTreeNode> noDummyParents = new HashSet<>();
+        final Set<SkillTreeNode> noDummyChildren = new HashSet<>();
+
+        final Optional<SkillTreeNode> node; // if Optional.empty(), this is a dummy node
+
+        int x;
+        int y;
+        int tempIndex;
+        double barycenter;
 
         Node(@Nullable SkillTreeNode node) {
             this.node = node == null ? Optional.empty() : Optional.of(node);
         }
 
-        void addParent(Node n) {
-            this.parents.add(n);
+        void addParents(Collection<Node> n) {
+            this.parents.addAll(n);
         }
 
-        void addChild(Node n) {
-            this.children.add(n);
+        void addChildren(Collection<Node> n) {
+            this.children.addAll(n);
+        }
+
+        /**
+         * Used Gemini because I was tired
+         * @param layerMap
+         */
+        void recursiveMakeDummy(Map<Node,Integer> layerMap) {
+            if (this.children.isEmpty()) { // is a leaf
+                return;
+            }
+
+            int currentLayer = layerMap.get(this);
+
+            // 1. Identify "Long" children (destination layer > current layer + 1)
+            Set<Node> longSpanningChildren = this.children.stream()
+                    .filter(child -> layerMap.get(child) - currentLayer > 1)
+                    .collect(Collectors.toSet());
+
+            // If no long edges, just recurse on normal children and exit
+            if (longSpanningChildren.isEmpty()) {
+                // Create a copy to avoid concurrent modification issues if recursion modifies the list
+                for (Node child : new ArrayList<>(this.children)) {
+                    child.recursiveMakeDummy(layerMap);
+                }
+                return;
+            }
+
+            // 2. Determine the "Real" targets for these long edges
+            // This acts as the "Signature" for finding a reusable dummy.
+            Set<SkillTreeNode> targetRealNodes = longSpanningChildren.stream()
+                    .flatMap(node -> node.node.map(Stream::of).orElseGet(() -> node.noDummyChildren.stream()))
+                    .collect(Collectors.toSet());
+
+            // 3. Check for an EXISTING matching dummy at (Layer + 1)
+            // We look for a Dummy Node at the next layer that targets exactly the same real nodes.
+            Optional<Node> existingDummy = layerMap.entrySet().stream()
+                    .filter(entry -> entry.getValue() == currentLayer + 1) // Must be at Layer + 1
+                    .map(Map.Entry::getKey)
+                    .filter(node -> node.node.isEmpty()) // Must be a dummy
+                    .filter(node -> node.noDummyChildren.equals(targetRealNodes)) // Must match targets exactly
+                    .findFirst();
+
+            Node bridgeNode;
+
+            if (existingDummy.isPresent()) {
+                // --- CASE A: REUSE EXISTING DUMMY ---
+                bridgeNode = existingDummy.get();
+
+                // Update relationships
+                bridgeNode.parents.add(this);
+                
+                // Propagate "noDummyParents"
+                if (this.node.isEmpty()) {
+                    bridgeNode.noDummyParents.addAll(this.noDummyParents);
+                } else {
+                    this.node.ifPresent(bridgeNode.noDummyParents::add);
+                }
+
+                // We do NOT add longSpanningChildren to bridgeNode.children here, 
+                // because if the dummy already exists, it is already connected to those paths.
+                // However, we must ensure the *current* long children point to this bridge 
+                // and disconnect from 'this'.
+                
+                for (Node child : longSpanningChildren) {
+                    child.parents.remove(this);
+                    // Note: Depending on your graph structure, you might need to ensure 'child' 
+                    // is actually a child of 'bridgeNode'. In a standard reusable dummy scenario,
+                    // it usually is. If 'bridgeNode' was created by a different parent pointing 
+                    // to the SAME child instances, this is fine.
+                    if (!bridgeNode.children.contains(child)) {
+                        bridgeNode.children.add(child);
+                        child.parents.add(bridgeNode);
+                    }
+                }
+
+            } else {
+                // --- CASE B: CREATE NEW DUMMY ---
+                bridgeNode = new Node(null); // Empty Optional = Dummy
+                
+                // Register in LayerMap
+                layerMap.put(bridgeNode, currentLayer + 1);
+
+                // Set relationships
+                bridgeNode.parents.add(this);
+                bridgeNode.children.addAll(longSpanningChildren); // The dummy takes over these children
+                
+                // Set 'NoDummy' metadata
+                bridgeNode.noDummyChildren.addAll(targetRealNodes);
+                if (this.node.isEmpty()) {
+                    bridgeNode.noDummyParents.addAll(this.noDummyParents);
+                } else {
+                    this.node.ifPresent(bridgeNode.noDummyParents::add);
+                }
+
+                // Update children's parents to point to the new dummy instead of 'this'
+                for (Node child : longSpanningChildren) {
+                    child.parents.remove(this);
+                    child.parents.add(bridgeNode);
+                }
+            }
+
+            // 4. Rewire 'this' node
+            // Remove the long-spanning nodes from direct children
+            this.children.removeAll(longSpanningChildren);
+            // Add the bridge (dummy) as a direct child
+            this.children.add(bridgeNode);
+
+            // 5. Recursive Step
+            // Iterate over the NEW state of children. 
+            // This includes the 'bridgeNode' we just added. 
+            // When 'bridgeNode' is processed, it will look at ITS children (the original longSpanningChildren).
+            // If they are still far away (e.g., L1 -> L5), 'bridgeNode' (at L1) will create another dummy at L2.
+            for (Node child : new ArrayList<>(this.children)) {
+                child.recursiveMakeDummy(layerMap);
+            }
+        }
+
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (other instanceof Node otherNode) {
+                if (this.node.isPresent() && otherNode.node.isPresent()) { // both not dummy nodes
+                    return this.node.get().equals(otherNode.node.get());
+                }
+                if (this.node.isPresent() != otherNode.node.isPresent()) { // one dummy node, other not
+                    return false;
+                }
+            }
+            return false; // both dummies, or other is not Node instance
+        }
+
+        @Override
+        public int hashCode() {
+            return this.node.map(Object::hashCode).orElse(super.hashCode());
         }
     }
 

@@ -20,6 +20,7 @@ public record SkillTreeUpdatePacket(
     Map<ResourceLocation, SkillCategory> skillTree, 
     Map<ResourceLocation, SkillPointProgress.ClientData> progresses
 ) implements CustomPacketPayload {
+    
     public static final Type<SkillTreeUpdatePacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"skill_tree_update"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SkillTreeUpdatePacket> STREAM_CODEC = StreamCodec.composite(    

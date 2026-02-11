@@ -40,6 +40,7 @@ public class SkillCategory {
     private static final int DEFAULT_MAX_WIDTH = 16;
 
     private final int maxWidth;
+    private final Long seed;
     private final Prerequisites prerequisites;
     private final Optional<DisplayInfo> display;
 
@@ -49,21 +50,23 @@ public class SkillCategory {
 
     
     /* Constructs actual usable SkillCategory instances. */
-    public SkillCategory(ResourceLocation id, int maxWidth, Prerequisites prerequisites, Optional<DisplayInfo> display) {
+    public SkillCategory(ResourceLocation id, int maxWidth, Long seed, Prerequisites prerequisites, Optional<DisplayInfo> display) {
         this.id = id;
+        this.seed = seed;
         this.maxWidth = maxWidth;
         this.prerequisites = prerequisites;
         this.display = display;
     }
 
     /* For CODEC decoding only */
-    public static SkillCategory makeDecodedInstance(int maxWidth, Prerequisites prerequisites, Optional<DisplayInfo> display) {
-        return new SkillCategory(null, maxWidth, prerequisites, display);
+    public static SkillCategory makeDecodedInstance(int maxWidth, Long seed, Prerequisites prerequisites, Optional<DisplayInfo> display) {
+        return new SkillCategory(null, maxWidth, seed, prerequisites, display);
     }
 
     public static final Codec<SkillCategory> CODEC = RecordCodecBuilder.create(
         (instance) -> instance.group(
             Codec.INT.optionalFieldOf("max_nodes_per_layer",DEFAULT_MAX_WIDTH).forGetter(SkillCategory::maxWidth),
+            Codec.LONG.optionalFieldOf("seed",20260210L).forGetter(SkillCategory::seed),
             Prerequisites.CODEC.optionalFieldOf("prerequisites",Prerequisites.EMPTY).forGetter(SkillCategory::prerequisites),
             DisplayInfo.CODEC.optionalFieldOf("tab_display").forGetter(SkillCategory::display)
         ).apply(instance, SkillCategory::makeDecodedInstance) // should use the private constructor without id assignment.
@@ -78,6 +81,7 @@ public class SkillCategory {
         }
         buffer.writeInt(i);
         buffer.writeInt(this.maxWidth);
+        buffer.writeLong(this.seed);
         ResourceLocation.STREAM_CODEC.encode(buffer, this.id);
         Map<ResourceLocation,SkillPoint> map = new HashMap<>();
         this.nodes.forEach((key, value) -> map.put(key, value.getSkillPoint()));
@@ -94,6 +98,7 @@ public class SkillCategory {
     private static SkillCategory deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
         int i = buffer.readInt();
         int maxWidth = buffer.readInt();
+        Long seed = buffer.readLong();
         ResourceLocation id = ResourceLocation.STREAM_CODEC.decode(buffer);
         Map<ResourceLocation,SkillPoint> map = buffer.readMap(
             buf -> ResourceLocation.STREAM_CODEC.decode((FriendlyByteBuf) buf),
@@ -101,7 +106,7 @@ public class SkillCategory {
         );
         Prerequisites prerequisites = Prerequisites.STREAM_CODEC.decode(buffer);
         Optional<DisplayInfo> display = ((i & 1) != 0) ? Optional.of(DisplayInfo.STREAM_CODEC.decode(buffer)) : Optional.empty();
-        SkillCategory out = new SkillCategory(id, maxWidth, prerequisites, display);
+        SkillCategory out = new SkillCategory(id, maxWidth, seed, prerequisites, display);
         out.addAll(map);
         return out;
     }
@@ -206,6 +211,9 @@ public class SkillCategory {
     protected Map<ResourceLocation, SkillTreeNode> getNodesMap() {
         return this.nodes;
     }
+    protected Set<SkillTreeNode> getRoots() {
+        return this.roots;
+    }
 
     public void setListener(@Nullable SkillCategory.Listener listener) {
         this.listener = listener;
@@ -227,6 +235,9 @@ public class SkillCategory {
 
     public int maxWidth() {
         return this.maxWidth;
+    }
+    public Long seed() {
+        return this.seed;
     }
     public Prerequisites prerequisites() {
         return this.prerequisites;

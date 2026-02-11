@@ -1,5 +1,7 @@
 {
     "max_nodes_per_layer": 16,
+    "seed": 2026,
+
     "prerequisites": {
 
     },

@@ -5,10 +5,11 @@ import java.util.Map;
 
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
+import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeScreen;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.Connection;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
@@ -30,6 +31,10 @@ public class ClientSkillTreePayloadHandler {
     public static void handleSkillTreeUpdate(SkillTreeUpdatePacket packet, final IPayloadContext context) {
         context.enqueueWork(() -> {
             skillTree.update(packet);
+            Screen screen = minecraft.screen;
+            if (screen instanceof SkillTreeScreen skillTreeScreen) {
+                skillTreeScreen.makeTabs();
+            }
         })
         .exceptionally(e -> {
             context.disconnect(Component.translatable("quietus.networking.failed.skillTree", e.getMessage()));

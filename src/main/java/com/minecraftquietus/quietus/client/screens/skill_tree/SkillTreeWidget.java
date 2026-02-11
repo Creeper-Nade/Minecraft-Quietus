@@ -6,6 +6,7 @@ import java.util.Set;
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
+import com.minecraftquietus.quietus.skilltree.TreePosition;
 import com.minecraftquietus.quietus.skilltree.LegacyPosition;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -28,7 +29,7 @@ public class SkillTreeWidget {
 
     private static final ResourceLocation DEFAULT_ICON = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/icons/skill_tree/node/none.png");
 
-    private final LegacySkillTreeTab tab;
+    private final SkillTreeTab tab;
     private final SkillTreeNode node;
     private final Minecraft minecraft;
     private final ClientSkillTree skillTree;
@@ -43,7 +44,7 @@ public class SkillTreeWidget {
 
     private final SkillPointType widgettype;
 
-    public SkillTreeWidget(LegacySkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, int x, int y, SkillPoint.DisplayInfo display) {
+    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, int x, int y, SkillPoint.DisplayInfo display) {
         this.tab = tab;
         this.minecraft = minecraft;
         this.skillTree = clientSkillTree;
@@ -57,6 +58,10 @@ public class SkillTreeWidget {
         this.y = y;
 
         this.widgettype = display.type();
+    }
+
+    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, TreePosition.Vertex vertexPos, SkillPoint.DisplayInfo display) {
+        this(tab, minecraft, clientSkillTree, node, vertexPos.x(), vertexPos.y(), display);
     }
 
     public void draw(GuiGraphics guiGraphics, int offsetX, int offsetY) {

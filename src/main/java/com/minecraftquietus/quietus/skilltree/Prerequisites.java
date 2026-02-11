@@ -80,17 +80,33 @@ public record Prerequisites(
      */
     public Set<ResourceLocation> getAllMustParents() {
         Set<ResourceLocation> out = new HashSet<>();
-        this.requirements.forEach((list) -> {
-            int i = 0;
-            ResourceLocation r = ResourceLocation.parse("quietus:none"); // just placeholder to avoid null pointer. It will be overriden by last id took from the list
+        List<List<String>> reqs = this.requirements.requirements();
+        if (reqs.isEmpty()) return out;
+
+        Set<String> mustParents = null;
+
+        for (List<String> list : reqs) {
+            Set<String> currentParents = new HashSet<>();
             for (String s : list) {
-                if (this.parents.containsKey(s)) { // excludes advancements requirements, sees only parents
-                    i += 1;
-                    r = this.parents.get(s);
-                }                    
+                if (this.parents.containsKey(s)) {
+                    currentParents.add(s);
+                }
             }
-            if (i == 1) out.add(r); // only one present - "must"
-        });
+
+            if (mustParents == null) {
+                mustParents = currentParents;
+            } else {
+                mustParents.retainAll(currentParents);
+            }
+
+            if (mustParents.isEmpty()) break;
+        }
+
+        if (mustParents != null) {
+            for (String s : mustParents) {
+                out.add(this.parents.get(s));
+            }
+        }
         return out;
     }
     /**
@@ -100,14 +116,17 @@ public record Prerequisites(
      */
     public Set<ResourceLocation> getAllOrParents() {
         Set<ResourceLocation> out = new HashSet<>();
+        Set<ResourceLocation> mustParents = getAllMustParents();
+
         this.requirements.forEach((list) -> {
-            Set<ResourceLocation> set = new HashSet<>();
             for (String s : list) {
-                if (this.parents.containsKey(s)) { // excludes advancements requirements, sees only parents
-                    set.add(this.parents.get(s));
+                if (this.parents.containsKey(s)) {
+                    ResourceLocation loc = this.parents.get(s);
+                    if (!mustParents.contains(loc)) {
+                        out.add(loc);
+                    }
                 }
             }
-            if (set.size() > 1) out.addAll(set); // multiple present - "or"
         });
         return out;
     }

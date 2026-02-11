@@ -64,13 +64,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
 
     private final ClientSkillTree skillTree;
-    private final Map<ResourceLocation,LegacySkillTreeTab> tabs = new LinkedHashMap<>();
+    private final Map<ResourceLocation,SkillTreeTab> tabs = new LinkedHashMap<>();
 
     private final Map<SkillTreeWidget,SkillTreeWidgetScreen> widgetScreens = new LinkedHashMap<>();
 
     private SkillTreeDraggable focusedDraggable = null;
     private SkillTreeScrollable focusedScrollable = null;
-    @Nullable private LegacySkillTreeTab selectedTab;
+    @Nullable private SkillTreeTab selectedTab;
     @Nullable private SkillTreeWidget selectedWidget;
     @Nullable private SkillTreeInfoScreen selectedWidgetInfo;
 
@@ -103,6 +103,18 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
     }
 
+    public void makeTabs() {
+        this.tabs.clear();
+        ClientSkillTreePayloadHandler.getCategories().forEach((id, category) -> {
+            TreePosition positioning = new TreePosition(SkillTreeWidget.ICON_WIDTH, SkillTreeWidget.ICON_WIDTH, 6, 6, category.seed());
+            positioning.makeGraphOf(category); 
+            SkillTreeTab createdtab = SkillTreeTab.create(this.minecraft, this.skillTree, this, WINDOW_HEIGHT, category, positioning);
+            if (!Objects.isNull(createdtab))
+                this.tabs.put(id, createdtab);
+            category.setListener(this);
+            this.selectedTab = createdtab; // TODO: debug temp
+        });
+    }
 
     @Override
     public void init() {
@@ -110,17 +122,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         /* Header */
         this.layout.addTitleHeader(TITLE, this.font);
         /* Setup */ 
-        this.tabs.clear();
-        ClientSkillTreePayloadHandler.getCategories().forEach((id, category) -> {
-            TreePosition positioning = new TreePosition(SkillTreeWidget.ICON_WIDTH, SkillTreeWidget.ICON_WIDTH, 4, 4, 2026);
-            positioning.makeGraphOf(category); 
-            ConnectivityPosition connectivityPosition = category.positionNodes(SkillTreeWidget.WIDTH, SkillTreeWidget.HEIGHT);
-            LegacySkillTreeTab createdtab = LegacySkillTreeTab.create(this.minecraft, this.skillTree, this, WINDOW_HEIGHT, category, connectivityPosition);
-            if (!Objects.isNull(createdtab))
-                this.tabs.put(id, createdtab);
-            category.setListener(this);
-            this.selectedTab = createdtab; // TODO: debug temp
-        });
+        this.makeTabs();    
         /* Footer */
         this.layout.addToFooter(Button.builder(CommonComponents.GUI_DONE, button -> this.onClose()).width(200).build());
         this.layout.visitWidgets(widget -> {
