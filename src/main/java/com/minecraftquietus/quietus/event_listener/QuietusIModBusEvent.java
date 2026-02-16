@@ -10,11 +10,7 @@ import com.minecraftquietus.quietus.client.particle.DustExplosionParticle;
 import com.minecraftquietus.quietus.client.particle.DustImplosionParticle;
 import com.minecraftquietus.quietus.client.particle.QuietusParticles;
 import com.minecraftquietus.quietus.entity.monster.PlayerFragment;
-import com.minecraftquietus.quietus.packet.DoDecayPacket;
-import com.minecraftquietus.quietus.packet.GhostStatePacket;
-import com.minecraftquietus.quietus.packet.ManaPacket;
-import com.minecraftquietus.quietus.packet.PlayerRevivalCooldownPacket;
-import com.minecraftquietus.quietus.packet.WeatherItemContainerPacket;
+import com.minecraftquietus.quietus.packet.*;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -75,6 +71,11 @@ public class QuietusIModBusEvent {
             WeatherItemContainerPacket.TYPE,
             WeatherItemContainerPacket.STREAM_CODEC,
             ClientPayloadHandler::handleWeatherItemContainer
+        );
+        registrar.playToClient(
+                GrapplingHookPhysicsPacket.TYPE,
+                GrapplingHookPhysicsPacket.STREAM_CODEC,
+                GrapplingHookPhysicsPacket::handle
         );
     }
 

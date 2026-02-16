@@ -6,6 +6,7 @@ import java.util.function.Function;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentHelper;
 import com.minecraftquietus.quietus.item.property.QuietusProjectileProperty;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -28,6 +29,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 
 /**
@@ -61,12 +63,12 @@ public abstract class QuietusProjectile extends Projectile {
         this.persistanceTicks = projectileProperty.persistanceTicks();
         this.critChance = projectileProperty.critChance();
         this.critDamageOperation = projectileProperty.critOperation();
+
     }
 
     @Override
     public void tick() {
         super.tick();
-
         if (!this.isNoGravity()) {
             applyGravity();
 
@@ -88,10 +90,9 @@ public abstract class QuietusProjectile extends Projectile {
 
         this.setPos(this.position().add(this.getDeltaMovement()));
         this.updateRotation();
-        if(this.tickCount> this.persistanceTicks) {
+        if(this.tickCount> this.persistanceTicks && !level().isClientSide) {
             discardAction();
         }
-
 
     }
     @Override

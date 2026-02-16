@@ -56,6 +56,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
     }
     @Override
     public void tick() {
+
         // If we're stuck in a block, don't move
         if (this.isInBlock()) {
             // Maintain position and don't apply gravity
@@ -63,7 +64,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
             this.setNoGravity(true);
 
             // Check for discard
-            if (this.tickCount > this.persistanceTicks) {
+            if (this.tickCount > this.persistanceTicks && !level().isClientSide) {
                 discardAction();
             }
             return;
@@ -71,7 +72,6 @@ public class GrapplingHookProjectile extends QuietusProjectile {
 
         // Use arrow-like collision detection
         boolean flag = true; // Always enable physics for grappling hook
-        Vec3 vec3 = this.getDeltaMovement();
         BlockPos blockpos = this.blockPosition();
         BlockState blockstate = this.level().getBlockState(blockpos);
 
@@ -139,7 +139,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
         }
 
         // Check for timeout
-        if (this.tickCount > this.persistanceTicks) {
+        if (this.tickCount > this.persistanceTicks && !level().isClientSide) {
             discardAction();
         }
     }
@@ -218,6 +218,20 @@ public class GrapplingHookProjectile extends QuietusProjectile {
     public float getFrictionMultiplier() {
         return grapplingHookProperty != null ? grapplingHookProperty.frictionMultiplier() : 0.99F;
     }
+    public float getMaxPullSpeed() {
+        return grapplingHookProperty != null ? grapplingHookProperty.maxPullSpeed() : 2.0F;
+    }
+    @Override
+    public void onRemovedFromLevel() {
+        super.onRemovedFromLevel();
+        if (this.getOwner() instanceof Player player) {
+            GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
+            if (attachment.getHookEntityId() == this.getId()) {
+                attachment.clear();
+            }
+        }
+    }
+
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

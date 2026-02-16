@@ -4,16 +4,18 @@ package com.minecraftquietus.quietus.item.property;
 public record GrapplingHookProperty(
         float maxRange,
         float pullStrength,
-        float frictionMultiplier
+        float frictionMultiplier,
+        float maxPullSpeed
 ) {
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder {
-        private float maxRange = 100.0F;
-        private float pullStrength = 0.1F;
+        private float maxRange = 10.0F;
+        private float pullStrength = 1.5F;
         private float frictionMultiplier = 0.99F;
+        private float maxPullSpeed = 99.0F; // default max pull speed
 
         public Builder maxRange(float maxRange) {
             this.maxRange = maxRange;
@@ -29,9 +31,10 @@ public record GrapplingHookProperty(
             this.frictionMultiplier = frictionMultiplier;
             return this;
         }
+        public Builder maxPullSpeed(float maxPullSpeed) { this.maxPullSpeed = maxPullSpeed; return this; }
 
         public GrapplingHookProperty build() {
-            return new GrapplingHookProperty(maxRange, pullStrength, frictionMultiplier);
+            return new GrapplingHookProperty(maxRange, pullStrength, frictionMultiplier,maxPullSpeed);
         }
     }
 }

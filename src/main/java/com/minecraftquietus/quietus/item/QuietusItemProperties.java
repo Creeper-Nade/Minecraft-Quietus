@@ -157,12 +157,14 @@ public class QuietusItemProperties extends Item.Properties {
     public QuietusItemProperties grapplingHook(
             float maxRange,
             float pullStrength,
-            float frictionMultiplier
+            float frictionMultiplier,
+            float maxSpeed
     ) {
         this.grapplingHookProperty = GrapplingHookProperty.builder()
                 .maxRange(maxRange)
                 .pullStrength(pullStrength)
                 .frictionMultiplier(frictionMultiplier)
+                .maxPullSpeed(maxSpeed)
                 .build();
         return this;
     }
