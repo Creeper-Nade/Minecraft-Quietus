@@ -19,6 +19,8 @@ import net.minecraft.resources.ResourceLocation;
 public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
 
     private static final boolean[] DOTTED_LINE_PATTERN = {true, true, false};
+    private static final int SCROLL_EXTRA_MARGIN_X = 20;
+    private static final int SCROLL_EXTRA_MARGIN_Y = 20;
     
     private final Minecraft minecraft;
     private final ClientSkillTree skillTree;
@@ -33,6 +35,7 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     private int minY = Integer.MAX_VALUE;
     private int maxX = Integer.MIN_VALUE;
     private int maxY = Integer.MIN_VALUE;
+
     private final TreePosition positioning;
 
     public SkillTreeTab(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, SkillCategory.DisplayInfo display, TreePosition positioning, double scrollX, double scrollY) {
@@ -62,10 +65,10 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
             for (SkillTreeWidget widget : this.widgets.values()) {
                 widget.attachToParent();
             }
-            this.maxX = Math.max(this.maxX, vertexPos.x()+SkillTreeWidget.ICON_WIDTH);
-            this.minX = Math.min(this.minX, vertexPos.x());
-            this.maxY = Math.max(this.maxY, vertexPos.y()+SkillTreeWidget.ICON_HEIGHT);
-            this.minY = Math.min(this.minY, vertexPos.y());
+            this.maxX = Math.max(this.maxX, vertexPos.x() + SkillTreeWidget.ICON_WIDTH + SCROLL_EXTRA_MARGIN_X);
+            this.minX = Math.min(this.minX, vertexPos.x() - SCROLL_EXTRA_MARGIN_X);
+            this.maxY = Math.max(this.maxY, vertexPos.y() + SkillTreeWidget.ICON_HEIGHT + SCROLL_EXTRA_MARGIN_Y);
+            this.minY = Math.min(this.minY, vertexPos.y() - SCROLL_EXTRA_MARGIN_Y);
         }
     }
 
@@ -76,9 +79,9 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
 
         guiGraphics.fill(offsetX, offsetY, offsetX+width, offsetY+height, 0xFFFFFFFF);
 
+        this.clampScroll(0.0d, 0.0d);
         int relX = offsetX + (int)this.scrollX;
         int relY = offsetY + (int)this.scrollY;
-        //guiGraphics.vLine(relX + 13 + 25, relY + 13 + 25, relY + 13 + 25 + 26 + 6, 0xFF000000);
         
         this.drawEdges(guiGraphics, relX, relY);
 
@@ -175,14 +178,29 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
 
     @Override
     public void drag(double dragX, double dragY) {
-        this.scrollX += dragX;
-        this.scrollY += dragY;
+        this.clampScroll(dragX, dragY);
     }
     @Override 
-    public void scroll(double scollX, double scollY) {
-        // same as scroll multiplier in AdvancementsScreen.java vanilla
-        this.scrollX += scollX*16;
-        this.scrollY += scollY*16;
+    public void scroll(double scrollX, double scrollY) {
+        this.clampScroll(scrollX*16, scrollY*16);
+    }
+
+    private void clampScroll(double changeX, double changeY) {
+        int innerWidth = this.screen.dynamicInsideWidth();
+        int innerHeight = SkillTreeScreen.WINDOW_INSIDE_HEIGHT;
+        int contentWidth = this.maxX - this.minX;
+        int contentHeight = this.maxY - this.minY;
+        if (contentWidth > innerWidth) {
+            this.scrollX = Math.clamp(this.scrollX + changeX, (double) innerWidth - this.maxX, -this.minX);
+        } else {
+            this.scrollX = (innerWidth - (this.maxX + this.minX)) / 2.0;
+        }
+
+        if (contentHeight > innerHeight) {
+            this.scrollY = Math.clamp(this.scrollY + changeY, (double) innerHeight - this.maxY, -this.minY);
+        } else {
+            this.scrollY = (innerHeight - (this.maxY + this.minY)) / 2.0;
+        }
     }
 
     public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {

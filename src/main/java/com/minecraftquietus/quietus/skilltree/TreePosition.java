@@ -78,7 +78,7 @@ public class TreePosition {
     /**
          * Topological randomly sorted. 
          * As a result, different RandomSource seeds will produce some nodes put in lower layers during 
-         * {@link TreePosition#widthConstrainedLayer()}, if smoe layers exceed maxWidth
+         * {@link TreePosition#widthConstrainedLayer}, if some layers exceed maxWidth
          */
     private List<SkillTreeNode> topoSort(Map<SkillTreeNode,Integer> in) {
         Map<SkillTreeNode,Integer> inDeg = new HashMap<>(in);

@@ -54,6 +54,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     protected static final int WINDOW_INSIDE_HEIGHT = WINDOW_HEIGHT-WINDOW_INSIDE_Y-WINDOW_INSIDE_TOP_Y;
     private static final int GAP_WINDOW_INFO = 7;
 
+    protected static final int WIDGET_MARGIN_WIDTH = 6;
+    protected static final int WIDGET_MARGIN_HEIGHT = 6;
+
     private static final int INFO_DYNAMIC_OFFSET_FROM_CENTER = - (GAP_WINDOW_INFO + SkillTreeInfoScreen.WIDTH)/2;
     private int infoDynamicOffset = 0;
     private static final int DYNAMIC_POSITIONING_TICKS = 40;
@@ -106,7 +109,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     public void makeTabs() {
         this.tabs.clear();
         ClientSkillTreePayloadHandler.getCategories().forEach((id, category) -> {
-            TreePosition positioning = new TreePosition(SkillTreeWidget.ICON_WIDTH, SkillTreeWidget.ICON_WIDTH, 6, 6, category.seed());
+            TreePosition positioning = new TreePosition(SkillTreeWidget.ICON_WIDTH, SkillTreeWidget.ICON_WIDTH, WIDGET_MARGIN_WIDTH, WIDGET_MARGIN_HEIGHT, category.seed());
             positioning.makeGraphOf(category); 
             SkillTreeTab createdtab = SkillTreeTab.create(this.minecraft, this.skillTree, this, WINDOW_HEIGHT, category, positioning);
             if (!Objects.isNull(createdtab))
@@ -300,6 +303,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     @Override
     public void onAddDependantSkillNode(ResourceLocation categoryId, SkillTreeNode node) {
         this.tabs.get(categoryId).addWidget(node);
+    }
+
+    protected int dynamicInsideOffset() {
+        return this.infoDynamicOffset;
+    }
+    protected int dynamicInsideWidth() {
+        return this.infoWindowInsideDynamicWidth;
     }
 
 }
