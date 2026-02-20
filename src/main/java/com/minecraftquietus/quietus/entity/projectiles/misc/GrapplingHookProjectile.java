@@ -5,6 +5,7 @@ import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.property.GrapplingHookProperty;
+import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
 import com.minecraftquietus.quietus.tags.QuietusTags;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.core.BlockPos;
@@ -32,6 +33,15 @@ public class GrapplingHookProjectile extends QuietusProjectile {
     private static final EntityDataAccessor<Float> LENGTH =
             SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.FLOAT);
 
+    // Synced properties from GrapplingHookProperty
+    private static final EntityDataAccessor<Float> DATA_MAX_TRAVEL_DISTANCE =
+            SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> DATA_PULL_STRENGTH =
+            SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> DATA_FRICTION_MULTIPLIER =
+            SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.FLOAT);
+
+
     private GrapplingHookProperty grapplingHookProperty;
 
     public GrapplingHookProjectile(EntityType<? extends GrapplingHookProjectile> type, Level level) {
@@ -43,6 +53,9 @@ public class GrapplingHookProjectile extends QuietusProjectile {
         super.defineSynchedData(builder);
         builder.define(IN_BLOCK, false);
         builder.define(LENGTH, 0.0F);
+        builder.define(DATA_MAX_TRAVEL_DISTANCE, 100.0F);
+        builder.define(DATA_PULL_STRENGTH, 0.1F);
+        builder.define(DATA_FRICTION_MULTIPLIER, 0.99F);
     }
 
     @Override
@@ -104,9 +117,53 @@ public class GrapplingHookProjectile extends QuietusProjectile {
             this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -this.gravity, 0.0D));
         }
 
+        // --- Tethering: smooth restoring force when beyond maxTravelDistance ---
+        if (this.getOwner() instanceof Player player) {
+            // Ensure same dimension
+            if (player.level().dimension() == this.level().dimension()) {
+                double maxDist = getMaxTravelDistance();
+                Vec3 toPlayer = this.position().subtract(player.position());
+                double distSq = toPlayer.lengthSqr();
+                if (distSq > maxDist * maxDist) {
+
+                    Vec3 dir = toPlayer.normalize();
+                    double dist = Math.sqrt(distSq);
+                    double overshoot = dist - maxDist;
+
+                    // Spring constant – higher values pull back more aggressively
+                    double springStrength = 0.2;
+                    double targetRadialSpeed = -springStrength * overshoot; // negative = toward player
+
+                    // Current radial speed (positive = moving away)
+                    double radialSpeed = this.getDeltaMovement().dot(dir);
+                    // Smoothly adjust radial speed toward target
+                    double smoothing = 0.3; // per‑tick interpolation factor
+                    double newRadialSpeed = radialSpeed + (targetRadialSpeed - radialSpeed) * smoothing;
+
+                    // Keep tangential component and apply damping
+                    Vec3 tangential = this.getDeltaMovement().subtract(dir.scale(radialSpeed));
+                    tangential = tangential.scale(0.98); // air resistance on swing
+
+
+
+                    // Re‑combine velocities
+                    this.setDeltaMovement(tangential.add(dir.scale(newRadialSpeed)));
+
+                    // Global speed cap (optional, prevents extreme speeds)
+                    double speed = this.getDeltaMovement().length();
+                    double maxSpeed = 3.0; // adjust per hook type if needed
+                    if (speed > maxSpeed) {
+                        this.setDeltaMovement(this.getDeltaMovement().scale(maxSpeed / speed));
+                    }
+                }
+            }
+        }
+
         // Calculate movement
         Vec3 vec32 = this.position();
         Vec3 vec33 = vec32.add(this.getDeltaMovement());
+
+
 
         // Perform raycast for collision
         HitResult hitresult = this.level().clip(new ClipContext(
@@ -137,6 +194,9 @@ public class GrapplingHookProjectile extends QuietusProjectile {
         } else {
             this.setDeltaMovement(vec34.scale(0.99D)); // Air friction
         }
+
+
+
 
         // Check for timeout
         if (this.tickCount > this.persistanceTicks && !level().isClientSide) {
@@ -209,17 +269,24 @@ public class GrapplingHookProjectile extends QuietusProjectile {
 
     public void setGrapplingHookProperty(GrapplingHookProperty property) {
         this.grapplingHookProperty = property;
+        // Sync values to client
+        this.entityData.set(DATA_MAX_TRAVEL_DISTANCE, property.maxTravelDistance());
+        this.entityData.set(DATA_PULL_STRENGTH, property.pullStrength()); // used as stiffness
+        this.entityData.set(DATA_FRICTION_MULTIPLIER, property.frictionMultiplier());
     }
 
     public float getPullStrength() {
-        return grapplingHookProperty != null ? grapplingHookProperty.pullStrength() : 0.1F;
+        return this.entityData.get(DATA_PULL_STRENGTH);
     }
 
     public float getFrictionMultiplier() {
-        return grapplingHookProperty != null ? grapplingHookProperty.frictionMultiplier() : 0.99F;
+        return this.entityData.get(DATA_FRICTION_MULTIPLIER);
     }
     public float getMaxPullSpeed() {
         return grapplingHookProperty != null ? grapplingHookProperty.maxPullSpeed() : 2.0F;
+    }
+    public float getMaxTravelDistance() {
+        return this.entityData.get(DATA_MAX_TRAVEL_DISTANCE);
     }
     @Override
     public void onRemovedFromLevel() {

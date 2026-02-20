@@ -77,6 +77,11 @@ public class QuietusIModBusEvent {
                 GrapplingHookPhysicsPacket.STREAM_CODEC,
                 GrapplingHookPhysicsPacket::handle
         );
+        registrar.playToServer(
+                GrapplingJumpReleasePacket.TYPE,
+                GrapplingJumpReleasePacket.STREAM_CODEC,
+                GrapplingJumpReleasePacket::handle
+        );
     }
 
     @SubscribeEvent

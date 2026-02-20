@@ -48,7 +48,8 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, P
     @Override
     public void render(ProjectileRenderState state, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
-        //poseStack.translate(0.0F, -0.1F, 0.0F);
+        //poseStack.translate(0.0F, 0.0F, 0.0F);
+        poseStack.translate(-0.5F / 16.0F, 5.0F / 16.0F, 0.0F); // Convert pixels to blocks (1/16th of a block)
         poseStack.mulPose(Axis.YP.rotationDegrees(state.yRot));
         poseStack.mulPose(Axis.XP.rotationDegrees(-state.xRot));
 

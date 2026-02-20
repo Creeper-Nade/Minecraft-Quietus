@@ -137,8 +137,8 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
                     player.getZ(),
                     this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundEvent(),
                     this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundSource(),
-                    1.0F,
-                    1.0F / (level.getRandom().nextFloat() * 0.4F + 1.2F) + shootVelocity * 0.5F
+                    this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundVolume(),
+                    this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundPitch() / (level.getRandom().nextFloat() * 0.4F + 1.2F) + shootVelocity * 0.5F
             );
             player.awardStat(Stats.ITEM_USED.get(this));
             return InteractionResult.SUCCESS_SERVER;

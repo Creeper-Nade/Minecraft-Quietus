@@ -44,7 +44,7 @@ public record GrapplingHookPhysicsPacket(double x, double y, double z) implement
         context.enqueueWork(() -> {
             Player player = context.player();
             if (player != null) {
-                LOGGER.debug("Client received velocity: {}", packet.toVelocity());
+                //LOGGER.debug("Client received velocity: {}", packet.toVelocity());
                 // Apply the velocity directly on the client
                 Vec3 currentMotion = player.getDeltaMovement();
                 Vec3 newMotion = packet.toVelocity();

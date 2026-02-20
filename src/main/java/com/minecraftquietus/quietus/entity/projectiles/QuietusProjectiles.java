@@ -39,7 +39,7 @@ public class QuietusProjectiles {
     public static final Supplier<EntityType<SmallAmethystShardProjectile>> SMALL_AMETHYST_PROJECTILE =
             registerProjectile("small_amethyst_projectile", createKey("small_amethyst_projectile"), SmallAmethystShardProjectile::new, 0.3F, 0.3f);
     public static final Supplier<EntityType<GrapplingHookProjectile>> CHAIN_GRAPPLING_HOOK_PROJECTILE =
-            registerGrappleProjectile("chain_grappling_hook_projectile", createKey("chain_grappling_hook_projectile"), ChainGrapplingHookProjectile::new, 0.8F, 0.8f);
+            registerGrappleProjectile("chain_grappling_hook_projectile", createKey("chain_grappling_hook_projectile"), ChainGrapplingHookProjectile::new, 0.8F, 0.8f,0.5f);
     /*
 
     public static final Supplier<EntityType<MagicalProjectile>> MAGIC_PROJECTILE =
@@ -78,11 +78,12 @@ public class QuietusProjectiles {
             String name,
             ResourceKey<EntityType<?>> key,
             EntityType.EntityFactory<T> factory,
-            float width, float height
+            float width, float height, float eyeHeight
     ) {
         return REGISTRAR.register(name, () ->
                 EntityType.Builder.of(factory, MobCategory.MISC)
                         .sized(width, height)
+                        .eyeHeight(eyeHeight)
                         .clientTrackingRange(4)
                         .updateInterval(10)
                         .setShouldReceiveVelocityUpdates(true)

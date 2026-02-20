@@ -4,8 +4,10 @@ import com.minecraftquietus.quietus.core.GrapplingHookAttachment;
 import com.minecraftquietus.quietus.entity.projectiles.misc.GrapplingHookProjectile;
 import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
 import com.minecraftquietus.quietus.packet.GrapplingHookPhysicsPacket;
+import com.minecraftquietus.quietus.packet.GrapplingJumpReleasePacket;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -14,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -26,6 +29,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 @EventBusSubscriber(modid=MODID)
 public class GrapplingEvent {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static boolean jumpPressed = false;
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Pre event) {
@@ -39,13 +43,13 @@ public class GrapplingEvent {
             if (hook != null && hook.isInBlock()) {
                 float ropeLength = hook.getLength();
                 float pullStrength = hook.getPullStrength();
-                LOGGER.debug("Hook: length={}, pullStrength={}", ropeLength, pullStrength);
+                //LOGGER.debug("Hook: length={}, pullStrength={}", ropeLength, pullStrength);
 
                 double distance = player.getEyePosition().distanceTo(hook.position());
-                LOGGER.debug("Distance={}, ratio={}", distance, distance / ropeLength);
+                //LOGGER.debug("Distance={}, ratio={}", distance, distance / ropeLength);
 
                 Vec3 newVelocity = calculateGrapplingPhysics(player, hook);
-                LOGGER.debug("Old vel={}, new vel={}", player.getDeltaMovement(), newVelocity);
+                //LOGGER.debug("Old vel={}, new vel={}", player.getDeltaMovement(), newVelocity);
 
                 // Apply velocity on server
                 player.setDeltaMovement(newVelocity);
@@ -206,5 +210,20 @@ public class GrapplingEvent {
             }
         }
         return null;
+    }
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Pre event) {
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        if (player == null) return;
+
+        boolean jumpDown = mc.options.keyJump.isDown();
+        if (jumpDown && !jumpPressed) {
+            // Jump key just pressed
+            jumpPressed = true;
+            PacketDistributor.sendToServer(new GrapplingJumpReleasePacket());
+        } else if (!jumpDown && jumpPressed) {
+            jumpPressed = false;
+        }
     }
 }

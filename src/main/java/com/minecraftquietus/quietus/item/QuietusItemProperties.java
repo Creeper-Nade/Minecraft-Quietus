@@ -48,7 +48,11 @@ public class QuietusItemProperties extends Item.Properties {
     //public List<SoundAsset> sounds = new ArrayList<SoundAsset>();
     public HashMap<String,SoundAsset> sounds = new HashMap<>();
     public QuietusItemProperties addSound(String key, SoundEvent soundEvent, SoundSource soundSource) {
-        this.sounds.put(key, SoundAsset.builder().event(soundEvent).source(soundSource).build());
+        addSound(key, soundEvent,soundSource,1.0F,1.0F);
+        return this;
+    }
+    public QuietusItemProperties addSound(String key, SoundEvent soundEvent, SoundSource soundSource,float soundVolume, float soundPitch) {
+        this.sounds.put(key, SoundAsset.builder().event(soundEvent).source(soundSource).volume(soundVolume).pitch(soundPitch).build());
         return this;
     }
 
@@ -158,13 +162,15 @@ public class QuietusItemProperties extends Item.Properties {
             float maxRange,
             float pullStrength,
             float frictionMultiplier,
-            float maxSpeed
+            float maxSpeed,
+            float maxDistance
     ) {
         this.grapplingHookProperty = GrapplingHookProperty.builder()
                 .maxRange(maxRange)
                 .pullStrength(pullStrength)
                 .frictionMultiplier(frictionMultiplier)
                 .maxPullSpeed(maxSpeed)
+                .maxTravelDistance(maxDistance)
                 .build();
         return this;
     }

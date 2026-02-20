@@ -5,7 +5,9 @@ import net.minecraft.sounds.SoundEvent;
 
 public record SoundAsset(
     SoundEvent soundEvent,
-    SoundSource soundSource
+    SoundSource soundSource,
+    float soundVolume,
+    float soundPitch
 ) {
 
     public static SoundAsset.Builder builder() {
@@ -16,9 +18,19 @@ public record SoundAsset(
     public static class Builder{
         private SoundEvent soundEvent;
         private SoundSource soundSource;
+        private float soundVolume;
+        private float soundPitch;
 
         public SoundAsset.Builder event(SoundEvent soundEvent) {
             this.soundEvent = soundEvent;
+            return this;
+        }
+        public SoundAsset.Builder volume(float soundVolume) {
+            this.soundVolume = soundVolume;
+            return this;
+        }
+        public SoundAsset.Builder pitch(float soundPitch) {
+            this.soundPitch = soundPitch;
             return this;
         }
         public SoundAsset.Builder source(SoundSource soundSource) {
@@ -27,7 +39,7 @@ public record SoundAsset(
         }
 
         public SoundAsset build() {
-            return new SoundAsset(this.soundEvent, this.soundSource);
+            return new SoundAsset(this.soundEvent, this.soundSource,this.soundVolume,this.soundPitch);
         }
     }
 }
