@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus.client.handler;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
@@ -32,7 +33,7 @@ public class ClientSkillTreePayloadHandler {
         context.enqueueWork(() -> {
             skillTree.update(packet);
             Screen screen = minecraft.screen;
-            if (screen instanceof SkillTreeScreen skillTreeScreen) {
+            if (!Objects.isNull(screen) && screen instanceof SkillTreeScreen skillTreeScreen) {
                 skillTreeScreen.makeTabs();
             }
         })

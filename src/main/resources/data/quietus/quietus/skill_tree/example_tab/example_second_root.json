@@ -3,6 +3,7 @@
     "max_amount": 5,
 
     "layout": {
+        "top": true,
         "prerequisites": {
             "parents": {
                 "p1": "quietus:example_tab/example_root"

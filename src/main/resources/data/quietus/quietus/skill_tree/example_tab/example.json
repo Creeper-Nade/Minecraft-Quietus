@@ -22,7 +22,7 @@
                 "p3": "quietus:example_tab/example_branch_3"
             },
             "requirements": [
-                ["p1","p2","p3"]
+                ["p1","p3","p2"]
             ]
         }
     },

@@ -136,7 +136,7 @@ public class TreePosition {
          * SkillPoint: skips ones with layout top=true, so that they stay as high from the forward pass
          */
         for (SkillTreeNode node : order.reversed()) {
-            if (node.children.isEmpty()) { // skip leaves
+            if (node.children.isEmpty() || node.getSkillPoint().layout().top()) { // skip leaves or top=true
                 continue;
             }
             int latest = Integer.MAX_VALUE;

@@ -65,11 +65,14 @@ public record Prerequisites(
      */
     public Set<ResourceLocation> getAllParents() {
         Set<ResourceLocation> out = new HashSet<>();
-        this.parents.keySet().forEach((key) -> {
-            this.requirements.forEach((list) -> list.forEach((requirement) -> {
-                if (key.equals(requirement)) out.add(this.parents.get(key));
-            }));
-        });
+        for (List<String> list : this.requirements.requirements()) {
+            for (String reqKey : list) {
+                ResourceLocation loc = this.parents.get(reqKey);
+                if (loc != null) {
+                    out.add(loc);
+                }
+            }
+        }
         return out;
     }
 
@@ -79,33 +82,34 @@ public record Prerequisites(
      * @return Set of ResourceLocation of "must" parents
      */
     public Set<ResourceLocation> getAllMustParents() {
-        Set<ResourceLocation> out = new HashSet<>();
         List<List<String>> reqs = this.requirements.requirements();
-        if (reqs.isEmpty()) return out;
+        if (reqs.isEmpty()) return Set.of();
 
-        Set<String> mustParents = null;
+        Set<String> mustKeys = null;
 
         for (List<String> list : reqs) {
-            Set<String> currentParents = new HashSet<>();
+            Set<String> currentValid = new HashSet<>();
             for (String s : list) {
                 if (this.parents.containsKey(s)) {
-                    currentParents.add(s);
+                    currentValid.add(s);
                 }
             }
 
-            if (mustParents == null) {
-                mustParents = currentParents;
+            if (mustKeys == null) {
+                mustKeys = currentValid;
             } else {
-                mustParents.retainAll(currentParents);
+                mustKeys.retainAll(currentValid);
             }
 
-            if (mustParents.isEmpty()) break;
+            // Optimization: If nothing is "must" anymore, stop searching
+            if (mustKeys.isEmpty()) break;
         }
 
-        if (mustParents != null) {
-            for (String s : mustParents) {
-                out.add(this.parents.get(s));
-            }
+        if (mustKeys == null || mustKeys.isEmpty()) return Set.of();
+
+        Set<ResourceLocation> out = new HashSet<>();
+        for (String key : mustKeys) {
+            out.add(this.parents.get(key));
         }
         return out;
     }
@@ -115,19 +119,37 @@ public record Prerequisites(
      * @return Set of ResourceLocation of "or" parents
      */
     public Set<ResourceLocation> getAllOrParents() {
-        Set<ResourceLocation> out = new HashSet<>();
-        Set<ResourceLocation> mustParents = getAllMustParents();
+        List<List<String>> reqs = this.requirements.requirements();
+        if (reqs.isEmpty()) return Set.of();
 
-        this.requirements.forEach((list) -> {
+        Set<String> allKeys = new HashSet<>();
+        Set<String> mustKeys = null;
+
+        for (List<String> list : reqs) {
+            Set<String> currentValid = new HashSet<>();
             for (String s : list) {
                 if (this.parents.containsKey(s)) {
-                    ResourceLocation loc = this.parents.get(s);
-                    if (!mustParents.contains(loc)) {
-                        out.add(loc);
-                    }
+                    currentValid.add(s);
+                    allKeys.add(s); // Building the Union
                 }
             }
-        });
+
+            if (mustKeys == null) {
+                mustKeys = new HashSet<>(currentValid);
+            } else {
+                mustKeys.retainAll(currentValid); // Building the Intersection
+            }
+        }
+
+        // Logic: OrParents = Union - Intersection
+        if (mustKeys != null) {
+            allKeys.removeAll(mustKeys);
+        }
+
+        Set<ResourceLocation> out = new HashSet<>();
+        for (String key : allKeys) {
+            out.add(this.parents.get(key));
+        }
         return out;
     }
 
