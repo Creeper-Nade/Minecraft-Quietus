@@ -5,10 +5,12 @@ import java.util.Objects;
 import com.minecraftquietus.quietus.client.util.GuiGraphicsUtil;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -38,8 +40,6 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     private final SkillTreeWidget widget;
     private final SkillTreeScreen screen;
 
-    private int height;
-
     private int headingLines;
     private int descriptionLines;
     private int totalHeadingParHeight;
@@ -67,13 +67,14 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     protected static SkillTreeInfoScreen create(SkillTreeWidget widget, Font font, SkillTreeScreen screen) {
         Component heading = null;
         Component description = null;
+
         if (widget.getDisplay().isPresent()) {
             SkillPoint.DisplayInfo display = widget.getDisplay().get();
             heading = display.header();
             description = display.description();
         }
-        heading = Objects.requireNonNullElse(heading, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "header")));
-        description = Objects.requireNonNullElse(description, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "description")));
+        heading = Objects.requireNonNullElse(heading, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "header"))); // default uses language key
+        description = Objects.requireNonNullElse(description, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "description"))); // default uses language key
 
         SkillTreeInfoScreen out = new SkillTreeInfoScreen(font, heading, description, widget, screen);
         return out;
@@ -132,7 +133,6 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         // header container
         guiGraphics.blitSprite(RenderType::guiTextured, HEADER_SPRITE_LOCATION, left_x, top_y, WIDTH, this.headingParHeight + V_MARGIN + SECTION_V_MARGIN + SkillTreeWidget.ICON_HEIGHT + CONTENTS_CONTAINER_PADDING + SECTION_V_MARGIN);
         // header
-            //guiGraphics.fill(offsetX, heading_inside_y, offsetX + HEADING_TEXT_MAX_WIDTH, heading_inside_y + this.actualHeadingParHeight, 0xBBFF0000);
         if (this.isScrollHeading) {
             guiGraphics.enableScissor(heading_inside_x, heading_inside_y, heading_inside_x + HEADING_TEXT_MAX_WIDTH, heading_inside_y + this.headingParHeight);
             GuiGraphicsUtil.drawWordWrap(guiGraphics, this.font, this.heading, heading_inside_x, heading_inside_y + (int)Math.round(this.headingScrollY), HEADING_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
@@ -143,7 +143,6 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         }
     
         // description
-            //guiGraphics.fill(offsetX, description_inside_y, offsetX + HEADING_TEXT_MAX_WIDTH, description_inside_y + this.actualDescriptionParHeight, 0xBB0000FF);
         if (this.isScrollDescription) {
             guiGraphics.enableScissor(description_inside_x, description_inside_y, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, description_inside_y + this.descriptionParHeight);
             GuiGraphicsUtil.drawWordWrap(guiGraphics, this.font, this.description, description_inside_x, description_inside_y + (int)Math.round(this.descriptionScrollY), DESCRIPTION_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);

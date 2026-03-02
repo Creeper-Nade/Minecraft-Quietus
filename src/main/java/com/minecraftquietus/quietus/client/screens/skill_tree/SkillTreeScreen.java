@@ -111,7 +111,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         ClientSkillTreePayloadHandler.getCategories().forEach((id, category) -> {
             TreePosition positioning = new TreePosition(SkillTreeWidget.ICON_WIDTH, SkillTreeWidget.ICON_WIDTH, WIDGET_MARGIN_WIDTH, WIDGET_MARGIN_HEIGHT, category.seed());
             positioning.makeGraphOf(category); 
-            SkillTreeTab createdtab = SkillTreeTab.create(this.minecraft, this.skillTree, this, WINDOW_HEIGHT, category, positioning);
+            SkillTreeTab createdtab = SkillTreeTab.create(this.minecraft, this.skillTree, this, 0, category, positioning);
             if (!Objects.isNull(createdtab))
                 this.tabs.put(id, createdtab);
             category.setListener(this);
