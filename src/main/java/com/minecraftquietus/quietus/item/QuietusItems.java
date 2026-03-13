@@ -317,7 +317,7 @@ public class QuietusItems {
                         .durability(100)
                         .stacksTo(1)
                         .useItemDescriptionPrefix()
-                        .setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("chain_grappling_hook")))
+                        .setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse("quietus:chain_grappling_hook")))
         ));
 
         public static final DeferredItem<Item> COPPER_SWORD = REGISTRAR.registerItem("copper_sword", properties -> new WeatheringCopperItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().sword(QuietusToolMaterial.COPPER, 3.0f, -2.4f).setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MODID, "copper_sword")))));    

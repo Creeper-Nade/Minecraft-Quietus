@@ -25,7 +25,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 public class GrapplingHookProjectile extends QuietusProjectile {
     private static final EntityDataAccessor<Boolean> IN_BLOCK =
@@ -224,6 +225,18 @@ public class GrapplingHookProjectile extends QuietusProjectile {
 
         //this.setPos(hitResult.getLocation());
         //this.setDeltaMovement(this.getDeltaMovement().normalize().scale(hitResult.distanceTo(this)));
+    }
+    @Nullable
+    public Player getPlayerOwner() {
+        Entity var2 = this.getOwner();
+        Player var10000;
+        if (var2 instanceof Player player) {
+            var10000 = player;
+        } else {
+            var10000 = null;
+        }
+
+        return var10000;
     }
     @Override
     protected void onHitEntity(EntityHitResult hitResult)
