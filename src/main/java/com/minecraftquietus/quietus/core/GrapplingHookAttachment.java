@@ -7,7 +7,6 @@ import org.jetbrains.annotations.UnknownNullability;
 
 public class GrapplingHookAttachment implements INBTSerializable<CompoundTag> {
     private int hookEntityId = -1;
-
     public GrapplingHookAttachment() {}
 
     public int getHookEntityId() {
@@ -21,9 +20,9 @@ public class GrapplingHookAttachment implements INBTSerializable<CompoundTag> {
     public void clear() {
         this.hookEntityId = -1;
     }
-
     public boolean hasActiveHook() {
-        return hookEntityId != -1;
+        //System.out.println(hookCasted);
+        return hookEntityId!=-1;
     }
 
     @Override

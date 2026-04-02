@@ -40,19 +40,5 @@ public record GrapplingHookPhysicsPacket(double x, double y, double z) implement
         return TYPE;
     }
 
-    public static void handle(GrapplingHookPhysicsPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
-            if (player != null) {
-                //LOGGER.debug("Client received velocity: {}", packet.toVelocity());
-                // Apply the velocity directly on the client
-                Vec3 currentMotion = player.getDeltaMovement();
-                Vec3 newMotion = packet.toVelocity();
-                player.setDeltaMovement(newMotion);
 
-                // Also set a flag to indicate we're controlling movement
-                player.getPersistentData().putBoolean("QuietusGrappling", true);
-            }
-        });
-    }
 }

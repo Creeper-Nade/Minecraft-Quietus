@@ -23,12 +23,5 @@ public record GrapplingJumpReleasePacket() implements CustomPacketPayload {
         return TYPE;
     }
 
-    public static void handle(GrapplingJumpReleasePacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
-            if (!player.level().isClientSide && player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT).hasActiveHook()) {
-                GrapplingHookItem.retrieveHookForPlayer(player);
-            }
-        });
-    }
+
 }

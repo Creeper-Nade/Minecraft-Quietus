@@ -1,5 +1,4 @@
 {
-	"parent" : "minecraft:item/handheld",
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
 	"textures": {
@@ -482,13 +481,13 @@
 			"scale": [0.8, 0.8, 0.8]
 		},
 		"firstperson_righthand": {
-			"rotation": [0, 90, 25],
-			"translation": [0, 1.6, 0.8],
+			"rotation": [-66.23, 80.2, 82.16],
+			"translation": [1.5, 1.6, 0.8],
 			"scale": [0.68, 0.68, 0.68]
 		},
 		"firstperson_lefthand": {
-			"rotation": [0, -90, -25],
-			"translation": [0, 1.6, 0.8],
+			"rotation": [-179.92, -80.71, 162.57],
+			"translation": [2.25, 1.6, 0.8],
 			"scale": [0.68, 0.68, 0.68]
 		},
 		"ground": {
@@ -502,7 +501,8 @@
 		},
 		"head": {
 			"rotation": [-180, 88.25, -180],
-			"translation": [-0.25, 0, 0]
+			"translation": [-0.25, 0, 3],
+			"scale": [1, 1.5, 1.5]
 		},
 		"fixed": {
 			"rotation": [0, 0, 41.5],

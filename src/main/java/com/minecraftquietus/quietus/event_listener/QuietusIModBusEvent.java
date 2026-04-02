@@ -9,11 +9,13 @@ import com.minecraftquietus.quietus.client.model.projectile.misc.ChainHookModel;
 import com.minecraftquietus.quietus.client.particle.DustExplosionParticle;
 import com.minecraftquietus.quietus.client.particle.DustImplosionParticle;
 import com.minecraftquietus.quietus.client.particle.QuietusParticles;
+import com.minecraftquietus.quietus.data.ItemModelProperties.GrapplingHookCast;
 import com.minecraftquietus.quietus.entity.monster.PlayerFragment;
 import com.minecraftquietus.quietus.packet.*;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -24,6 +26,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
@@ -75,12 +78,17 @@ public class QuietusIModBusEvent {
         registrar.playToClient(
                 GrapplingHookPhysicsPacket.TYPE,
                 GrapplingHookPhysicsPacket.STREAM_CODEC,
-                GrapplingHookPhysicsPacket::handle
+                ClientPayloadHandler::handleGrapplePhysics
+        );
+        registrar.playToClient(
+                GrapplingActiveHookPacket.TYPE,
+                GrapplingActiveHookPacket.STREAM_CODEC,
+                ClientPayloadHandler::handleGrappleActivity
         );
         registrar.playToServer(
                 GrapplingJumpReleasePacket.TYPE,
                 GrapplingJumpReleasePacket.STREAM_CODEC,
-                GrapplingJumpReleasePacket::handle
+                ClientPayloadHandler::handleGrappleJump
         );
     }
 
@@ -142,5 +150,15 @@ public class QuietusIModBusEvent {
         event.registerSpriteSet(QuietusParticles.DUST_EXPLOSION.get(), DustExplosionParticle.Provider::new);
         event.registerSpriteSet(QuietusParticles.DUST_IMPLOSION.get(), DustImplosionParticle.Provider::new);
     }
-    
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent // on the mod event bus only on the physical client
+    public static void registerConditionalProperties(RegisterConditionalItemModelPropertyEvent event) {
+        event.register(
+                // The name to reference as the type
+                ResourceLocation.fromNamespaceAndPath(MODID, "grappling_hook_cast"),
+                // The map codec
+                GrapplingHookCast.MAP_CODEC
+        );
+    }
 }

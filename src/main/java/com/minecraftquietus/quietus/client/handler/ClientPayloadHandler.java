@@ -5,12 +5,10 @@ import java.util.Objects;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.item.QuietusComponents;
-import com.minecraftquietus.quietus.packet.DoDecayPacket;
-import com.minecraftquietus.quietus.packet.GhostStatePacket;
-import com.minecraftquietus.quietus.packet.ManaPacket;
-import com.minecraftquietus.quietus.packet.PlayerRevivalCooldownPacket;
-import com.minecraftquietus.quietus.packet.WeatherItemContainerPacket;
+import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
+import com.minecraftquietus.quietus.packet.*;
 
+import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -19,7 +17,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -41,6 +41,8 @@ public class ClientPayloadHandler {
     private static int MaxReviveCD;
     private static int ReviveCD;
 
+    private static boolean hasActiveHook=false;
+
     private static Minecraft minecraft = Minecraft.getInstance();
 
 
@@ -55,9 +57,7 @@ public class ClientPayloadHandler {
                     return null;
                 });
     }
-    public int GetMaxManaFromPack() {return MaxMana;}
-    public boolean GetManaChargeStatus(){return ManaFastCharging;}
-    public int GetManaFromPack() {return Mana;}
+
 
     public static void handleGhostState(final GhostStatePacket payload,final IPayloadContext context) {
         context.enqueueWork(() -> {
@@ -78,10 +78,6 @@ public class ClientPayloadHandler {
                 });
 
     }
-    public boolean getGhostState(){return PlayerIsGhost;}
-    public boolean getHardcore(){return IsHardCore;}
-    public int getMaxReviveCD(){return MaxReviveCD;}
-
     public static void handleReviveCD(final PlayerRevivalCooldownPacket payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
                     ReviveCD = payload.cooldown();
@@ -92,7 +88,6 @@ public class ClientPayloadHandler {
                 });
 
     }
-    public int GetReviveCD(){return ReviveCD;}
 
     public static void handleDoDecay(final DoDecayPacket payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
@@ -117,7 +112,6 @@ public class ClientPayloadHandler {
             return null;
         });
     }
-
     public static void handleWeatherItemContainer(final WeatherItemContainerPacket payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             ClientLevel level = minecraft.level;
@@ -141,4 +135,41 @@ public class ClientPayloadHandler {
             return null;
         });
     }
+    public static void handleGrapplePhysics(GrapplingHookPhysicsPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Player player = context.player();
+            if (player != null) {
+                //LOGGER.debug("Client received velocity: {}", packet.toVelocity());
+                // Apply the velocity directly on the client
+                Vec3 currentMotion = player.getDeltaMovement();
+                Vec3 newMotion = packet.toVelocity();
+                player.setDeltaMovement(newMotion);
+
+                // Also set a flag to indicate we're controlling movement
+                player.getPersistentData().putBoolean("QuietusGrappling", true);
+            }
+        });
+    }
+    public static void handleGrappleJump(GrapplingJumpReleasePacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Player player = context.player();
+            if (!player.level().isClientSide && player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT).hasActiveHook()) {
+                GrapplingHookItem.retrieveHookForPlayer(player);
+            }
+        });
+    }
+    public static void handleGrappleActivity(GrapplingActiveHookPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            hasActiveHook= packet.active();
+        });
+    }
+    public int GetMaxManaFromPack() {return MaxMana;}
+    public boolean GetManaChargeStatus(){return ManaFastCharging;}
+    public int GetManaFromPack() {return Mana;}
+    public boolean getGhostState(){return PlayerIsGhost;}
+    public boolean getHardcore(){return IsHardCore;}
+    public int getMaxReviveCD(){return MaxReviveCD;}
+    public int GetReviveCD(){return ReviveCD;}
+    public boolean GetHookActivity(){return hasActiveHook;}
+
 }

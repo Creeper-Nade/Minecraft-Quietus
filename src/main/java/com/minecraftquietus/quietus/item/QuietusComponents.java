@@ -9,6 +9,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.Unit;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -33,6 +34,11 @@ public class QuietusComponents {
      */
     public static final Supplier<DataComponentType<CanDecay>> CAN_DECAY = REGISTRAR.registerComponentType("can_decay", builder -> builder.persistent(CanDecay.CODEC).networkSynchronized(CanDecay.STREAM_CODEC));
     public static final Supplier<DataComponentType<Integer>> DECAY = REGISTRAR.registerComponentType("decay", builder -> builder.persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    public static final Supplier<DataComponentType<Unit>> GRAPPLING_HOOK_CAST = REGISTRAR.registerComponentType(
+            "grappling_hook_cast",
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
+    );
 
 
 

@@ -2,6 +2,7 @@ package com.minecraftquietus.quietus.data;
 
 import com.minecraftquietus.quietus.Quietus;
 import com.minecraftquietus.quietus.block.QuietusBlocks;
+import com.minecraftquietus.quietus.data.ItemModelProperties.GrapplingHookCast;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.equipment.QuietusArmorMaterials;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -22,6 +23,7 @@ import java.util.Collections;
 import java.util.stream.Stream;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
+import static com.minecraftquietus.quietus.item.QuietusComponents.GRAPPLING_HOOK_CAST;
 
 public class QuietusModelProvider extends ModelProvider {
     public QuietusModelProvider(PackOutput output) {
@@ -53,18 +55,22 @@ public class QuietusModelProvider extends ModelProvider {
         Item myItem = QuietusItems.CHAIN_GRAPPLING_HOOK.get();
         var unbaked2d = ItemModelUtils.plainModel(ResourceLocation.fromNamespaceAndPath(MODID,"item/tools/grapples/chain_grappling_hook_2d"));
         var unbaked3d = ItemModelUtils.plainModel(ResourceLocation.fromNamespaceAndPath(MODID,"item/tools/grapples/chain_grappling_hook_3d"));
+        var unbakedCast = ItemModelUtils.plainModel(ResourceLocation.fromNamespaceAndPath(MODID,"item/tools/grapples/chain_grappling_hook_cast"));
+
+        // The property that checks for the marker component
+        var castProperty = new GrapplingHookCast();
         // Build the select model with cases for each display context
         var selectModel = ItemModelUtils.select(
                new DisplayContext(),                     // property: minecraft:display_context
                 unbaked2d,                                    // fallback model
                 // GUI contexts -> 2D
-                ItemModelUtils.when(ItemDisplayContext.GUI, unbaked2d),
-                ItemModelUtils.when(ItemDisplayContext.FIXED, unbaked2d),
+                ItemModelUtils.when(ItemDisplayContext.GUI, ItemModelUtils.conditional(castProperty, unbakedCast, unbaked2d)),
+                ItemModelUtils.when(ItemDisplayContext.FIXED, ItemModelUtils.conditional(castProperty, unbakedCast, unbaked2d)),
                 // Hand contexts -> 3D
-                ItemModelUtils.when(ItemDisplayContext.FIRST_PERSON_LEFT_HAND, unbaked3d),
-                ItemModelUtils.when(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, unbaked3d),
-                ItemModelUtils.when(ItemDisplayContext.THIRD_PERSON_LEFT_HAND, unbaked3d),
-                ItemModelUtils.when(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, unbaked3d),
+                ItemModelUtils.when(ItemDisplayContext.FIRST_PERSON_LEFT_HAND, ItemModelUtils.conditional(castProperty, unbakedCast, unbaked3d)),
+                ItemModelUtils.when(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, ItemModelUtils.conditional(castProperty, unbakedCast, unbaked3d)),
+                ItemModelUtils.when(ItemDisplayContext.THIRD_PERSON_LEFT_HAND, ItemModelUtils.conditional(castProperty, unbakedCast, unbaked3d)),
+                ItemModelUtils.when(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, ItemModelUtils.conditional(castProperty, unbakedCast, unbaked3d)),
                 ItemModelUtils.when(ItemDisplayContext.GROUND, unbaked3d)
         );
         itemModels.itemModelOutput.accept(myItem,selectModel);

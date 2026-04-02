@@ -4,43 +4,91 @@
     "cases": [
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "quietus:item/tools/grapples/chain_grappling_hook_2d"
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_2d"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_cast"
+          },
+          "property": "quietus:grappling_hook_cast"
         },
         "when": "gui"
       },
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "quietus:item/tools/grapples/chain_grappling_hook_2d"
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_2d"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_cast"
+          },
+          "property": "quietus:grappling_hook_cast"
         },
         "when": "fixed"
       },
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "quietus:item/tools/grapples/chain_grappling_hook_3d"
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_3d"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_cast"
+          },
+          "property": "quietus:grappling_hook_cast"
         },
         "when": "firstperson_lefthand"
       },
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "quietus:item/tools/grapples/chain_grappling_hook_3d"
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_3d"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_cast"
+          },
+          "property": "quietus:grappling_hook_cast"
         },
         "when": "firstperson_righthand"
       },
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "quietus:item/tools/grapples/chain_grappling_hook_3d"
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_3d"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_cast"
+          },
+          "property": "quietus:grappling_hook_cast"
         },
         "when": "thirdperson_lefthand"
       },
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "quietus:item/tools/grapples/chain_grappling_hook_3d"
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_3d"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "quietus:item/tools/grapples/chain_grappling_hook_cast"
+          },
+          "property": "quietus:grappling_hook_cast"
         },
         "when": "thirdperson_righthand"
       },

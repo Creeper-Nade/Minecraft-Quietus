@@ -1,0 +1,247 @@
+{
+	"parent" : "minecraft:item/handheld",
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "quietus:item/tools/grapples/chain_grappling_hook",
+		"particle": "quietus:item/tools/grapples/chain_grappling_hook"
+	},
+	"elements": [
+		{
+			"name": "ChainHookUnload_0",
+			"from": [11, 16, 8],
+			"to": [13, 20, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [11, 4, 9, 8], "texture": "#0"},
+				"east": {"uv": [10, 4, 11, 8], "texture": "#0"},
+				"south": {"uv": [9, 4, 11, 8], "texture": "#0"},
+				"west": {"uv": [9, 4, 10, 8], "texture": "#0"},
+				"up": {"uv": [9, 4, 11, 5], "texture": "#0"},
+				"down": {"uv": [9, 7, 11, 8], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_1",
+			"from": [10, 12, 8],
+			"to": [11, 19, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [9, 5, 8, 12], "texture": "#0"},
+				"east": {"uv": [8, 5, 9, 12], "texture": "#0"},
+				"south": {"uv": [8, 5, 9, 12], "texture": "#0"},
+				"west": {"uv": [8, 5, 9, 12], "texture": "#0"},
+				"up": {"uv": [8, 5, 9, 6], "texture": "#0"},
+				"down": {"uv": [8, 11, 9, 12], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_2",
+			"from": [13, 17, 8],
+			"to": [14, 19, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [12, 5, 11, 7], "texture": "#0"},
+				"east": {"uv": [11, 5, 12, 7], "texture": "#0"},
+				"south": {"uv": [11, 5, 12, 7], "texture": "#0"},
+				"west": {"uv": [11, 5, 12, 7], "texture": "#0"},
+				"up": {"uv": [11, 5, 12, 6], "texture": "#0"},
+				"down": {"uv": [11, 6, 12, 7], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_3",
+			"from": [9, 13, 8],
+			"to": [10, 18, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [8, 6, 7, 11], "texture": "#0"},
+				"east": {"uv": [7, 6, 8, 11], "texture": "#0"},
+				"south": {"uv": [7, 6, 8, 11], "texture": "#0"},
+				"west": {"uv": [7, 6, 8, 11], "texture": "#0"},
+				"up": {"uv": [7, 6, 8, 7], "texture": "#0"},
+				"down": {"uv": [7, 10, 8, 11], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_4",
+			"from": [8, 8, 8],
+			"to": [9, 17, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [7, 7, 6, 16], "texture": "#0"},
+				"east": {"uv": [6, 7, 7, 16], "texture": "#0"},
+				"south": {"uv": [6, 7, 7, 16], "texture": "#0"},
+				"west": {"uv": [6, 7, 7, 16], "texture": "#0"},
+				"up": {"uv": [6, 7, 7, 8], "texture": "#0"},
+				"down": {"uv": [6, 15, 7, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_5",
+			"from": [7, 9, 8],
+			"to": [8, 16, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [6, 8, 5, 15], "texture": "#0"},
+				"east": {"uv": [5, 8, 6, 15], "texture": "#0"},
+				"south": {"uv": [5, 8, 6, 15], "texture": "#0"},
+				"west": {"uv": [5, 8, 6, 15], "texture": "#0"},
+				"up": {"uv": [5, 8, 6, 9], "texture": "#0"},
+				"down": {"uv": [5, 14, 6, 15], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_6",
+			"from": [11, 15, 8],
+			"to": [12, 16, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [10, 8, 9, 9], "texture": "#0"},
+				"east": {"uv": [9, 8, 10, 9], "texture": "#0"},
+				"south": {"uv": [9, 8, 10, 9], "texture": "#0"},
+				"west": {"uv": [9, 8, 10, 9], "texture": "#0"},
+				"up": {"uv": [9, 8, 10, 9], "texture": "#0"},
+				"down": {"uv": [9, 8, 10, 9], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_7",
+			"from": [6, 10, 8],
+			"to": [7, 15, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [5, 9, 4, 14], "texture": "#0"},
+				"east": {"uv": [4, 9, 5, 14], "texture": "#0"},
+				"south": {"uv": [4, 9, 5, 14], "texture": "#0"},
+				"west": {"uv": [4, 9, 5, 14], "texture": "#0"},
+				"up": {"uv": [4, 9, 5, 10], "texture": "#0"},
+				"down": {"uv": [4, 13, 5, 14], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_8",
+			"from": [5, 11, 8],
+			"to": [6, 14, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [4, 10, 3, 13], "texture": "#0"},
+				"east": {"uv": [3, 10, 4, 13], "texture": "#0"},
+				"south": {"uv": [3, 10, 4, 13], "texture": "#0"},
+				"west": {"uv": [3, 10, 4, 13], "texture": "#0"},
+				"up": {"uv": [3, 10, 4, 11], "texture": "#0"},
+				"down": {"uv": [3, 12, 4, 13], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_9",
+			"from": [4, 10, 8],
+			"to": [5, 13, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [3, 11, 2, 14], "texture": "#0"},
+				"east": {"uv": [2, 11, 3, 14], "texture": "#0"},
+				"south": {"uv": [2, 11, 3, 14], "texture": "#0"},
+				"west": {"uv": [2, 11, 3, 14], "texture": "#0"},
+				"up": {"uv": [2, 11, 3, 12], "texture": "#0"},
+				"down": {"uv": [2, 13, 3, 14], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_10",
+			"from": [3, 11, 8],
+			"to": [4, 12, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [2, 12, 1, 13], "texture": "#0"},
+				"east": {"uv": [1, 12, 2, 13], "texture": "#0"},
+				"south": {"uv": [1, 12, 2, 13], "texture": "#0"},
+				"west": {"uv": [1, 12, 2, 13], "texture": "#0"},
+				"up": {"uv": [1, 12, 2, 13], "texture": "#0"},
+				"down": {"uv": [1, 12, 2, 13], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_11",
+			"from": [9, 8, 8],
+			"to": [10, 12, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [8, 12, 7, 16], "texture": "#0"},
+				"east": {"uv": [7, 12, 8, 16], "texture": "#0"},
+				"south": {"uv": [7, 12, 8, 16], "texture": "#0"},
+				"west": {"uv": [7, 12, 8, 16], "texture": "#0"},
+				"up": {"uv": [7, 12, 8, 13], "texture": "#0"},
+				"down": {"uv": [7, 15, 8, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "ChainHookUnload_12",
+			"from": [10, 9, 8],
+			"to": [11, 11, 9],
+			"rotation": {"angle": -45, "axis": "z", "origin": [2, 8, 8]},
+			"faces": {
+				"north": {"uv": [9, 13, 8, 15], "texture": "#0"},
+				"east": {"uv": [8, 13, 9, 15], "texture": "#0"},
+				"south": {"uv": [8, 13, 9, 15], "texture": "#0"},
+				"west": {"uv": [8, 13, 9, 15], "texture": "#0"},
+				"up": {"uv": [8, 13, 9, 14], "texture": "#0"},
+				"down": {"uv": [8, 14, 9, 15], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [30.11, 89.46, -33.36],
+			"translation": [-0.25, 2, 2],
+			"scale": [0.8, 0.8, 0.8]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [-103.64, -89.25, -102.85],
+			"translation": [0.5, 2.25, 2.25],
+			"scale": [0.8, 0.8, 0.8]
+		},
+		"firstperson_righthand": {
+			"rotation": [-66.23, 80.2, 82.16],
+			"translation": [1.5, 1.6, 0.8],
+			"scale": [0.68, 0.68, 0.68]
+		},
+		"firstperson_lefthand": {
+			"rotation": [-179.92, -80.71, 162.57],
+			"translation": [2.25, 1.6, 0.8],
+			"scale": [0.68, 0.68, 0.68]
+		},
+		"ground": {
+			"translation": [0, 2, 0],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"gui": {
+			"rotation": [0, 0, 45],
+			"translation": [-3.75, -3.75, 0]
+		},
+		"head": {
+			"rotation": [-180, 88.25, -180],
+			"translation": [-0.25, 0, 3],
+			"scale": [1, 1.5, 1.5]
+		},
+		"fixed": {
+			"rotation": [0, 0, 41.5],
+			"translation": [-5.25, -2.75, 0]
+		}
+	},
+	"groups": [
+		{
+			"name": "ChainGrapplingHook",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [
+				{
+					"name": "ChainHookUnload",
+					"origin": [8, 8, 8],
+					"color": 0,
+					"children": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+				}
+			]
+		}
+	]
+}

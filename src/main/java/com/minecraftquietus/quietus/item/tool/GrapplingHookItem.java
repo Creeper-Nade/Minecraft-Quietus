@@ -5,14 +5,18 @@ import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.entity.projectiles.misc.GrapplingHookProjectile;
 import com.minecraftquietus.quietus.entity.projectiles.misc.grapples.ChainGrapplingHookProjectile;
+import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.QuietusItemProperties;
 import com.minecraftquietus.quietus.item.property.GrapplingHookProperty;
 import com.minecraftquietus.quietus.item.property.QuietusProjectileProperty;
+import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -71,7 +75,12 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
             // Store hook reference in attachment
             GrapplingHookAttachment attachment = shooter.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
             attachment.setHookEntityId(hook.getId());
+            weapon.set(QuietusComponents.GRAPPLING_HOOK_CAST.get(), Unit.INSTANCE);
+            if(shooter instanceof ServerPlayer serverPlayer)
+                serverPlayer.containerMenu.sendAllDataToRemote();
+            PlayerData.sendGrappleActivityPackToEntity(shooter,attachment.hasActiveHook());
         }
+        System.out.println(weapon.get(QuietusComponents.GRAPPLING_HOOK_CAST.get()));
         return projectile;
     }
 
@@ -85,7 +94,6 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
                 hook.discard();
                 attachment.clear();
             }
-
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL,
                     1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));

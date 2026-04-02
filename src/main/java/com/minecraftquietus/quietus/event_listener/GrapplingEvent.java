@@ -5,6 +5,7 @@ import com.minecraftquietus.quietus.entity.projectiles.misc.GrapplingHookProject
 import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
 import com.minecraftquietus.quietus.packet.GrapplingHookPhysicsPacket;
 import com.minecraftquietus.quietus.packet.GrapplingJumpReleasePacket;
+import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -57,8 +58,7 @@ public class GrapplingEvent {
 
                 // Also send packet to client for immediate response
                 if (player instanceof ServerPlayer serverPlayer) {
-                    PacketDistributor.sendToPlayer(serverPlayer,
-                            GrapplingHookPhysicsPacket.fromVelocity(newVelocity));
+                    PlayerData.sendGrapplePhysicsPackToEntity(serverPlayer,newVelocity);
                 }
             }
             else {
@@ -177,6 +177,7 @@ public class GrapplingEvent {
             if (e instanceof GrapplingHookProjectile hook) {
                 hook.discard();
                 attachment.clear();
+                PlayerData.sendGrappleActivityPackToEntity(player,attachment.hasActiveHook());
                 return;
             }
         }
@@ -221,7 +222,7 @@ public class GrapplingEvent {
         if (jumpDown && !jumpPressed) {
             // Jump key just pressed
             jumpPressed = true;
-            PacketDistributor.sendToServer(new GrapplingJumpReleasePacket());
+            PlayerData.sendGrappleJumpPackToServer();
         } else if (!jumpDown && jumpPressed) {
             jumpPressed = false;
         }

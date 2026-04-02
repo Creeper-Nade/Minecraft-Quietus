@@ -1,18 +1,15 @@
 package com.minecraftquietus.quietus.util;
 
 import com.minecraftquietus.quietus.core.mana.ManaComponent;
-import com.minecraftquietus.quietus.packet.DoDecayPacket;
-import com.minecraftquietus.quietus.packet.GhostStatePacket;
-import com.minecraftquietus.quietus.packet.ManaPacket;
-
-import com.minecraftquietus.quietus.packet.PlayerRevivalCooldownPacket;
-import com.minecraftquietus.quietus.packet.WeatherItemContainerPacket;
+import com.minecraftquietus.quietus.packet.*;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 
@@ -37,5 +34,14 @@ public class PlayerData {
     }
     public static void sendPackToWeatherItemContainerFromSlotOfEntity(Entity entity, EquipmentSlot slot, ItemContainerContents containerContents) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new WeatherItemContainerPacket(entity.getId(), slot, containerContents));
+    }
+    public static void sendGrapplePhysicsPackToEntity(ServerPlayer serverPlayer, Vec3 velocity) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(serverPlayer, GrapplingHookPhysicsPacket.fromVelocity(velocity));
+    }
+    public static void sendGrappleJumpPackToServer() {
+        PacketDistributor.sendToServer(new GrapplingJumpReleasePacket());
+    }
+    public static void sendGrappleActivityPackToEntity(LivingEntity entity, Boolean active) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity,new GrapplingActiveHookPacket(active));
     }
 }
