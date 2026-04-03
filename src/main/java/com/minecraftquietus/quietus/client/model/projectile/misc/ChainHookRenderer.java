@@ -4,6 +4,8 @@ import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjec
 import com.minecraftquietus.quietus.client.model.projectile.magic.ProjectileRenderState;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectile;
 import com.minecraftquietus.quietus.entity.projectiles.misc.GrapplingHookProjectile;
+import com.minecraftquietus.quietus.item.QuietusComponents;
+import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -18,6 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -26,6 +29,7 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
 
     private ChainHookModel model;
     private static final double VIEW_BOBBING_SCALE = 960.0; // from FishingHookRenderer
+    private static HumanoidArm cachedArm;
 
     public ChainHookRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -129,7 +133,10 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         // Simplified: assume the grappling hook is in the main hand if present.
         // More robust: check if the main hand item is a GrapplingHookItem.
         // For now, just use main arm (you can enhance later).
-        return player.getMainArm();
+        ItemStack mainHandItem=player.getMainHandItem();
+        if(mainHandItem.get(QuietusComponents.GRAPPLING_HOOK_CAST.get())==null && player.getOffhandItem().get(QuietusComponents.GRAPPLING_HOOK_CAST.get())==null) return cachedArm;
+        cachedArm= mainHandItem.get(QuietusComponents.GRAPPLING_HOOK_CAST.get())!=null?player.getMainArm() : player.getMainArm().getOpposite();
+        return cachedArm;
     }
 
     private static float fraction(int numerator, int denominator) {

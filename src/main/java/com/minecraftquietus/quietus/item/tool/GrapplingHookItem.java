@@ -37,7 +37,6 @@ import java.util.function.Function;
 
 public class GrapplingHookItem extends QuietusProjectileWeaponItem {
     private final GrapplingHookProperty grapplingHookProperty;
-
     public GrapplingHookItem(Item.Properties properties) {
         super(properties);
 
@@ -60,6 +59,7 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
         if (attachment.hasActiveHook()) {
             // Retrieve existing hook
             retrieveHookForPlayer(player);
+            return player instanceof ServerPlayer? InteractionResult.SUCCESS_SERVER:InteractionResult.SUCCESS;
         }
 
         return super.InteractionAction(player,level,itemstack);
@@ -80,7 +80,7 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
                 serverPlayer.containerMenu.sendAllDataToRemote();
             PlayerData.sendGrappleActivityPackToEntity(shooter,attachment.hasActiveHook());
         }
-        System.out.println(weapon.get(QuietusComponents.GRAPPLING_HOOK_CAST.get()));
+        System.out.println(weapon);
         return projectile;
     }
 
@@ -93,6 +93,13 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
             if (entity instanceof GrapplingHookProjectile hook && !level.isClientSide()) {
                 hook.discard();
                 attachment.clear();
+                // Remove cast component from EVERY grappling hook in the player's inventory
+                for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                    ItemStack stack = player.getInventory().getItem(i);
+                    if (stack.getItem() instanceof GrapplingHookItem) {
+                        stack.remove(QuietusComponents.GRAPPLING_HOOK_CAST.get());
+                    }
+                }
             }
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL,

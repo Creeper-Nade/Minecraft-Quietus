@@ -7,6 +7,7 @@ import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperty;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -25,19 +26,7 @@ public record GrapplingHookCast() implements ConditionalItemModelProperty {
                        @Nullable LivingEntity entity, int seed, ItemDisplayContext displayContext) {
         if(entity==null) return false;
         //GrapplingHookAttachment attachment = entity.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
-        if(stack.get(QuietusComponents.GRAPPLING_HOOK_CAST.get())!=null)
-        {
-            if(ClientPayloadHandler.getInstance().GetHookActivity()) {
-                //System.out.println("success");
-                return true;
-            }
-            else
-            {
-                //System.out.println("failed");
-                stack.remove(QuietusComponents.GRAPPLING_HOOK_CAST.get());
-            }
-        }
-        return false;
+        return stack.get(QuietusComponents.GRAPPLING_HOOK_CAST.get()) != null && ClientPayloadHandler.getInstance().GetHookActivity();
     }
 
     @Override
