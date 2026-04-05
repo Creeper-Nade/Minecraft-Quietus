@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
@@ -105,27 +106,56 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
     // ========== Helper methods copied/adapted from FishingHookRenderer ==========
 
     private Vec3 getPlayerHandPos(Player player, float handAngle, float partialTick) {
-        int armFactor = getHoldingArm(player) == HumanoidArm.RIGHT ? 1 : -1;
+        HumanoidArm arm = getHoldingArm(player);
+        boolean isRightHand = (arm == HumanoidArm.RIGHT);
+        int armFactor=isRightHand?1:-1;
         if (this.entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player) {
             double fovScale = VIEW_BOBBING_SCALE / (double) (Integer) this.entityRenderDispatcher.options.fov().get();
             Vec3 cameraOffset = this.entityRenderDispatcher.camera.getNearPlane()
-                    .getPointOnPlane((float) armFactor * 0.525F, -0.1F)
+                    .getPointOnPlane((float) armFactor * 0.525F, -0.4F)
                     .scale(fovScale)
                     .yRot(handAngle * 0.5F)
                     .xRot(-handAngle * 0.7F);
             return player.getEyePosition(partialTick).add(cameraOffset);
         } else {
+
             float bodyYaw = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot) * ((float) Math.PI / 180F);
-            double sinYaw = Mth.sin(bodyYaw);
-            double cosYaw = Mth.cos(bodyYaw);
+            double cosYaw = Math.cos(bodyYaw);
+            double sinYaw = Math.sin(bodyYaw);
             float scale = player.getScale();
-            double armOffset = (double) armFactor * 0.35 * (double) scale;
-            double forwardOffset = 0.8 * (double) scale;
-            float crouchOffset = player.isCrouching() ? -0.1875F : 0.0F;
-            return player.getEyePosition(partialTick)
-                    .add(-cosYaw * armOffset - sinYaw * forwardOffset,
-                            (double) crouchOffset - 0.45 * (double) scale,
-                            -sinYaw * armOffset + cosYaw * forwardOffset);
+
+            // Shoulder offset: right/left, at eye level, slightly back
+            double side = (arm == HumanoidArm.RIGHT ? -0.35 : 0.35) * scale;
+            double down = -0.2 * scale;  // slightly below eye
+            double back = -0.05 * scale; // slightly behind
+            Vec3 localShoulder = new Vec3(side, down, back);
+
+            // Rotate shoulder
+            double worldShoulderX = localShoulder.x * cosYaw - localShoulder.z * sinYaw;
+            double worldShoulderZ = localShoulder.x * sinYaw + localShoulder.z * cosYaw;
+            Vec3 shoulder = player.getEyePosition(partialTick).add(worldShoulderX, localShoulder.y, worldShoulderZ);
+
+            // Arm vector: down and forward to reach item tip
+            double armLength = 0.80 * scale;      // shoulder to hand
+            double forwardOffset = 0.15 * scale;  // hand to item tip (adjust!)
+            Vec3 localArm = new Vec3(0, -armLength, forwardOffset);
+
+            // Apply custom rotations
+            var data = player.getPersistentData();
+            float pitch = data.getFloatOr("QuietusGrappleCurrentPitch", 0);
+            float yaw   = data.getFloatOr("QuietusGrappleCurrentYaw", 0);
+            float blend = data.getFloatOr("QuietusGrappleBlend", 0);
+            if (blend > 0.01f) {
+                float finalYaw = (arm == HumanoidArm.LEFT) ? -yaw : yaw;
+                localArm = localArm.xRot(-pitch).yRot(-finalYaw);
+            }
+
+            // Rotate arm to world
+            double worldArmX = localArm.x * cosYaw - localArm.z * sinYaw;
+            double worldArmZ = localArm.x * sinYaw + localArm.z * cosYaw;
+            Vec3 worldArm = new Vec3(worldArmX, localArm.y, worldArmZ);
+
+            return shoulder.add(worldArm);
         }
     }
 
@@ -167,6 +197,10 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         consumer.addVertex(pose, fx, fy, fz)
                 .setColor(-16777216)   // black (opaque)
                 .setNormal(pose, nx, ny, nz);
+    }
+    @Override
+    protected boolean affectedByCulling(GrapplingHookProjectile display) {
+        return false;
     }
 
     public ResourceLocation getTextureLocation() {

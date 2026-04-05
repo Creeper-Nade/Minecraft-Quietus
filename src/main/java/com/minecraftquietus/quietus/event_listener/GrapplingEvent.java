@@ -270,7 +270,7 @@ public class GrapplingEvent {
 // For right arm: xRot negative = raise arm, yRot positive = outward swing
         float armPitch = -(pitchRaw + (float)Math.PI / 2F);         // invert: pointing up -> negative pitch
         float armYaw = -yawRaw;               // positive yaw = arm moves to the right
-        armYaw = Mth.clamp(armYaw, -1.5F, 1.5F);
+        armYaw = Mth.clamp(armYaw, -1.2F, 1.2F);
 
 // Mirror yaw for left arm
         if (!isRightHand) {
