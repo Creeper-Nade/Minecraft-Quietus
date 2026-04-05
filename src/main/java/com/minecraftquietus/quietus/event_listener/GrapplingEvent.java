@@ -1,5 +1,7 @@
 package com.minecraftquietus.quietus.event_listener;
 
+import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
+import com.minecraftquietus.quietus.client.model.projectile.misc.ChainHookRenderer;
 import com.minecraftquietus.quietus.core.GrapplingHookAttachment;
 import com.minecraftquietus.quietus.entity.projectiles.misc.GrapplingHookProjectile;
 import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
@@ -9,15 +11,19 @@ import com.minecraftquietus.quietus.util.PlayerData;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -177,7 +183,7 @@ public class GrapplingEvent {
             if (e instanceof GrapplingHookProjectile hook) {
                 hook.discard();
                 attachment.clear();
-                PlayerData.sendGrappleActivityPackToEntity(player,attachment.hasActiveHook());
+                PlayerData.sendGrappleActivityPackToEntity(player,attachment.hasActiveHook(), attachment.getHookEntityId());
                 return;
             }
         }
@@ -212,6 +218,7 @@ public class GrapplingEvent {
         }
         return null;
     }
+
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Pre event) {
         Minecraft mc = Minecraft.getInstance();
@@ -226,5 +233,64 @@ public class GrapplingEvent {
         } else if (!jumpDown && jumpPressed) {
             jumpPressed = false;
         }
+
+        // --- Arm rotation logic ---
+        if (!ClientPayloadHandler.getInstance().GetHookActivity()) {
+            resetArmAngles(player);
+            return;
+        }
+
+        Entity hookEntity = player.level().getEntity(ClientPayloadHandler.getInstance().getActiveHookID());
+        if (!(hookEntity instanceof GrapplingHookProjectile hook) || !hook.isInBlock()) {
+            resetArmAngles(player);
+            return;
+        }
+
+        boolean isRightHand = ChainHookRenderer.getCachedArm() == HumanoidArm.RIGHT;
+        Vec3 shoulderPos = getShoulderPosition(player, isRightHand);
+        Vec3 hookPos = hook.position();
+        Vec3 dir = hookPos.subtract(shoulderPos).normalize();
+
+// Transform direction to player-local coordinates
+        float bodyYawRad = (float) Math.toRadians(player.yBodyRot);
+        Vec3 forward = new Vec3(-Math.sin(bodyYawRad), 0, Math.cos(bodyYawRad));
+        Vec3 right = new Vec3(Math.cos(bodyYawRad), 0, Math.sin(bodyYawRad));
+        Vec3 up = new Vec3(0, 1, 0);
+
+        double forwardComp = dir.dot(forward);
+        double rightComp = dir.dot(right);
+        double upComp = dir.dot(up);
+
+// Pitch: angle from horizontal plane (positive = upward)
+        float pitchRaw = (float) Math.asin(Mth.clamp(upComp, -1.0, 1.0));
+// Yaw: angle from forward direction (positive = to the right)
+        float yawRaw = (float) Math.atan2(rightComp, forwardComp);
+
+// Map to arm model axes
+// For right arm: xRot negative = raise arm, yRot positive = outward swing
+        float armPitch = -(pitchRaw + (float)Math.PI / 2F);         // invert: pointing up -> negative pitch
+        float armYaw = -yawRaw;               // positive yaw = arm moves to the right
+        armYaw = Mth.clamp(armYaw, -1.5F, 1.5F);
+
+// Mirror yaw for left arm
+        if (!isRightHand) {
+            armYaw = -armYaw;
+        }
+
+
+        player.getPersistentData().putFloat("QuietusGrappleArmPitch", armPitch);
+        player.getPersistentData().putFloat("QuietusGrappleArmYaw", armYaw);
+
+    }
+    private static void resetArmAngles(Player player) {
+        player.getPersistentData().remove("QuietusGrappleArmPitch");
+        player.getPersistentData().remove("QuietusGrappleArmYaw");
+    }
+
+    private static Vec3 getShoulderPosition(Player player, boolean isRightHand) {
+        Vec3 eyePos = player.getEyePosition();
+        float sideOffset = isRightHand ? 0.3F : -0.3F;
+        // shoulder is slightly lower and behind eye
+        return eyePos.add(sideOffset, -0.35, -0.1);
     }
 }

@@ -42,6 +42,8 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         return new GrapplingHookRenderState();
     }
 
+    
+
     // Update the render state by copying the needed values from the passed entity to the passed state.
     // Both Entity and EntityRenderState may be replaced with more concrete types,
     // based on the generic types that have been passed to the supertype.
@@ -136,6 +138,10 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         ItemStack mainHandItem=player.getMainHandItem();
         if(mainHandItem.get(QuietusComponents.GRAPPLING_HOOK_CAST.get())==null && player.getOffhandItem().get(QuietusComponents.GRAPPLING_HOOK_CAST.get())==null) return cachedArm;
         cachedArm= mainHandItem.get(QuietusComponents.GRAPPLING_HOOK_CAST.get())!=null?player.getMainArm() : player.getMainArm().getOpposite();
+        return cachedArm;
+    }
+    public static HumanoidArm getCachedArm()
+    {
         return cachedArm;
     }
 

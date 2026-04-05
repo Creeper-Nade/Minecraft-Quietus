@@ -41,7 +41,7 @@ public class PlayerData {
     public static void sendGrappleJumpPackToServer() {
         PacketDistributor.sendToServer(new GrapplingJumpReleasePacket());
     }
-    public static void sendGrappleActivityPackToEntity(LivingEntity entity, Boolean active) {
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity,new GrapplingActiveHookPacket(active));
+    public static void sendGrappleActivityPackToEntity(ServerPlayer serverPlayer, Boolean active,int id) {
+        PacketDistributor.sendToPlayer(serverPlayer,new GrapplingActiveHookPacket(active,id));
     }
 }

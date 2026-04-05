@@ -7,14 +7,15 @@ import net.minecraft.resources.ResourceLocation;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-public record GrapplingActiveHookPacket(boolean active)implements CustomPacketPayload {
+public record GrapplingActiveHookPacket(boolean active,int hookEntityId)implements CustomPacketPayload {
     public static final Type<GrapplingActiveHookPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"hook_pack"));
 
     public GrapplingActiveHookPacket(final FriendlyByteBuf buf){
-        this(buf.readBoolean());
+        this(buf.readBoolean(),buf.readInt());
     }
     public void Encode(FriendlyByteBuf buf){
         buf.writeBoolean(active());
+        buf.writeInt(hookEntityId());
     }
 
 

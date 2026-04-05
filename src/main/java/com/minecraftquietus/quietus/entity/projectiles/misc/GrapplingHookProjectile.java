@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -305,11 +306,11 @@ public class GrapplingHookProjectile extends QuietusProjectile {
     @Override
     public void onRemovedFromLevel() {
         super.onRemovedFromLevel();
-        if (this.getOwner() instanceof Player player) {
+        if (this.getOwner() instanceof ServerPlayer player) {
             GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
             if (attachment.getHookEntityId() == this.getId()) {
                 attachment.clear();
-                PlayerData.sendGrappleActivityPackToEntity(player,attachment.hasActiveHook());
+                PlayerData.sendGrappleActivityPackToEntity(player,attachment.hasActiveHook(), attachment.getHookEntityId());
             }
         }
     }

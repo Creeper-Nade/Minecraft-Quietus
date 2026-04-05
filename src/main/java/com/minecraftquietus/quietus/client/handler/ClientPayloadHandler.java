@@ -42,6 +42,7 @@ public class ClientPayloadHandler {
     private static int ReviveCD;
 
     private static boolean hasActiveHook=false;
+    private static int activeHookID;
 
     private static Minecraft minecraft = Minecraft.getInstance();
 
@@ -161,6 +162,7 @@ public class ClientPayloadHandler {
     public static void handleGrappleActivity(GrapplingActiveHookPacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             hasActiveHook= packet.active();
+            activeHookID= packet.hookEntityId();
         });
     }
     public int GetMaxManaFromPack() {return MaxMana;}
@@ -172,4 +174,7 @@ public class ClientPayloadHandler {
     public int GetReviveCD(){return ReviveCD;}
     public boolean GetHookActivity(){return hasActiveHook;}
 
+    public int getActiveHookID() {
+        return activeHookID;
+    }
 }

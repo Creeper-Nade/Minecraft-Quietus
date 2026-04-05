@@ -76,9 +76,10 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
             GrapplingHookAttachment attachment = shooter.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
             attachment.setHookEntityId(hook.getId());
             weapon.set(QuietusComponents.GRAPPLING_HOOK_CAST.get(), Unit.INSTANCE);
-            if(shooter instanceof ServerPlayer serverPlayer)
+            if(shooter instanceof ServerPlayer serverPlayer) {
                 serverPlayer.containerMenu.sendAllDataToRemote();
-            PlayerData.sendGrappleActivityPackToEntity(shooter,attachment.hasActiveHook());
+                PlayerData.sendGrappleActivityPackToEntity(serverPlayer,attachment.hasActiveHook(),attachment.getHookEntityId());
+            }
         }
         System.out.println(weapon);
         return projectile;
