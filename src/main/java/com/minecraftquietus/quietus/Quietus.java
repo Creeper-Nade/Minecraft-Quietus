@@ -124,7 +124,7 @@ public class Quietus
         QuietusSkills.register(modEventBus);
 
         // register resource loading listeners
-        NeoForge.EVENT_BUS.addListener(QuietusReloadableResources::onServerResourceReload);
+        NeoForge.EVENT_BUS.addListener(QuietusReloadableResources::onAddingServerResourceReloadListeners);
         QuietusEntityDataSerializers.register(modEventBus);
         QuietusParticles.register(modEventBus);
 

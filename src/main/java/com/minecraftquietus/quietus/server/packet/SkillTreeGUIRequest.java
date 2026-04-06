@@ -9,6 +9,8 @@ import net.minecraft.util.ExtraCodecs;
 
 import java.util.UUID;
 
+import com.minecraftquietus.quietus.server.QuietusReloadableResources;
+
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
 

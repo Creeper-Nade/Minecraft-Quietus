@@ -1,9 +1,13 @@
 package com.minecraftquietus.quietus.client.multiplayer;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
@@ -28,7 +32,8 @@ public class ClientSkillTree {
 
     private ImmutableMap<ResourceLocation, SkillCategory> categories = ImmutableMap.of();
 
-    private final Map<SkillTreeNode,SkillPointProgress.ClientData> progresses = new HashMap<>();
+    private final Map<SkillTreeNode,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
+    private final Set<ResourceLocation> completedAdvancements = new HashSet<>();
 
     private final Map<SkillTreeNode,ClientSkillTreeListener> listeners = new HashMap<>();
 
@@ -59,6 +64,11 @@ public class ClientSkillTree {
     }
     public Map<SkillTreeNode,SkillPointProgress.ClientData> getProgressesMap() {
         return this.progresses;
+    }
+    public SkillTreeNode getNode(ResourceLocation loc) {
+        return this.categories.values().stream().map(category -> category.getNode(loc))
+            .filter(Objects::nonNull)
+            .findFirst().orElse(null);
     }
     public SkillPointProgress.ClientData getOrStartProgress(SkillTreeNode node) {
         if (this.progresses.containsKey(node)) {
@@ -93,9 +103,24 @@ public class ClientSkillTree {
                 }
             }
         );
-        /* LOGGER.info("got a total number of progresses: {}", this.progresses.size());
-        for (SkillTreeNode node : this.progresses.keySet()) {
-            LOGGER.info("{}", node.getId());
-        } */
+    }
+
+    public void syncAdvancements(Set<ResourceLocation> added, Set<ResourceLocation> removed, boolean clear) {
+        if (clear) {
+            this.completedAdvancements.clear();
+        }
+        this.completedAdvancements.removeAll(removed);
+        this.completedAdvancements.addAll(added);
+    }
+
+    public Set<ResourceLocation> getCompletedAdvancements() {
+        return this.completedAdvancements;
+    }
+
+    public Set<ResourceLocation> getCompletedParents() {
+        return this.progresses.entrySet().stream()
+            .filter(entry -> entry.getValue().isProgressing())
+            .map(entry -> entry.getKey().getId())
+            .collect(Collectors.toSet());
     }
 }

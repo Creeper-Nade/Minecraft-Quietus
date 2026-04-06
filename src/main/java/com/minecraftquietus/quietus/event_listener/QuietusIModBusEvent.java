@@ -13,6 +13,8 @@ import com.minecraftquietus.quietus.client.packet.DoDecayPacket;
 import com.minecraftquietus.quietus.client.packet.GhostStatePacket;
 import com.minecraftquietus.quietus.client.packet.ManaPacket;
 import com.minecraftquietus.quietus.client.packet.PlayerRevivalCooldownPacket;
+import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
+import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
 import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
 import com.minecraftquietus.quietus.client.packet.WeatherItemContainerPacket;
 
@@ -84,6 +86,16 @@ public class QuietusIModBusEvent {
             SkillTreeUpdatePacket.TYPE,
             SkillTreeUpdatePacket.STREAM_CODEC,
             ClientSkillTreePayloadHandler::handleSkillTreeUpdate
+        );
+        registrar.playToClient(
+            SkillTreeAdvancementsUpdatePacket.TYPE,
+            SkillTreeAdvancementsUpdatePacket.STREAM_CODEC,
+            ClientSkillTreePayloadHandler::handleSkillTreeAdvancementsSync
+        );
+        registrar.playToClient(
+            SkillTreeAdvancementsGrantRevokePacket.TYPE,
+            SkillTreeAdvancementsGrantRevokePacket.STREAM_CODEC,
+            ClientSkillTreePayloadHandler::handleSkillTreeAdvancementsSync
         );
         registrar = registrar.executesOn(HandlerThread.NETWORK);
         registrar.playToServer(

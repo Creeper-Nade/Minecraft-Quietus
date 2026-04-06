@@ -3,8 +3,13 @@ package com.minecraftquietus.quietus.client.handler;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+
+import org.checkerframework.checker.units.qual.min;
 
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
+import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
+import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
 import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
 import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeScreen;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
@@ -19,14 +24,17 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientSkillTreePayloadHandler {
-    private static Minecraft minecraft = Minecraft.getInstance();
 
-    private static ClientSkillTree skillTree = new ClientSkillTree(minecraft);
+    private static ClientSkillTree skillTree;
+    private static Minecraft minecraft = Minecraft.getInstance();
     
-    // no use yet... just do Minecraft.getInstance() to get this running minecraft instance
-    public static void initialize(Minecraft a) {
-        minecraft = a;
-        skillTree = new ClientSkillTree(a);
+
+    public static void initialize() {
+        skillTree = new ClientSkillTree(minecraft);
+    }
+
+    public static void close() {
+        skillTree = null;
     }
 
     public static void handleSkillTreeUpdate(SkillTreeUpdatePacket packet, final IPayloadContext context) {
@@ -35,6 +43,30 @@ public class ClientSkillTreePayloadHandler {
             Screen screen = minecraft.screen;
             if (!Objects.isNull(screen) && screen instanceof SkillTreeScreen skillTreeScreen) {
                 skillTreeScreen.makeTabs();
+            }
+        })
+        .exceptionally(e -> {
+            context.disconnect(Component.translatable("quietus.networking.failed.skillTree", e.getMessage()));
+            return null;
+        });
+    }
+
+    public static void handleSkillTreeAdvancementsSync(SkillTreeAdvancementsUpdatePacket packet, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            skillTree.syncAdvancements(packet.advancementIds(), Set.of(), true);
+        })
+        .exceptionally(e -> {
+            context.disconnect(Component.translatable("quietus.networking.failed.skillTree", e.getMessage()));
+            return null;
+        });
+    }
+
+    public static void handleSkillTreeAdvancementsSync(SkillTreeAdvancementsGrantRevokePacket packet, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            if (packet.isGrant()) {
+                skillTree.syncAdvancements(Set.of(packet.advancementId()), Set.of(), false);
+            } else {
+                skillTree.syncAdvancements(Set.of(), Set.of(packet.advancementId()), false);
             }
         })
         .exceptionally(e -> {

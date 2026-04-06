@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import com.minecraftquietus.quietus.client.screens.skill_tree.SkillPointType;
 import com.minecraftquietus.quietus.core.QuietusRegistries;
@@ -181,6 +182,9 @@ public record SkillPoint(
 
             return new DisplayInfo(Objects.requireNonNullElseGet(type, () -> SkillPointType.values()[0]), icon, header, description, prerequisitesDisplayInfo);
         }
+
+        public final static Function<String,Component> FUNC_DEFAULT_HEADING = (languageKey) -> Component.translatable(String.join(".", "skillTree", languageKey, "header"));
+        public final static Function<String,Component> FUNC_DEFAULT_DESCRIPTION = (languageKey) -> Component.translatable(String.join(".", "skillTree", languageKey, "description"));
     }
 
 

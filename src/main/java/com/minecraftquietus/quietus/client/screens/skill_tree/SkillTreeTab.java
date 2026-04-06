@@ -26,6 +26,7 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     private final ClientSkillTree skillTree;
     private final SkillTreeScreen screen;
     private final int index;
+    private final SkillCategory category;
     private final SkillCategory.DisplayInfo display;
 
     private final Map<SkillTreeNode,SkillTreeWidget> widgets = new LinkedHashMap();
@@ -44,6 +45,7 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
         this.screen = screen;
 
         this.index = index;
+        this.category = category;
         this.display = display;
 
         this.scrollX = scrollX;
@@ -220,6 +222,10 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
                 return this.getWidget(node);
         }
         return null;
+    }
+
+    public SkillCategory getCategory() {
+        return this.category;
     }
 
     public SkillTreeScreen getScreen() {

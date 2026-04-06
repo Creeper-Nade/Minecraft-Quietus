@@ -1,9 +1,17 @@
 package com.minecraftquietus.quietus.client.screens.skill_tree;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
 
+import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
+import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.client.util.GuiGraphicsUtil;
+import com.minecraftquietus.quietus.skilltree.Prerequisites;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
+import com.minecraftquietus.quietus.skilltree.Prerequisites.AndCondition;
+import com.minecraftquietus.quietus.skilltree.Prerequisites.RequirementCondition;
+import com.minecraftquietus.quietus.skilltree.Prerequisites.Requirements;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -11,6 +19,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -18,6 +27,9 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrollable {
     private static final ResourceLocation CONTENTS_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
     private static final ResourceLocation HEADER_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_header");
+    private static final ChatFormatting[] PREREQUISITES_STYLE = {ChatFormatting.GRAY};
+    public static final ChatFormatting[] PREREQUISITES_CHECK_STYLE = {ChatFormatting.GREEN};
+    public static final ChatFormatting[] PREREQUISITES_CROSS_STYLE = {ChatFormatting.RED};
 
     protected static final int WIDTH = 200;
     protected static final int MAX_HEIGHT = SkillTreeScreen.WINDOW_HEIGHT;
@@ -73,11 +85,47 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             heading = display.header();
             description = display.description();
         }
-        heading = Objects.requireNonNullElse(heading, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "header"))); // default uses language key
-        description = Objects.requireNonNullElse(description, Component.translatable(String.join(".", "skillTree", widget.getLanguageKey(), "description"))); // default uses language key
+        heading = Objects.requireNonNullElse(heading, SkillPoint.DisplayInfo.FUNC_DEFAULT_HEADING.apply(widget.getLanguageKey())); // default uses language key
+        description = Objects.requireNonNullElse(description, SkillPoint.DisplayInfo.FUNC_DEFAULT_DESCRIPTION.apply(widget.getLanguageKey())); // default uses language key
+
+        Component prerequisitesDescription = makePrerequisitesDescription(widget.getNode().getSkillPoint(), screen.getSkillTree());
+        if (prerequisitesDescription != null) {
+            description = MutableComponent.create(description.getContents()).append(Component.literal("\n\n")).append(prerequisitesDescription);
+        }
 
         SkillTreeInfoScreen out = new SkillTreeInfoScreen(font, heading, description, widget, screen);
         return out;
+    }
+
+    private static Component makePrerequisitesDescription(SkillPoint skillPoint, ClientSkillTree tree) {
+        Prerequisites nodePrerequisites = skillPoint.unlock().prerequisites();
+        if (!nodePrerequisites.requirements().isEmpty()) {
+            Set<ResourceLocation> completedAdvancements = tree.getCompletedAdvancements();
+            Set<ResourceLocation> completedParents = tree.getCompletedParents();
+            
+            Prerequisites.CompletionStatus completionStatus = Prerequisites.CompletionStatus.make(skillPoint.unlock().prerequisites(), completedAdvancements, completedParents);
+            /* Predicate<String> isDone = (key) -> 
+                nodePrerequisites.isRequirementDone(key, completedParents, completedAdvancements); */
+
+            MutableComponent out = MutableComponent.create(new TranslatableContents(Prerequisites.Requirements.KEY_DESCRIPTION_TEXT_NET, (String)null, TranslatableContents.NO_ARGS)).withStyle(PREREQUISITES_STYLE);
+            Prerequisites.RequirementCondition cond = nodePrerequisites.requirements().makeNestedNode();
+            if (cond instanceof Prerequisites.AndCondition and) {
+                for (Prerequisites.RequirementCondition child : and.children()) {
+                    out.append(Component.literal("\n")).append(child.makeDescriptionText(1, nodePrerequisites, skillPoint.display().map(SkillPoint.DisplayInfo::prerequisites), tree, completionStatus, PREREQUISITES_STYLE));
+                }
+            } else {
+                Component prereqDescriptionText = cond.makeDescriptionText(1, nodePrerequisites, skillPoint.display().map(SkillPoint.DisplayInfo::prerequisites), tree, completionStatus, PREREQUISITES_STYLE);
+                out.append(Component.literal("\n")).append(prereqDescriptionText);
+            }
+            return out;
+        }
+        return null;
+    }
+
+    public static MutableComponent statusSymbol(boolean done) {
+        return done 
+            ? Component.literal("✔").withStyle(PREREQUISITES_CHECK_STYLE) 
+            : Component.literal("✘").withStyle(PREREQUISITES_CROSS_STYLE);
     }
 
     private void calcLinesHeights(Font font, Component heading, Component description) {

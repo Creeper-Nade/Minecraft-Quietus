@@ -4,6 +4,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -16,6 +17,7 @@ import com.minecraftquietus.quietus.skilltree.SkillCategory;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.ServerAdvancementManager;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -26,13 +28,11 @@ public class QuietusReloadableResources {
     protected static ServerSkillTreeManager skillTreeManager;
 
     /* this listener method is added onto event bus in Quietus.java */
-    public static void onServerResourceReload(AddServerReloadListenersEvent event) {
+    public static void onAddingServerResourceReloadListeners(AddServerReloadListenersEvent event) {
         open(); 
         
         skillTreeManager = new ServerSkillTreeManager(event.getRegistryAccess(), SkillCategory.CODEC, SkillPoint.CODEC);
         event.addListener(ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree"), skillTreeManager::reload);
-        //PacketDistributor.sendToAllPlayers(new SkillTreeUpdatePacket(skillTree.get())); // also send packet to update skill trees on clients
-        //ClientSkillTreePayloadHandler.getSkillTree().update(new SkillTreeUpdatePacket(skillTreeManager.getCategories()));
 
         SkillTreeGUIPayloadHandler.setManager(skillTreeManager);
     }
@@ -43,9 +43,23 @@ public class QuietusReloadableResources {
      * @throws IllegalStateException resources already closed (i.e. server shut down)
      */
     @Nullable
-    public static Map<ResourceLocation,SkillCategory> getSkillCategories() {
+    public static Map<ResourceLocation,SkillCategory> getSkillCategories() throws IllegalStateException {
         if (!open) throw new IllegalStateException("Attemping to access closed resources");
         return Objects.isNull(skillTreeManager) ? null : skillTreeManager.getCategories();
+    }
+
+    /**
+     * Access the server's reloadable resources for the mod Quietus
+     * @return set of advancements resource locations, may be null (i.e. if resources never reloaded).
+     *      Note: the specified resource locations may not point to actual resource locations of loaded advancements,
+     *      since this is read from the loaded skill point data, without checking whether or not the specified 
+     *      advancements to that path are already loaded
+     * @throws IllegalStateException resources already closed (i.e. server shut down)
+     */
+    @Nullable
+    public static Set<ResourceLocation> getRequiredAdvancements() throws IllegalStateException {
+        if (!open) throw new IllegalStateException("Attemping to access closed resources");
+        return Objects.isNull(skillTreeManager) ? null : skillTreeManager.getRequiredAdvancements();
     }
 
 

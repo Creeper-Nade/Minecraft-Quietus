@@ -312,4 +312,8 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         return this.infoWindowInsideDynamicWidth;
     }
 
+    protected ClientSkillTree getSkillTree() {
+        return this.skillTree;
+    }
+
 }

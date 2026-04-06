@@ -21,8 +21,11 @@
                 "p2": "quietus:example_tab/example_branch_2",
                 "p3": "quietus:example_tab/example_branch_3"
             },
+            "advancements": {
+                "kill_a_mob": "minecraft:adventure/kill_a_mob"
+            },
             "requirements": [
-                ["p1","p3","p2"]
+                ["p1","p3","p2","kill_a_mob"]
             ]
         }
     },
@@ -44,7 +47,7 @@
         },
         "prerequisites": {
             "advancements": {
-                "[advancement name here]": {
+                "kill_a_mob": {
                     "translate": "skillTree.quietus.node.example.criteria1"
                 }
             }

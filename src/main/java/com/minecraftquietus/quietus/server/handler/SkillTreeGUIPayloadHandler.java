@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.Objects;
 
 /**
- * Handles packets from clients related to skill trees
+ * Handles packets sent from clients related to skill trees
  * sent to server-side
  */
 public class SkillTreeGUIPayloadHandler {

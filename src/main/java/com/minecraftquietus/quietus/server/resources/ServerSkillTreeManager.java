@@ -7,12 +7,14 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -28,6 +30,7 @@ import net.neoforged.neoforge.resource.ContextAwareReloadListener;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -54,6 +57,7 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
     private final FileToIdConverter lister = FileToIdConverter.json(DIR_NAME);
 
     private ImmutableMap<ResourceLocation, SkillCategory> categories = ImmutableMap.of();
+    private ImmutableSet<ResourceLocation> requiredAdvancements = ImmutableSet.of();
 
     public ServerSkillTreeManager(HolderLookup.Provider registries, Codec<? extends SkillCategory> codec1, Codec<? extends SkillPoint> codec2) {
         this.ops = registries.createSerializationContext(JsonOps.INSTANCE);
@@ -61,8 +65,25 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
         this.skillPointCodec = codec2;
     }
 
+    // TODO: no uses yet. Implement after there is a place to apply it after both advancements and skill tree finish resource loading
+    /**
+     * Validates {@link ServerSkillTreeManager#getRequiredAdvancements()} so that the 
+     * requirement advancements field of this manager are actual real loaded advancements. Hence, 
+     * this method should be only called after both advancements and skill tree finished loading.
+     * @param sam
+     */
+    public void validateRequiredAdvancements(ServerAdvancementManager sam) { 
+        this.requiredAdvancements = this.requiredAdvancements.stream()
+            .filter(rl -> sam.get(rl) != null)
+            .collect(ImmutableSet.toImmutableSet());
+    }
+
     public Map<ResourceLocation, SkillCategory> getCategories() {
         return this.categories;
+    }
+
+    public Set<ResourceLocation> getRequiredAdvancements() {
+        return this.requiredAdvancements;
     }
 
     public @Nullable SkillTreeNode getNode(ResourceLocation location) {
@@ -84,12 +105,18 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
         CompletableFuture<Map<ResourceLocation, SkillPoint>> skillPointLoad = CompletableFuture.supplyAsync(() -> this.prepareSkillPoints(manager, Profiler.get()), backgroundExecutor);
         return CompletableFuture.supplyAsync(() -> this.prepareSkillCategories(manager, Profiler.get()), backgroundExecutor)
             .thenCompose(barrier::wait)
-            .thenAcceptBothAsync(skillPointLoad, (skillCategory,skillPoint) -> this.apply(skillCategory, skillPoint, manager, Profiler.get()), gameExecutor);
+            .thenAcceptBothAsync(
+                skillPointLoad, 
+                (skillCategory,skillPoint) -> this.apply(skillCategory, skillPoint, manager, Profiler.get()), 
+                gameExecutor
+            );
     }
 
     /**
      * Takes in the decoded objects and further process them
-     * In this case it adds inheritance relations to each node, 
+     * In this case, it first prepares all the advancements 
+     * mentioned in skillPoint.unlock().prerequisites() for 
+     * client use, then adds inheritance relations to each node, 
      * and is lastly sorted into their appropriate categories, 
      * fully prepared for use as Map<ResourceLocation,SkillCategory>. 
      * @param obj1
@@ -105,6 +132,11 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
         obj2.forEach((location, skillPoint) -> {
             LOGGER.info(location.toString() + " -> " + skillPoint.toString());
         }); */
+        ImmutableSet.Builder<ResourceLocation> immutableSet$builder = ImmutableSet.builder();
+        obj2.values().forEach((skillPoint) -> {
+            immutableSet$builder.addAll(skillPoint.unlock().prerequisites().advancements().values());
+        });
+        this.requiredAdvancements = immutableSet$builder.build();
         ImmutableMap.Builder<ResourceLocation,SkillCategory> immutableMap$builder = ImmutableMap.builder();
         obj1.forEach((location, skillCategory) -> {
             SkillCategory category = new SkillCategory(location, skillCategory.maxWidth(), skillCategory.seed(), skillCategory.prerequisites(), skillCategory.display());

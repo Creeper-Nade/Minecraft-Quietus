@@ -1,39 +1,49 @@
 package com.minecraftquietus.quietus.skilltree;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import org.apache.logging.log4j.core.config.builder.api.ComponentBuilder;
+
 import com.google.common.collect.Sets;
+import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
+import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeInfoScreen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.client.event.ClientPauseChangeEvent.Pre;
 
 public record Prerequisites(
     Map<String, ResourceLocation> advancements,
     Map<String, ResourceLocation> parents,
     Requirements requirements
 ) {
-    /* Constructor for stream codec, which does not send advancements across network to client */
-    private Prerequisites(Map<String, ResourceLocation> parents, Requirements requirements) {
-        this(null, parents, requirements);
-    }
+    // /* Constructor for stream codec, which does not send advancements across network to client */
+    // private Prerequisites(Map<String, ResourceLocation> parents, Requirements requirements) {
+    //     this(null, parents, requirements);
+    // }
     
     public static final Prerequisites EMPTY = new Prerequisites(Map.of(), Map.of(), Requirements.EMPTY);
 
@@ -53,10 +63,35 @@ public record Prerequisites(
     );
     
     public static final StreamCodec<FriendlyByteBuf,Prerequisites> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ResourceLocation.STREAM_CODEC, 256), Prerequisites::advancements,
         ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ResourceLocation.STREAM_CODEC, 256), Prerequisites::parents,
         Requirements.STREAM_CODEC, Prerequisites::requirements,
         Prerequisites::new
     );
+
+    private boolean isRequirementAdvancementDone(String req, Set<ResourceLocation> completedAdvancements) {
+        if (this.advancements.containsKey(req)) {
+            return completedAdvancements.contains(this.advancements.get(req));
+        }
+        return false;
+    }
+    public boolean isRequirementParentDone(String req, Set<ResourceLocation> completedParents) {
+        if (this.parents.containsKey(req)) {
+            return completedParents.contains(this.parents.get(req));
+        }
+        return false;
+    }
+    public boolean isRequirementDone(String req, Set<ResourceLocation> completedParents, Set<ResourceLocation> completedAdvancements) {
+        if (this.advancements.containsKey(req) && this.parents.containsKey(req)) {
+            return completedAdvancements.contains(this.advancements.get(req)) && completedParents.contains(this.parents.get(req));
+        } else if (this.advancements.containsKey(req)) {
+            return completedAdvancements.contains(this.advancements.get(req));
+        } else if (this.parents.containsKey(req)) {
+            return completedParents.contains(this.parents.get(req));
+        } else {
+            return false;
+        }
+    }
         
 
     /**
@@ -106,12 +141,16 @@ public record Prerequisites(
 
     /**
      * Is a Conjunctive Normal Form boolean (boolean algebra).
-     * Test with {@link Requirements#test} method.
+     * Test with the {@link Requirements#test} method.
      * @param requirements
      */
     public record Requirements(
         List<List<String>> requirements
     ) {
+        public final static String KEY_DESCRIPTION_TEXT_NET = "gui.skill_tree.description.prerequisites.net";
+        private final static String KEY_DESCRIPTION_TEXT_ALLOF = "gui.skill_tree.description.prerequisites.allOf";
+        private final static String KEY_DESCRIPTION_TEXT_ANYOF = "gui.skill_tree.description.prerequisites.anyOf";
+
         public static final Requirements EMPTY = new Requirements(List.of());
 
         public static final Codec<Requirements> CODEC = Codec.STRING.listOf().listOf().xmap(Requirements::new, Requirements::requirements);
@@ -235,14 +274,14 @@ public record Prerequisites(
          * Builds the Abstract Syntax Tree (AST) representing the requirements.
          * It is subsumed if possible.
          */
-        public RequirementNode makeNestedNode() {
-            List<Set<String>> baseSets = new java.util.ArrayList<>();
+        public RequirementCondition makeNestedNode() {
+            List<Set<String>> baseSets = new ArrayList<>();
             for (List<String> list : this.requirements) {
                 baseSets.add(new HashSet<>(list));
             }
 
             baseSets = applySubsumption(baseSets);
-            return RequirementNode.factorize(baseSets);
+            return RequirementCondition.factorize(baseSets);
         }
 
         public interface Strategy {
@@ -259,17 +298,22 @@ public record Prerequisites(
      * AI-generated stuff for generating description text for the skill widget
      */
 
-    public sealed interface RequirementNode permits LeafNode, AndNode, OrNode {
+    public sealed interface RequirementCondition permits LeafCondition, AndCondition, OrCondition {
+
+        static final String INDENT_STRING = "  ";
+
+        abstract Component makeDescriptionText(int indent, Prerequisites prerequisites, Optional<Prerequisites.DisplayInfo> prereqDisplay, ClientSkillTree skillTree, CompletionStatus completion, ChatFormatting[] textStyle);
+
         /**
          * Recursively factors CNF sets into an Abstract Syntax Tree.
          */
-        private static RequirementNode factorize(List<Set<String>> sets) {
+        private static RequirementCondition factorize(List<Set<String>> sets) {
             if (sets == null || sets.isEmpty()) return null;
             if (sets.stream().anyMatch(Set::isEmpty)) return null; // An empty set means impossible requirements? Or auto-pass depending on design.
 
             if (sets.size() == 1) {
-                List<RequirementNode> leaves = sets.get(0).stream().map(LeafNode::new).collect(java.util.stream.Collectors.toList());
-                return leaves.size() == 1 ? leaves.get(0) : new OrNode(leaves);
+                List<RequirementCondition> leaves = sets.get(0).stream().map(LeafCondition::new).collect(java.util.stream.Collectors.toList());
+                return leaves.size() == 1 ? leaves.get(0) : new OrCondition(leaves);
             }
 
             // Find the most frequently shared element to factor out
@@ -289,12 +333,12 @@ public record Prerequisites(
 
             if (maxCount < 2) {
                 // No factorization possible, return standard AND of ORs
-                List<RequirementNode> andChildren = new java.util.ArrayList<>();
+                List<RequirementCondition> andChildren = new java.util.ArrayList<>();
                 for (Set<String> s : sets) {
-                    List<RequirementNode> orLeaves = s.stream().map(LeafNode::new).collect(java.util.stream.Collectors.toList());
-                    andChildren.add(orLeaves.size() == 1 ? orLeaves.get(0) : new OrNode(orLeaves));
+                    List<RequirementCondition> orLeaves = s.stream().map(LeafCondition::new).collect(java.util.stream.Collectors.toList());
+                    andChildren.add(orLeaves.size() == 1 ? orLeaves.get(0) : new OrCondition(orLeaves));
                 }
-                return new AndNode(andChildren);
+                return new AndCondition(andChildren);
             }
 
             // Factor out the best element
@@ -311,36 +355,111 @@ public record Prerequisites(
                 }
             }
 
-            // Factorization math: (A OR B) AND (A OR C) => A OR (B AND C)
-            RequirementNode remaindersFactored = factorize(withBest);
-            List<RequirementNode> orChildren = new java.util.ArrayList<>();
-            orChildren.add(new LeafNode(bestElement));
+            // Factorization maths: (A OR B) AND (A OR C) => A OR (B AND C)
+            RequirementCondition remaindersFactored = factorize(withBest);
+            List<RequirementCondition> orChildren = new java.util.ArrayList<>();
+            orChildren.add(new LeafCondition(bestElement));
             if (remaindersFactored != null) orChildren.add(remaindersFactored);
 
-            RequirementNode factoredGroup = orChildren.size() == 1 ? orChildren.get(0) : new OrNode(orChildren);
+            RequirementCondition factoredGroup = orChildren.size() == 1 ? orChildren.get(0) : new OrCondition(orChildren);
 
             // Combine with sets that didn't have the best element using AND
             if (withoutBest.isEmpty()) return factoredGroup;
 
-            List<RequirementNode> topLevelAnd = new java.util.ArrayList<>();
+            List<RequirementCondition> topLevelAnd = new java.util.ArrayList<>();
             topLevelAnd.add(factoredGroup);
 
-            RequirementNode withoutBestFactored = factorize(withoutBest);
-            if (withoutBestFactored instanceof AndNode andNode) {
+            RequirementCondition withoutBestFactored = factorize(withoutBest);
+            if (withoutBestFactored instanceof AndCondition andNode) {
                 topLevelAnd.addAll(andNode.children()); // Flatten nested ANDs
             } else if (withoutBestFactored != null) {
                 topLevelAnd.add(withoutBestFactored);
             }
 
-            return new AndNode(topLevelAnd);
+            return new AndCondition(topLevelAnd);
         }
     }
 
-    public record LeafNode(String key) implements RequirementNode {}
+    public record LeafCondition(String key) implements RequirementCondition {
+        @Override
+        public Component makeDescriptionText(int indent, Prerequisites prerequisites, Optional<Prerequisites.DisplayInfo> prereqDisplay,
+                ClientSkillTree skillTree, CompletionStatus completion, ChatFormatting[] textStyle) {
+            String indent_space = Prerequisites.RequirementCondition.INDENT_STRING.repeat(indent);
+            
+            Optional<ResourceLocation> par = Optional.ofNullable(prerequisites.parents.get(this.key));
+            SkillTreeNode parNode = par.isPresent() ? skillTree.getNode(par.get()) : null;
+            
+            Component advComp = Optional.ofNullable(parNode)
+                .map(n -> n.getSkillPoint().display()) 
+                .flatMap(display -> display)
+                .map(info -> info.header())
+                .orElseGet(() -> parNode != null 
+                    ? SkillPoint.DisplayInfo.FUNC_DEFAULT_HEADING.apply(parNode.getId().toLanguageKey())
+                    : null);
+            Component parComp = prereqDisplay.isPresent() ? prereqDisplay.get().advancements.get(this.key) : null;
 
-    public record AndNode(List<RequirementNode> children) implements RequirementNode {}
+            MutableComponent advLine = null;
+            if (advComp != null) {
+                Component symb = completion.advancements.containsKey(this.key) ?
+                    SkillTreeInfoScreen.statusSymbol(completion.advancements.get(this.key)) 
+                    : SkillTreeInfoScreen.statusSymbol(false);
+                advLine = MutableComponent.create(symb.getContents())
+                    .append(Component.literal(" ")).append(advComp);
+            }
+            MutableComponent parLine = null;
+            if (parComp != null) {
+                Component symb = completion.parents.containsKey(this.key) ?
+                    SkillTreeInfoScreen.statusSymbol(completion.parents.get(this.key)) 
+                    : SkillTreeInfoScreen.statusSymbol(false);
+                parLine = MutableComponent.create(symb.getContents())
+                    .append(Component.literal(" ")).append(parComp);
+            }
 
-    public record OrNode(List<RequirementNode> children) implements RequirementNode {}
+            if (advLine != null && parLine != null) {
+                return Component.literal(indent_space)
+                    .append(advLine)
+                    .append(Component.literal("\n"))
+                    .append(Component.literal(indent_space))
+                    .append(parLine);
+            } else if (advLine != null) {
+                return Component.literal(indent_space)
+                    .append(advLine);
+            } else if (parLine != null) {
+                return Component.literal(indent_space)
+                    .append(parLine);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public record AndCondition(List<RequirementCondition> children) implements RequirementCondition {
+        @Override
+        public Component makeDescriptionText(int indent, Prerequisites prerequisites, Optional<Prerequisites.DisplayInfo> prereqDisplay,
+                ClientSkillTree skillTree, CompletionStatus completion, ChatFormatting[] textStyle) {
+            String indent_space = Prerequisites.RequirementCondition.INDENT_STRING.repeat(indent);
+            MutableComponent out = Component.literal(indent_space).append(Component.translatable(Requirements.KEY_DESCRIPTION_TEXT_ALLOF).withStyle(textStyle));
+            for (RequirementCondition child : this.children) {
+                out.append(Component.literal("\n")).append(child.makeDescriptionText(indent+1, prerequisites, prereqDisplay, skillTree, completion, textStyle));
+            }
+            return out;
+        }
+        
+    }
+
+    public record OrCondition(List<RequirementCondition> children) implements RequirementCondition {
+        @Override
+        public Component makeDescriptionText(int indent, Prerequisites prerequisites, Optional<Prerequisites.DisplayInfo> prereqDisplay,
+                ClientSkillTree skillTree, CompletionStatus completion, ChatFormatting[] textStyle) {
+            String indent_space = Prerequisites.RequirementCondition.INDENT_STRING.repeat(indent);
+            MutableComponent out = Component.literal(indent_space).append(Component.translatable(Requirements.KEY_DESCRIPTION_TEXT_ANYOF).withStyle(textStyle));
+            for (RequirementCondition child : this.children) {
+                out.append(Component.literal("\n")).append(child.makeDescriptionText(indent+1, prerequisites, prereqDisplay, skillTree, completion, textStyle));
+            }
+            return out;
+        }
+        
+    }
 
 
     public record DisplayInfo(
@@ -362,7 +481,23 @@ public record Prerequisites(
             CRITIERIA_DISPLAY_MAP_STREAM_CODEC, DisplayInfo::advancements,
             DisplayInfo::new
         );
+    }
 
+    public record CompletionStatus(
+        Map<String, Boolean> advancements,
+        Map<String, Boolean> parents
+    ) {
+        public static CompletionStatus make(Prerequisites prerequisites, Set<ResourceLocation> completedAdvancements, Set<ResourceLocation> completedParents) {
+            Map<String, Boolean> advancements = new HashMap<>();
+            for (Map.Entry<String, ResourceLocation> entry : prerequisites.advancements.entrySet()) {
+                advancements.put(entry.getKey(), completedAdvancements.contains(entry.getValue()));
+            }
+            Map<String, Boolean> parents = new HashMap<>();
+            for (Map.Entry<String, ResourceLocation> entry : prerequisites.parents.entrySet()) {
+                parents.put(entry.getKey(), completedParents.contains(entry.getValue()));
+            }
+            return new CompletionStatus(advancements, parents);
+        }
     }
 
     @Override

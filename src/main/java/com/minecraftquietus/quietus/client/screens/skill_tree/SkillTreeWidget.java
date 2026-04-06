@@ -164,6 +164,9 @@ public class SkillTreeWidget {
     protected SkillTreeNode getNode() {
         return this.node;
     }
+    protected SkillTreeTab getTab() {
+        return this.tab;
+    }
     public Optional<SkillPoint.DisplayInfo> getDisplay() {
         return this.node.getSkillPoint().display();
     }

@@ -3,12 +3,15 @@ package com.minecraftquietus.quietus.util;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import com.minecraftquietus.quietus.Quietus;
 import com.minecraftquietus.quietus.client.packet.DoDecayPacket;
 import com.minecraftquietus.quietus.client.packet.GhostStatePacket;
 import com.minecraftquietus.quietus.client.packet.ManaPacket;
 import com.minecraftquietus.quietus.client.packet.PlayerRevivalCooldownPacket;
+import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
+import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
 import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
 import com.minecraftquietus.quietus.client.packet.WeatherItemContainerPacket;
 import com.minecraftquietus.quietus.core.mana.ManaComponent;
@@ -66,6 +69,15 @@ public class PlayerClientPacketDistributor {
     }
     public static void sendSkillTreePackToPlayer(ServerPlayer serverPlayer) {
         PacketDistributor.sendToPlayer(serverPlayer, makeClientboundSkillTreePack(serverPlayer));
+    }
+    public static void sendPackToGrantSkillTreeAdvancementToPlayer(ServerPlayer serverPlayer, ResourceLocation advancementId) {
+        PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeAdvancementsGrantRevokePacket(advancementId, true));
+    }
+    public static void sendPackToRevokeSkillTreeAdvancementToPlayer(ServerPlayer serverPlayer, ResourceLocation advancementId) {
+        PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeAdvancementsGrantRevokePacket(advancementId, false));
+    }
+    public static void sendSkillTreeAdvancementSyncPackToPlayer(ServerPlayer serverPlayer, Set<ResourceLocation> advancementIds) {
+        PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeAdvancementsUpdatePacket(advancementIds));
     }
 
 }
