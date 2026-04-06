@@ -302,6 +302,8 @@ public record Prerequisites(
 
         static final String INDENT_STRING = "  ";
 
+        boolean isDone(CompletionStatus completion);
+
         abstract Component makeDescriptionText(int indent, Prerequisites prerequisites, Optional<Prerequisites.DisplayInfo> prereqDisplay, ClientSkillTree skillTree, CompletionStatus completion, ChatFormatting[] textStyle);
 
         /**
@@ -382,6 +384,15 @@ public record Prerequisites(
 
     public record LeafCondition(String key) implements RequirementCondition {
         @Override
+        public boolean isDone(CompletionStatus completion) {
+            boolean existsInEither = false;
+            boolean result = true;
+            if (completion.advancements.containsKey(this.key)) { existsInEither = true; result &= completion.advancements.get(this.key); }
+            if (completion.parents.containsKey(this.key)) { existsInEither = true; result &= completion.parents.get(this.key); }
+            return existsInEither && result;
+        }
+
+        @Override
         public Component makeDescriptionText(int indent, Prerequisites prerequisites, Optional<Prerequisites.DisplayInfo> prereqDisplay,
                 ClientSkillTree skillTree, CompletionStatus completion, ChatFormatting[] textStyle) {
             String indent_space = Prerequisites.RequirementCondition.INDENT_STRING.repeat(indent);
@@ -400,32 +411,30 @@ public record Prerequisites(
 
             MutableComponent advLine = null;
             if (advComp != null) {
-                Component symb = completion.advancements.containsKey(this.key) ?
-                    SkillTreeInfoScreen.statusSymbol(completion.advancements.get(this.key)) 
-                    : SkillTreeInfoScreen.statusSymbol(false);
-                advLine = MutableComponent.create(symb.getContents())
-                    .append(Component.literal(" ")).append(advComp);
-            }
-            MutableComponent parLine = null;
-            if (parComp != null) {
                 Component symb = completion.parents.containsKey(this.key) ?
                     SkillTreeInfoScreen.statusSymbol(completion.parents.get(this.key)) 
                     : SkillTreeInfoScreen.statusSymbol(false);
-                parLine = MutableComponent.create(symb.getContents())
-                    .append(Component.literal(" ")).append(parComp);
+                advLine = Component.empty().append(symb).append(Component.literal(" ")).append(advComp);
+            }
+            MutableComponent parLine = null;
+            if (parComp != null) {
+                Component symb = completion.advancements.containsKey(this.key) ?
+                    SkillTreeInfoScreen.statusSymbol(completion.advancements.get(this.key)) 
+                    : SkillTreeInfoScreen.statusSymbol(false);
+                parLine = Component.empty().append(symb).append(Component.literal(" ")).append(parComp);
             }
 
             if (advLine != null && parLine != null) {
-                return Component.literal(indent_space)
+                return Component.literal(indent_space).withStyle(textStyle)
                     .append(advLine)
                     .append(Component.literal("\n"))
                     .append(Component.literal(indent_space))
                     .append(parLine);
             } else if (advLine != null) {
-                return Component.literal(indent_space)
+                return Component.literal(indent_space).withStyle(textStyle)
                     .append(advLine);
             } else if (parLine != null) {
-                return Component.literal(indent_space)
+                return Component.literal(indent_space).withStyle(textStyle)
                     .append(parLine);
             } else {
                 return null;
@@ -435,10 +444,18 @@ public record Prerequisites(
 
     public record AndCondition(List<RequirementCondition> children) implements RequirementCondition {
         @Override
+        public boolean isDone(CompletionStatus completion) {
+            return children.stream().allMatch(c -> c.isDone(completion));
+        }
+
+        @Override
         public Component makeDescriptionText(int indent, Prerequisites prerequisites, Optional<Prerequisites.DisplayInfo> prereqDisplay,
                 ClientSkillTree skillTree, CompletionStatus completion, ChatFormatting[] textStyle) {
             String indent_space = Prerequisites.RequirementCondition.INDENT_STRING.repeat(indent);
-            MutableComponent out = Component.literal(indent_space).append(Component.translatable(Requirements.KEY_DESCRIPTION_TEXT_ALLOF).withStyle(textStyle));
+            MutableComponent status = SkillTreeInfoScreen.statusSymbol(isDone(completion)).copy();
+            MutableComponent out = Component.literal(indent_space).withStyle(textStyle)
+                .append(status).append(Component.literal(" "))
+                .append(Component.translatable(Requirements.KEY_DESCRIPTION_TEXT_ALLOF));
             for (RequirementCondition child : this.children) {
                 out.append(Component.literal("\n")).append(child.makeDescriptionText(indent+1, prerequisites, prereqDisplay, skillTree, completion, textStyle));
             }
@@ -449,10 +466,18 @@ public record Prerequisites(
 
     public record OrCondition(List<RequirementCondition> children) implements RequirementCondition {
         @Override
+        public boolean isDone(CompletionStatus completion) {
+            return children.stream().anyMatch(c -> c.isDone(completion));
+        }
+
+        @Override
         public Component makeDescriptionText(int indent, Prerequisites prerequisites, Optional<Prerequisites.DisplayInfo> prereqDisplay,
                 ClientSkillTree skillTree, CompletionStatus completion, ChatFormatting[] textStyle) {
             String indent_space = Prerequisites.RequirementCondition.INDENT_STRING.repeat(indent);
-            MutableComponent out = Component.literal(indent_space).append(Component.translatable(Requirements.KEY_DESCRIPTION_TEXT_ANYOF).withStyle(textStyle));
+            MutableComponent status = SkillTreeInfoScreen.statusSymbol(isDone(completion)).copy();
+            MutableComponent out = Component.literal(indent_space).withStyle(textStyle)
+                .append(status).append(Component.literal(" "))
+                .append(Component.translatable(Requirements.KEY_DESCRIPTION_TEXT_ANYOF));
             for (RequirementCondition child : this.children) {
                 out.append(Component.literal("\n")).append(child.makeDescriptionText(indent+1, prerequisites, prereqDisplay, skillTree, completion, textStyle));
             }
