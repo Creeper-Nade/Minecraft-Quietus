@@ -13,7 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 
-public final class ContainerUtil {
+public class ContainerUtil {
     public static ItemStack[] getSurroundingItems(int originIndex, int rowOffset, int horizontalOffset, Container container, int perRow, boolean includeOrigin) throws IndexOutOfBoundsException, ArithmeticException {
         if (rowOffset < 0 || horizontalOffset < 0) throw new IndexOutOfBoundsException("Row and horizontal offsets cannot be negative!");
         if (perRow == 0) throw new ArithmeticException("Items perRow cannot be 0");

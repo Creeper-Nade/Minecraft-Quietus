@@ -1,14 +1,11 @@
 {
   "skill.skillNotFound": "Unknown skill: %s",
 
-  "message.quietus.gamerules_conflict_warning": "Conflicting gamerules detected:",
-  "message.quietus.gamerules_conflict_reminder": "Please deactivate either one from each pair",
-  "message.quietus.killed_fragment": "Absorbed %s's lost fragment, items and experience retrieved",
-  "message.quietus.full_inventory": "Your inventory is full",
+  "skillTree.quietus.unlock": "Unlock (%1$d/%2$d)",
+  "skillTree.quietus.upgrade": "Upgrade (%1$d/%2$d)",
 
   "gamerule.doDeathSpectating": "Enters ghost mode upon death",
   "gamerule.ticksPerDecay": "Number of game ticks taken for all items to decay once",
-  "gamerule.keepInventoryPartially": "Preserves items in major slots while spawning Fragment upon death",
   "death.attack.quietus:magic_projectile_damage": "%1$s magically disappeared",
   "death.attack.quietus:magic_projectile_damage.player": "%1$s was voodooed by %2$s",
   "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame": "%1$s magically disappeared",
@@ -105,6 +102,15 @@
   "skill.quietus.example_skill": "Do Be Do Be Do Be Do",
 
 
+  "gui.skill_tree": "Skill Tree",
+  "gui.skill_tree.description.prerequisites.net": "Prerequisites: ",
+  "gui.skill_tree.description.prerequisites.allOf": "All of: ",
+  "gui.skill_tree.description.prerequisites.anyOf": "At least one of: ",
+  "gui.skill_tree.upgrade_button.unlock" : "Unlock (%s/%s)",
+  "gui.skill_tree.upgrade_button.upgrade" : "Upgrade (%s/%s)",
+  "gui.skill_tree.upgrade_button.locked" : "Locked",
+  "gui.skill_tree.upgrade_button.locked_upgrade" : "Locked (%s/%s)",
+
   "commands.skill.add.single.success": "Granted %s levels of %s to %s",
   "commands.skill.add.single.failure": "Level of %s for %s is unchanged",
   "commands.skill.add.multiple.success": "Granted %s levels of %s to %s players",
@@ -117,5 +123,29 @@
   "commands.skill.set.single.success": "Set %s levels of %s for %s",
   "commands.skill.set.single.failure": "Level of %s for %s is unchanged",
   "commands.skill.set.multiple.success": "Set %s levels of %s for %s players",
-  "commands.skill.set.multiple.failure": "Levels of %s for %s players are unchanged"
+  "commands.skill.set.multiple.failure": "Levels of %s for %s players are unchanged",
+
+
+  "quietus.client.networking.failed.skillTree": "Failed to request skill tree update from server",
+
+
+
+
+
+
+
+
+
+
+
+  "__comment": "SKILL TREE LOCALISATIONS",
+  "skillTree.quietus.example_tab/example_root.header": "Provisional Findings Regarding the Unresolved Matter with Polyrectostalgamite using process Ampére-Lotus Glysentite",
+  "skillTree.quietus.example_tab/example_root.description": "The procedure was officially advanced, though not entirely completed. He might have agreed, if previously consulted, but the matter was left unresolved. It should be concluded without being resolved, which is generally understood. They are neither for nor against the prevailing circumstances. Having been thoroughly re-examined, the entire concept was quietly abandoned. Above text is gibberish, only for testing. 神秘的东方文字",
+  "skillTree.quietus.example_tab/example.header": "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  "skillTree.quietus.example_tab/example.description": "哇和我iui崇拜我哦哦嘶哈卡拉斯科的规划😯i啊还贷款卡就更好看就会v卡及时反馈给家人回家啊矿务局恶化卡科技哈看得见的户口登记哈看时间先后购入无关ID建行卡接电话啊看时间的火锅烤肉金额吧啊科技市场开发机构和日无分开多久啊还给卡就会出现哈\n北京的工人脾气地v好 爱苏反对和viu鹅和日开启就是看见啥东西啊我哭惹啊大家更好烦i俄军哦爱的举动啊时间会购入恶搞思想解放哈人家卡就山西汾酒啊hi对话都爱上哦诶我哈看时间的恢复卡及时的开发进度哈看觉得还是卡就喜欢放假啊呃u繁华似i啊还是肯德基发货卡及时的卡就好ii恶化去皮哈科技兴农筹码就是染发膏i然后我怕我的咖啡馆卡及时的回复科技哈看时间都够佛俄军士兵的空间哈看在江西南昌满是被u俄国长度为各位i u我国冬奥说的恢复卡就还是肯德基发货！",
+  "skillTree.quietus.example_tab/example_branch.header": "Branch",
+  "skillTree.quietus.example_tab/example_branch.description": "This is a branch.",
+  "skillTree.quietus.node.example.criteria1": "You defeated an immensely powerful monster"
+
+
 }

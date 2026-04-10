@@ -29,6 +29,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import org.joml.Matrix4fStack;
 
+import static com.minecraftquietus.quietus.Quietus.MODID;
 import static com.minecraftquietus.quietus.tags.QuietusTags.Blocks.SPELUNKABLE_ORES;
 
 import java.util.*;
@@ -45,7 +46,7 @@ public class Ore_Vision {
     public static RenderPipeline LINES_NO_DEPTH = RenderPipeline.builder(RenderPipelines.MATRICES_COLOR_SNIPPET)
             .withLocation("pipeline/xray_lines")
             .withVertexShader("core/rendertype_lines")
-            .withFragmentShader(ResourceLocation.fromNamespaceAndPath("quietus", "core/orevision_line"))
+            .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MODID, "core/orevision_line"))
             .withUniform("LineWidth", UniformType.FLOAT)
             .withUniform("ScreenSize", UniformType.VEC2)
             .withBlend(BlendFunction.TRANSLUCENT)

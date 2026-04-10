@@ -38,8 +38,8 @@ public class FragmentHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderSt
 
     public static RenderPipeline GRAY_SCALE = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
             .withLocation(ResourceLocation.fromNamespaceAndPath(MODID, "grayscale"))
-            .withVertexShader(ResourceLocation.fromNamespaceAndPath("quietus", "core/grayscale"))
-            .withFragmentShader(ResourceLocation.fromNamespaceAndPath("quietus", "core/grayscale"))
+            .withVertexShader(ResourceLocation.fromNamespaceAndPath(MODID, "core/grayscale"))
+            .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MODID, "core/grayscale"))
             .withShaderDefine("ALPHA_CUTOUT", 0.1F)
             .withShaderDefine("EMISSIVE")
             .withShaderDefine("NO_CARDINAL_LIGHTING")

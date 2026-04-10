@@ -1,6 +1,11 @@
 package com.minecraftquietus.quietus.event_listener;
 
+import com.minecraftquietus.quietus.Quietus;
+import com.minecraftquietus.quietus.client.QuietusKeyBindings;
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
+import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
+import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
+import com.minecraftquietus.quietus.client.screens.skill_tree.SkillTreeScreen;
 import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.item.QuietusComponents;
@@ -8,6 +13,13 @@ import com.minecraftquietus.quietus.item.component.CanDecay;
 import com.minecraftquietus.quietus.item.equipment.RetaliatesOnDamaged;
 import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
+import com.minecraftquietus.quietus.server.PlayerData;
+import com.minecraftquietus.quietus.server.QuietusReloadableResources;
+import com.minecraftquietus.quietus.skilltree.SkillCategory;
+import com.minecraftquietus.quietus.skilltree.SkillPointProgress;
+import com.minecraftquietus.quietus.util.ManaUtil;
+import com.minecraftquietus.quietus.util.QuietusAttachments;
+import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.util.*;
 import com.minecraftquietus.quietus.tags.QuietusTags;
 import com.mojang.logging.LogUtils;
@@ -17,6 +29,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -43,6 +56,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEnchantItemEvent;
@@ -54,12 +68,13 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+
 import org.slf4j.Logger;
 
 
 @EventBusSubscriber(modid = MODID)
 public class QuietusCommonEvents {
-    // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
     
     @SubscribeEvent
@@ -165,11 +180,26 @@ public class QuietusCommonEvents {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
-            PlayerData.sendManaPackToPlayer(serverPlayer);
-
+            PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer);
+            /* Player data */
+            if (Objects.nonNull(Quietus.playerData)) {
+                Quietus.playerData.loadPlayer(serverPlayer);
+            }
             // Check for gamerule conflicts when a player logs in
             checkForConflictsAndNotify(serverPlayer);
-        } 
+            /* Send skill tree packet to client */
+            PlayerClientPacketDistributor.sendSkillTreePackToPlayer(serverPlayer);
+        }
+    }
+    @SubscribeEvent
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        Player player = event.getEntity();
+        if (player instanceof ServerPlayer serverPlayer) {
+            /* Player data */
+            if (Objects.nonNull(Quietus.playerData)) {
+                Quietus.playerData.savePlayer(serverPlayer);
+            }
+        }
     }
 
     private static void checkForConflictsAndNotify(ServerPlayer player) {
@@ -191,6 +221,9 @@ public class QuietusCommonEvents {
     private static void sendConflictMessage(ServerPlayer player, GameRules.Key<?> rule1, GameRules.Key<?> rule2) {
         Component conflictedGamerules = Component.literal(rule1.getId() + " & " + rule2.getId()).withStyle(ChatFormatting.YELLOW);
         player.sendSystemMessage(conflictedGamerules);
+        if (Objects.nonNull(Quietus.playerData)) {
+            Quietus.playerData.loadPlayer(player);
+        }
     }
 
     @SubscribeEvent
@@ -301,7 +334,12 @@ public class QuietusCommonEvents {
             Ore_Vision.IfPlayerMoved(player);
         }
 
-
+        while (QuietusKeyBindings.SKILL_TREE_KEY.get().consumeClick()) {
+            if (minecraft.screen == null) {
+                minecraft.setScreen(new SkillTreeScreen(ClientSkillTreePayloadHandler.getSkillTree()));
+                //minecraft.setScreen(new CustomScreen(player.connection.getAdvancements()));
+            }
+        }
     }
 
     @SubscribeEvent

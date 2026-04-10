@@ -5,6 +5,7 @@ import com.minecraftquietus.quietus.client.model.mob.FragmentHeadLayer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
 import com.minecraftquietus.quietus.client.model.projectile.misc.ChainHookRenderer;
 import com.minecraftquietus.quietus.client.particle.QuietusParticles;
+import com.minecraftquietus.quietus.commands.QuietusCommands;
 import com.minecraftquietus.quietus.core.QuietusRegistries;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
@@ -13,6 +14,8 @@ import com.minecraftquietus.quietus.effects.spelunker.Ore_Vision;
 import com.minecraftquietus.quietus.enchantment.QuietusEnchantmentComponent;
 import com.minecraftquietus.quietus.entity.QuietusEntityDataSerializers;
 import com.minecraftquietus.quietus.event_listener.GrapplingEvent;
+import com.minecraftquietus.quietus.server.handler.SkillTreeGUIPayloadHandler;
+import com.minecraftquietus.quietus.server.packet.SkillTreeGUIRequest;
 import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
@@ -22,6 +25,9 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -43,21 +49,24 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import com.minecraftquietus.commands.QuietusCommands;
 import com.minecraftquietus.quietus.block.QuietusBlocks;
 import com.minecraftquietus.quietus.effects.QuietusMobEffects;
 import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.potion.QuietusPotions;
+import com.minecraftquietus.quietus.server.PlayerData;
+import com.minecraftquietus.quietus.server.QuietusReloadableResources;
 import com.minecraftquietus.quietus.skill.QuietusSkills;
 import com.minecraftquietus.quietus.entity.QuietusEntityTypes;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.event_listener.QuietusCommonEvents;
 import com.minecraftquietus.quietus.event_listener.QuietusIModBusEvent;
 import com.minecraftquietus.quietus.event_listener.SpawnEvent;
+import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.hud.ManaHudOverlay;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileRenderer;
 
@@ -84,29 +93,12 @@ public class Quietus
             }).build());
 
 
+    @Nullable
+    public static PlayerData playerData; // all the player data (that are not player attachments)
 
-    //MANA codec
-    /*private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
-            DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MODID);
-    private static final Codec<ManaComponent> MANA_CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    Codec.INT.fieldOf("mana").forGetter(ManaComponent::getMana),
-                    Codec.INT.fieldOf("maxMana").forGetter(ManaComponent::getMaxMana)
-            ).apply(instance, ManaComponent::new)
-    );
-    private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
-            DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
-
-    public static final Supplier<AttachmentType<ManaComponent>> MANA =
-            ATTACHMENTS.register("mana", () ->
-                    AttachmentType.builder(() -> new ManaComponent())
-                            .serialize(MANA_CODEC)
-                            .build()
-            );*/
-
-
-
-
+    public PlayerData getPlayerData() {
+        return playerData;
+    }
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -117,10 +109,11 @@ public class Quietus
         
         // register registries
         modEventBus.addListener(QuietusRegistries::registerRegistries);
+        //modEventBus.addListener(QuietusRegistries::registerDatapackRegistries);
 
-        QuietusItems.init();
+        
 
-        // Registries
+        // Registering registries and their contents
         QuietusItems.register(modEventBus);
         QuietusComponents.register(modEventBus);
         QuietusEnchantmentComponent.register(modEventBus);
@@ -131,6 +124,9 @@ public class Quietus
         QuietusEntityTypes.register(modEventBus);
         QuietusProjectiles.register(modEventBus);
         QuietusSkills.register(modEventBus);
+
+        // register resource loading listeners
+        NeoForge.EVENT_BUS.addListener(QuietusReloadableResources::onAddingServerResourceReloadListeners);
         QuietusEntityDataSerializers.register(modEventBus);
         QuietusParticles.register(modEventBus);
 
@@ -142,14 +138,14 @@ public class Quietus
         NeoForge.EVENT_BUS.register(Ore_Vision.class);
         modEventBus.addListener(this::registerPipeline);
 
-        NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
+        /* NeoForge.EVENT_BUS.register(QuietusCommonEvents.class);
        // NeoForge.EVENT_BUS.register(PlayerDeathHandler.class);
         NeoForge.EVENT_BUS.register(GhostMovementHandler.class);
         NeoForge.EVENT_BUS.register(GhostDeath.class);
         NeoForge.EVENT_BUS.register(SpawnEvent.class);
         NeoForge.EVENT_BUS.register(GrapplingEvent.class);
         modEventBus.register(QuietusIModBusEvent.class);
-        modEventBus.register(DataGenerator.class);
+        modEventBus.register(DataGenerator.class); */
 
 // Register our mana attachment
         //ATTACHMENTS.register("mana_component", () -> ManaComponent.MANA_ATTACHMENT);
@@ -188,7 +184,7 @@ public class Quietus
         event.enqueueWork(() -> {
             QuietusItems.registerWeatheringMappings();
             QuietusGameRules.Init();
-
+            QuietusItems.init();
         });
     }
 
@@ -197,37 +193,34 @@ public class Quietus
         QuietusItems.addCreativeTabItems(event, event.getTabKey());
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
+    /**
+     * When server starts
+     * @param event
+     */
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-        // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+        playerData = new PlayerData(event.getServer());
     }
 
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
+    /**
+     * When server shuts down
+     * @param event
+     */
+    @SubscribeEvent
+    public void onServerStopping(ServerStoppingEvent event)
+    {
+        QuietusReloadableResources.close();
+        playerData = null;
+    }
+
+    /* // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
-            // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-            LOGGER.info("    ########    ");
-            LOGGER.info("  ##        ##  ");
-            LOGGER.info(" #    oo     # ");
-            LOGGER.info("#            #");
-            LOGGER.info("#   ------   #");
-            LOGGER.info(" #  \\__/  # ");
-            LOGGER.info("  ##        ##  ");
-            LOGGER.info("    ########    ");
-            EntityRenderers.register(QuietusProjectiles.AMETHYST_PROJECTILE.get(), AmethystProjectileRenderer::new);
-            EntityRenderers.register(QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get(), ChainHookRenderer::new);
-            EntityRenderers.register(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get(), AmethystProjectileSmallRenderer::new);
-        }
-    }
+        
+    } */
 
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);

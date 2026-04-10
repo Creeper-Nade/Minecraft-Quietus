@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.event_listener;
 
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
+import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.item.DecayBarDecorator;
 import com.minecraftquietus.quietus.client.model.mob.PlayerFragmentRenderer;
 import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjectileModel;
@@ -11,8 +12,20 @@ import com.minecraftquietus.quietus.client.particle.DustImplosionParticle;
 import com.minecraftquietus.quietus.client.particle.QuietusParticles;
 import com.minecraftquietus.quietus.data.ItemModelProperties.GrapplingHookCast;
 import com.minecraftquietus.quietus.entity.monster.PlayerFragment;
-import com.minecraftquietus.quietus.packet.*;
+import com.minecraftquietus.quietus.client.packet.DoDecayPacket;
+import com.minecraftquietus.quietus.client.packet.GhostStatePacket;
+import com.minecraftquietus.quietus.client.packet.GrapplingActiveHookPacket;
+import com.minecraftquietus.quietus.client.packet.GrapplingHookPhysicsPacket;
+import com.minecraftquietus.quietus.client.packet.GrapplingJumpReleasePacket;
+import com.minecraftquietus.quietus.client.packet.ManaPacket;
+import com.minecraftquietus.quietus.client.packet.PlayerRevivalCooldownPacket;
+import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
+import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
+import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
+import com.minecraftquietus.quietus.client.packet.WeatherItemContainerPacket;
 
+import com.minecraftquietus.quietus.server.handler.SkillTreeGUIPayloadHandler;
+import com.minecraftquietus.quietus.server.packet.SkillTreeGUIRequest;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -33,6 +46,7 @@ import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -50,7 +64,8 @@ import com.minecraftquietus.quietus.entity.monster.Paraboler;
 public class QuietusIModBusEvent {
     @SubscribeEvent
     public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(MODID);
+        PayloadRegistrar registrar = event.registrar(MODID)
+            .executesOn(HandlerThread.MAIN);
         registrar.playToClient(
             ManaPacket.TYPE, 
             ManaPacket.STREAM_CODEC, 
@@ -76,19 +91,40 @@ public class QuietusIModBusEvent {
             ClientPayloadHandler::handleWeatherItemContainer
         );
         registrar.playToClient(
-                GrapplingHookPhysicsPacket.TYPE,
-                GrapplingHookPhysicsPacket.STREAM_CODEC,
-                ClientPayloadHandler::handleGrapplePhysics
+            GrapplingHookPhysicsPacket.TYPE,
+            GrapplingHookPhysicsPacket.STREAM_CODEC,
+            ClientPayloadHandler::handleGrapplePhysics
         );
         registrar.playToClient(
-                GrapplingActiveHookPacket.TYPE,
-                GrapplingActiveHookPacket.STREAM_CODEC,
-                ClientPayloadHandler::handleGrappleActivity
+            GrapplingActiveHookPacket.TYPE,
+            GrapplingActiveHookPacket.STREAM_CODEC,
+            ClientPayloadHandler::handleGrappleActivity
+        );
+        registrar.playToClient(
+                SkillTreeUpdatePacket.TYPE,
+            SkillTreeUpdatePacket.STREAM_CODEC,
+            ClientSkillTreePayloadHandler::handleSkillTreeUpdate
+        );
+        registrar.playToClient(
+            SkillTreeAdvancementsUpdatePacket.TYPE,
+            SkillTreeAdvancementsUpdatePacket.STREAM_CODEC,
+            ClientSkillTreePayloadHandler::handleSkillTreeAdvancementsSync
+        );
+        registrar.playToClient(
+            SkillTreeAdvancementsGrantRevokePacket.TYPE,
+            SkillTreeAdvancementsGrantRevokePacket.STREAM_CODEC,
+            ClientSkillTreePayloadHandler::handleSkillTreeAdvancementsSync
+        );
+        registrar = registrar.executesOn(HandlerThread.NETWORK);
+        registrar.playToServer(
+            SkillTreeGUIRequest.TYPE,
+            SkillTreeGUIRequest.STREAM_CODEC,
+            SkillTreeGUIPayloadHandler::handleSkillTreeRequest
         );
         registrar.playToServer(
-                GrapplingJumpReleasePacket.TYPE,
-                GrapplingJumpReleasePacket.STREAM_CODEC,
-                ClientPayloadHandler::handleGrappleJump
+            GrapplingJumpReleasePacket.TYPE,
+            GrapplingJumpReleasePacket.STREAM_CODEC,
+            ClientPayloadHandler::handleGrappleJump
         );
     }
 

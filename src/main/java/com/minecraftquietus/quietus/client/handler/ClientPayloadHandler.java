@@ -2,16 +2,22 @@ package com.minecraftquietus.quietus.client.handler;
 
 import java.util.Objects;
 
+import com.minecraftquietus.quietus.client.packet.DoDecayPacket;
+import com.minecraftquietus.quietus.client.packet.GhostStatePacket;
+import com.minecraftquietus.quietus.client.packet.ManaPacket;
+import com.minecraftquietus.quietus.client.packet.PlayerRevivalCooldownPacket;
+import com.minecraftquietus.quietus.client.packet.WeatherItemContainerPacket;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
-import com.minecraftquietus.quietus.packet.*;
+import com.minecraftquietus.quietus.client.packet.GrapplingActiveHookPacket;
+import com.minecraftquietus.quietus.client.packet.GrapplingHookPhysicsPacket;
+import com.minecraftquietus.quietus.client.packet.GrapplingJumpReleasePacket;
 
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -60,7 +66,7 @@ public class ClientPayloadHandler {
     }
 
 
-    public static void handleGhostState(final GhostStatePacket payload,final IPayloadContext context) {
+    public static void handleGhostState(final GhostStatePacket payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
                     PlayerIsGhost = payload.isGhost();
                     MaxReviveCD = payload.Max_CD();

@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.potion;
+/* package com.minecraftquietus.quietus.potion;
 
 import com.minecraftquietus.quietus.core.mana.ManaComponent;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class PotionConsumptionHandler {
-    /*
+    
     // Default mana values for potions
     private static final Map<ResourceLocation, Integer> MANA_VALUES = new HashMap<>();
     private static final int DEFAULT_MANA = 15; // Default value
@@ -65,5 +65,6 @@ public class PotionConsumptionHandler {
             player.getData(QuietusAttachments.MANA_ATTACHMENT).addMana(manaAmount,player);
         }
 
-    }*/
+    }
 }
+ */

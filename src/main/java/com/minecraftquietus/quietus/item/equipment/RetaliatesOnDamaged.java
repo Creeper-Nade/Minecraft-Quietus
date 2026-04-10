@@ -14,5 +14,6 @@ public interface RetaliatesOnDamaged {
     * @param slot the slot this item should be in of the wearer
     * @param wearer the LivingEntity wearing this 
     */
+    // TODO: should this be implemented as Capabilities provided by neoforge instead?
     public void onArmorHurt(float damage, Map<EquipmentSlot, ItemStack> armorMap, EquipmentSlot slot, LivingEntity wearer);
 }

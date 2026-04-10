@@ -19,9 +19,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static com.minecraftquietus.quietus.Quietus.MODID;
+
 public class QuietusParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
-            DeferredRegister.create(Registries.PARTICLE_TYPE, "quietus");
+            DeferredRegister.create(Registries.PARTICLE_TYPE, MODID);
 
     public static final Supplier<ParticleType<DustImplosionParticleOptions>> DUST_IMPLOSION =
             registerParticle("dust_implosion", false, (p_337461_) -> DustImplosionParticleOptions.CODEC, (p_319435_) -> DustImplosionParticleOptions.STREAM_CODEC);

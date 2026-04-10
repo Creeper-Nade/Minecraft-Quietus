@@ -6,20 +6,17 @@ import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.WeatheringCopperItems;
 import com.minecraftquietus.quietus.item.WeatheringIronItems;
 import com.minecraftquietus.quietus.item.WeatheringItem;
-import com.minecraftquietus.quietus.item.component.CanDecay;
 import com.minecraftquietus.quietus.util.ContainerUtil;
 import com.minecraftquietus.quietus.util.ItemStackUtil;
-import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.mojang.logging.LogUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,37 +24,27 @@ import org.slf4j.Logger;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.telemetry.events.WorldUnloadEvent;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.gametest.framework.TestEnvironmentDefinition.Weather;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.AbstractChestBoat;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
-import net.minecraft.world.inventory.ShulkerBoxMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
-import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -75,7 +62,6 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import static net.minecraft.world.level.GameRules.RULE_RANDOMTICKING;
 
@@ -231,8 +217,8 @@ public class WeatheringHandler {
                     WeatheringResult result = doWeatherItem(itemstack, armorItems, livingEntity.getRandom(), level, server);
                     if (result.isItemChanged()) replaceItem(livingEntity, result.get(), slots[i]);
                     else {
-                        if (result.hasDecayed()) PlayerData.sendPackToDecayItemFromSlotOfEntity(livingEntity, slots[i], 1);
-                        if (result.changedContainerContents().isPresent()) PlayerData.sendPackToWeatherItemContainerFromSlotOfEntity(livingEntity, slots[i], result.changedContainerContents.get());
+                        if (result.hasDecayed()) PlayerClientPacketDistributor.sendPackToDecayItemFromSlotOfEntity(livingEntity, slots[i], 1);
+                        if (result.changedContainerContents().isPresent()) PlayerClientPacketDistributor.sendPackToWeatherItemContainerFromSlotOfEntity(livingEntity, slots[i], result.changedContainerContents.get());
                     }
                 }
                 if (livingEntity instanceof Player player) { // also checks for player inventory for oxidizing
@@ -278,7 +264,7 @@ public class WeatheringHandler {
             /* ItemFrame */
             if (entity instanceof ItemFrame itemFrame) {
                 ItemStack itemstack = itemFrame.getItem();
-                if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) PlayerData.sendPackToDecayItemFromSlotOfEntity(entity, EquipmentSlot.MAINHAND, 1);
+                if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) PlayerClientPacketDistributor.sendPackToDecayItemFromSlotOfEntity(entity, EquipmentSlot.MAINHAND, 1);
                 WeatheringResult result = doWeatherItem(itemstack, new ItemStack[0], entity.getRandom(), level, server);
                 if (result.isItemChanged()) itemFrame.setItem(result.get());
             } else 

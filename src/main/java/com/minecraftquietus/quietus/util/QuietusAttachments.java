@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 import com.minecraftquietus.quietus.core.mana.ManaComponent;
 import com.minecraftquietus.quietus.core.skill.SkillComponent;
-import com.minecraftquietus.server.commands.SkillCommands;
+import com.minecraftquietus.quietus.server.commands.SkillCommands;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 

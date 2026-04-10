@@ -88,18 +88,30 @@ public record UsesMana(
 
     public enum Operation implements StringRepresentable {
         
-        ADD_VALUE("add_value", (byte)0, 
-            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, amount)
-        ),
-        ADD_MULTIPLIED_CURRENT("add_multiplied_current", (byte)1, 
-            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, (int)Math.round(mana * ((double)amount/100.0d)))
-        ),
-        ADD_MULTIPLIED_TOTAL("add_multiplied_total", (byte)2, 
-            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, (int)Math.round(maxMana * ((double)amount/100.0d)))
-        ),
-        SET_VALUE("set_value", (byte)3, 
-            (mana, maxMana, amount, minAmount) -> Math.max(minAmount, mana - amount)
-        );
+        ADD_VALUE("add_value", (byte)0) {
+            @Override
+            protected int doOperation(int mana, int maxMana, int amount, int minAmount) {
+                return Math.max(minAmount, amount);
+            }
+        },
+        ADD_MULTIPLIED_CURRENT("add_multiplied_current", (byte)1) {
+            @Override
+            protected int doOperation(int mana, int maxMana, int amount, int minAmount) {
+                return Math.max(minAmount, (int)Math.round(mana * ((double)amount/100.0d)));
+            }
+        },
+        ADD_MULTIPLIED_TOTAL("add_multiplied_total", (byte)2) {
+            @Override
+            protected int doOperation(int mana, int maxMana, int amount, int minAmount) {
+                return Math.max(minAmount, (int)Math.round(maxMana * ((double)amount/100.0d)));
+            }
+        },
+        SET_VALUE("set_value", (byte)3) {
+            @Override
+            protected int doOperation(int mana, int maxMana, int amount, int minAmount) {
+                return Math.max(minAmount, mana - amount);
+            }
+        };
 
         public static final IntFunction<UsesMana.Operation> BY_ID = ByIdMap.continuous(
             UsesMana.Operation::getIndex, values(), ByIdMap.OutOfBoundsStrategy.ZERO
@@ -109,13 +121,14 @@ public record UsesMana(
 
         private String name;
         private byte index;
-        private Operator<Integer,Integer,Integer,Integer,Integer> func;
 
-        Operation(String name, byte index, Operator<Integer,Integer,Integer,Integer, Integer> func) {
+        Operation(String name, byte index) {
             this.name = name;
             this.index = index;
-            this.func = func;
         }
+
+        protected abstract int doOperation(int mana, int maxMana, int amount, int minAmount);
+
         public byte getIndex() {
             return this.index;
         }
@@ -124,12 +137,7 @@ public record UsesMana(
             return this.name;
         }
         public int apply(int mana, int maxMana, int amount, int minAmount) {
-            return this.func.apply(mana, maxMana, amount, minAmount);
+            return this.doOperation(mana, maxMana, amount, minAmount);
         }
-    }
-
-    @FunctionalInterface
-    public interface Operator<A,B,C,D,R> {
-        R apply(A a,B b,C c,D d);
     }
 }

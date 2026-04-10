@@ -1,7 +1,7 @@
 package com.minecraftquietus.quietus.core.DeathRevamp;
 
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
-import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
@@ -17,7 +17,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -27,10 +26,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
@@ -58,6 +55,7 @@ public class GhostDeath{
 
 
     public static void showScreen(Component causeOfDeath) {
+        Minecraft.getInstance().setScreen(null);
         deathMessage = causeOfDeath;
         reviveCooldown = ClientPayloadHandler.getInstance().getMaxReviveCD();
         playerScore = Minecraft.getInstance().player.getScore();
@@ -90,8 +88,8 @@ public class GhostDeath{
         boolean hardcore = player.level().getLevelData().isHardcore();
         int ReviveCD = nbt.getIntOr("reviveCooldown",0);
 
-        PlayerData.sendGhostPackToPlayer(player,isGhost,deathMessage,ReviveCD,hardcore);
-        PlayerData.sendRevivalCDToPlayer(player,ReviveCD);
+        PlayerClientPacketDistributor.sendGhostPackToPlayer(player,isGhost,deathMessage,ReviveCD,hardcore);
+        PlayerClientPacketDistributor.sendRevivalCDToPlayer(player,ReviveCD);
 
     }
 

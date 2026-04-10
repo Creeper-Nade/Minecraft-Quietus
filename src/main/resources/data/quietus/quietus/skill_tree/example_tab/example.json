@@ -1,0 +1,56 @@
+{
+
+    "max_amount": 5,
+
+    "layout": {
+        "prerequisites": {
+            "parents": {
+                "p1": "quietus:example_tab/example_root"
+            },
+            "requirements": [
+                ["p1"]
+            ]
+        }
+    },
+
+    "unlock": {
+        "progress": 1,
+        "prerequisites": {
+            "parents": {
+                "p1": "quietus:example_tab/example_branch_1",
+                "p2": "quietus:example_tab/example_branch_2",
+                "p3": "quietus:example_tab/example_branch_3"
+            },
+            "advancements": {
+                "kill_a_mob": "minecraft:adventure/kill_a_mob"
+            },
+            "requirements": [
+                ["p1","p3","p2","kill_a_mob"]
+            ]
+        }
+    },
+
+    "rewards": [
+        {
+            "skill": "quietus:example_skill",
+            "amount": 1,
+            "source": "quietus:skill_tree"
+        }
+    ],
+
+    "display": {
+        "header": {
+            "translate": "skillTree.quietus.example_tab/example.header"
+        },
+        "description": {
+            "translate": "skillTree.quietus.example_tab/example.description"
+        },
+        "prerequisites": {
+            "advancements": {
+                "kill_a_mob": {
+                    "translate": "skillTree.quietus.node.example.criteria1"
+                }
+            }
+        }
+    }
+}
