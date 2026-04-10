@@ -10,7 +10,6 @@ import com.minecraftquietus.quietus.client.packet.DoDecayPacket;
 import com.minecraftquietus.quietus.client.packet.GhostStatePacket;
 import com.minecraftquietus.quietus.client.packet.GrapplingActiveHookPacket;
 import com.minecraftquietus.quietus.client.packet.GrapplingHookPhysicsPacket;
-import com.minecraftquietus.quietus.client.packet.GrapplingJumpReleasePacket;
 import com.minecraftquietus.quietus.client.packet.ManaPacket;
 import com.minecraftquietus.quietus.client.packet.PlayerRevivalCooldownPacket;
 import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
@@ -19,6 +18,7 @@ import com.minecraftquietus.quietus.client.packet.SkillTreeUpdatePacket;
 import com.minecraftquietus.quietus.client.packet.WeatherItemContainerPacket;
 import com.minecraftquietus.quietus.core.mana.ManaComponent;
 import com.minecraftquietus.quietus.server.QuietusReloadableResources;
+import com.minecraftquietus.quietus.server.packet.GrapplingJumpReleasePacket;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
 import com.minecraftquietus.quietus.skilltree.SkillPointProgress;
 

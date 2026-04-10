@@ -11,10 +11,9 @@ import com.minecraftquietus.quietus.core.DeathRevamp.GhostDeath;
 import com.minecraftquietus.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
+import com.minecraftquietus.quietus.server.packet.GrapplingJumpReleasePacket;
 import com.minecraftquietus.quietus.client.packet.GrapplingActiveHookPacket;
 import com.minecraftquietus.quietus.client.packet.GrapplingHookPhysicsPacket;
-import com.minecraftquietus.quietus.client.packet.GrapplingJumpReleasePacket;
-
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

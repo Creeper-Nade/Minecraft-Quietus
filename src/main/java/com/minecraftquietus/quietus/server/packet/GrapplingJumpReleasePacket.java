@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.client.packet;
+package com.minecraftquietus.quietus.server.packet;
 
 import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
 import com.minecraftquietus.quietus.util.QuietusAttachments;

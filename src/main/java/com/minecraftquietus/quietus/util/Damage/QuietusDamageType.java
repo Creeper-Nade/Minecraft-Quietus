@@ -1,4 +1,4 @@
-package com.minecraftquietus.quietus.util.Damage;
+package com.minecraftquietus.quietus.util.damage;
 
 import com.minecraftquietus.quietus.Quietus;
 import net.minecraft.core.registries.Registries;
