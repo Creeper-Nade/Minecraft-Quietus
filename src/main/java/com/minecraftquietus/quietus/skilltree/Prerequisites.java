@@ -185,18 +185,13 @@ public record Prerequisites(
          * @param predicate a string predicate to decide whether the said string is finished.
          * @return true if passed (including when there are no requirements), false if any failed.
          */
-        public boolean test(Predicate<String> predicate) {
-            Iterator<List<String>> iter = this.requirements.iterator();
-
-            List<String> list;
-            do {
-                if (!iter.hasNext()) {
-                    return true;
+        public boolean test(CompletionStatus completion) {
+            for (List<String> list : this.requirements) {
+                if (!anyMatch(list, completion)) {
+                    return false;
                 }
-                list = iter.next();
-            } while (anyMatch(list, predicate));
-
-            return false;
+            }
+            return true;
         }
 
         /*public int count(Predicate<String> filter) {
@@ -211,13 +206,23 @@ public record Prerequisites(
             return i;
         }*/
 
-        private static boolean anyMatch(List<String> requirements, Predicate<String> predicate) {
-            for (String s : requirements) {
-                if (predicate.test(s)) {
+        private static boolean anyMatch(List<String> group, CompletionStatus completion) {
+            for (String s : group) {
+                boolean exists = false;
+                boolean result = true;
+                if (completion.advancements.containsKey(s)) {
+                    exists = true;
+                    result &= completion.advancements.get(s);
+                }
+                if (completion.parents.containsKey(s)) {
+                    exists = true;
+                    result &= completion.parents.get(s);
+                }
+
+                if (exists && result) {
                     return true;
                 }
             }
-
             return false;
         }
 

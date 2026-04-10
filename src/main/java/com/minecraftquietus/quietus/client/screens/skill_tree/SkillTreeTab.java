@@ -231,4 +231,7 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     public SkillTreeScreen getScreen() {
         return this.screen;
     }
+    protected TreePosition getPositioning() {
+        return this.positioning;
+    }
 }

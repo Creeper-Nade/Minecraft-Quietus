@@ -165,19 +165,32 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     }
 
     private void renderInfoWindow(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
-        this.selectedWidgetInfo.draw(guiGraphics, mouseX, mouseY, offsetX, offsetY);
-        //guiGraphics.blitSprite(RenderType::guiTextured, INFO_CONTENTS_SPRITE_LOCATION, offsetX, offsetY, INFO_WIDTH, INFO_HEIGHT);
+        int infoWindowY = offsetY + this.selectedTab.getPositioning().getVertices().get(this.selectedWidget.getNode()).y() + WINDOW_INSIDE_TOP_Y + (int)this.selectedTab.scrollY;
+        infoWindowY += Math.min(0, (offsetY + WINDOW_HEIGHT) - (infoWindowY - selectedWidgetInfo.getTopHeight() + selectedWidgetInfo.getHeight())); // clamps the bottom if InfoScreen has lower bottom
+        infoWindowY += Math.max(0, offsetY - (infoWindowY - selectedWidgetInfo.getTopHeight())); // clamps the top if InfoScreen has higher top
+        this.selectedWidgetInfo.draw(guiGraphics, mouseX, mouseY, offsetX, infoWindowY, this.skillTree);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int treeOffsetX = WINDOW_INSIDE_X + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
-        int infoOffsetX =  + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
         int offsetY = (this.height - WINDOW_HEIGHT) / 2;
+        int treeOffsetX = WINDOW_INSIDE_X + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
         int treeOffsetY = WINDOW_INSIDE_TOP_Y + offsetY;
+        int infoOffsetX = (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
+        int infoOffsetY = offsetY;
+        if (this.selectedTab != null && this.selectedWidget != null) {
+            infoOffsetY += this.selectedTab.getPositioning().getVertices().get(this.selectedWidget.getNode()).y() + WINDOW_INSIDE_TOP_Y + (int)this.selectedTab.scrollY;
+            infoOffsetY += Math.min(0, (offsetY + WINDOW_HEIGHT) - (infoOffsetY - selectedWidgetInfo.getTopHeight() + selectedWidgetInfo.getHeight())); // snaps to the bottom if InfoScreen has lower bottom
+            infoOffsetY += Math.max(0, offsetY - (infoOffsetY - selectedWidgetInfo.getTopHeight())); // snaps to the top if InfoScreen has higher top
+        }
 
-        if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, offsetY, mouseX, mouseY)) {
+        if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, infoOffsetY, mouseX, mouseY)) {
             this.focusedDraggable = this.selectedWidgetInfo;
+
+            
+            if (this.selectedWidgetInfo.mouseClicked(infoOffsetX, infoOffsetY, mouseX, mouseY, button)) {
+                return true;
+            }
         } else if (
             mouseX > treeOffsetX 
             && mouseY > treeOffsetY
@@ -211,12 +224,18 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        int treeOffsetX = WINDOW_INSIDE_X + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
-        int infoOffsetX =  + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
         int offsetY = (this.height - WINDOW_HEIGHT) / 2;
+        int treeOffsetX = WINDOW_INSIDE_X + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
         int treeOffsetY = WINDOW_INSIDE_TOP_Y + offsetY;
+        int infoOffsetX =  + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
+        int infoOffsetY = offsetY;
+        if (this.selectedTab != null && this.selectedWidget != null) {
+            infoOffsetY += this.selectedTab.getPositioning().getVertices().get(this.selectedWidget.getNode()).y() + WINDOW_INSIDE_TOP_Y + (int)this.selectedTab.scrollY;
+            infoOffsetY += Math.min(0, (offsetY + WINDOW_HEIGHT) - (infoOffsetY - selectedWidgetInfo.getTopHeight() + selectedWidgetInfo.getHeight())); // snaps to the bottom if InfoScreen has lower bottom
+            infoOffsetY += Math.max(0, offsetY - (infoOffsetY - selectedWidgetInfo.getTopHeight())); // snaps to the top if InfoScreen has higher top
+        }
 
-        if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, offsetY, mouseX, mouseY)) {
+        if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, infoOffsetY, mouseX, mouseY)) {
             this.focusedScrollable = this.selectedWidgetInfo;
         } else if (
             mouseX > treeOffsetX 

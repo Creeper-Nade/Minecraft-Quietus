@@ -77,7 +77,6 @@ public class SkillTreeWidget {
         } else {
             guiGraphics.blit(RenderType::guiTextured, DEFAULT_ICON, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
         }
-        //guiGraphics.blit(RenderType::guiTextured, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
     }
 
     public void drawConnectivity(GuiGraphics guiGraphics, LegacyPosition graph, int offsetX, int offsetY) {
