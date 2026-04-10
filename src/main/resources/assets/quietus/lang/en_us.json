@@ -1,4 +1,9 @@
 {
+  "message.quietus.gamerules_conflict_warning": "Conflicting gamerules detected:",
+  "message.quietus.gamerules_conflict_reminder": "Please deactivate either one from each pair",
+  "message.quietus.killed_fragment": "Absorbed %s's lost fragment, items and experience retrieved",
+  "message.quietus.full_inventory": "Your inventory is full",
+
   "skill.skillNotFound": "Unknown skill: %s",
 
   "skillTree.quietus.unlock": "Unlock (%1$d/%2$d)",
@@ -6,6 +11,7 @@
 
   "gamerule.doDeathSpectating": "Enters ghost mode upon death",
   "gamerule.ticksPerDecay": "Number of game ticks taken for all items to decay once",
+  "gamerule.keepInventoryPartially": "Preserves items in major slots while spawning Fragment upon death",
   "death.attack.quietus:magic_projectile_damage": "%1$s magically disappeared",
   "death.attack.quietus:magic_projectile_damage.player": "%1$s was voodooed by %2$s",
   "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame": "%1$s magically disappeared",

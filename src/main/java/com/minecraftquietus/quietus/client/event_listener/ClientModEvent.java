@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.client.event_listener;
 
+import com.minecraftquietus.quietus.client.model.projectile.misc.ChainHookRenderer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -38,6 +39,7 @@ public class ClientModEvent {
         LOGGER.info("    ########    ");
         EntityRenderers.register(QuietusProjectiles.AMETHYST_PROJECTILE.get(), AmethystProjectileRenderer::new);
         EntityRenderers.register(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get(), AmethystProjectileSmallRenderer::new);
+        EntityRenderers.register(QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get(), ChainHookRenderer::new);
     }
 
     @SubscribeEvent
