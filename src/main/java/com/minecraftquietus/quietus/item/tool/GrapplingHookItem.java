@@ -81,7 +81,7 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
                 PlayerClientPacketDistributor.sendGrappleActivityPackToEntity(serverPlayer,attachment.hasActiveHook(),attachment.getHookEntityId());
             }
         }
-        System.out.println(weapon);
+        //System.out.println(weapon);
         return projectile;
     }
 
