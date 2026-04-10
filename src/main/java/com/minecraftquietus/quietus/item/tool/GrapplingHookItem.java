@@ -93,15 +93,15 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
             var entity = level.getEntity(attachment.getHookEntityId());
             if (entity instanceof GrapplingHookProjectile hook && !level.isClientSide()) {
                 hook.discard();
-                attachment.clear();
-                // Remove cast component from EVERY grappling hook in the player's inventory
-                for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                    ItemStack stack = player.getInventory().getItem(i);
-                    if (stack.getItem() instanceof GrapplingHookItem) {
-                        stack.remove(QuietusComponents.GRAPPLING_HOOK_CAST.get());
-                    }
+            }
+            // Remove cast component from EVERY grappling hook in the player's inventory
+            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                ItemStack stack = player.getInventory().getItem(i);
+                if (stack.getItem() instanceof GrapplingHookItem) {
+                    stack.remove(QuietusComponents.GRAPPLING_HOOK_CAST.get());
                 }
             }
+            attachment.clear();
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL,
                     1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
