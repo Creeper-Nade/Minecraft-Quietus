@@ -5,9 +5,10 @@ import com.minecraftquietus.quietus.client.model.projectile.misc.ChainHookRender
 import com.minecraftquietus.quietus.core.GrapplingHookAttachment;
 import com.minecraftquietus.quietus.entity.projectiles.misc.GrapplingHookProjectile;
 import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
-import com.minecraftquietus.quietus.packet.GrapplingHookPhysicsPacket;
-import com.minecraftquietus.quietus.packet.GrapplingJumpReleasePacket;
-import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.server.PlayerData;
+import com.minecraftquietus.quietus.client.packet.GrapplingHookPhysicsPacket;
+import com.minecraftquietus.quietus.client.packet.GrapplingJumpReleasePacket;
+import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -64,7 +65,7 @@ public class GrapplingEvent {
 
                 // Also send packet to client for immediate response
                 if (player instanceof ServerPlayer serverPlayer) {
-                    PlayerData.sendGrapplePhysicsPackToEntity(serverPlayer,newVelocity);
+                    PlayerClientPacketDistributor.sendGrapplePhysicsPackToEntity(serverPlayer,newVelocity);
                 }
             }
             else {
@@ -183,7 +184,7 @@ public class GrapplingEvent {
             if (e instanceof GrapplingHookProjectile hook) {
                 hook.discard();
                 attachment.clear();
-                PlayerData.sendGrappleActivityPackToEntity(player,attachment.hasActiveHook(), attachment.getHookEntityId());
+                PlayerClientPacketDistributor.sendGrappleActivityPackToEntity(player,attachment.hasActiveHook(), attachment.getHookEntityId());
                 return;
             }
         }
@@ -229,7 +230,7 @@ public class GrapplingEvent {
         if (jumpDown && !jumpPressed) {
             // Jump key just pressed
             jumpPressed = true;
-            PlayerData.sendGrappleJumpPackToServer();
+            PlayerClientPacketDistributor.sendGrappleJumpPackToServer();
         } else if (!jumpDown && jumpPressed) {
             jumpPressed = false;
         }

@@ -8,6 +8,9 @@ import java.util.Set;
 import com.minecraftquietus.quietus.Quietus;
 import com.minecraftquietus.quietus.client.packet.DoDecayPacket;
 import com.minecraftquietus.quietus.client.packet.GhostStatePacket;
+import com.minecraftquietus.quietus.client.packet.GrapplingActiveHookPacket;
+import com.minecraftquietus.quietus.client.packet.GrapplingHookPhysicsPacket;
+import com.minecraftquietus.quietus.client.packet.GrapplingJumpReleasePacket;
 import com.minecraftquietus.quietus.client.packet.ManaPacket;
 import com.minecraftquietus.quietus.client.packet.PlayerRevivalCooldownPacket;
 import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
@@ -25,6 +28,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 
@@ -49,6 +53,16 @@ public class PlayerClientPacketDistributor {
     }
     public static void sendPackToWeatherItemContainerFromSlotOfEntity(Entity entity, EquipmentSlot slot, ItemContainerContents containerContents) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, new WeatherItemContainerPacket(entity.getId(), slot, containerContents));
+    }
+
+    public static void sendGrapplePhysicsPackToEntity(ServerPlayer serverPlayer, Vec3 velocity) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(serverPlayer, GrapplingHookPhysicsPacket.fromVelocity(velocity));
+    }
+    public static void sendGrappleJumpPackToServer() {
+        PacketDistributor.sendToServer(new GrapplingJumpReleasePacket());
+    }
+    public static void sendGrappleActivityPackToEntity(ServerPlayer serverPlayer, Boolean active,int id) {
+        PacketDistributor.sendToPlayer(serverPlayer,new GrapplingActiveHookPacket(active,id));
     }
 
     /* Skill tree */
@@ -79,5 +93,7 @@ public class PlayerClientPacketDistributor {
     public static void sendSkillTreeAdvancementSyncPackToPlayer(ServerPlayer serverPlayer, Set<ResourceLocation> advancementIds) {
         PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeAdvancementsUpdatePacket(advancementIds));
     }
+
+    
 
 }

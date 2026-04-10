@@ -7,7 +7,7 @@ import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.property.GrapplingHookProperty;
 import com.minecraftquietus.quietus.item.tool.GrapplingHookItem;
 import com.minecraftquietus.quietus.tags.QuietusTags;
-import com.minecraftquietus.quietus.util.PlayerData;
+import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -310,7 +310,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
             GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
             if (attachment.getHookEntityId() == this.getId()) {
                 attachment.clear();
-                PlayerData.sendGrappleActivityPackToEntity(player,attachment.hasActiveHook(), attachment.getHookEntityId());
+                PlayerClientPacketDistributor.sendGrappleActivityPackToEntity(player,attachment.hasActiveHook(), attachment.getHookEntityId());
             }
         }
     }
