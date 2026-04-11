@@ -19,7 +19,7 @@ import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -30,10 +30,10 @@ public class ClientSkillTree {
 
     private final Minecraft minecraft;
 
-    private ImmutableMap<ResourceLocation, SkillCategory> categories = ImmutableMap.of();
+    private ImmutableMap<Identifier, SkillCategory> categories = ImmutableMap.of();
 
     private final Map<SkillTreeNode,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
-    private final Set<ResourceLocation> completedAdvancements = new HashSet<>();
+    private final Set<Identifier> completedAdvancements = new HashSet<>();
 
     private final Map<SkillTreeNode,ClientSkillTreeListener> listeners = new HashMap<>();
 
@@ -59,13 +59,13 @@ public class ClientSkillTree {
         return this.progresses.get(node);
     }
 
-    public ImmutableMap<ResourceLocation, SkillCategory> getCategories() {
+    public ImmutableMap<Identifier, SkillCategory> getCategories() {
         return this.categories;
     }
     public Map<SkillTreeNode,SkillPointProgress.ClientData> getProgressesMap() {
         return this.progresses;
     }
-    public SkillTreeNode getNode(ResourceLocation loc) {
+    public SkillTreeNode getNode(Identifier loc) {
         return this.categories.values().stream().map(category -> category.getNode(loc))
             .filter(Objects::nonNull)
             .findFirst().orElse(null);
@@ -83,18 +83,18 @@ public class ClientSkillTree {
     }
 
     public void update(SkillTreeUpdatePacket packet) {
-        ImmutableMap.Builder<ResourceLocation,SkillCategory> immutablemap$builder = ImmutableMap.builder();
+        ImmutableMap.Builder<Identifier,SkillCategory> immutablemap$builder = ImmutableMap.builder();
         immutablemap$builder.putAll(packet.skillTree());
         this.categories = immutablemap$builder.build();
         //this.progresses.clear();
         packet.progresses().forEach(
-            (resourceLocation, progress) -> {
+            (Identifier, progress) -> {
                 SkillTreeNode node = null;
                 for (SkillCategory category : packet.skillTree().values()) {
-                    node = category.getNode(resourceLocation);
+                    node = category.getNode(Identifier);
                 }
                 if (node == null) {
-                    LOGGER.info("Ignoring skill tree progress {} received from server - this skill tree node does not exist?", resourceLocation.toString());
+                    LOGGER.info("Ignoring skill tree progress {} received from server - this skill tree node does not exist?", Identifier.toString());
                 } else {
                     this.progresses.put(node, progress);
                     if (this.listeners.containsKey(node)) {
@@ -105,7 +105,7 @@ public class ClientSkillTree {
         );
     }
 
-    public void syncAdvancements(Set<ResourceLocation> added, Set<ResourceLocation> removed, boolean clear) {
+    public void syncAdvancements(Set<Identifier> added, Set<Identifier> removed, boolean clear) {
         if (clear) {
             this.completedAdvancements.clear();
         }
@@ -113,11 +113,11 @@ public class ClientSkillTree {
         this.completedAdvancements.addAll(added);
     }
 
-    public Set<ResourceLocation> getCompletedAdvancements() {
+    public Set<Identifier> getCompletedAdvancements() {
         return this.completedAdvancements;
     }
 
-    public Set<ResourceLocation> getCompletedParents() {
+    public Set<Identifier> getCompletedParents() {
         return this.progresses.entrySet().stream()
             .filter(entry -> entry.getValue().isProgressing())
             .map(entry -> entry.getKey().getId())

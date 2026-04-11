@@ -6,7 +6,7 @@ import java.util.EnumMap;
 
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -18,14 +18,14 @@ import net.neoforged.neoforge.common.Tags;
 import com.minecraftquietus.quietus.util.attribute.AttributeModifierValue;
 
 public class QuietusArmorMaterials {
-    public static ResourceKey<EquipmentAsset> COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "copper"));
-    public static ResourceKey<EquipmentAsset> EXPOSED_COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "exposed_copper"));
-    public static ResourceKey<EquipmentAsset> WEATHERED_COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "weathered_copper"));
-    public static ResourceKey<EquipmentAsset> OXIDIZED_COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_copper"));
-    public static ResourceKey<EquipmentAsset> EXPOSED_IRON_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "exposed_iron"));
-    public static ResourceKey<EquipmentAsset> OXIDIZED_IRON_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "oxidized_iron"));
-    public static ResourceKey<EquipmentAsset> WEATHERED_IRON_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "weathered_iron"));
-    public static ResourceKey<EquipmentAsset> AMETHYST_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "amethyst"));
+    public static ResourceKey<EquipmentAsset> COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "copper"));
+    public static ResourceKey<EquipmentAsset> EXPOSED_COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "exposed_copper"));
+    public static ResourceKey<EquipmentAsset> WEATHERED_COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "weathered_copper"));
+    public static ResourceKey<EquipmentAsset> OXIDIZED_COPPER_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "oxidized_copper"));
+    public static ResourceKey<EquipmentAsset> EXPOSED_IRON_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "exposed_iron"));
+    public static ResourceKey<EquipmentAsset> OXIDIZED_IRON_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "oxidized_iron"));
+    public static ResourceKey<EquipmentAsset> WEATHERED_IRON_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "weathered_iron"));
+    public static ResourceKey<EquipmentAsset> AMETHYST_KEY = ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "amethyst"));
 
 
     public static final ArmorMaterial COPPER = new ArmorMaterial(
@@ -80,7 +80,7 @@ public class QuietusArmorMaterials {
             map.put(ArmorType.HELMET, 2);
             map.put(ArmorType.BODY, 5);
         }),
-        9, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "iron"))
+        9, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, ItemTags.REPAIRS_IRON_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "iron"))
     );
     public static final ArmorMaterial EXPOSED_IRON = new ArmorMaterial(
         15,
@@ -181,6 +181,6 @@ public class QuietusArmorMaterials {
         Tags.Items.INGOTS_COPPER,
         // The resource key of the EquipmentClientInfo JSON discussed below
         // Points to assets/examplemod/equipment/copper.json
-        ResourceKey.create(EquipmentAssets.ROOT_ID, ResourceLocation.fromNamespaceAndPath(MODID, "copper"))
+        ResourceKey.create(EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(MODID, "copper"))
     );*/
 }

@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.Block;
@@ -53,9 +53,9 @@ public class QuietusModelProvider extends ModelProvider {
 
     //chain hook 2d 3d simultaneous rendering
         Item myItem = QuietusItems.CHAIN_GRAPPLING_HOOK.get();
-        var unbaked2d = ItemModelUtils.plainModel(ResourceLocation.fromNamespaceAndPath(MODID,"item/tools/grapples/chain_grappling_hook_2d"));
-        var unbaked3d = ItemModelUtils.plainModel(ResourceLocation.fromNamespaceAndPath(MODID,"item/tools/grapples/chain_grappling_hook_3d"));
-        var unbakedCast = ItemModelUtils.plainModel(ResourceLocation.fromNamespaceAndPath(MODID,"item/tools/grapples/chain_grappling_hook_cast"));
+        var unbaked2d = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID,"item/tools/grapples/chain_grappling_hook_2d"));
+        var unbaked3d = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID,"item/tools/grapples/chain_grappling_hook_3d"));
+        var unbakedCast = ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID,"item/tools/grapples/chain_grappling_hook_cast"));
 
         // The property that checks for the marker component
         var castProperty = new GrapplingHookCast();
@@ -120,45 +120,45 @@ public class QuietusModelProvider extends ModelProvider {
 
         //trimmables
 
-        itemModels.generateTrimmableItem(QuietusItems.COPPER_HELMET.get(), QuietusArmorMaterials.COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.COPPER_CHESTPLATE.get(), QuietusArmorMaterials.COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.COPPER_LEGGINGS.get(), QuietusArmorMaterials.COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.COPPER_BOOTS.get(), QuietusArmorMaterials.COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
+        itemModels.generateTrimmableItem(QuietusItems.COPPER_HELMET.get(), QuietusArmorMaterials.COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.COPPER_CHESTPLATE.get(), QuietusArmorMaterials.COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.COPPER_LEGGINGS.get(), QuietusArmorMaterials.COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.COPPER_BOOTS.get(), QuietusArmorMaterials.COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
 
-        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_HELMET.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_CHESTPLATE.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_LEGGINGS.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_BOOTS.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
+        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_HELMET.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_CHESTPLATE.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_LEGGINGS.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_BOOTS.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
 
-        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_COPPER_HELMET.get(), QuietusArmorMaterials.WEATHERED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_COPPER_CHESTPLATE.get(), QuietusArmorMaterials.WEATHERED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_COPPER_LEGGINGS.get(), QuietusArmorMaterials.WEATHERED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_COPPER_BOOTS.get(), QuietusArmorMaterials.WEATHERED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
+        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_COPPER_HELMET.get(), QuietusArmorMaterials.WEATHERED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_COPPER_CHESTPLATE.get(), QuietusArmorMaterials.WEATHERED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_COPPER_LEGGINGS.get(), QuietusArmorMaterials.WEATHERED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_COPPER_BOOTS.get(), QuietusArmorMaterials.WEATHERED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
 
-        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_COPPER_HELMET.get(), QuietusArmorMaterials.OXIDIZED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_COPPER_CHESTPLATE.get(), QuietusArmorMaterials.OXIDIZED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_COPPER_LEGGINGS.get(), QuietusArmorMaterials.OXIDIZED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_COPPER_BOOTS.get(), QuietusArmorMaterials.OXIDIZED_COPPER_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
+        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_COPPER_HELMET.get(), QuietusArmorMaterials.OXIDIZED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_COPPER_CHESTPLATE.get(), QuietusArmorMaterials.OXIDIZED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_COPPER_LEGGINGS.get(), QuietusArmorMaterials.OXIDIZED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_COPPER_BOOTS.get(), QuietusArmorMaterials.OXIDIZED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
 
-        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_IRON_HELMET.get(), QuietusArmorMaterials.EXPOSED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_IRON_CHESTPLATE.get(), QuietusArmorMaterials.EXPOSED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_IRON_LEGGINGS.get(), QuietusArmorMaterials.EXPOSED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_IRON_BOOTS.get(), QuietusArmorMaterials.EXPOSED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
+        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_IRON_HELMET.get(), QuietusArmorMaterials.EXPOSED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_IRON_CHESTPLATE.get(), QuietusArmorMaterials.EXPOSED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_IRON_LEGGINGS.get(), QuietusArmorMaterials.EXPOSED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.EXPOSED_IRON_BOOTS.get(), QuietusArmorMaterials.EXPOSED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
 
-        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_IRON_HELMET.get(), QuietusArmorMaterials.WEATHERED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_IRON_CHESTPLATE.get(), QuietusArmorMaterials.WEATHERED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_IRON_LEGGINGS.get(), QuietusArmorMaterials.WEATHERED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_IRON_BOOTS.get(), QuietusArmorMaterials.WEATHERED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
+        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_IRON_HELMET.get(), QuietusArmorMaterials.WEATHERED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_IRON_CHESTPLATE.get(), QuietusArmorMaterials.WEATHERED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_IRON_LEGGINGS.get(), QuietusArmorMaterials.WEATHERED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.WEATHERED_IRON_BOOTS.get(), QuietusArmorMaterials.WEATHERED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
 
-        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_IRON_HELMET.get(), QuietusArmorMaterials.OXIDIZED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_IRON_CHESTPLATE.get(), QuietusArmorMaterials.OXIDIZED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_IRON_LEGGINGS.get(), QuietusArmorMaterials.OXIDIZED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_IRON_BOOTS.get(), QuietusArmorMaterials.OXIDIZED_IRON_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
+        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_IRON_HELMET.get(), QuietusArmorMaterials.OXIDIZED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_IRON_CHESTPLATE.get(), QuietusArmorMaterials.OXIDIZED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_IRON_LEGGINGS.get(), QuietusArmorMaterials.OXIDIZED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.OXIDIZED_IRON_BOOTS.get(), QuietusArmorMaterials.OXIDIZED_IRON_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
 
-        itemModels.generateTrimmableItem(QuietusItems.AMETHYST_HELMET.get(), QuietusArmorMaterials.AMETHYST_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.AMETHYST_CHESTPLATE.get(), QuietusArmorMaterials.AMETHYST_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.AMETHYST_LEGGINGS.get(), QuietusArmorMaterials.AMETHYST_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.AMETHYST_BOOTS.get(), QuietusArmorMaterials.AMETHYST_KEY, ResourceLocation.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
+        itemModels.generateTrimmableItem(QuietusItems.AMETHYST_HELMET.get(), QuietusArmorMaterials.AMETHYST_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.AMETHYST_CHESTPLATE.get(), QuietusArmorMaterials.AMETHYST_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.AMETHYST_LEGGINGS.get(), QuietusArmorMaterials.AMETHYST_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
+        itemModels.generateTrimmableItem(QuietusItems.AMETHYST_BOOTS.get(), QuietusArmorMaterials.AMETHYST_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
 
         //System.out.println(ModelLocationUtils.getModelLocation(QuietusItems.EXPOSED_COPPER_BOOTS.get()) != null ? ModelLocationUtils.getModelLocation(QuietusItems.EXPOSED_COPPER_BOOTS.get()) : "model is null");
 //blocks
@@ -196,24 +196,24 @@ public class QuietusModelProvider extends ModelProvider {
 
     public void RegisterBow(ItemModelGenerators itemModels, Item item, String location)
     {
-        ResourceLocation resourceLocation= BuiltInRegistries.ITEM.getKey(item);
-        ItemModel.Unbaked itemmodel$unbaked = ItemModelUtils.plainModel(resourceLocation.withPrefix(location));
-        ItemModel.Unbaked itemmodel$unbaked1 = ItemModelUtils.plainModel(resourceLocation.withSuffix("_pulling_0").withPrefix(location));
-        ItemModel.Unbaked itemmodel$unbaked2 = ItemModelUtils.plainModel(resourceLocation.withSuffix("_pulling_1").withPrefix(location));
-        ItemModel.Unbaked itemmodel$unbaked3 = ItemModelUtils.plainModel(resourceLocation.withSuffix("_pulling_2").withPrefix(location));
+        Identifier Identifier= BuiltInRegistries.ITEM.getKey(item);
+        ItemModel.Unbaked itemmodel$unbaked = ItemModelUtils.plainModel(Identifier.withPrefix(location));
+        ItemModel.Unbaked itemmodel$unbaked1 = ItemModelUtils.plainModel(Identifier.withSuffix("_pulling_0").withPrefix(location));
+        ItemModel.Unbaked itemmodel$unbaked2 = ItemModelUtils.plainModel(Identifier.withSuffix("_pulling_1").withPrefix(location));
+        ItemModel.Unbaked itemmodel$unbaked3 = ItemModelUtils.plainModel(Identifier.withSuffix("_pulling_2").withPrefix(location));
         itemModels.itemModelOutput.accept(
                item, ItemModelUtils.conditional(ItemModelUtils.isUsingItem(), ItemModelUtils.rangeSelect(new UseDuration(false), 0.05F, itemmodel$unbaked1, new RangeSelectItemModel.Entry[]{ItemModelUtils.override(itemmodel$unbaked2, 0.65F), ItemModelUtils.override(itemmodel$unbaked3, 0.9F)}), itemmodel$unbaked)
         );
     }
     public void RegisterBasicModel(ItemModelGenerators itemModels, Item item, String location)
     {
-        ResourceLocation resourceLocation= BuiltInRegistries.ITEM.getKey(item);
+        Identifier Identifier= BuiltInRegistries.ITEM.getKey(item);
         itemModels.itemModelOutput.accept(
                 item,
                 new BlockModelWrapper.Unbaked(
                         // Points to a model JSON relative to the 'models' directory
                         // Located at 'assets/examplemod/models/item/example_item.json'
-                        resourceLocation.withPrefix(location),
+                        Identifier.withPrefix(location),
                         Collections.emptyList()
                 )
         );

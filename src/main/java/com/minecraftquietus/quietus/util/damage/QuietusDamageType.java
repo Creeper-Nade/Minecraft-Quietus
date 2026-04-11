@@ -4,7 +4,7 @@ import com.minecraftquietus.quietus.Quietus;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.damagesource.DamageEffects;
 import net.minecraft.world.damagesource.DamageScaling;
 import net.minecraft.world.damagesource.DamageType;
@@ -12,9 +12,9 @@ import net.minecraft.world.damagesource.DeathMessageType;
 
 public class QuietusDamageType {
     public static final ResourceKey<DamageType> MAGIC_PROJECTILE_DAMAGE =
-            ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "magic_projectile_damage"));
+            ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(Quietus.MODID, "magic_projectile_damage"));
     public static final ResourceKey<DamageType> MAGIC_PROJECTILE_DAMAGE_BYPASS_INVINCIBLE_FRAME =
-            ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "magic_projectile_damage_bypass_invincible_frame"));
+            ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(Quietus.MODID, "magic_projectile_damage_bypass_invincible_frame"));
 
     public static void bootstrap(BootstrapContext<DamageType> context)
     {

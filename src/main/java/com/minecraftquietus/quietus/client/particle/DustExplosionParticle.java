@@ -3,8 +3,10 @@ package com.minecraftquietus.quietus.client.particle;
 import com.minecraftquietus.quietus.client.particle.particle_options.DustExplosionParticleOptions;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
+import net.minecraft.util.RandomSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jspecify.annotations.Nullable;
 
 @OnlyIn(Dist.CLIENT)
 public class DustExplosionParticle extends DustParticleBase<DustExplosionParticleOptions> {
@@ -49,10 +51,12 @@ public class DustExplosionParticle extends DustParticleBase<DustExplosionParticl
                 double z,
                 double xSpeed,
                 double ySpeed,
-                double zSpeed
+                double zSpeed,
+                RandomSource randomSource
         ) {
             return new DustExplosionParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, type, this.sprites);
         }
+
     }
 
 }

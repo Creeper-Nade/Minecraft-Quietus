@@ -17,7 +17,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -46,7 +46,7 @@ public class Ore_Vision {
     public static RenderPipeline LINES_NO_DEPTH = RenderPipeline.builder(RenderPipelines.MATRICES_COLOR_SNIPPET)
             .withLocation("pipeline/xray_lines")
             .withVertexShader("core/rendertype_lines")
-            .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MODID, "core/orevision_line"))
+            .withFragmentShader(Identifier.fromNamespaceAndPath(MODID, "core/orevision_line"))
             .withUniform("LineWidth", UniformType.FLOAT)
             .withUniform("ScreenSize", UniformType.VEC2)
             .withBlend(BlendFunction.TRANSLUCENT)

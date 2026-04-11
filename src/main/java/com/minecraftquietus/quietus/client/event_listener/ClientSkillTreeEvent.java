@@ -13,7 +13,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 
 @OnlyIn(Dist.CLIENT)
-@EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = MODID, value = Dist.CLIENT)
 public class ClientSkillTreeEvent {
 
     @SubscribeEvent

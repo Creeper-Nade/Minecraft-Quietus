@@ -28,7 +28,7 @@ import com.minecraftquietus.quietus.server.packet.GrapplingJumpReleasePacket;
 import com.minecraftquietus.quietus.server.packet.SkillTreeGUIRequest;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -192,7 +192,7 @@ public class QuietusIModBusEvent {
     public static void registerConditionalProperties(RegisterConditionalItemModelPropertyEvent event) {
         event.register(
                 // The name to reference as the type
-                ResourceLocation.fromNamespaceAndPath(MODID, "grappling_hook_cast"),
+                Identifier.fromNamespaceAndPath(MODID, "grappling_hook_cast"),
                 // The map codec
                 GrapplingHookCast.MAP_CODEC
         );

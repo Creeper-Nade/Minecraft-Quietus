@@ -34,15 +34,18 @@ import net.minecraft.world.entity.ai.goal.RestrictSunGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.animal.Turtle;
+
+import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.animal.turtle.Turtle;
 import net.minecraft.world.entity.animal.wolf.Wolf;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
-import net.minecraft.world.entity.monster.Skeleton;
+
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
+import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -58,7 +61,7 @@ import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.item.tool.QuietusProjectileWeaponItem;
 
-public class Paraboler extends Skeleton {
+public class Paraboler extends AbstractSkeleton {
 
     private final RangedBowAttackGoal<AbstractSkeleton> bowGoal;
     private final ParabolaAttackGoal<AbstractSkeleton> parabolaBowGoal;

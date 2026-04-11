@@ -1,9 +1,10 @@
 package com.minecraftquietus.quietus.client.hud;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -18,8 +19,8 @@ import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
 public class ManaHudOverlay {
-    private static final ResourceLocation MANA_ICONS =
-            ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/sprites/hud/mana.png");
+    private static final Identifier MANA_ICONS =
+            Identifier.fromNamespaceAndPath(MODID, "textures/gui/sprites/hud/mana.png");
 
     private static final int ICON_SIZE = 9;
     private static final int TEXTURE_WIDTH = 63;
@@ -57,7 +58,7 @@ public class ManaHudOverlay {
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Pre event) {
         if(event.isCanceled()) globalBlinkEndTime = 0;
-        GuiGraphics gui = event.getGuiGraphics();
+        GuiGraphicsExtractor gui = event.getGuiGraphics();
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         int currentTick= player.tickCount;
@@ -101,7 +102,7 @@ public class ManaHudOverlay {
 
 
 
-    private static void renderSlots(GuiGraphics gui, Player player,int yPos, int xStart,int currentTick, int totalSlots, int row_space,boolean shouldShake,boolean is_speed_charging) {
+    private static void renderSlots(GuiGraphicsExtractor gui, Player player,int yPos, int xStart,int currentTick, int totalSlots, int row_space,boolean shouldShake,boolean is_speed_charging) {
 
         if (Display_Mana<prev_mana || (Display_Mana==Display_MaxMana && prev_mana < Display_Mana)) {
             blinkContainers(2, player);
@@ -126,7 +127,7 @@ public class ManaHudOverlay {
             int texCol = blink ? 1 : 0; // 0=normal, 1=blinking container
 
             gui.blit(
-                    net.minecraft.client.renderer.RenderType::guiTextured,
+                    RenderPipelines.GUI_TEXTURED,
                     MANA_ICONS,
                     x, y,
                     texCol * ICON_SIZE, 0,
@@ -148,7 +149,7 @@ public class ManaHudOverlay {
             };
 
             gui.blit(
-                    net.minecraft.client.renderer.RenderType::guiTextured,
+                    RenderPipelines.GUI_TEXTURED,
                     MANA_ICONS,
                     x, y,
                     FilltexCol * ICON_SIZE, 0,

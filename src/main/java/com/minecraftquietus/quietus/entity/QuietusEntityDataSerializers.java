@@ -1,7 +1,7 @@
 package com.minecraftquietus.quietus.entity;
 
 import net.minecraft.network.syncher.EntityDataSerializer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -13,8 +13,8 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 public class QuietusEntityDataSerializers {
     public static final DeferredRegister<EntityDataSerializer<?>> REGISTRAR = DeferredRegister.create(NeoForgeRegistries.ENTITY_DATA_SERIALIZERS, MODID);
 
-    public static final Supplier<EntityDataSerializer<ResourceLocation>> RESOURCE_LOCATION = REGISTRAR.register("resource_location",
-            () -> EntityDataSerializer.forValueType(ResourceLocation.STREAM_CODEC));
+    public static final Supplier<EntityDataSerializer<Identifier>> RESOURCE_LOCATION = REGISTRAR.register("resource_location",
+            () -> EntityDataSerializer.forValueType(Identifier.STREAM_CODEC));
 
     public static void register(IEventBus eventBus) {
         REGISTRAR.register(eventBus);

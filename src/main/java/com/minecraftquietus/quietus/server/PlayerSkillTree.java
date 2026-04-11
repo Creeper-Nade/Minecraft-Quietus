@@ -31,7 +31,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 
 import net.minecraft.FileUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 public class PlayerSkillTree {
@@ -41,7 +41,7 @@ public class PlayerSkillTree {
     
     private final Path playerSavePath;
     private ServerPlayer player;
-    private Map<ResourceLocation, SkillCategory> categories;
+    private Map<Identifier, SkillCategory> categories;
     private final Map<SkillTreeNode,SkillPointProgress> progresses = new LinkedHashMap<>();
 
     public PlayerSkillTree(Path playerSavePath, ServerPlayer player, ServerSkillTreeManager manager) {
@@ -120,13 +120,13 @@ public class PlayerSkillTree {
     }
 
     public void applyFrom(ServerSkillTreeManager manager, Data data) {
-        data.forEach((resourceLocation, progress) -> {
+        data.forEach((Identifier, progress) -> {
             SkillTreeNode node = null;
             for (SkillCategory category : manager.getCategories().values()) {
-                node = category.getNode(resourceLocation);
+                node = category.getNode(Identifier);
             }
             if (node == null) {
-                LOGGER.warn("Ignored skill tree node '{}' in file {} - it doesn't exist anymore?", resourceLocation, this.playerSavePath);
+                LOGGER.warn("Ignored skill tree node '{}' in file {} - it doesn't exist anymore?", Identifier, this.playerSavePath);
             } else {
                 SkillPointProgress newProgress = new SkillPointProgress(progress.obtainedTimes(), node.getSkillPoint());
                 this.progresses.put(node, newProgress);
@@ -154,7 +154,7 @@ public class PlayerSkillTree {
     }
 
     public Data asData() {
-        Map<ResourceLocation, SkillPointProgress> map = new LinkedHashMap<>();
+        Map<Identifier, SkillPointProgress> map = new LinkedHashMap<>();
         this.progresses.forEach((skillTreeNode, progress) -> {
             map.put(skillTreeNode.getId(), progress);
         });
@@ -165,16 +165,16 @@ public class PlayerSkillTree {
         return this.progresses;
     }
 
-    public record Data(Map<ResourceLocation, SkillPointProgress> map) {
-        public static final Codec<Data> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, SkillPointProgress.CODEC).xmap(Data::new, Data::map);
+    public record Data(Map<Identifier, SkillPointProgress> map) {
+        public static final Codec<Data> CODEC = Codec.unboundedMap(Identifier.CODEC, SkillPointProgress.CODEC).xmap(Data::new, Data::map);
 
-        public Data(Map<ResourceLocation, SkillPointProgress> map) {
+        public Data(Map<Identifier, SkillPointProgress> map) {
             this.map = map;
         }
 
-        public void forEach(BiConsumer<ResourceLocation, SkillPointProgress> action) {
+        public void forEach(BiConsumer<Identifier, SkillPointProgress> action) {
             this.map.entrySet().stream().sorted(Entry.comparingByValue()).forEach((entry) -> {
-                action.accept((ResourceLocation)entry.getKey(), (SkillPointProgress)entry.getValue());
+                action.accept((Identifier)entry.getKey(), (SkillPointProgress)entry.getValue());
             });
         }
     }

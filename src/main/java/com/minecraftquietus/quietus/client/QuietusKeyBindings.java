@@ -1,5 +1,6 @@
 package com.minecraftquietus.quietus.client;
 
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -9,7 +10,7 @@ import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.common.util.Lazy;
 
 public class QuietusKeyBindings {
-    public static final String TRANSLATION_KEY_CATEGORY_QUIETUS = "key.category.quietus";
+    public static final KeyMapping.Category TRANSLATION_KEY_CATEGORY_QUIETUS = register("key.category.quietus");
 
     public static final String TRANSLATION_KEY_SKILL_TREE = "key.quietus.skill_tree";
     public static final Lazy<KeyMapping> SKILL_TREE_KEY = Lazy.of(() -> new KeyMapping(
@@ -19,4 +20,8 @@ public class QuietusKeyBindings {
         GLFW.GLFW_KEY_K,
         TRANSLATION_KEY_CATEGORY_QUIETUS
     ));
+
+    private static KeyMapping.Category register(String name) {
+        return KeyMapping.Category.register(Identifier.withDefaultNamespace(name));
+    }
 }

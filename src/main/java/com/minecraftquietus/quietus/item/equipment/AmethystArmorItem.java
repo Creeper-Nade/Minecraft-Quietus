@@ -27,16 +27,16 @@ import net.minecraft.world.phys.Vec3;
 
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.animatable.client.GeoRenderProvider;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.animatable.manager.AnimatableManager;
-import software.bernie.geckolib.animatable.processing.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.constant.dataticket.DataTicket;
-import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.GeoItem;
+import com.geckolib.animatable.client.GeoRenderProvider;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animatable.processing.AnimationController;
+import com.geckolib.animation.PlayState;
+import com.geckolib.constant.dataticket.DataTicket;
+import com.geckolib.renderer.GeoArmorRenderer;
 
 public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoItem {
 

@@ -6,7 +6,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -18,13 +18,13 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyC
 
 public class QuietusEnchantments {
     public static final ResourceKey<Enchantment> IMPACT = ResourceKey.create(Registries.ENCHANTMENT,
-            ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "impact"));
+            Identifier.fromNamespaceAndPath(Quietus.MODID, "impact"));
     public static final ResourceKey<Enchantment> HEX = ResourceKey.create(Registries.ENCHANTMENT,
-            ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "hex"));
+            Identifier.fromNamespaceAndPath(Quietus.MODID, "hex"));
     public static final ResourceKey<Enchantment> ACUPUNCTURE = ResourceKey.create(Registries.ENCHANTMENT,
-            ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "acupuncture"));
+            Identifier.fromNamespaceAndPath(Quietus.MODID, "acupuncture"));
     public static final ResourceKey<Enchantment> CONSERVATION = ResourceKey.create(Registries.ENCHANTMENT,
-            ResourceLocation.fromNamespaceAndPath(Quietus.MODID, "conservation"));
+            Identifier.fromNamespaceAndPath(Quietus.MODID, "conservation"));
 
     public static void bootstrap(BootstrapContext<Enchantment> context) {
         var enchantments = context.lookup(Registries.ENCHANTMENT);

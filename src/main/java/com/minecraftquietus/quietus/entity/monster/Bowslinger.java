@@ -23,9 +23,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
-import net.minecraft.world.entity.monster.Skeleton;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
+import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
@@ -37,7 +36,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import com.minecraftquietus.quietus.entity.ai.goal.VolleyAttackGoal;
 
-public class Bowslinger extends Skeleton implements VolleyRangedAttackMob {
+public class Bowslinger extends AbstractSkeleton implements VolleyRangedAttackMob {
 
     private final RangedBowAttackGoal<AbstractSkeleton> bowGoal;
     private final VolleyAttackGoal<Bowslinger> bowslingerBowGoal;

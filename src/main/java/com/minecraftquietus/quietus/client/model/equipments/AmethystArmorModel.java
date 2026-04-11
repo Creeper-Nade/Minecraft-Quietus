@@ -3,10 +3,11 @@ package com.minecraftquietus.quietus.client.model.equipments;// Made with Blockb
 // Paste this class into your mod and generate all required imports
 
 
+import com.geckolib.model.GeoModel;
+import com.geckolib.renderer.base.GeoRenderState;
 import com.minecraftquietus.quietus.item.equipment.AmethystArmorItem;
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.base.GeoRenderState;
+import net.minecraft.resources.Identifier;
+
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
@@ -14,17 +15,17 @@ public class AmethystArmorModel extends GeoModel<AmethystArmorItem> {
 
 
     @Override
-    public ResourceLocation getModelResource(GeoRenderState renderState) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, "item/armor/amethyst_armor");
+    public Identifier getModelResource(GeoRenderState renderState) {
+        return Identifier.fromNamespaceAndPath(MODID, "item/armor/amethyst_armor");
     }
 
     @Override
-    public ResourceLocation getTextureResource(GeoRenderState renderState) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, "textures/entity/equipment/gecko/amethyst_armor_full.png");
+    public Identifier getTextureResource(GeoRenderState renderState) {
+        return Identifier.fromNamespaceAndPath(MODID, "textures/entity/equipment/gecko/amethyst_armor_full.png");
     }
 
     @Override
-    public ResourceLocation getAnimationResource(AmethystArmorItem animatable) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, "amethyst_armor.animation");
+    public Identifier getAnimationResource(AmethystArmorItem animatable) {
+        return Identifier.fromNamespaceAndPath(MODID, "amethyst_armor.animation");
     }
 }

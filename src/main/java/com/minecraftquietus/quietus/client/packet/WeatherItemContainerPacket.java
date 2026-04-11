@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.component.ItemContainerContents;
 
@@ -22,7 +22,7 @@ public record WeatherItemContainerPacket (
     ItemContainerContents containerContents
 ) implements CustomPacketPayload  {
     
-    public static final CustomPacketPayload.Type<WeatherItemContainerPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(MODID,"weathering_sync_item_container"));
+    public static final CustomPacketPayload.Type<WeatherItemContainerPacket> TYPE = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(MODID,"weathering_sync_item_container"));
 
     @SuppressWarnings("unchecked")
     public static final StreamCodec<FriendlyByteBuf, WeatherItemContainerPacket> STREAM_CODEC = StreamCodec.composite(

@@ -4,11 +4,11 @@ import java.util.Collection;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class SkillTreeNode {
     
-    private final ResourceLocation id;
+    private final Identifier id;
     private final SkillPoint skillPoint;
 
     private final Set<SkillTreeNode> parents = new ReferenceOpenHashSet<>();
@@ -19,7 +19,7 @@ public class SkillTreeNode {
     private int treeX;
     private int treeY;
 
-    public SkillTreeNode(ResourceLocation id, SkillPoint skillPoint) {
+    public SkillTreeNode(Identifier id, SkillPoint skillPoint) {
         this.id = id;
         this.skillPoint = skillPoint;
     }
@@ -54,7 +54,7 @@ public class SkillTreeNode {
         return this.skillPoint;
     }
 
-    public ResourceLocation getId() {
+    public Identifier getId() {
         return this.id;
     }
 

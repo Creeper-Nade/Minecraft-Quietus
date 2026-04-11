@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 
@@ -62,7 +62,7 @@ public class AmethystProjectileRenderer extends EntityRenderer<QuietusProjectile
         // do your own rendering here
     }
 
-    public ResourceLocation getTextureLocation() {
-        return ResourceLocation.fromNamespaceAndPath(MODID, "textures/entity/projectile/amethyst_projectile.png");
+    public Identifier getTextureLocation() {
+        return Identifier.fromNamespaceAndPath(MODID, "textures/entity/projectile/amethyst_projectile.png");
     }
 }

@@ -23,7 +23,7 @@ import com.minecraftquietus.quietus.skilltree.SkillCategory;
 import com.minecraftquietus.quietus.skilltree.SkillPointProgress;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -67,15 +67,15 @@ public class PlayerClientPacketDistributor {
 
     /* Skill tree */
     public static SkillTreeUpdatePacket makeClientboundSkillTreePack(ServerPlayer player) {
-        Map<ResourceLocation,SkillCategory> categories =
+        Map<Identifier,SkillCategory> categories =
             Objects.nonNull(QuietusReloadableResources.getSkillCategories()) ?
                 QuietusReloadableResources.getSkillCategories() :
                 Map.of();
-        Map<ResourceLocation,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
+        Map<Identifier,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
         if (Objects.nonNull(Quietus.playerData.getSkillTree(player.getUUID()))) {
             Quietus.playerData.getSkillTree(player.getUUID()).asData().forEach(
-                (resourceLocation, progress) -> {
-                    progresses.put(resourceLocation, progress.asClientData());
+                (Identifier, progress) -> {
+                    progresses.put(Identifier, progress.asClientData());
                 }
             );
         }
@@ -84,13 +84,13 @@ public class PlayerClientPacketDistributor {
     public static void sendSkillTreePackToPlayer(ServerPlayer serverPlayer) {
         PacketDistributor.sendToPlayer(serverPlayer, makeClientboundSkillTreePack(serverPlayer));
     }
-    public static void sendPackToGrantSkillTreeAdvancementToPlayer(ServerPlayer serverPlayer, ResourceLocation advancementId) {
+    public static void sendPackToGrantSkillTreeAdvancementToPlayer(ServerPlayer serverPlayer, Identifier advancementId) {
         PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeAdvancementsGrantRevokePacket(advancementId, true));
     }
-    public static void sendPackToRevokeSkillTreeAdvancementToPlayer(ServerPlayer serverPlayer, ResourceLocation advancementId) {
+    public static void sendPackToRevokeSkillTreeAdvancementToPlayer(ServerPlayer serverPlayer, Identifier advancementId) {
         PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeAdvancementsGrantRevokePacket(advancementId, false));
     }
-    public static void sendSkillTreeAdvancementSyncPackToPlayer(ServerPlayer serverPlayer, Set<ResourceLocation> advancementIds) {
+    public static void sendSkillTreeAdvancementSyncPackToPlayer(ServerPlayer serverPlayer, Set<Identifier> advancementIds) {
         PacketDistributor.sendToPlayer(serverPlayer, new SkillTreeAdvancementsUpdatePacket(advancementIds));
     }
 

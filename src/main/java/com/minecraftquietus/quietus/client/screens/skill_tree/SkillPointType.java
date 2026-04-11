@@ -1,6 +1,6 @@
 package com.minecraftquietus.quietus.client.screens.skill_tree;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -22,8 +22,8 @@ public enum SkillPointType implements StringRepresentable {
 
     
 
-    protected ResourceLocation getLocation(boolean obtained) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/sprites/skill_tree/" + String.join("_", this.shape, obtained ? "obtained" : "unobtained") + ".png");
+    protected Identifier getLocation(boolean obtained) {
+        return Identifier.fromNamespaceAndPath(MODID, "textures/gui/sprites/skill_tree/" + String.join("_", this.shape, obtained ? "obtained" : "unobtained") + ".png");
     }
 
     public int index() {

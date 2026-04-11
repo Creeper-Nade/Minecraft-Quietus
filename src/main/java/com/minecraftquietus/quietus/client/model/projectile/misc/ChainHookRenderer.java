@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
@@ -203,7 +203,7 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         return false;
     }
 
-    public ResourceLocation getTextureLocation() {
-        return ResourceLocation.fromNamespaceAndPath(MODID, "textures/entity/projectile/chain_hook_projectile.png");
+    public Identifier getTextureLocation() {
+        return Identifier.fromNamespaceAndPath(MODID, "textures/entity/projectile/chain_hook_projectile.png");
     }
 }

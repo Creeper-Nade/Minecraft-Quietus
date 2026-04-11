@@ -16,7 +16,7 @@ import com.minecraftquietus.quietus.server.resources.ServerSkillTreeManager;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.ServerAdvancementManager;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -32,7 +32,7 @@ public class QuietusReloadableResources {
         open(); 
         
         skillTreeManager = new ServerSkillTreeManager(event.getRegistryAccess(), SkillCategory.CODEC, SkillPoint.CODEC);
-        event.addListener(ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree"), skillTreeManager::reload);
+        event.addListener(Identifier.fromNamespaceAndPath(MODID, "skill_tree"), skillTreeManager::reload);
 
         SkillTreeGUIPayloadHandler.setManager(skillTreeManager);
     }
@@ -43,7 +43,7 @@ public class QuietusReloadableResources {
      * @throws IllegalStateException resources already closed (i.e. server shut down)
      */
     @Nullable
-    public static Map<ResourceLocation,SkillCategory> getSkillCategories() throws IllegalStateException {
+    public static Map<Identifier,SkillCategory> getSkillCategories() throws IllegalStateException {
         if (!open) throw new IllegalStateException("Attemping to access closed resources");
         return Objects.isNull(skillTreeManager) ? null : skillTreeManager.getCategories();
     }
@@ -57,7 +57,7 @@ public class QuietusReloadableResources {
      * @throws IllegalStateException resources already closed (i.e. server shut down)
      */
     @Nullable
-    public static Set<ResourceLocation> getRequiredAdvancements() throws IllegalStateException {
+    public static Set<Identifier> getRequiredAdvancements() throws IllegalStateException {
         if (!open) throw new IllegalStateException("Attemping to access closed resources");
         return Objects.isNull(skillTreeManager) ? null : skillTreeManager.getRequiredAdvancements();
     }

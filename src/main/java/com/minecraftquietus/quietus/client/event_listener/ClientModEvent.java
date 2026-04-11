@@ -19,7 +19,7 @@ import com.minecraftquietus.quietus.client.model.projectile.magic.AmethystProjec
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.mojang.logging.LogUtils;
 
-@EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = MODID, value = Dist.CLIENT)
 public class ClientModEvent {
 
     private static final Logger LOGGER = LogUtils.getLogger();

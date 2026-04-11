@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 
 import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
-import com.minecraftquietus.quietus.client.util.GuiGraphicsUtil;
+import com.minecraftquietus.quietus.client.util.GuiGraphicsExtractorUtil;
 import com.minecraftquietus.quietus.skilltree.Prerequisites;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.skilltree.SkillPointProgress;
@@ -17,18 +17,20 @@ import com.minecraftquietus.quietus.util.ServerPacketDistributor;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
 public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrollable {
-    private static final ResourceLocation CONTENTS_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
-    private static final ResourceLocation HEADER_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/container_header");
+    private static final Identifier CONTENTS_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
+    private static final Identifier HEADER_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/container_header");
     private static final ChatFormatting[] PREREQUISITES_STYLE = {ChatFormatting.GRAY};
     public static final ChatFormatting[] PREREQUISITES_CHECK_STYLE = {ChatFormatting.GREEN};
     public static final ChatFormatting[] PREREQUISITES_CROSS_STYLE = {ChatFormatting.RED};
@@ -110,8 +112,8 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     private static Component makePrerequisitesDescription(SkillPoint skillPoint, ClientSkillTree tree) {
         Prerequisites nodePrerequisites = skillPoint.unlock().prerequisites();
         if (!nodePrerequisites.requirements().isEmpty()) {
-            Set<ResourceLocation> completedAdvancements = tree.getCompletedAdvancements();
-            Set<ResourceLocation> completedParents = tree.getCompletedParents();
+            Set<Identifier> completedAdvancements = tree.getCompletedAdvancements();
+            Set<Identifier> completedParents = tree.getCompletedParents();
             
             Prerequisites.CompletionStatus completionStatus = Prerequisites.CompletionStatus.make(skillPoint.unlock().prerequisites(), completedAdvancements, completedParents);
 
@@ -165,13 +167,13 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
     /**
      * Draws the info screen
-     * @param guiGraphics
+     * @param GuiGraphicsExtractor
      * @param mouseX
      * @param mouseY
      * @param offsetX x offset, exactly where the icon will be drawn
      * @param offsetY y offset, exactly where the icon will be drawn
      */
-    public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY, ClientSkillTree tree) {
+    public void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, int offsetX, int offsetY, ClientSkillTree tree) {
         
         // calculate left and top x and y
         final int left_x = offsetX - H_MARGIN;
@@ -185,31 +187,31 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         final int description_inside_y = description_y + V_MARGIN + CONTENTS_RESOURCE_V_MARGIN + CONTENTS_CONTAINER_PADDING;
 
         // description container
-        guiGraphics.blitSprite(RenderType::guiTextured, CONTENTS_SPRITE_LOCATION, left_x, description_y, WIDTH, this.descriptionParHeight+V_MARGIN*2+CONTENTS_CONTAINER_PADDING*2+CONTENTS_RESOURCE_V_MARGIN*2);
+        GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, CONTENTS_SPRITE_LOCATION, left_x, description_y, WIDTH, this.descriptionParHeight+V_MARGIN*2+CONTENTS_CONTAINER_PADDING*2+CONTENTS_RESOURCE_V_MARGIN*2);
         // header container
-        guiGraphics.blitSprite(RenderType::guiTextured, HEADER_SPRITE_LOCATION, left_x, top_y, WIDTH, this.headingParHeight + V_MARGIN + SECTION_V_MARGIN + SkillTreeWidget.ICON_HEIGHT + CONTENTS_CONTAINER_PADDING + SECTION_V_MARGIN);
+        GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, HEADER_SPRITE_LOCATION, left_x, top_y, WIDTH, this.headingParHeight + V_MARGIN + SECTION_V_MARGIN + SkillTreeWidget.ICON_HEIGHT + CONTENTS_CONTAINER_PADDING + SECTION_V_MARGIN);
         // header
         if (this.isScrollHeading) {
-            guiGraphics.enableScissor(heading_inside_x, heading_inside_y, heading_inside_x + HEADING_TEXT_MAX_WIDTH, heading_inside_y + this.headingParHeight);
-            GuiGraphicsUtil.drawWordWrap(guiGraphics, this.font, this.heading, heading_inside_x, heading_inside_y + (int)Math.round(this.headingScrollY), HEADING_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
-            guiGraphics.disableScissor();
-            this.calcAndDrawHeadingScrollBar(guiGraphics, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, heading_inside_y);
+            GuiGraphicsExtractor.enableScissor(heading_inside_x, heading_inside_y, heading_inside_x + HEADING_TEXT_MAX_WIDTH, heading_inside_y + this.headingParHeight);
+            GuiGraphicsExtractorUtil.drawWordWrap(GuiGraphicsExtractor, this.font, this.heading, heading_inside_x, heading_inside_y + (int)Math.round(this.headingScrollY), HEADING_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
+            GuiGraphicsExtractor.disableScissor();
+            this.calcAndDrawHeadingScrollBar(GuiGraphicsExtractor, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, heading_inside_y);
         } else {
-            GuiGraphicsUtil.drawWordWrap(guiGraphics, this.font, this.heading, heading_inside_x, heading_inside_y, HEADING_TEXT_MAX_WIDTH, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
+            GuiGraphicsExtractorUtil.drawWordWrap(GuiGraphicsExtractor, this.font, this.heading, heading_inside_x, heading_inside_y, HEADING_TEXT_MAX_WIDTH, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
         }
     
         // description
         if (this.isScrollDescription) {
-            guiGraphics.enableScissor(description_inside_x, description_inside_y, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, description_inside_y + this.descriptionParHeight);
-            GuiGraphicsUtil.drawWordWrap(guiGraphics, this.font, this.description, description_inside_x, description_inside_y + (int)Math.round(this.descriptionScrollY), DESCRIPTION_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
-            guiGraphics.disableScissor();
-            this.calcAndDrawDescriptionScrollBar(guiGraphics, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, description_inside_y);
+            GuiGraphicsExtractor.enableScissor(description_inside_x, description_inside_y, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, description_inside_y + this.descriptionParHeight);
+            GuiGraphicsExtractorUtil.drawWordWrap(GuiGraphicsExtractor, this.font, this.description, description_inside_x, description_inside_y + (int)Math.round(this.descriptionScrollY), DESCRIPTION_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
+            GuiGraphicsExtractor.disableScissor();
+            this.calcAndDrawDescriptionScrollBar(GuiGraphicsExtractor, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, description_inside_y);
         } else {
-            GuiGraphicsUtil.drawWordWrap(guiGraphics, this.font, this.description, description_inside_x, description_inside_y, DESCRIPTION_TEXT_MAX_WIDTH, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
+            GuiGraphicsExtractorUtil.drawWordWrap(GuiGraphicsExtractor, this.font, this.description, description_inside_x, description_inside_y, DESCRIPTION_TEXT_MAX_WIDTH, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
         }
         
         // icon 
-        this.widget.drawAbsolute(guiGraphics, offsetX, offsetY);
+        this.widget.drawAbsolute(GuiGraphicsExtractor, offsetX, offsetY);
 
         // upgrade button
         Prerequisites widgetPrerequisite = this.widget.getNode().getSkillPoint().unlock().prerequisites();
@@ -219,7 +221,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             widgetPrerequisite.requirements().test(Prerequisites.CompletionStatus.make(widgetPrerequisite, tree.getCompletedAdvancements(), tree.getCompletedParents()))
         );
         this.upgradeState.draw(
-            guiGraphics, 
+            GuiGraphicsExtractor, 
             upgradebutton_x, 
             upgradebutton_y, 
             this.isMouseOverUpgradeButton(offsetX, offsetY, mouseX, mouseY) && !progress.isMaxed(), 
@@ -229,21 +231,21 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         );
 
     }
-    private void calcAndDrawDescriptionScrollBar(GuiGraphics guiGraphics, int offsetX, int offsetY) {
-        guiGraphics.vLine(offsetX, offsetY, offsetY + this.descriptionParHeight, 0xFF555555); // track bar
+    private void calcAndDrawDescriptionScrollBar(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
+        GuiGraphicsExtractor.verticalLine(offsetX, offsetY, offsetY + this.descriptionParHeight, 0xFF555555); // track bar
 
         int thumbHeight = Math.max(8, (int)((float)this.descriptionParHeight / this.totalDescriptionParHeight * this.descriptionParHeight));
         float scrollRatio = (float)this.descriptionScrollY / (this.totalDescriptionParHeight - this.descriptionParHeight);
         int thumb_offsetY = (int)(scrollRatio * (this.descriptionParHeight - thumbHeight));
-        guiGraphics.vLine(offsetX, offsetY-thumb_offsetY, offsetY-thumb_offsetY+thumbHeight, 0xFFFAFAFA);
+        GuiGraphicsExtractor.verticalLine(offsetX, offsetY-thumb_offsetY, offsetY-thumb_offsetY+thumbHeight, 0xFFFAFAFA);
     }
-    private void calcAndDrawHeadingScrollBar(GuiGraphics guiGraphics, int offsetX, int offsetY) {
-        guiGraphics.vLine(offsetX, offsetY, offsetY + this.headingParHeight, 0xFF555555); // track bar
+    private void calcAndDrawHeadingScrollBar(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
+        GuiGraphicsExtractor.verticalLine(offsetX, offsetY, offsetY + this.headingParHeight, 0xFF555555); // track bar
 
         int thumbHeight = Math.max(8, (int)((float)this.headingParHeight / this.totalHeadingParHeight * this.headingParHeight));
         float scrollRatio = (float)this.headingScrollY / (this.totalHeadingParHeight - this.headingParHeight);
         int thumb_offsetY = (int)(scrollRatio * (this.headingParHeight - thumbHeight));
-        guiGraphics.vLine(offsetX, offsetY-thumb_offsetY, offsetY-thumb_offsetY+thumbHeight, 0xFFFAFAFA);
+        GuiGraphicsExtractor.verticalLine(offsetX, offsetY-thumb_offsetY, offsetY-thumb_offsetY+thumbHeight, 0xFFFAFAFA);
     }
 
     public boolean mouseClicked(int offsetX, int offsetY, double mouseX, double mouseY, int button) {
@@ -337,42 +339,42 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
     private enum UpgradeButtonState {
         UNLOCK(
-            ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/unlock"), 
+            Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/unlock"), 
             KEY_UPGRADEBUTTON_UNLOCK,
             true, 
             false
         ),
         UPGRADE(
-            ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/upgrade"), 
+            Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/upgrade"), 
             KEY_UPGRADEBUTTON_UPGRADE,
             true, 
             true
         ),
         LOCKED(
-            ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked"), 
+            Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked"), 
             KEY_UPGRADEBUTTON_UNLOCK,
             false, 
             false
         ),
         LOCKED_UPGRADE(
-            ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked_upgrade"), 
+            Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked_upgrade"), 
             KEY_UPGRADEBUTTON_LOCKEDUPGRADE,
             false, 
             true
         );
 
-        private static final ResourceLocation FILL_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/upgrade_button_fill.png");
+        private static final Identifier FILL_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/upgrade_button_fill.png");
         protected static final int WIDTH = 134;
         protected static final int HEIGHT = 18;
         private static final int INSIDE_X = 4;
         private static final int INSIDE_Y = 4;
 
-        private final ResourceLocation spriteLocation;
+        private final Identifier spriteLocation;
         private final String text;
         private final boolean hasHover;
         private final boolean doDrawLines;
 
-        UpgradeButtonState(ResourceLocation sprite, String text, boolean hasHover, boolean doDrawLines) {
+        UpgradeButtonState(Identifier sprite, String text, boolean hasHover, boolean doDrawLines) {
             this.spriteLocation = sprite;
             this.text = text;
             this.hasHover = hasHover;
@@ -387,26 +389,27 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             }
         }
 
-        private void draw(GuiGraphics guiGraphics, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font) {
-            ResourceLocation loc = (isHovered && this.hasHover) ? this.spriteLocation.withPath(this.spriteLocation.getPath() + "_hovered") : this.spriteLocation;
+        private void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font) {
+            Identifier loc = (isHovered && this.hasHover) ? this.spriteLocation.withPath(this.spriteLocation.getPath() + "_hovered") : this.spriteLocation;
             if (this.doDrawLines && currentProgress > 0) {
                 int innerWidth = WIDTH - 2 * INSIDE_X;
                 int innerHeight = HEIGHT - 2 * INSIDE_Y;
 
                 // Draw progress fill
                 int fillWidth = (int) Math.round((double) innerWidth * currentProgress / maxProgress);
-                guiGraphics.blit(RenderType::guiTextured, FILL_LOCATION, offsetX + INSIDE_X, offsetY + INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight);
+                GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, FILL_LOCATION, offsetX + INSIDE_X, offsetY + INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight);
 
                 // Draw vertical dividers
                 for (int i = 1; i < maxProgress; i++) {
                     int lineX = offsetX + INSIDE_X + (int) Math.round((double) i * innerWidth / maxProgress);
-                    guiGraphics.vLine(lineX, offsetY + INSIDE_Y, offsetY + HEIGHT - INSIDE_Y - 1, 0xFF000000);
+                    GuiGraphicsExtractor.verticalLine(lineX, offsetY + INSIDE_Y, offsetY + HEIGHT - INSIDE_Y - 1, 0xFF000000);
                 }
             }
-            guiGraphics.blitSprite(RenderType::guiTextured, loc, offsetX, offsetY, UpgradeButtonState.WIDTH, UpgradeButtonState.HEIGHT);
-            guiGraphics.drawCenteredString(font, Component.translatable(this.text, currentProgress, maxProgress), offsetX + WIDTH/2, offsetY + HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
+            GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, loc, offsetX, offsetY, UpgradeButtonState.WIDTH, UpgradeButtonState.HEIGHT);
+            GuiGraphicsExtractor.centeredText(font, Component.translatable(this.text, currentProgress, maxProgress), offsetX + WIDTH/2, offsetY + HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
         }
     }
+
 
     public int getHeight() {
         return this.height;

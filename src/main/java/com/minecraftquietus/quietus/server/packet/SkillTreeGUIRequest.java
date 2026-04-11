@@ -4,7 +4,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.UUID;
@@ -21,14 +21,14 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
  */
 public record SkillTreeGUIRequest(
     boolean upgrade,
-    ResourceLocation skillTreeNode
+    Identifier skillTreeNode
 ) implements CustomPacketPayload {
 
-    public static final Type<SkillTreeGUIRequest> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree_request"));
+    public static final Type<SkillTreeGUIRequest> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MODID, "skill_tree_request"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SkillTreeGUIRequest> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.BOOL, SkillTreeGUIRequest::upgrade,
-        ResourceLocation.STREAM_CODEC, SkillTreeGUIRequest::skillTreeNode,
+        Identifier.STREAM_CODEC, SkillTreeGUIRequest::skillTreeNode,
         SkillTreeGUIRequest::new
     );
 

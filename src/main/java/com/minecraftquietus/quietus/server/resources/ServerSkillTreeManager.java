@@ -29,7 +29,7 @@ import com.mojang.serialization.JsonOps;
 import net.neoforged.neoforge.resource.ContextAwareReloadListener;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
@@ -56,8 +56,8 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
     private final Codec<? extends SkillCategory> skillCategoryCodec;
     private final FileToIdConverter lister = FileToIdConverter.json(DIR_NAME);
 
-    private ImmutableMap<ResourceLocation, SkillCategory> categories = ImmutableMap.of();
-    private ImmutableSet<ResourceLocation> requiredAdvancements = ImmutableSet.of();
+    private ImmutableMap<Identifier, SkillCategory> categories = ImmutableMap.of();
+    private ImmutableSet<Identifier> requiredAdvancements = ImmutableSet.of();
 
     public ServerSkillTreeManager(HolderLookup.Provider registries, Codec<? extends SkillCategory> codec1, Codec<? extends SkillPoint> codec2) {
         this.ops = registries.createSerializationContext(JsonOps.INSTANCE);
@@ -78,15 +78,15 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
             .collect(ImmutableSet.toImmutableSet());
     }
 
-    public Map<ResourceLocation, SkillCategory> getCategories() {
+    public Map<Identifier, SkillCategory> getCategories() {
         return this.categories;
     }
 
-    public Set<ResourceLocation> getRequiredAdvancements() {
+    public Set<Identifier> getRequiredAdvancements() {
         return this.requiredAdvancements;
     }
 
-    public @Nullable SkillTreeNode getNode(ResourceLocation location) {
+    public @Nullable SkillTreeNode getNode(Identifier location) {
         SkillTreeNode node = null;
         for (SkillCategory category : this.categories.values()) {
             if (Objects.nonNull(category.getNode(location))) node = category.getNode(location);
@@ -102,7 +102,7 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
     public final CompletableFuture<Void> reload(
         PreparableReloadListener.PreparationBarrier barrier, ResourceManager manager, Executor backgroundExecutor, Executor gameExecutor
     ) {
-        CompletableFuture<Map<ResourceLocation, SkillPoint>> skillPointLoad = CompletableFuture.supplyAsync(() -> this.prepareSkillPoints(manager, Profiler.get()), backgroundExecutor);
+        CompletableFuture<Map<Identifier, SkillPoint>> skillPointLoad = CompletableFuture.supplyAsync(() -> this.prepareSkillPoints(manager, Profiler.get()), backgroundExecutor);
         return CompletableFuture.supplyAsync(() -> this.prepareSkillCategories(manager, Profiler.get()), backgroundExecutor)
             .thenCompose(barrier::wait)
             .thenAcceptBothAsync(
@@ -118,13 +118,13 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
      * mentioned in skillPoint.unlock().prerequisites() for 
      * client use, then adds inheritance relations to each node, 
      * and is lastly sorted into their appropriate categories, 
-     * fully prepared for use as Map<ResourceLocation,SkillCategory>. 
+     * fully prepared for use as Map<Identifier,SkillCategory>. 
      * @param obj1
      * @param obj2
      * @param resourceManager
      * @param profiler
      */
-    protected void apply(Map<ResourceLocation, SkillCategory> obj1, Map<ResourceLocation, SkillPoint> obj2, ResourceManager resourceManager,
+    protected void apply(Map<Identifier, SkillCategory> obj1, Map<Identifier, SkillPoint> obj2, ResourceManager resourceManager,
             ProfilerFiller profiler) {
         /* obj1.forEach((location, skillCategory) -> {
             LOGGER.info(location.toString() + " -> " + skillCategory.toString());
@@ -132,15 +132,15 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
         obj2.forEach((location, skillPoint) -> {
             LOGGER.info(location.toString() + " -> " + skillPoint.toString());
         }); */
-        ImmutableSet.Builder<ResourceLocation> immutableSet$builder = ImmutableSet.builder();
+        ImmutableSet.Builder<Identifier> immutableSet$builder = ImmutableSet.builder();
         obj2.values().forEach((skillPoint) -> {
             immutableSet$builder.addAll(skillPoint.unlock().prerequisites().advancements().values());
         });
         this.requiredAdvancements = immutableSet$builder.build();
-        ImmutableMap.Builder<ResourceLocation,SkillCategory> immutableMap$builder = ImmutableMap.builder();
+        ImmutableMap.Builder<Identifier,SkillCategory> immutableMap$builder = ImmutableMap.builder();
         obj1.forEach((location, skillCategory) -> {
             SkillCategory category = new SkillCategory(location, skillCategory.maxWidth(), skillCategory.seed(), skillCategory.prerequisites(), skillCategory.display());
-            Map<ResourceLocation, SkillPoint> filtered_map = obj2.entrySet().stream()
+            Map<Identifier, SkillPoint> filtered_map = obj2.entrySet().stream()
                 .filter( // filter all the skill nodes that should be in this category, which should contain the location of this category in their paths (and obviously also same namespace)
                     (entry) -> entry.getKey().getPath().startsWith(location.getPath()) && entry.getKey().getNamespace().equals(location.getNamespace())
                 )
@@ -154,13 +154,13 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
     /**
      * Performs any reloading that can be done off-thread, such as file IO
      */
-    protected Map<ResourceLocation, SkillPoint> prepareSkillPoints(ResourceManager resourceManager, ProfilerFiller profiler) {
-        Map<ResourceLocation, SkillPoint> map = new HashMap<>();
+    protected Map<Identifier, SkillPoint> prepareSkillPoints(ResourceManager resourceManager, ProfilerFiller profiler) {
+        Map<Identifier, SkillPoint> map = new HashMap<>();
         scanDirectory(resourceManager, this.lister, this.makeConditionalOps(this.ops), this.skillPointCodec, map, false);
         return map;
     }
-    protected Map<ResourceLocation, SkillCategory> prepareSkillCategories(ResourceManager resourceManager, ProfilerFiller profiler) {
-        Map<ResourceLocation, SkillCategory> map = new HashMap<>();
+    protected Map<Identifier, SkillCategory> prepareSkillCategories(ResourceManager resourceManager, ProfilerFiller profiler) {
+        Map<Identifier, SkillCategory> map = new HashMap<>();
         scanDirectory(resourceManager, this.lister, this.makeConditionalOps(this.ops), this.skillCategoryCodec, map, true);
         return map;
     }
@@ -171,20 +171,20 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
         FileToIdConverter lister, 
         DynamicOps<JsonElement> ops, 
         Codec<? extends T> codec, 
-        Map<ResourceLocation, T> output,
+        Map<Identifier, T> output,
         boolean scanningForCategory
     ) {
         var conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.createConditionalCodec(codec);
-        for (Entry<ResourceLocation, Resource> entry : lister.listMatchingResources(resourceManager).entrySet()) {
-            ResourceLocation location = entry.getKey();
-            ResourceLocation id = lister.fileToId(location);
+        for (Entry<Identifier, Resource> entry : lister.listMatchingResources(resourceManager).entrySet()) {
+            Identifier location = entry.getKey();
+            Identifier id = lister.fileToId(location);
 
             try {
                 String filename = location.getPath().substring(location.getPath().lastIndexOf("/")+1); // skill nodes data files must be in one tab directory
                 boolean shouldProcess = scanningForCategory ? filename.equals(FILENAME_TAB_DATA) : !filename.equals(FILENAME_TAB_DATA);
                 
                 if (shouldProcess) {
-                    ResourceLocation outputId = scanningForCategory ? id.withPath(id.getPath().substring(0, id.getPath().lastIndexOf("/"))) : id;
+                    Identifier outputId = scanningForCategory ? id.withPath(id.getPath().substring(0, id.getPath().lastIndexOf("/"))) : id;
                     
                     try (Reader reader = entry.getValue().openAsReader()) {
                         conditionalCodec.parse(ops, JsonParser.parseReader(reader)).ifSuccess(optional -> {

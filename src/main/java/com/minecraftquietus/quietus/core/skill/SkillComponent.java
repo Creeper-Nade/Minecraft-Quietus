@@ -13,7 +13,7 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 public class SkillComponent implements INBTSerializable<CompoundTag> {
@@ -89,7 +89,7 @@ public class SkillComponent implements INBTSerializable<CompoundTag> {
 
         ListTag list = nbt.getListOrEmpty(TAG_LIST_SKILLS);
         for (Tag tag : list) { if (tag instanceof CompoundTag tag2) {
-            Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(ResourceLocation.parse(tag2.getStringOr("id", "quietus:none")));
+            Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(Identifier.parse(tag2.getStringOr("id", "quietus:none")));
             Map<String,Integer> levelsMap = new HashMap<>();
             ListTag list2 = tag2.getListOrEmpty("levels");
             for (Tag tag3 : list2) { if (tag3 instanceof CompoundTag tag4) {

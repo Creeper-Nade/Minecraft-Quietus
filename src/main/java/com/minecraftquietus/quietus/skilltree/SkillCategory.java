@@ -27,13 +27,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.StreamEncoder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 
 public class SkillCategory {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private final Map<ResourceLocation, SkillTreeNode> nodes = new Object2ObjectOpenHashMap<>();
+    private final Map<Identifier, SkillTreeNode> nodes = new Object2ObjectOpenHashMap<>();
     private final Set<SkillTreeNode> roots = new ObjectLinkedOpenHashSet<>();
     private final Set<SkillTreeNode> dependants = new ObjectLinkedOpenHashSet<>();
 
@@ -44,13 +44,13 @@ public class SkillCategory {
     private final Prerequisites prerequisites;
     private final Optional<DisplayInfo> display;
 
-    private final ResourceLocation id;
+    private final Identifier id;
 
     private SkillCategory.Listener listener;
 
     
     /* Constructs actual usable SkillCategory instances. */
-    public SkillCategory(ResourceLocation id, int maxWidth, Long seed, Prerequisites prerequisites, Optional<DisplayInfo> display) {
+    public SkillCategory(Identifier id, int maxWidth, Long seed, Prerequisites prerequisites, Optional<DisplayInfo> display) {
         this.id = id;
         this.seed = seed;
         this.maxWidth = maxWidth;
@@ -82,14 +82,14 @@ public class SkillCategory {
         buffer.writeInt(i);
         buffer.writeInt(this.maxWidth);
         buffer.writeLong(this.seed);
-        ResourceLocation.STREAM_CODEC.encode(buffer, this.id);
-        Map<ResourceLocation,SkillPoint> map = new HashMap<>();
+        Identifier.STREAM_CODEC.encode(buffer, this.id);
+        Map<Identifier,SkillPoint> map = new HashMap<>();
         this.nodes.forEach((key, value) -> map.put(key, value.getSkillPoint()));
         buffer.writeMap(
             map,
-            (StreamEncoder<FriendlyByteBuf, ResourceLocation>) ResourceLocation.STREAM_CODEC::encode,
+            (StreamEncoder<FriendlyByteBuf, Identifier>) Identifier.STREAM_CODEC::encode,
             (buf, value) -> SkillPoint.STREAM_CODEC.encode((RegistryFriendlyByteBuf) buf, value)
-            /* ResourceLocation.STREAM_CODEC::encode,
+            /* Identifier.STREAM_CODEC::encode,
             SkillPoint.STREAM_CODEC::encode */
         );
         Prerequisites.STREAM_CODEC.encode(buffer, this.prerequisites);
@@ -99,9 +99,9 @@ public class SkillCategory {
         int i = buffer.readInt();
         int maxWidth = buffer.readInt();
         Long seed = buffer.readLong();
-        ResourceLocation id = ResourceLocation.STREAM_CODEC.decode(buffer);
-        Map<ResourceLocation,SkillPoint> map = buffer.readMap(
-            buf -> ResourceLocation.STREAM_CODEC.decode((FriendlyByteBuf) buf),
+        Identifier id = Identifier.STREAM_CODEC.decode(buffer);
+        Map<Identifier,SkillPoint> map = buffer.readMap(
+            buf -> Identifier.STREAM_CODEC.decode((FriendlyByteBuf) buf),
             buf -> SkillPoint.STREAM_CODEC.decode((RegistryFriendlyByteBuf) buf)
         );
         Prerequisites prerequisites = Prerequisites.STREAM_CODEC.decode(buffer);
@@ -134,14 +134,14 @@ public class SkillCategory {
                 i |= 1;
             }
             buffer.writeInt(i);
-            this.icon.map(ClientAsset::id).ifPresent(buffer::writeResourceLocation);
+            this.icon.map(ClientAsset::id).ifPresent(buffer::writeIdentifier);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buffer, this.name);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buffer, this.description);
             Prerequisites.DisplayInfo.STREAM_CODEC.encode(buffer, this.prerequisites);
         }
         private static DisplayInfo deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
             int i = buffer.readInt();
-            Optional<ClientAsset> icon = (i&1)!=0 ? Optional.of(new ClientAsset(buffer.readResourceLocation())) : Optional.empty();
+            Optional<ClientAsset> icon = (i&1)!=0 ? Optional.of(new ClientAsset(buffer.readIdentifier())) : Optional.empty();
             Component name = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Component description = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Prerequisites.DisplayInfo prerequisitesDisplayInfo = Prerequisites.DisplayInfo.STREAM_CODEC.decode(buffer);
@@ -149,8 +149,8 @@ public class SkillCategory {
         }
     }
 
-    public void addAll(Map<ResourceLocation, SkillPoint> map) {
-        List<ResourceLocation> list = new ArrayList<>(map.keySet());
+    public void addAll(Map<Identifier, SkillPoint> map) {
+        List<Identifier> list = new ArrayList<>(map.keySet());
 
         while (!list.isEmpty()) {
             if (!list.removeIf((location) -> this.tryInsert(location, map.get(location)))) {
@@ -162,8 +162,8 @@ public class SkillCategory {
         LOGGER.info("Loaded {} skill tree nodes for category {}", this.nodes.size(), this.id.toString());
     }
 
-    private boolean tryInsert(ResourceLocation location, SkillPoint skillPoint) {
-        Set<ResourceLocation> parents = skillPoint.unlock().prerequisites().getAllParents(); // parents from unlock prerequisites, not layout prerequisites
+    private boolean tryInsert(Identifier location, SkillPoint skillPoint) {
+        Set<Identifier> parents = skillPoint.unlock().prerequisites().getAllParents(); // parents from unlock prerequisites, not layout prerequisites
         List<SkillTreeNode> parentNodes = parents.isEmpty() ? new ArrayList<>() : parents.stream().map(this.nodes::get).collect(Collectors.toList());
 
         if (parentNodes.contains(null) && !parents.isEmpty()) { // this node should have parents, and that any of its parents are not created yet.
@@ -204,11 +204,11 @@ public class SkillCategory {
         return positioning.layout(nodes);
     }
 
-    public @Nullable SkillTreeNode getNode(ResourceLocation location) {
+    public @Nullable SkillTreeNode getNode(Identifier location) {
         return this.nodes.get(location);
     }
 
-    protected Map<ResourceLocation, SkillTreeNode> getNodesMap() {
+    protected Map<Identifier, SkillTreeNode> getNodesMap() {
         return this.nodes;
     }
     protected Set<SkillTreeNode> getRoots() {
@@ -228,9 +228,9 @@ public class SkillCategory {
     }
 
     public interface Listener {
-        void onAddRootSkillNode(ResourceLocation categoryId, SkillTreeNode node);
+        void onAddRootSkillNode(Identifier categoryId, SkillTreeNode node);
         
-        void onAddDependantSkillNode(ResourceLocation categoryId, SkillTreeNode node);
+        void onAddDependantSkillNode(Identifier categoryId, SkillTreeNode node);
     }
 
     public int maxWidth() {

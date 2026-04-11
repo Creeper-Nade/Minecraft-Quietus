@@ -14,7 +14,7 @@ public class QuietusBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     // Creates a new Block with the id "quietus:example_block", combining the namespace and path
     // edit 2025.04.24 0.10.42: Kevin Sheng: made the example block higher friction and insta break
-    public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", BlockBehaviour.Properties.of().mapColor(MapColor.STONE).instabreak().friction(1.2f).jumpFactor(2.0f));
+    public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", () -> BlockBehaviour.Properties.of().mapColor(MapColor.STONE).instabreak().friction(1.2f).jumpFactor(2.0f));
 
     public static void register(IEventBus eventBus)
     {

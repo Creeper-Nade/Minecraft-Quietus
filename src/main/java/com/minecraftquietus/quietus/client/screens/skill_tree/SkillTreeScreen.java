@@ -12,6 +12,9 @@ import javax.annotation.Nullable;
 import com.minecraftquietus.quietus.skilltree.SkillPoint;
 import com.minecraftquietus.quietus.util.ServerPacketDistributor;
 
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
@@ -25,22 +28,21 @@ import com.minecraftquietus.quietus.skilltree.ConnectivityPosition;
 import com.minecraftquietus.quietus.skilltree.SkillCategory;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    //private static final ResourceLocation WINDOW_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/window.png");
-    private static final ResourceLocation WINDOW_SPRITE_LOCATION = ResourceLocation.fromNamespaceAndPath(MODID, "skill_tree/window");
+    //private static final Identifier WINDOW_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/window.png");
+    private static final Identifier WINDOW_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/window");
 
     public static final int WINDOW_WIDTH = 248;
     public static final int WINDOW_HEIGHT = 186;
@@ -67,7 +69,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
 
     private final ClientSkillTree skillTree;
-    private final Map<ResourceLocation,SkillTreeTab> tabs = new LinkedHashMap<>();
+    private final Map<Identifier,SkillTreeTab> tabs = new LinkedHashMap<>();
 
     private final Map<SkillTreeWidget,SkillTreeWidgetScreen> widgetScreens = new LinkedHashMap<>();
 
@@ -85,24 +87,24 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (QuietusKeyBindings.SKILL_TREE_KEY.get().matches(keyCode, scanCode)) {
+    public boolean keyPressed(KeyEvent event) {
+        if (QuietusKeyBindings.SKILL_TREE_KEY.get().matches(event)) {
             this.minecraft.setScreen(null);
             this.minecraft.mouseHandler.grabMouse();
             return true;
-        } else if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+        } else if (this.minecraft.options.keyInventory.matches(event)) {
             if (this.minecraft.gameMode.isServerControlledInventory()) {
                 this.minecraft.player.sendOpenInventory();
             } else {
                 this.minecraft.setScreen(new InventoryScreen(this.minecraft.player));
             }
             return true;
-        } else if (keyCode == GLFW.GLFW_KEY_ESCAPE && this.selectedWidgetInfo != null) {
+        } else if (event.key() == GLFW.GLFW_KEY_ESCAPE && this.selectedWidgetInfo != null) {
             this.selectedWidget = null;
             this.selectedWidgetInfo = null;
             return true;
         } else {
-            return super.keyPressed(keyCode, scanCode, modifiers);
+            return super.keyPressed(event);
         }
     }
 
@@ -144,8 +146,8 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     } */
 
     @Override
-    public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(@Nonnull GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
 
         this.renderTick();
 
@@ -153,26 +155,26 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         int infoOffsetX = (this.width - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
         int offsetY = (this.height - WINDOW_HEIGHT) / 2;
 
-        this.renderTreeWindow(guiGraphics, mouseX, mouseY, treeOffsetX, offsetY);
+        this.renderTreeWindow(GuiGraphicsExtractor, mouseX, mouseY, treeOffsetX, offsetY);
         if (this.selectedWidget != null) {
-            this.renderInfoWindow(guiGraphics, mouseX, mouseY, infoOffsetX, offsetY);
+            this.renderInfoWindow(GuiGraphicsExtractor, mouseX, mouseY, infoOffsetX, offsetY);
         }
     }
 
-    private void renderTreeWindow(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
-        this.selectedTab.drawContents(guiGraphics, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.infoWindowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT);
-        guiGraphics.blitSprite(RenderType::guiTextured, WINDOW_SPRITE_LOCATION, offsetX, offsetY, this.infoWindowDynamicWidth, WINDOW_HEIGHT);
+    private void renderTreeWindow(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, int offsetX, int offsetY) {
+        this.selectedTab.drawContents(GuiGraphicsExtractor, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.infoWindowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT);
+        GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_SPRITE_LOCATION, offsetX, offsetY, this.infoWindowDynamicWidth, WINDOW_HEIGHT);
     }
 
-    private void renderInfoWindow(GuiGraphics guiGraphics, int mouseX, int mouseY, int offsetX, int offsetY) {
+    private void renderInfoWindow(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, int offsetX, int offsetY) {
         int infoWindowY = offsetY + this.selectedTab.getPositioning().getVertices().get(this.selectedWidget.getNode()).y() + WINDOW_INSIDE_TOP_Y + (int)this.selectedTab.scrollY;
         infoWindowY += Math.min(0, (offsetY + WINDOW_HEIGHT) - (infoWindowY - selectedWidgetInfo.getTopHeight() + selectedWidgetInfo.getHeight())); // clamps the bottom if InfoScreen has lower bottom
         infoWindowY += Math.max(0, offsetY - (infoWindowY - selectedWidgetInfo.getTopHeight())); // clamps the top if InfoScreen has higher top
-        this.selectedWidgetInfo.draw(guiGraphics, mouseX, mouseY, offsetX, infoWindowY, this.skillTree);
+        this.selectedWidgetInfo.draw(GuiGraphicsExtractor, mouseX, mouseY, offsetX, infoWindowY, this.skillTree);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         int offsetY = (this.height - WINDOW_HEIGHT) / 2;
         int treeOffsetX = WINDOW_INSIDE_X + (this.width - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
         int treeOffsetY = WINDOW_INSIDE_TOP_Y + offsetY;
@@ -184,18 +186,18 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             infoOffsetY += Math.max(0, offsetY - (infoOffsetY - selectedWidgetInfo.getTopHeight())); // snaps to the top if InfoScreen has higher top
         }
 
-        if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, infoOffsetY, mouseX, mouseY)) {
+        if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, infoOffsetY, event.x(),event.y())) {
             this.focusedDraggable = this.selectedWidgetInfo;
 
             
-            if (this.selectedWidgetInfo.mouseClicked(infoOffsetX, infoOffsetY, mouseX, mouseY, button)) {
+            if (this.selectedWidgetInfo.mouseClicked(infoOffsetX, infoOffsetY, event.x(),event.y(), event.button())) {
                 return true;
             }
         } else if (
-            mouseX > treeOffsetX 
-            && mouseY > treeOffsetY
-            && mouseX < treeOffsetX + this.width
-            && mouseY < treeOffsetY + WINDOW_HEIGHT
+                event.x() > treeOffsetX
+            && event.y() > treeOffsetY
+            && event.x() < treeOffsetX + this.width
+            && event.y() < treeOffsetY + WINDOW_HEIGHT
         ) {
             this.focusedDraggable = this.selectedTab;
         } else {
@@ -203,23 +205,23 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
 
         if (this.selectedTab != null) {
-            if (this.selectedTab.click(treeOffsetX, treeOffsetY, mouseX, mouseY, button)) {
+            if (this.selectedTab.click(treeOffsetX, treeOffsetY, event.x(), event.y(), event.button())) {
                 return true;
             }
         }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (button == 0) { 
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (event.button() == 0) {
             if (this.focusedDraggable != null) {
                 this.focusedDraggable.drag(dragX, dragY); 
                 return true;
             }
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override
@@ -314,13 +316,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     /* SkillCategory.Listener method */
     @Override
-    public void onAddRootSkillNode(ResourceLocation categoryId, SkillTreeNode node) {
+    public void onAddRootSkillNode(Identifier categoryId, SkillTreeNode node) {
         this.tabs.get(categoryId).addWidget(node);
     }
 
     /* SkillCategory.Listener method */
     @Override
-    public void onAddDependantSkillNode(ResourceLocation categoryId, SkillTreeNode node) {
+    public void onAddDependantSkillNode(Identifier categoryId, SkillTreeNode node) {
         this.tabs.get(categoryId).addWidget(node);
     }
 

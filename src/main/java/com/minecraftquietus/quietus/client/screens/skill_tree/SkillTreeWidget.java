@@ -11,9 +11,9 @@ import com.minecraftquietus.quietus.skilltree.LegacyPosition;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
@@ -27,13 +27,13 @@ public class SkillTreeWidget {
     protected static final int ICON_HEIGHT = 26;
     protected static final int ICON_WIDTH = 26;
 
-    private static final ResourceLocation DEFAULT_ICON = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/icons/skill_tree/node/none.png");
+    private static final Identifier DEFAULT_ICON = Identifier.fromNamespaceAndPath(MODID, "textures/gui/icons/skill_tree/node/none.png");
 
     private final SkillTreeTab tab;
     private final SkillTreeNode node;
     private final Minecraft minecraft;
     private final ClientSkillTree skillTree;
-    private final ResourceLocation icon;
+    private final Identifier icon;
     private final String languangeKey;
 
     private final int x;
@@ -50,9 +50,9 @@ public class SkillTreeWidget {
         this.skillTree = clientSkillTree;
         this.node = node;
         this.icon = display.icon().isPresent() ? 
-            display.icon().get().texturePath() : 
+            display.icon().get().id() :
             node.getId().withPath((id) -> "textures/gui/icons/skill_tree/node/" + id + ".png");
-            //ResourceLocation.fromNamespaceAndPath(node.getId().getNamespace(), "textures/gui/icons/skill_tree/node/" + node.getId().getPath() + ".png");
+            //Identifier.fromNamespaceAndPath(node.getId().getNamespace(), "textures/gui/icons/skill_tree/node/" + node.getId().getPath() + ".png");
         this.languangeKey = node.getId().toLanguageKey();
         this.x = x;
         this.y = y;
@@ -64,56 +64,56 @@ public class SkillTreeWidget {
         this(tab, minecraft, clientSkillTree, node, vertexPos.x(), vertexPos.y(), display);
     }
 
-    public void draw(GuiGraphics guiGraphics, int offsetX, int offsetY) {
+    public void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
         int render_x = this.x + offsetX;
         int render_y = this.y + offsetY;
-        this.drawAbsolute(guiGraphics, render_x, render_y);
+        this.drawAbsolute(GuiGraphicsExtractor, render_x, render_y);
     }
 
-    public void drawAbsolute(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(RenderType::guiTextured, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+    public void drawAbsolute(GuiGraphicsExtractor GuiGraphicsExtractor, int x, int y) {
+        GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
         if (this.minecraft.getResourceManager().getResource(this.icon).isPresent()) {
-            guiGraphics.blit(RenderType::guiTextured, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+            GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
         } else {
-            guiGraphics.blit(RenderType::guiTextured, DEFAULT_ICON, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+            GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, DEFAULT_ICON, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
         }
     }
 
-    public void drawConnectivity(GuiGraphics guiGraphics, LegacyPosition graph, int offsetX, int offsetY) {
+    public void drawConnectivity(GuiGraphicsExtractor GuiGraphicsExtractor, LegacyPosition graph, int offsetX, int offsetY) {
         
     }
     
-    /* public void drawConnectivity(GuiGraphics guiGraphics, int offsetX, int offsetY) {
+    /* public void drawConnectivity(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
         int toX = offsetX + this.x + WIDTH/2;
         int toY = offsetY + this.y + HEIGHT/2;
         for (SkillTreeWidget widget : this.orParents) {
             int fromX = offsetX + widget.x + WIDTH/2;
             int fromY = offsetY + widget.y + HEIGHT/2;
             if (this.x == widget.x) {
-                guiGraphics.vLine(fromX, fromY, toY, 0xFF000000);
+                GuiGraphicsExtractor.verticalLine(fromX, fromY, toY, 0xFF000000);
             } else {
                 int tp_1_x = fromX;
                 int tp_1_y = fromY + HEIGHT;
                 int tp_2_x = toX;
                 int tp_2_y = tp_1_y;
-                guiGraphics.vLine(fromX, fromY, tp_1_y, 0xFF000000);
-                guiGraphics.hLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
-                guiGraphics.vLine(tp_2_x, tp_2_y, toY, 0xFF000000);
+                GuiGraphicsExtractor.verticalLine(fromX, fromY, tp_1_y, 0xFF000000);
+                GuiGraphicsExtractor.horizontalLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
+                GuiGraphicsExtractor.verticalLine(tp_2_x, tp_2_y, toY, 0xFF000000);
             }
         }
         for (SkillTreeWidget widget : this.mustParents) {
             int fromX = offsetX + widget.x + WIDTH/2;
             int fromY = offsetY + widget.y + HEIGHT/2;
             if (this.x == widget.x) {
-                guiGraphics.vLine(fromX, fromY, toY, 0xFF000000);
+                GuiGraphicsExtractor.verticalLine(fromX, fromY, toY, 0xFF000000);
             } else {
                 int tp_1_x = fromX;
                 int tp_1_y = fromY + HEIGHT;
                 int tp_2_x = toX;
                 int tp_2_y = tp_1_y;
-                guiGraphics.vLine(fromX, fromY, tp_1_y, 0xFF000000);
-                guiGraphics.hLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
-                guiGraphics.vLine(tp_2_x, tp_2_y, toY, 0xFF000000);
+                GuiGraphicsExtractor.verticalLine(fromX, fromY, tp_1_y, 0xFF000000);
+                GuiGraphicsExtractor.horizontalLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
+                GuiGraphicsExtractor.verticalLine(tp_2_x, tp_2_y, toY, 0xFF000000);
             }
         }
     } */

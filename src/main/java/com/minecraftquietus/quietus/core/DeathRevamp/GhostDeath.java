@@ -15,12 +15,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -114,7 +114,7 @@ public class GhostDeath{
     @SubscribeEvent
     public static void render(RenderGuiEvent.Pre event) {
         if (!ClientPayloadHandler.getInstance().getGhostState() && fade <= 0) return;
-        GuiGraphics guiGraphics = event.getGuiGraphics();
+        GuiGraphicsExtractor GuiGraphicsExtractor = event.getGuiGraphicsExtractor();
 
         Minecraft mc = Minecraft.getInstance();
         int width = mc.getWindow().getGuiScaledWidth();
@@ -153,19 +153,19 @@ public class GhostDeath{
         int alpha = (int)(fade * 255);
 
         // Render "You Died" title
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(2.0F, 2.0F, 2.0F);
+        GuiGraphicsExtractor.pose().pushPose();
+        GuiGraphicsExtractor.pose().scale(2.0F, 2.0F, 2.0F);
         Component title = Component.translatable("deathScreen.title").withStyle(ChatFormatting.BOLD);
         int titleWidth = mc.font.width(title);
         int titleX = (width / 2 - titleWidth) / 2;
-        guiGraphics.drawString(mc.font, title, titleX, 30, 0xFF5555 | (alpha << 24), false);
-        guiGraphics.pose().popPose();
+        GuiGraphicsExtractor.text(mc.font, title, titleX, 30, 0xFF5555 | (alpha << 24), false);
+        GuiGraphicsExtractor.pose().popPose();
 
         // Render cause of death
         if (deathMessage != null) {
             int deathY = 85;
             int deathX = width / 2 - mc.font.width(deathMessage) / 2;
-            guiGraphics.drawString(mc.font, deathMessage, deathX, deathY, 0xFF5555 | (alpha << 24), false);
+            GuiGraphicsExtractor.text(mc.font, deathMessage, deathX, deathY, 0xFF5555 | (alpha << 24), false);
         }
 
         // Render score
@@ -176,7 +176,7 @@ public class GhostDeath{
         Component scoreText = Component.translatable("deathScreen.score.value",
                 Component.literal(Integer.toString(playerScore)).withStyle(ChatFormatting.YELLOW));
         int scoreX = width / 2 - mc.font.width(scoreText) / 2;
-        guiGraphics.drawString(mc.font, scoreText, scoreX, 100, 0xFF5555 | (alpha << 24), false);
+        GuiGraphicsExtractor.text(mc.font, scoreText, scoreX, 100, 0xFF5555 | (alpha << 24), false);
 
         // Render countdown
 
@@ -188,10 +188,10 @@ public class GhostDeath{
             Component countdown = Component.literal(String.valueOf(seconds))
                     .withStyle(ChatFormatting.BOLD);
 
-            guiGraphics.pose().pushPose();
+            GuiGraphicsExtractor.pose().pushPose();
             // Apply pulsing scale
             float scale = 2.0f * pulseScale; // Base size is 3x
-            guiGraphics.pose().scale(scale, scale, scale);
+            GuiGraphicsExtractor.pose().scale(scale, scale, scale);
 
             int scaledWidth = (int) (width / scale);
             int scaledHeight = (int) (height / scale)+40;
@@ -199,7 +199,7 @@ public class GhostDeath{
             int countdownX = (scaledWidth - mc.font.width(countdown)) / 2;
             int countdownY = (int) ((scaledHeight / 2 + Math.max(40,(4-seconds)*40)) / scale);
 
-            guiGraphics.drawString(
+            GuiGraphicsExtractor.text(
                     mc.font,
                     countdown,
                     countdownX,
@@ -208,7 +208,7 @@ public class GhostDeath{
                     false
             );
 
-            guiGraphics.pose().popPose();
+            GuiGraphicsExtractor.pose().popPose();
         }
         if(seconds<=3)
         {
@@ -291,9 +291,9 @@ public class GhostDeath{
     //For vignette shader
 
     public static RenderPipeline ghostPipeline = RenderPipeline.builder()
-            .withLocation(ResourceLocation.fromNamespaceAndPath(MODID, "ghost_effect"))
-            .withVertexShader(ResourceLocation.fromNamespaceAndPath(MODID, "core/ghost_effect"))
-            .withFragmentShader(ResourceLocation.fromNamespaceAndPath(MODID, "core/ghost_effect"))
+            .withLocation(Identifier.fromNamespaceAndPath(MODID, "ghost_effect"))
+            .withVertexShader(Identifier.fromNamespaceAndPath(MODID, "core/ghost_effect"))
+            .withFragmentShader(Identifier.fromNamespaceAndPath(MODID, "core/ghost_effect"))
             .withSampler("DiffuseSampler")  // Correct sampler declaration
             .withUniform("ScreenSize", UniformType.VEC2)
             .withUniform("VignetteIntensity", UniformType.FLOAT)

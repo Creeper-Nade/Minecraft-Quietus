@@ -159,7 +159,7 @@ public class ClientPayloadHandler {
     public static void handleGrappleJump(GrapplingJumpReleasePacket packet, IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
-            if (!player.level().isClientSide && player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT).hasActiveHook()) {
+            if (!player.level().isClientSide() && player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT).hasActiveHook()) {
                 GrapplingHookItem.retrieveHookForPlayer(player);
             }
         });

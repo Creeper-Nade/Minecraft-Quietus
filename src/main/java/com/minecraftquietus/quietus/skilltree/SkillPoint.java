@@ -25,7 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
 public record SkillPoint(
@@ -162,7 +162,7 @@ public record SkillPoint(
             }
             buffer.writeInt(i);
             buffer.writeInt(this.type.index());
-            this.icon.map(ClientAsset::id).ifPresent(buffer::writeResourceLocation);
+            this.icon.map(ClientAsset::id).ifPresent(buffer::writeIdentifier);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buffer, this.header);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buffer, this.description);
             Prerequisites.DisplayInfo.STREAM_CODEC.encode(buffer, this.prerequisites);
@@ -175,7 +175,7 @@ public record SkillPoint(
                 if (t.index() == typeIndex) 
                     type = t;
             }
-            Optional<ClientAsset> icon = (i&1)!=0 ? Optional.of(new ClientAsset(buffer.readResourceLocation())) : Optional.empty();
+            Optional<ClientAsset> icon = (i&1)!=0 ? Optional.of(new ClientAsset(buffer.readIdentifier())) : Optional.empty();
             Component header = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Component description = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Prerequisites.DisplayInfo prerequisitesDisplayInfo = Prerequisites.DisplayInfo.STREAM_CODEC.decode(buffer);

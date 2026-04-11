@@ -6,21 +6,20 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.LivingEntity;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.renderer.base.GeoRenderState;
+import com.geckolib.renderer.GeoEntityRenderer;
+import com.geckolib.renderer.base.GeoRenderState;
 
 public class PlayerFragmentRenderer<R extends EntityRenderState & GeoRenderState> extends GeoEntityRenderer<PlayerFragment,R> {
     public PlayerFragmentRenderer(EntityRendererProvider.Context context) {
         super(context, new PlayerFragmentModel());
-        addRenderLayer(new FragmentHeadLayer<>(this));
+        withRenderLayer(new FragmentHeadLayer<>(this));
     }
 
     @Override
-    public R captureDefaultRenderState(PlayerFragment animatable, Void relatedObject, R renderState, float partialTick) {
-        renderState = super.captureDefaultRenderState(animatable, relatedObject, renderState, partialTick);
+    public void captureDefaultRenderState(PlayerFragment animatable, Void relatedObject, R renderState, float partialTick) {
+        super.captureDefaultRenderState(animatable, relatedObject, renderState, partialTick);
         // Add the entity to the render state using our custom data ticket
         renderState.addGeckolibData(QuietusDataTickets.PLAYER_FRAGMENT_ENTITY, animatable);
-        return renderState;
     }
 
     @Override

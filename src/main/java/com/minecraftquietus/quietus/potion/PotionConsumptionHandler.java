@@ -5,7 +5,7 @@ import com.minecraftquietus.quietus.util.QuietusAttachments;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class PotionConsumptionHandler {
     
     // Default mana values for potions
-    private static final Map<ResourceLocation, Integer> MANA_VALUES = new HashMap<>();
+    private static final Map<Identifier, Integer> MANA_VALUES = new HashMap<>();
     private static final int DEFAULT_MANA = 15; // Default value
 
     static {
@@ -32,7 +32,7 @@ public class PotionConsumptionHandler {
     }
 
     public static void registerPotionMana(String Namespace,String potionId, int mana) {
-        MANA_VALUES.put(ResourceLocation.fromNamespaceAndPath(Namespace,potionId), mana);
+        MANA_VALUES.put(Identifier.fromNamespaceAndPath(Namespace,potionId), mana);
     }
 
 
@@ -51,7 +51,7 @@ public class PotionConsumptionHandler {
             if (potionHolder.isEmpty()) return;
 
             // Get potion ID from holder
-            ResourceLocation potionId = potionHolder.get()
+            Identifier potionId = potionHolder.get()
                     .unwrapKey()
                     .map(ResourceKey::location)
                     .orElse(null);

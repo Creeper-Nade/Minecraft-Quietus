@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,12 +38,12 @@ public class SkillTreeClientAdvancementsSync {
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (QuietusReloadableResources.isOpen()) {
             Player player = event.getEntity();
-            Set<ResourceLocation> requiredAdvancements = QuietusReloadableResources.getRequiredAdvancements();
+            Set<Identifier> requiredAdvancements = QuietusReloadableResources.getRequiredAdvancements();
             if (player instanceof ServerPlayer serverPlayer) {
                 PlayerAdvancements playerAdvancements = serverPlayer.getAdvancements();
                 ServerAdvancementManager advancementTree = serverPlayer.getServer().getAdvancements();
 
-                Set<ResourceLocation> completedRequired = requiredAdvancements.stream()
+                Set<Identifier> completedRequired = requiredAdvancements.stream()
                     .filter(id -> {
                         AdvancementHolder holder = advancementTree.get(id);
                         if (Objects.nonNull(holder)) {
@@ -68,8 +68,8 @@ public class SkillTreeClientAdvancementsSync {
     public static void onAdvancementProgress(AdvancementEvent.AdvancementProgressEvent event) {
         if (QuietusReloadableResources.isOpen()) {
             Player player = event.getEntity();
-            Set<ResourceLocation> requiredAdvancements = QuietusReloadableResources.getRequiredAdvancements();
-            ResourceLocation id = event.getAdvancement().id();
+            Set<Identifier> requiredAdvancements = QuietusReloadableResources.getRequiredAdvancements();
+            Identifier id = event.getAdvancement().id();
             if (player instanceof ServerPlayer serverPlayer) {
                 if (Objects.nonNull(requiredAdvancements) && requiredAdvancements.contains(id)) {
                     switch (event.getProgressType()) {

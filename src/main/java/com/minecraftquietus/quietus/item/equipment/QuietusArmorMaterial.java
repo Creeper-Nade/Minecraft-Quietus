@@ -7,7 +7,7 @@ import com.minecraftquietus.quietus.util.attribute.AttributeModifierValue;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -39,25 +39,25 @@ public record QuietusArmorMaterial(
         AttributeModifier.Operation _mana_regen_bonus_operation = this.maxMana.getOrDefault(armorType, AttributeModifierValue.NONE).operation();
 
         EquipmentSlotGroup equipmentslotgroup = EquipmentSlotGroup.bySlot(armorType.getSlot());
-        ResourceLocation resourcelocation = ResourceLocation.withDefaultNamespace("armor." + armorType.getName());
+        Identifier Identifier = Identifier.withDefaultNamespace("armor." + armorType.getName());
         
         ItemAttributeModifiers.Builder itemattributemodifiers$builder = ItemAttributeModifiers.builder();
         itemattributemodifiers$builder.add(
-            Attributes.ARMOR, new AttributeModifier(resourcelocation, _defense, _defense_operation), equipmentslotgroup
+            Attributes.ARMOR, new AttributeModifier(Identifier, _defense, _defense_operation), equipmentslotgroup
         );
         itemattributemodifiers$builder.add(
-            QuietusAttributes.MAX_MANA.getDelegate(), new AttributeModifier(resourcelocation, _max_mana, _max_mana_operation), equipmentslotgroup
+            QuietusAttributes.MAX_MANA.getDelegate(), new AttributeModifier(Identifier, _max_mana, _max_mana_operation), equipmentslotgroup
         );
         itemattributemodifiers$builder.add(
-            QuietusAttributes.MANA_REGEN_BONUS.getDelegate(), new AttributeModifier(resourcelocation, _mana_regen_bonus, _mana_regen_bonus_operation), equipmentslotgroup
+            QuietusAttributes.MANA_REGEN_BONUS.getDelegate(), new AttributeModifier(Identifier, _mana_regen_bonus, _mana_regen_bonus_operation), equipmentslotgroup
         );
         itemattributemodifiers$builder.add(
-            Attributes.ARMOR_TOUGHNESS, new AttributeModifier(resourcelocation, this.toughness, AttributeModifier.Operation.ADD_VALUE), equipmentslotgroup
+            Attributes.ARMOR_TOUGHNESS, new AttributeModifier(Identifier, this.toughness, AttributeModifier.Operation.ADD_VALUE), equipmentslotgroup
         );
         if (this.knockbackResistance > 0.0F) {
             itemattributemodifiers$builder.add(
                 Attributes.KNOCKBACK_RESISTANCE,
-                new AttributeModifier(resourcelocation, this.knockbackResistance, AttributeModifier.Operation.ADD_VALUE),
+                new AttributeModifier(Identifier, this.knockbackResistance, AttributeModifier.Operation.ADD_VALUE),
                 equipmentslotgroup
             );
         }

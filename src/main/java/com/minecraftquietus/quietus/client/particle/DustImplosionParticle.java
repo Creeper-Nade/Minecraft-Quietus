@@ -8,6 +8,8 @@ import net.minecraft.client.particle.DustParticleBase;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
+import net.minecraft.util.RandomSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -57,11 +59,11 @@ public class DustImplosionParticle extends DustParticleBase<DustImplosionParticl
         this.lifetime = (int)(Math.random() * 10.0F) + 30;
     }
 
-    public int getLightColor(float partialTick) {
+    public int getLightCoords(float partialTick) {
         if (this.isGlowing) {
             return 0xF000F0;
         } else {
-            int i = super.getLightColor(partialTick);
+            int i = super.getLightCoords(partialTick);
             float f = (float)this.age / (float)this.lifetime;
             f *= f;
             f *= f;
@@ -122,9 +124,9 @@ public class DustImplosionParticle extends DustParticleBase<DustImplosionParticl
     }
 
     @Override
-    public void render(VertexConsumer p_324177_, Camera p_323683_, float p_323936_) {
+    public void extract(QuadParticleRenderState p_324177_, Camera p_323683_, float p_323936_) {
         this.setAlpha(this.lifetimeAlpha.currentAlphaForAge(this.age, this.lifetime, p_323936_));
-        super.render(p_324177_, p_323683_, p_323936_);
+        super.extract(p_324177_, p_323683_, p_323936_);
     }
 
     @Override
@@ -149,7 +151,8 @@ public class DustImplosionParticle extends DustParticleBase<DustImplosionParticl
                 double z,
                 double xSpeed,
                 double ySpeed,
-                double zSpeed
+                double zSpeed,
+                RandomSource source
         ) {
             return new DustImplosionParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, true, LifetimeAlpha.ALWAYS_OPAQUE, type, this.sprites);
         }

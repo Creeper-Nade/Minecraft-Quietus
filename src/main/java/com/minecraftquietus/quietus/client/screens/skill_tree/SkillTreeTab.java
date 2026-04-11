@@ -13,8 +13,8 @@ import com.minecraftquietus.quietus.skilltree.SkillTreeNode;
 import com.minecraftquietus.quietus.skilltree.TreePosition;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 
 public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
 
@@ -74,29 +74,29 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
         }
     }
 
-    public void drawContents(GuiGraphics guiGraphics, int offsetX, int offsetY, int width, int height) {
-        guiGraphics.enableScissor(offsetX, offsetY, offsetX + width, offsetY + height);
-        /* guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate((float)offsetX, (float)offsetY, 0.0F); */
+    public void drawContents(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY, int width, int height) {
+        GuiGraphicsExtractor.enableScissor(offsetX, offsetY, offsetX + width, offsetY + height);
+        /* GuiGraphicsExtractor.pose().pushPose();
+        GuiGraphicsExtractor.pose().translate((float)offsetX, (float)offsetY, 0.0F); */
 
-        guiGraphics.fill(offsetX, offsetY, offsetX+width, offsetY+height, 0xFFFFFFFF);
+        GuiGraphicsExtractor.fill(offsetX, offsetY, offsetX+width, offsetY+height, 0xFFFFFFFF);
 
         this.clampScroll(0.0d, 0.0d);
         int relX = offsetX + (int)this.scrollX;
         int relY = offsetY + (int)this.scrollY;
         
-        this.drawEdges(guiGraphics, relX, relY);
+        this.drawEdges(GuiGraphicsExtractor, relX, relY);
 
         for (SkillTreeWidget widget : this.widgets.values()) {
-            widget.draw(guiGraphics, relX, relY);
+            widget.draw(GuiGraphicsExtractor, relX, relY);
         }
 
-        guiGraphics.disableScissor();
+        GuiGraphicsExtractor.disableScissor();
     }
 
-    private void drawEdges(GuiGraphics guiGraphics, int offsetX, int offsetY) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate((float)offsetX, (float)offsetY, 0.0F);
+    private void drawEdges(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
+        GuiGraphicsExtractor.pose().pushMatrix();
+        GuiGraphicsExtractor.pose().translate((float)offsetX, (float)offsetY);
         final int black = 0xFF000000;
         final int white = 0xFFFFFFFF;
         this.positioning.getEdges().forEach((edge) -> {
@@ -107,8 +107,8 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
                 // segment 1
                 for (int y = edge.startY(); y < edge.midY(); ++y) {
                     if (DOTTED_LINE_PATTERN[(patternOffset + y - edge.startY()) % DOTTED_LINE_PATTERN.length]) {
-                        guiGraphics.fill(edge.startX() - 1, y, edge.startX() + 2, y + 1, black);
-                        /* guiGraphics.fill(edge.startX(), y - 1, edge.startX() + 1, y + 2, black); */
+                        GuiGraphicsExtractor.fill(edge.startX() - 1, y, edge.startX() + 2, y + 1, black);
+                        /* GuiGraphicsExtractor.fill(edge.startX(), y - 1, edge.startX() + 1, y + 2, black); */
                     }
                 }
                 patternOffset += (edge.midY() - edge.startY());
@@ -118,26 +118,26 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
                 if (x1 > x2) { int temp = x1; x1 = x2; x2 = temp; }
                 for (int x = x1; x < x2; ++x) {
                     if (DOTTED_LINE_PATTERN[(patternOffset + x - x1) % DOTTED_LINE_PATTERN.length]) {
-                        /* guiGraphics.fill(x - 1, edge.midY(), x + 2, edge.midY() + 1, black); */
-                        guiGraphics.fill(x, edge.midY() - 1, x + 1, edge.midY() + 2, black);
+                        /* GuiGraphicsExtractor.fill(x - 1, edge.midY(), x + 2, edge.midY() + 1, black); */
+                        GuiGraphicsExtractor.fill(x, edge.midY() - 1, x + 1, edge.midY() + 2, black);
                     }
                 }
                 patternOffset += (x2 - x1);
                 // segment 3
                 for (int y = edge.midY(); y < edge.finalY(); ++y) {
                     if (DOTTED_LINE_PATTERN[(patternOffset + y - edge.midY()) % DOTTED_LINE_PATTERN.length]) {
-                        guiGraphics.fill(edge.finalX() - 1, y, edge.finalX() + 2, y + 1, black);
-                        /* guiGraphics.fill(edge.finalX(), y - 1, edge.finalX() + 1, y + 2, black); */
+                        GuiGraphicsExtractor.fill(edge.finalX() - 1, y, edge.finalX() + 2, y + 1, black);
+                        /* GuiGraphicsExtractor.fill(edge.finalX(), y - 1, edge.finalX() + 1, y + 2, black); */
                     }
                 }
             } else {
                 // Draw thick black background path
-                guiGraphics.fill(edge.startX() - 1, edge.startY(), edge.startX() + 2, edge.midY(), black);
-                guiGraphics.fill(edge.finalX() - 1, edge.midY(), edge.finalX() + 2, edge.finalY(), black);
+                GuiGraphicsExtractor.fill(edge.startX() - 1, edge.startY(), edge.startX() + 2, edge.midY(), black);
+                GuiGraphicsExtractor.fill(edge.finalX() - 1, edge.midY(), edge.finalX() + 2, edge.finalY(), black);
                 if (edge.startX() < edge.finalX()) {
-                    guiGraphics.fill(edge.startX() - 1, edge.midY() - 1, edge.finalX() + 2, edge.midY() + 2, black);
+                    GuiGraphicsExtractor.fill(edge.startX() - 1, edge.midY() - 1, edge.finalX() + 2, edge.midY() + 2, black);
                 } else {
-                    guiGraphics.fill(edge.finalX() - 1, edge.midY() - 1, edge.startX() + 2, edge.midY() + 2, black);
+                    GuiGraphicsExtractor.fill(edge.finalX() - 1, edge.midY() - 1, edge.startX() + 2, edge.midY() + 2, black);
                 }
             }
         });
@@ -148,7 +148,7 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
                 // segment 1
                 for (int y = edge.startY(); y < edge.midY(); ++y) {
                     if (DOTTED_LINE_PATTERN[(patternOffset + y - edge.startY()) % DOTTED_LINE_PATTERN.length]) {
-                        guiGraphics.fill(edge.startX(), y, edge.startX() + 1, y + 1, white);
+                        GuiGraphicsExtractor.fill(edge.startX(), y, edge.startX() + 1, y + 1, white);
                     }
                 }
                 patternOffset += (edge.midY() - edge.startY());
@@ -158,24 +158,24 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
                 if (x1 > x2) { int temp = x1; x1 = x2; x2 = temp; }
                 for (int x = x1; x < x2; ++x) {
                     if (DOTTED_LINE_PATTERN[(patternOffset + x - x1) % DOTTED_LINE_PATTERN.length]) {
-                        guiGraphics.fill(x, edge.midY(), x + 1, edge.midY() + 1, white);
+                        GuiGraphicsExtractor.fill(x, edge.midY(), x + 1, edge.midY() + 1, white);
                     }
                 }
                 patternOffset += (x2 - x1);
                 // segment 3
                 for (int y = edge.midY(); y < edge.finalY(); ++y) {
                     if (DOTTED_LINE_PATTERN[(patternOffset + y - edge.midY()) % DOTTED_LINE_PATTERN.length]) {
-                        guiGraphics.fill(edge.finalX(), y, edge.finalX() + 1, y + 1, white);
+                        GuiGraphicsExtractor.fill(edge.finalX(), y, edge.finalX() + 1, y + 1, white);
                     }
                 }
             } else {
                 // Draw thin white line on top
-                guiGraphics.vLine(edge.startX(), edge.startY(), edge.midY(), white);
-                guiGraphics.hLine(edge.startX(), edge.finalX(), edge.midY(), white);
-                guiGraphics.vLine(edge.finalX(), edge.midY(), edge.finalY(), white);
+                GuiGraphicsExtractor.verticalLine(edge.startX(), edge.startY(), edge.midY(), white);
+                GuiGraphicsExtractor.horizontalLine(edge.startX(), edge.finalX(), edge.midY(), white);
+                GuiGraphicsExtractor.verticalLine(edge.finalX(), edge.midY(), edge.finalY(), white);
             }
         });
-        guiGraphics.pose().popPose();
+        GuiGraphicsExtractor.pose().popMatrix();
     }
 
     @Override
@@ -216,7 +216,7 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     public SkillTreeWidget getWidget(SkillTreeNode node) {
         return this.widgets.get(node);
     }
-    public SkillTreeWidget getWidget(ResourceLocation id) {
+    public SkillTreeWidget getWidget(Identifier id) {
         for (SkillTreeNode node : this.widgets.keySet()) {
             if (node.getId().equals(id))
                 return this.getWidget(node);

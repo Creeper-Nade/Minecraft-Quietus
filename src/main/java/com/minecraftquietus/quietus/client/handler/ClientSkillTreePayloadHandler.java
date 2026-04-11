@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.checkerframework.checker.units.qual.min;
 
 import com.minecraftquietus.quietus.client.multiplayer.ClientSkillTree;
 import com.minecraftquietus.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
@@ -17,7 +16,7 @@ import com.minecraftquietus.quietus.skilltree.SkillCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -79,7 +78,7 @@ public class ClientSkillTreePayloadHandler {
         return skillTree;
     }
 
-    public static Map<ResourceLocation, SkillCategory> getCategories() {
+    public static Map<Identifier, SkillCategory> getCategories() {
         return skillTree.getCategories();
     }
 }

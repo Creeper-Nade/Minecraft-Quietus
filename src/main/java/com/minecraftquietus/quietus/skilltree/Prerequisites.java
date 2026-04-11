@@ -32,23 +32,23 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.event.ClientPauseChangeEvent.Pre;
 
 public record Prerequisites(
-    Map<String, ResourceLocation> advancements,
-    Map<String, ResourceLocation> parents,
+    Map<String, Identifier> advancements,
+    Map<String, Identifier> parents,
     Requirements requirements
 ) {
     // /* Constructor for stream codec, which does not send advancements across network to client */
-    // private Prerequisites(Map<String, ResourceLocation> parents, Requirements requirements) {
+    // private Prerequisites(Map<String, Identifier> parents, Requirements requirements) {
     //     this(null, parents, requirements);
     // }
     
     public static final Prerequisites EMPTY = new Prerequisites(Map.of(), Map.of(), Requirements.EMPTY);
 
-    private static final Codec<Map<String, ResourceLocation>> ADVANCEMENTS_MAP_CODEC = Codec.unboundedMap(Codec.STRING, ResourceLocation.CODEC);
-    private static final Codec<Map<String, ResourceLocation>> PARENTS_MAP_CODEC = Codec.unboundedMap(Codec.STRING, ResourceLocation.CODEC);
+    private static final Codec<Map<String, Identifier>> ADVANCEMENTS_MAP_CODEC = Codec.unboundedMap(Codec.STRING, Identifier.CODEC);
+    private static final Codec<Map<String, Identifier>> PARENTS_MAP_CODEC = Codec.unboundedMap(Codec.STRING, Identifier.CODEC);
     public static final Codec<Prerequisites> CODEC = RecordCodecBuilder.create(
         instance -> instance.group(
             ADVANCEMENTS_MAP_CODEC.optionalFieldOf("advancements", Map.of()).forGetter(Prerequisites::advancements),
@@ -63,25 +63,25 @@ public record Prerequisites(
     );
     
     public static final StreamCodec<FriendlyByteBuf,Prerequisites> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ResourceLocation.STREAM_CODEC, 256), Prerequisites::advancements,
-        ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ResourceLocation.STREAM_CODEC, 256), Prerequisites::parents,
+        ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, Identifier.STREAM_CODEC, 256), Prerequisites::advancements,
+        ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, Identifier.STREAM_CODEC, 256), Prerequisites::parents,
         Requirements.STREAM_CODEC, Prerequisites::requirements,
         Prerequisites::new
     );
 
-    private boolean isRequirementAdvancementDone(String req, Set<ResourceLocation> completedAdvancements) {
+    private boolean isRequirementAdvancementDone(String req, Set<Identifier> completedAdvancements) {
         if (this.advancements.containsKey(req)) {
             return completedAdvancements.contains(this.advancements.get(req));
         }
         return false;
     }
-    public boolean isRequirementParentDone(String req, Set<ResourceLocation> completedParents) {
+    public boolean isRequirementParentDone(String req, Set<Identifier> completedParents) {
         if (this.parents.containsKey(req)) {
             return completedParents.contains(this.parents.get(req));
         }
         return false;
     }
-    public boolean isRequirementDone(String req, Set<ResourceLocation> completedParents, Set<ResourceLocation> completedAdvancements) {
+    public boolean isRequirementDone(String req, Set<Identifier> completedParents, Set<Identifier> completedAdvancements) {
         if (this.advancements.containsKey(req) && this.parents.containsKey(req)) {
             return completedAdvancements.contains(this.advancements.get(req)) && completedParents.contains(this.parents.get(req));
         } else if (this.advancements.containsKey(req)) {
@@ -96,13 +96,13 @@ public record Prerequisites(
 
     /**
      * Gets ids of all parent ever mentioned in the requirements (all including "must" and "or")
-     * @return Set of ResourceLocation of parents
+     * @return Set of Identifier of parents
      */
-    public Set<ResourceLocation> getAllParents() {
-        Set<ResourceLocation> out = new HashSet<>();
+    public Set<Identifier> getAllParents() {
+        Set<Identifier> out = new HashSet<>();
         for (List<String> list : this.requirements.requirements()) {
             for (String reqKey : list) {
-                ResourceLocation loc = this.parents.get(reqKey);
+                Identifier loc = this.parents.get(reqKey);
                 if (loc != null) {
                     out.add(loc);
                 }
@@ -114,13 +114,13 @@ public record Prerequisites(
     /**
      * Gets ids of all parents ever mentioned in the requirements, 
      * that when these parents are not met, the requirements will never succeed the test
-     * @return Set of ResourceLocation of "must" parents
+     * @return Set of Identifier of "must" parents
      */
-    public Set<ResourceLocation> getAllMustParents() {
-        Set<ResourceLocation> out = new HashSet<>();
+    public Set<Identifier> getAllMustParents() {
+        Set<Identifier> out = new HashSet<>();
         for (List<String> list : this.requirements.requirements()) {
             if (list.size() == 1) {
-                ResourceLocation loc = this.parents. get(list.getFirst());
+                Identifier loc = this.parents. get(list.getFirst());
                 if (loc != null) out.add(loc);
             }
         }
@@ -129,11 +129,11 @@ public record Prerequisites(
     /**
      * Gets ids of all parents ever mentioned in the requirements, 
      * that do not single-handedly decide failing of the requirements
-     * @return Set of ResourceLocation of "or" parents
+     * @return Set of Identifier of "or" parents
      */
-    public Set<ResourceLocation> getAllOrParents() {
-        Set<ResourceLocation> out = getAllParents();
-        Set<ResourceLocation> musts = getAllMustParents();
+    public Set<Identifier> getAllOrParents() {
+        Set<Identifier> out = getAllParents();
+        Set<Identifier> musts = getAllMustParents();
 
         out.removeAll(musts);
         return out;
@@ -402,7 +402,7 @@ public record Prerequisites(
                 ClientSkillTree skillTree, CompletionStatus completion, ChatFormatting[] textStyle) {
             String indent_space = Prerequisites.RequirementCondition.INDENT_STRING.repeat(indent);
             
-            Optional<ResourceLocation> par = Optional.ofNullable(prerequisites.parents.get(this.key));
+            Optional<Identifier> par = Optional.ofNullable(prerequisites.parents.get(this.key));
             SkillTreeNode parNode = par.isPresent() ? skillTree.getNode(par.get()) : null;
             
             Component advComp = Optional.ofNullable(parNode)
@@ -517,13 +517,13 @@ public record Prerequisites(
         Map<String, Boolean> advancements,
         Map<String, Boolean> parents
     ) {
-        public static CompletionStatus make(Prerequisites prerequisites, Set<ResourceLocation> completedAdvancements, Set<ResourceLocation> completedParents) {
+        public static CompletionStatus make(Prerequisites prerequisites, Set<Identifier> completedAdvancements, Set<Identifier> completedParents) {
             Map<String, Boolean> advancements = new HashMap<>();
-            for (Map.Entry<String, ResourceLocation> entry : prerequisites.advancements.entrySet()) {
+            for (Map.Entry<String, Identifier> entry : prerequisites.advancements.entrySet()) {
                 advancements.put(entry.getKey(), completedAdvancements.contains(entry.getValue()));
             }
             Map<String, Boolean> parents = new HashMap<>();
-            for (Map.Entry<String, ResourceLocation> entry : prerequisites.parents.entrySet()) {
+            for (Map.Entry<String, Identifier> entry : prerequisites.parents.entrySet()) {
                 parents.put(entry.getKey(), completedParents.contains(entry.getValue()));
             }
             return new CompletionStatus(advancements, parents);

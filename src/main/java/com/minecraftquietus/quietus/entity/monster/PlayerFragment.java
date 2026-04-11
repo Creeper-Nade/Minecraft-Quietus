@@ -15,7 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -40,24 +40,24 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animatable.manager.AnimatableManager;
-import software.bernie.geckolib.animatable.processing.AnimationController;
-import software.bernie.geckolib.animatable.processing.AnimationTest;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.util.GeckoLibUtil;
+import com.geckolib.animatable.GeoAnimatable;
+import com.geckolib.animatable.GeoEntity;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animatable.processing.AnimationController;
+import com.geckolib.animatable.processing.AnimationTest;
+import com.geckolib.animation.PlayState;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.constant.DataTickets;
+import com.geckolib.util.GeckoLibUtil;
 
 import java.util.EnumSet;
 import java.util.List;
 
 public class PlayerFragment extends PathfinderMob implements GeoEntity {
     //private static final EntityDataAccessor<ItemStack> HEAD_ITEM = SynchedEntityData.defineId(PlayerGhost.class, EntityDataSerializers.ITEM_STACK);
-    //private ResourceLocation HeadTexture;
-    private static final EntityDataAccessor<ResourceLocation> HeadTexture= SynchedEntityData.defineId(PlayerFragment.class, QuietusEntityDataSerializers.RESOURCE_LOCATION.get());
+    //private Identifier HeadTexture;
+    private static final EntityDataAccessor<Identifier> HeadTexture= SynchedEntityData.defineId(PlayerFragment.class, QuietusEntityDataSerializers.RESOURCE_LOCATION.get());
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private final SimpleContainer lootInventory = new SimpleContainer(27);
     private int storedExperience; // Stores the total XP points
@@ -115,7 +115,7 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
         super.readAdditionalSaveData(tag);
         // Read the texture location from the NBT tag
         if (tag.contains("HeadTexture")) {
-            ResourceLocation savedTexture = ResourceLocation.parse(tag.getStringOr("HeadTexture","null"));
+            Identifier savedTexture = Identifier.parse(tag.getStringOr("HeadTexture","null"));
             this.entityData.set(HeadTexture, savedTexture);
         }
         this.storedExperience = tag.getIntOr("StoredExperience",0);
@@ -135,7 +135,7 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
     public void setPlayerData(Player player) {
         //pass head texture
         Minecraft minecraft = Minecraft.getInstance();
-        ResourceLocation headTex=minecraft.getSkinManager().getInsecureSkin(player.getGameProfile()).texture();
+        Identifier headTex=minecraft.getSkinManager().getInsecureSkin(player.getGameProfile()).texture();
         entityData.set(HeadTexture, headTex);
 
         this.setStoredExperience(calculateTotalExperience(player));
@@ -182,7 +182,7 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
         }
     }
 
-    public ResourceLocation getPlayerHeadTexture()
+    public Identifier getPlayerHeadTexture()
     {
         return entityData.get(HeadTexture);
     }
