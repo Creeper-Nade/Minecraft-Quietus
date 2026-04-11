@@ -1,36 +1,50 @@
 package com.minecraftquietus.quietus.core.DeathRevamp;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.minecraftquietus.quietus.client.handler.ClientPayloadHandler;
 import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
-import com.mojang.blaze3d.buffers.BufferType;
-import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.AddressMode;
+import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StrictJsonParser;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
+import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
@@ -82,7 +96,9 @@ public class GhostDeath{
 
         HolderLookup.Provider registries = player.level().registryAccess();
         String json = nbt.getStringOr("deathMessage","death.attack.generic");
-        Component deathMessage = Component.Serializer.fromJson(json, registries);
+        JsonElement element = StrictJsonParser.parse(json);
+        //change old Component.Serializer.FromJson
+        Component deathMessage = ComponentSerialization.CODEC.parse(registries.createSerializationContext(JsonOps.INSTANCE), element).getOrThrow(JsonParseException::new);
 
         Boolean isGhost = nbt.getBooleanOr("isGhost",false);
         boolean hardcore = player.level().getLevelData().isHardcore();
@@ -114,7 +130,7 @@ public class GhostDeath{
     @SubscribeEvent
     public static void render(RenderGuiEvent.Pre event) {
         if (!ClientPayloadHandler.getInstance().getGhostState() && fade <= 0) return;
-        GuiGraphicsExtractor GuiGraphicsExtractor = event.getGuiGraphicsExtractor();
+        GuiGraphicsExtractor GuiGraphicsExtractor = event.getGuiGraphics();
 
         Minecraft mc = Minecraft.getInstance();
         int width = mc.getWindow().getGuiScaledWidth();
@@ -153,13 +169,13 @@ public class GhostDeath{
         int alpha = (int)(fade * 255);
 
         // Render "You Died" title
-        GuiGraphicsExtractor.pose().pushPose();
-        GuiGraphicsExtractor.pose().scale(2.0F, 2.0F, 2.0F);
+        GuiGraphicsExtractor.pose().pushMatrix();
+        GuiGraphicsExtractor.pose().scale(2.0F, 2.0F);
         Component title = Component.translatable("deathScreen.title").withStyle(ChatFormatting.BOLD);
         int titleWidth = mc.font.width(title);
         int titleX = (width / 2 - titleWidth) / 2;
         GuiGraphicsExtractor.text(mc.font, title, titleX, 30, 0xFF5555 | (alpha << 24), false);
-        GuiGraphicsExtractor.pose().popPose();
+        GuiGraphicsExtractor.pose().popMatrix();
 
         // Render cause of death
         if (deathMessage != null) {
@@ -188,10 +204,10 @@ public class GhostDeath{
             Component countdown = Component.literal(String.valueOf(seconds))
                     .withStyle(ChatFormatting.BOLD);
 
-            GuiGraphicsExtractor.pose().pushPose();
+            GuiGraphicsExtractor.pose().pushMatrix();
             // Apply pulsing scale
             float scale = 2.0f * pulseScale; // Base size is 3x
-            GuiGraphicsExtractor.pose().scale(scale, scale, scale);
+            GuiGraphicsExtractor.pose().scale(scale, scale);
 
             int scaledWidth = (int) (width / scale);
             int scaledHeight = (int) (height / scale)+40;
@@ -208,7 +224,7 @@ public class GhostDeath{
                     false
             );
 
-            GuiGraphicsExtractor.pose().popPose();
+            GuiGraphicsExtractor.pose().popMatrix();
         }
         if(seconds<=3)
         {
@@ -295,17 +311,14 @@ public class GhostDeath{
             .withVertexShader(Identifier.fromNamespaceAndPath(MODID, "core/ghost_effect"))
             .withFragmentShader(Identifier.fromNamespaceAndPath(MODID, "core/ghost_effect"))
             .withSampler("DiffuseSampler")  // Correct sampler declaration
-            .withUniform("ScreenSize", UniformType.VEC2)
-            .withUniform("VignetteIntensity", UniformType.FLOAT)
-            .withUniform("Time", UniformType.FLOAT)  // Add time uniform
-            .withUniform("FadeFactor", UniformType.FLOAT)
-            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            .withUniform("ScreenSize", UniformType.UNIFORM_BUFFER)
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
             .build();
     private static float vignetteIntensity = 0.8f;
     private static GpuBuffer vertexBuffer;
     private static int vertexCount = 0;
+    private static GpuSampler linearSampler;
 
 
     private static void createVertexBuffer() {
@@ -329,22 +342,24 @@ public class GhostDeath{
         bufferBuilder.addVertex(1, 1, 0).setUv(1, 1);
         bufferBuilder.addVertex(1, -1, 0).setUv(1, 0);
 
-        MeshData meshData = bufferBuilder.buildOrThrow();
-        vertexCount = meshData.drawState().vertexCount();
+        MeshData meshData = bufferBuilder.build();
+        if (meshData != null) {
+            vertexCount = meshData.drawState().indexCount();
 
-        vertexBuffer = RenderSystem.getDevice().createBuffer(
-                () -> "Ghost effect vertex buffer",
-                BufferType.VERTICES,
-                BufferUsage.STATIC_WRITE,
-                meshData.vertexBuffer()
-        );
+            // Use GpuBuffer.Usage.VERTEX_BUFFER
+            // meshData.vertexBuffer() provides the ByteBuffer containing the quad data
+            vertexBuffer = RenderSystem.getDevice().createBuffer(
+                    () -> "GhostEffectVertices",
+                    GpuBuffer.USAGE_VERTEX,
+                    meshData.vertexBuffer()
+            );
 
-        meshData.close();
+            meshData.close();
+        }
     }
 
     @SubscribeEvent
-    public static void onRenderLevelLast(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) return;
+    public static void onRenderLevelLast(RenderLevelStageEvent.AfterWeather event) {
         if (!ClientPayloadHandler.getInstance().getGhostState()&& fade <= 0) return;
 
         Minecraft mc = Minecraft.getInstance();
@@ -352,6 +367,16 @@ public class GhostDeath{
         // Create vertex buffer once
         if (vertexBuffer == null) {
             createVertexBuffer();
+        }
+        if (linearSampler == null) {
+            linearSampler = RenderSystem.getDevice().createSampler(
+                    AddressMode.CLAMP_TO_EDGE,    // addressModeU
+                    AddressMode.CLAMP_TO_EDGE,    // addressModeV
+                    FilterMode.LINEAR,    // minFilter
+                    FilterMode.LINEAR,    // magFilter
+                    1,                    // maxAnisotropy (1 = off)
+                    OptionalDouble.empty() // maxLod
+            );
         }
 
         int width = mc.getWindow().getWidth();
@@ -364,10 +389,10 @@ public class GhostDeath{
         //RenderSystem.setShaderTexture(0, renderTarget.getColorTexture());
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
-                .createRenderPass(
-                        renderTarget.getColorTexture(),
+                .createRenderPass(()->"GhostDeathScreen",
+                        renderTarget.getColorTextureView(),
                         OptionalInt.empty(),
-                        renderTarget.getDepthTexture(),
+                        renderTarget.getDepthTextureView(),
                         OptionalDouble.empty()
                 )) {
 
@@ -375,15 +400,36 @@ public class GhostDeath{
             float time = (System.currentTimeMillis() % 100000) / 1000.0f;
             renderPass.setPipeline(ghostPipeline);
 
-            // Set uniforms - use correct format
-            renderPass.setUniform("ScreenSize", (float)width, (float)height);
-            renderPass.setUniform("VignetteIntensity", vignetteIntensity);
-            renderPass.bindSampler("DiffuseSampler", renderTarget.getColorTexture());
-            renderPass.setUniform("Time", time);
-            renderPass.setUniform("FadeFactor", fade);
+            GhostEffectData data = new GhostEffectData(new org.joml.Vector2f(width, height), vignetteIntensity, time, fade);
 
-            renderPass.setVertexBuffer(0, vertexBuffer);
-            renderPass.draw(0, vertexCount);
+            // 2. Prepare the ByteBuffer (std140 alignment)
+            // vec2 (8 bytes) + 3 floats (12 bytes) = 20 bytes total.
+            // We allocate 32 bytes to ensure block alignment.
+            ByteBuffer byteBuffer = org.lwjgl.system.MemoryUtil.memAlloc(32);
+            byteBuffer.putFloat(data.screenSize().x());
+            byteBuffer.putFloat(data.screenSize().y());
+            byteBuffer.putFloat(data.vignetteIntensity());
+            byteBuffer.putFloat(data.time());
+            byteBuffer.putFloat(data.fadeFactor());
+            byteBuffer.flip();
+
+            // 3. Create the GPU Buffer using the signature from GpuDevice.txt
+            try (GpuBuffer uboBuffer = RenderSystem.getDevice().createBuffer(
+                    () -> "GhostUBO",
+                    GpuBuffer.USAGE_UNIFORM,
+                    byteBuffer)) {
+
+                renderPass.setUniform("GhostEffectUbo", uboBuffer.slice());
+
+                // 4. Bind Sampler and Draw
+                renderPass.bindTexture("DiffuseSampler", renderTarget.getColorTextureView(),linearSampler);
+                renderPass.setVertexBuffer(0, vertexBuffer);
+                renderPass.draw(0, vertexCount);
+            } finally {
+                // 5. Free the native memory allocated for the ByteBuffer
+                org.lwjgl.system.MemoryUtil.memFree(byteBuffer);
+            }
+
         }
     }
 
@@ -393,6 +439,17 @@ public class GhostDeath{
             vertexBuffer = null;
         }
         vertexCount = 0;
+    }
+    public record GhostEffectData(Vector2fc screenSize, float vignetteIntensity, float time, float fadeFactor) {
+
+        public static final Codec<GhostEffectData> CODEC = RecordCodecBuilder.create(instance ->
+                instance.group(
+                        ExtraCodecs.VECTOR2F.fieldOf("ScreenSize").forGetter(GhostEffectData::screenSize),
+                        Codec.FLOAT.fieldOf("VignetteIntensity").forGetter(GhostEffectData::vignetteIntensity),
+                        Codec.FLOAT.fieldOf("Time").forGetter(GhostEffectData::time),
+                        Codec.FLOAT.fieldOf("FadeFactor").forGetter(GhostEffectData::fadeFactor)
+                ).apply(instance, GhostEffectData::new)
+        );
     }
 
 }

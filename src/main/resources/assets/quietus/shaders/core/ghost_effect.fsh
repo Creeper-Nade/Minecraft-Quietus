@@ -2,11 +2,13 @@
 in vec2 texCoord;
 out vec4 fragColor;
 
+layout(std140) uniform GhostEffectUbo {
+    vec2 ScreenSize;
+    float VignetteIntensity;
+    float Time;
+    float FadeFactor;
+};
 uniform sampler2D DiffuseSampler;
-uniform vec2 ScreenSize;
-uniform float VignetteIntensity;
-uniform float Time;
-uniform float FadeFactor;
 
 // Large-scale noise function
 float largeNoise(vec2 uv) {
