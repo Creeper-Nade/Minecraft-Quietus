@@ -136,7 +136,7 @@ public record SkillPoint(
 
     public record DisplayInfo(
         SkillPointType type,
-        Optional<ClientAsset> icon,
+        Optional<ClientAsset.ResourceTexture> icon,
         Component header,
         Component description,
         Prerequisites.DisplayInfo prerequisites
@@ -144,7 +144,7 @@ public record SkillPoint(
         public static final Codec<DisplayInfo> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
                 SkillPointType.CODEC.optionalFieldOf("type", SkillPointType.SQUARE).forGetter(DisplayInfo::type),
-                ClientAsset.CODEC.optionalFieldOf("icon").forGetter(DisplayInfo::icon),
+                ClientAsset.ResourceTexture.CODEC.optionalFieldOf("icon").forGetter(DisplayInfo::icon),
                 ComponentSerialization.CODEC.fieldOf("header").forGetter(DisplayInfo::header),
                 ComponentSerialization.CODEC.fieldOf("description").forGetter(DisplayInfo::description),
                 Prerequisites.DisplayInfo.CODEC.fieldOf("prerequisites").forGetter(DisplayInfo::prerequisites)
@@ -175,7 +175,7 @@ public record SkillPoint(
                 if (t.index() == typeIndex) 
                     type = t;
             }
-            Optional<ClientAsset> icon = (i&1)!=0 ? Optional.of(new ClientAsset(buffer.readIdentifier())) : Optional.empty();
+            Optional<ClientAsset.ResourceTexture> icon = (i&1)!=0 ? Optional.of(new ClientAsset.ResourceTexture(buffer.readIdentifier())) : Optional.empty();
             Component header = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Component description = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Prerequisites.DisplayInfo prerequisitesDisplayInfo = Prerequisites.DisplayInfo.STREAM_CODEC.decode(buffer);

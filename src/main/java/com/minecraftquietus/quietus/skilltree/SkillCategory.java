@@ -112,14 +112,14 @@ public class SkillCategory {
     }
 
     public record DisplayInfo(
-        Optional<ClientAsset> icon,
+        Optional<ClientAsset.ResourceTexture> icon,
         Component name,
         Component description,
         Prerequisites.DisplayInfo prerequisites
     ) {
         public static final Codec<DisplayInfo> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                ClientAsset.CODEC.optionalFieldOf("icon").forGetter(DisplayInfo::icon),
+                ClientAsset.ResourceTexture.CODEC.optionalFieldOf("icon").forGetter(DisplayInfo::icon),
                 ComponentSerialization.CODEC.fieldOf("name").forGetter(DisplayInfo::name),
                 ComponentSerialization.CODEC.fieldOf("description").forGetter(DisplayInfo::description),
                 Prerequisites.DisplayInfo.CODEC.fieldOf("prerequisites").forGetter(DisplayInfo::prerequisites)
@@ -141,7 +141,7 @@ public class SkillCategory {
         }
         private static DisplayInfo deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
             int i = buffer.readInt();
-            Optional<ClientAsset> icon = (i&1)!=0 ? Optional.of(new ClientAsset(buffer.readIdentifier())) : Optional.empty();
+            Optional<ClientAsset.ResourceTexture> icon = (i&1)!=0 ? Optional.of(new ClientAsset.ResourceTexture(buffer.readIdentifier())) : Optional.empty();
             Component name = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Component description = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Prerequisites.DisplayInfo prerequisitesDisplayInfo = Prerequisites.DisplayInfo.STREAM_CODEC.decode(buffer);
