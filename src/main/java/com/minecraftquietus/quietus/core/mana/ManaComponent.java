@@ -7,13 +7,15 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
 import static com.minecraftquietus.quietus.util.QuietusAttributes.MAX_MANA;
 
 
-public class ManaComponent implements INBTSerializable<CompoundTag> {
+public class ManaComponent implements ValueIOSerializable {
     private int mana;
     private int maxMana = 20;
     private boolean is_fast_charging=false;
@@ -38,17 +40,14 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
         //this.maxMana= (int)attributes.getValue(MAX_MANA);
         this.maxMana=0;
     }*/
-
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag nbt = new CompoundTag();
-        nbt.putInt("mana", this.mana);
-        return nbt;
+    public void serialize(ValueOutput output) {
+        output.putInt("mana", this.mana);
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        this.mana = nbt.getIntOr("mana",10);
+    public void deserialize(ValueInput input) {
+        this.mana = input.getIntOr("mana",10);
     }
 
 
@@ -192,9 +191,6 @@ public class ManaComponent implements INBTSerializable<CompoundTag> {
             PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer,this);
         }
     }
-
-
-
 
 }
 

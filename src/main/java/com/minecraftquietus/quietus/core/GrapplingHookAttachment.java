@@ -2,10 +2,12 @@ package com.minecraftquietus.quietus.core;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 
-public class GrapplingHookAttachment implements INBTSerializable<CompoundTag> {
+public class GrapplingHookAttachment implements ValueIOSerializable {
     private int hookEntityId = -1;
     public GrapplingHookAttachment() {}
 
@@ -25,15 +27,14 @@ public class GrapplingHookAttachment implements INBTSerializable<CompoundTag> {
         return hookEntityId!=-1;
     }
 
+
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("HookEntityId", hookEntityId);
-        return tag;
+    public void serialize(ValueOutput output) {
+        output.putInt("HookEntityId", hookEntityId);
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag compoundTag) {
-        hookEntityId = compoundTag.getIntOr("HookEntityId",-1);
+    public void deserialize(ValueInput input) {
+        hookEntityId = input.getIntOr("HookEntityId",-1);
     }
 }
