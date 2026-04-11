@@ -5,18 +5,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.jetbrains.annotations.UnknownNullability;
 
 import com.minecraftquietus.quietus.core.QuietusRegistries;
 
-import net.minecraft.core.HolderLookup.Provider;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
-public class SkillComponent implements INBTSerializable<CompoundTag> {
+public class SkillComponent implements ValueIOSerializable {
     public static final String TAG_LIST_SKILLS = "skills";
 
     private final Map<Skill,Map<String,Integer>> skillMap = new HashMap<>();
@@ -61,44 +58,37 @@ public class SkillComponent implements INBTSerializable<CompoundTag> {
     }
 
     @Override
-    public @UnknownNullability CompoundTag serializeNBT(Provider provider) {
-        CompoundTag nbt = new CompoundTag();
+    public void serialize(ValueOutput output) {
+        ValueOutput.ValueOutputList list = output.childrenList("skills");
 
-        ListTag list = new ListTag();
         this.skillMap.forEach((skill, levelsMap) -> {
-            CompoundTag skill_tag = new CompoundTag();
-            skill_tag.putString("id", skill.id.location().toString());
-            ListTag list2 = new ListTag();
+            ValueOutput skill_tag = list.addChild();
+            skill_tag.putString("id", skill.id.identifier().toString());
+            ValueOutput.ValueOutputList list2 = skill_tag.childrenList("levels");
             this.skillMap.get(skill).forEach((source, level) -> {
-                CompoundTag levels_tag = new CompoundTag();
+                ValueOutput levels_tag = list2.addChild();
                 levels_tag.putString("source", source);
                 levels_tag.putInt("level", level);
-                list2.add(levels_tag);
             });
-            skill_tag.put("levels", list2);
-            list.add(skill_tag);
         });
-
-        nbt.put(TAG_LIST_SKILLS, list);
-        return nbt;
     }
 
     @Override
-    public void deserializeNBT(Provider provider, CompoundTag nbt) {
+    public void deserialize(ValueInput input) {
         this.skillMap.clear();
 
-        ListTag list = nbt.getListOrEmpty(TAG_LIST_SKILLS);
-        for (Tag tag : list) { if (tag instanceof CompoundTag tag2) {
-            Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(Identifier.parse(tag2.getStringOr("id", "quietus:none")));
+        ValueInput.ValueInputList list = input.childrenListOrEmpty("skills");
+        for (ValueInput tag : list) {
+            Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(Identifier.parse(tag.getStringOr("id", "quietus:none")));
             Map<String,Integer> levelsMap = new HashMap<>();
-            ListTag list2 = tag2.getListOrEmpty("levels");
-            for (Tag tag3 : list2) { if (tag3 instanceof CompoundTag tag4) {
-                String source = tag4.getStringOr("source", "none");
-                int level = tag4.getIntOr("level", 1);
+            ValueInput.ValueInputList list2 = tag.childrenListOrEmpty("levels");
+            for (ValueInput tag2 : list2) {
+                String source = tag2.getStringOr("source", "none");
+                int level = tag2.getIntOr("level", 1);
                 levelsMap.put(source, level);
-            }}
+            }
             this.skillMap.put(skill, levelsMap);
-        }}
+        }
     }
 
 }
