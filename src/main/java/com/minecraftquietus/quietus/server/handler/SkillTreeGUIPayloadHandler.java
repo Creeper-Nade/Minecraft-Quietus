@@ -31,7 +31,7 @@ public class SkillTreeGUIPayloadHandler {
             SkillTreeUpdatePacket returnPacket = PlayerClientPacketDistributor.makeClientboundSkillTreePack(serverPlayer);
             context.reply(returnPacket);
         } */
-        MinecraftServer server = context.player().getServer();
+        MinecraftServer server = context.player().level().getServer();
         if (Objects.nonNull(server)) {
             ServerPlayer player = server.getPlayerList().getPlayer(context.player().getUUID());
             if (Objects.nonNull(player)) {

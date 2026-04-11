@@ -21,6 +21,8 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceKeyArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 
 public class SkillCommands {
 
@@ -32,7 +34,7 @@ public class SkillCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
           Commands.literal("skill")
-            .requires(thing -> thing.hasPermission(2))
+            .requires(stack -> stack.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)))
             .then(
               Commands.literal("add")
               .then(
@@ -47,7 +49,7 @@ public class SkillCommands {
                         (CommandSourceStack)context.getSource(), 
                         EntityArgument.getPlayers(context, "targets"), 
                         Action.ADD, 
-                        QuietusRegistries.SKILL_REGISTRY.getValue(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL)), 
+                        context.getSource().registryAccess().lookupOrThrow(QuietusRegistries.SKILL_REGISTRY_KEY).getOrThrow(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL)).value(),
                         IntegerArgumentType.getInteger(context, "amount"),
                         StringArgumentType.getString(context, "source")
                       ))
@@ -70,7 +72,7 @@ public class SkillCommands {
                         (CommandSourceStack)context.getSource(), 
                         EntityArgument.getPlayers(context, "targets"), 
                         Action.REMOVE, 
-                        QuietusRegistries.SKILL_REGISTRY.getValue(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL)), 
+                        context.getSource().registryAccess().lookupOrThrow(QuietusRegistries.SKILL_REGISTRY_KEY).getOrThrow(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL)).value(),
                         IntegerArgumentType.getInteger(context, "amount"),
                         StringArgumentType.getString(context, "source")
                       ))
@@ -89,7 +91,7 @@ public class SkillCommands {
                     (CommandSourceStack)context.getSource(), 
                     EntityArgument.getPlayer(context, "target"), 
                     Action.GET, 
-                    QuietusRegistries.SKILL_REGISTRY.getValue(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL))
+                    context.getSource().registryAccess().lookupOrThrow(QuietusRegistries.SKILL_REGISTRY_KEY).getOrThrow(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL)).value()
                   ))
                   .then(
                     Commands.argument("source", StringArgumentType.string())
@@ -97,7 +99,7 @@ public class SkillCommands {
                       (CommandSourceStack)context.getSource(), 
                       EntityArgument.getPlayer(context, "target"), 
                       Action.GET, 
-                      QuietusRegistries.SKILL_REGISTRY.getValue(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL)), 
+                      context.getSource().registryAccess().lookupOrThrow(QuietusRegistries.SKILL_REGISTRY_KEY).getOrThrow(ResourceKeyArgument.getRegistryKey(context, "skill", QuietusRegistries.SKILL_REGISTRY_KEY, ERROR_INVALID_SKILL)).value(),
                       StringArgumentType.getString(context, "source")
                     ))
                   )

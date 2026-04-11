@@ -58,9 +58,6 @@ public class PlayerClientPacketDistributor {
     public static void sendGrapplePhysicsPackToEntity(ServerPlayer serverPlayer, Vec3 velocity) {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(serverPlayer, GrapplingHookPhysicsPacket.fromVelocity(velocity));
     }
-    public static void sendGrappleJumpPackToServer() {
-        PacketDistributor.sendToServer(new GrapplingJumpReleasePacket());
-    }
     public static void sendGrappleActivityPackToEntity(ServerPlayer serverPlayer, Boolean active,int id) {
         PacketDistributor.sendToPlayer(serverPlayer,new GrapplingActiveHookPacket(active,id));
     }

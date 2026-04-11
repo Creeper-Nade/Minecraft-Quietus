@@ -30,7 +30,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 
-import net.minecraft.FileUtil;
+import net.minecraft.util.FileUtil;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
