@@ -100,8 +100,9 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
      */
     @Override
     public final CompletableFuture<Void> reload(
-        PreparableReloadListener.PreparationBarrier barrier, ResourceManager manager, Executor backgroundExecutor, Executor gameExecutor
+        SharedState sharedState, Executor backgroundExecutor, PreparableReloadListener.PreparationBarrier barrier, Executor gameExecutor
     ) {
+        ResourceManager manager = sharedState.resourceManager();
         CompletableFuture<Map<Identifier, SkillPoint>> skillPointLoad = CompletableFuture.supplyAsync(() -> this.prepareSkillPoints(manager, Profiler.get()), backgroundExecutor);
         return CompletableFuture.supplyAsync(() -> this.prepareSkillCategories(manager, Profiler.get()), backgroundExecutor)
             .thenCompose(barrier::wait)

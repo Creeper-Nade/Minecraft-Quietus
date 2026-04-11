@@ -30,5 +30,6 @@
         }
     },
     "workbench.preferredDarkColorTheme": "Dark+",
-    "workbench.preferredLightColorTheme": "Light Modern"
+    "workbench.preferredLightColorTheme": "Light Modern",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
