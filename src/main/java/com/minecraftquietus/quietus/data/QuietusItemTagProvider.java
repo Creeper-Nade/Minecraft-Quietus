@@ -5,16 +5,15 @@ import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.tags.QuietusTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.common.data.ItemTagsProvider;
 
 import java.util.concurrent.CompletableFuture;
 
 public class QuietusItemTagProvider extends ItemTagsProvider {
-    public QuietusItemTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider,
-                              CompletableFuture<TagLookup<Block>> blockTags) {
-        super(output, lookupProvider, blockTags, Quietus.MODID);
+    public QuietusItemTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, Quietus.MODID);
     }
     @Override
     protected void addTags(HolderLookup.Provider provider) {

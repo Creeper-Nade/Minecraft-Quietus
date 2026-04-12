@@ -27,7 +27,7 @@ public class QuietusEnchantmentTagProvider extends EnchantmentTagsProvider {
                 .add(QuietusEnchantments.ACUPUNCTURE);
         this.tag(EnchantmentTags.TRADES_SNOW_COMMON)
                 .add(QuietusEnchantments.IMPACT);
-        this.tag(EnchantmentTags.TRADES_SWAMP_SPECIAL)
+        this.tag(EnchantmentTags.TRADES_JUNGLE_COMMON)
                 .add(QuietusEnchantments.CONSERVATION);
     }
 }

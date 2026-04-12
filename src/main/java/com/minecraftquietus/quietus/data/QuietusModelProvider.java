@@ -9,6 +9,7 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.model.*;
+import net.minecraft.client.renderer.block.model.BlockStateModelWrapper;
 import net.minecraft.client.renderer.item.*;
 import net.minecraft.client.renderer.item.properties.numeric.UseDuration;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
@@ -19,7 +20,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.Block;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
@@ -37,8 +41,8 @@ public class QuietusModelProvider extends ModelProvider {
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels)
     {
        //flat items
-        RegisterBasicModel(itemModels,QuietusItems.HARDENED_FUR.get(),"item/ingredients/");
-       // itemModels.generateFlatItem(QuietusItems.HARDENED_FUR.get(), ModelTemplates.FLAT_ITEM);
+        //RegisterBasicModel(itemModels,QuietusItems.HARDENED_FUR.get(),"item/ingredients/");
+        itemModels.itemModelOutput.accept(QuietusItems.HARDENED_FUR.get(),ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID,"item/ingredients/hardened_fur")));
         itemModels.generateFlatItem(QuietusItems.EXAMPLE_ITEM.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(QuietusItems.MOLD.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(QuietusItems.MOLD_BOWL.get(), ModelTemplates.FLAT_ITEM);
@@ -47,7 +51,7 @@ public class QuietusModelProvider extends ModelProvider {
         itemModels.generateFlatItem(QuietusItems.CHEESE_BUCKET.get(), ModelTemplates.FLAT_ITEM);
 
     //handheld
-        RegisterBasicModel(itemModels,QuietusItems.AMETHYST_STAFF.get(),"item/combat/magic_weapon/");
+        itemModels.itemModelOutput.accept(QuietusItems.AMETHYST_STAFF.get(),ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID,"item/combat/magic_weapon/amethyst_staff")));
         itemModels.generateFlatItem(QuietusItems.WEIRD_AMETHYST_STAFF.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         //RegisterBasicModel(itemModels,QuietusItems.CHAIN_GRAPPLING_HOOK.get(),"item/tools/grapples/");
 
@@ -165,36 +169,7 @@ public class QuietusModelProvider extends ModelProvider {
         blockModels.createTrivialCube(QuietusBlocks.EXAMPLE_BLOCK.get());
 
     }
-/*
-    public void SetItemLocation(ItemModelGenerators itemModels,Item item, String model_location)
-    {
-        RegisterClientItem(itemModels,item);
-        RegisterBasicModel(itemModels,item,model_location);
-    }
-
-    public void RegisterClientItem(ItemModelGenerators itemModels,Item item)
-    {
-        itemModels.itemModelOutput.register(
-                item,
-                new ClientItem(
-                        // Defines the model to render
-                        new BlockModelWrapper.Unbaked(
-                                // Points to a model JSON relative to the 'models' directory
-                                // Located at 'assets/examplemod/models/item/example_item.json'
-                                ModelLocationUtils.getModelLocation(item),
-                                Collections.emptyList()
-                        ),
-                        // Defines some settings to use during the rendering process
-                        new ClientItem.Properties(
-                                // When false, disables the animation where the item is raised
-                                // up towards its normal position on item swap
-                                false
-                        )
-                )
-        );
-    }*/
-
-    public void RegisterBow(ItemModelGenerators itemModels, Item item, String location)
+    public void RegisterBow(@NonNull ItemModelGenerators itemModels, Item item, String location)
     {
         Identifier Identifier= BuiltInRegistries.ITEM.getKey(item);
         ItemModel.Unbaked itemmodel$unbaked = ItemModelUtils.plainModel(Identifier.withPrefix(location));
@@ -205,21 +180,6 @@ public class QuietusModelProvider extends ModelProvider {
                item, ItemModelUtils.conditional(ItemModelUtils.isUsingItem(), ItemModelUtils.rangeSelect(new UseDuration(false), 0.05F, itemmodel$unbaked1, new RangeSelectItemModel.Entry[]{ItemModelUtils.override(itemmodel$unbaked2, 0.65F), ItemModelUtils.override(itemmodel$unbaked3, 0.9F)}), itemmodel$unbaked)
         );
     }
-    public void RegisterBasicModel(ItemModelGenerators itemModels, Item item, String location)
-    {
-        Identifier Identifier= BuiltInRegistries.ITEM.getKey(item);
-        itemModels.itemModelOutput.accept(
-                item,
-                new BlockModelWrapper.Unbaked(
-                        // Points to a model JSON relative to the 'models' directory
-                        // Located at 'assets/examplemod/models/item/example_item.json'
-                        Identifier.withPrefix(location),
-                        Collections.emptyList()
-                )
-        );
-    }
-
-
 
     @Override
     protected Stream<? extends Holder<Block>> getKnownBlocks() {
