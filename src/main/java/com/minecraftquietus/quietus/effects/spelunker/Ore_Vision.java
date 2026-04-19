@@ -2,13 +2,9 @@ package com.minecraftquietus.quietus.effects.spelunker;
 
 import com.minecraftquietus.quietus.Quietus;
 import com.minecraftquietus.quietus.effects.QuietusMobEffects;
-import com.mojang.blaze3d.buffers.BufferType;
-import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.DepthTestFunction;
+import com.mojang.blaze3d.pipeline.*;
+import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.vertex.*;
@@ -17,6 +13,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.gizmos.GizmoStyle;
+import net.minecraft.gizmos.Gizmos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -43,16 +41,15 @@ public class Ore_Vision {
     private static Vec3 lastPlayerPos = null;
     private static final double MOVEMENT_THRESHOLD_SQ = 0.1 * 0.1;
 
-    public static RenderPipeline LINES_NO_DEPTH = RenderPipeline.builder(RenderPipelines.MATRICES_COLOR_SNIPPET)
+    public static RenderPipeline LINES_NO_DEPTH = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
             .withLocation("pipeline/xray_lines")
             .withVertexShader("core/rendertype_lines")
             .withFragmentShader(Identifier.fromNamespaceAndPath(MODID, "core/orevision_line"))
-            .withUniform("LineWidth", UniformType.FLOAT)
-            .withUniform("ScreenSize", UniformType.VEC2)
-            .withBlend(BlendFunction.TRANSLUCENT)
+            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINES)
-            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            //view https://github.com/neoforged/.github/blob/89b8119f521b3c60e5d736828e606918d1594d1a/primers/26.1/index.md#pipeline-depth-and-color for depth and blend change
+            .withDepthStencilState(new DepthStencilState(CompareOp.NEVER_PASS, false))
             .build();
 
 
@@ -108,14 +105,10 @@ public class Ore_Vision {
     }
 
 @SubscribeEvent
-    public static void onWorldRenderLast(RenderLevelStageEvent event) {
+    public static void onWorldRenderLast(RenderLevelStageEvent.AfterWeather event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         PoseStack poseStack = event.getPoseStack();
-
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
-            return;
-        }
 
         if (player.hasEffect(QuietusMobEffects.SPELUNKING_EFFECT) && player != null) {
             // this is a world pos of the player
@@ -125,7 +118,6 @@ public class Ore_Vision {
         else
         {
             Ore_Vision.clearAllOutlines();
-            return;
         }
     }
 
@@ -162,11 +154,15 @@ public class Ore_Vision {
                 float b = (colorHex & 0xFF) / 255f;
 
                 AABB box = new AABB(pos).inflate(-0.002);
-                ShapeRenderer.renderLineBox(poseStack, bufferBuilder, box, r, g, b, 1.0f);
+                // Create a stroke style with your color
+                GizmoStyle style = GizmoStyle.stroke(colorHex);
+
+                // Replace ShapeRenderer.renderLineBox with Gizmos.cuboid
+                Gizmos.cuboid(box, style);
             });
             try (MeshData meshData = bufferBuilder.buildOrThrow()) {
                 vertexBuffer = RenderSystem.getDevice()
-                        .createBuffer(() -> "Xray vertex buffer", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.vertexBuffer());
+                        .createBuffer(() -> "Spelunker vertex buffer", GpuBuffer.USAGE_VERTEX, meshData.vertexBuffer());
 
 
                 indexCount = meshData.drawState().indexCount();
@@ -174,7 +170,7 @@ public class Ore_Vision {
         }
 
         if (indexCount != 0) {
-            Vec3 playerPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().reverse();
+            Vec3 playerPos = Minecraft.getInstance().gameRenderer.getMainCamera().position().reverse();
 
             RenderTarget renderTarget = Minecraft.getInstance().getMainRenderTarget();
             if (renderTarget.getColorTexture() == null) {
@@ -185,7 +181,7 @@ public class Ore_Vision {
             GpuBuffer gpuBuffer = indices.getBuffer(indexCount);
             try (RenderPass renderPass = RenderSystem.getDevice()
                     .createCommandEncoder()
-                    .createRenderPass(renderTarget.getColorTexture(), OptionalInt.empty(), renderTarget.getDepthTexture(), OptionalDouble.empty())) {
+                    .createRenderPass(()->"Spelunker",renderTarget.getColorTextureView(), OptionalInt.empty(), renderTarget.getDepthTextureView(), OptionalDouble.empty())) {
 
                 Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
                 matrix4fStack.pushMatrix();
@@ -194,7 +190,7 @@ public class Ore_Vision {
                 renderPass.setPipeline(pipeline);
                 renderPass.setIndexBuffer(gpuBuffer, indices.type());
                 renderPass.setVertexBuffer(0, vertexBuffer);
-                renderPass.drawIndexed(0, indexCount);
+                renderPass.drawIndexed(0,0, indexCount,1);
 
                 matrix4fStack.popMatrix();
             }

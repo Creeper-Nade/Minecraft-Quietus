@@ -7,8 +7,10 @@ import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -312,6 +314,7 @@ public class GhostDeath{
             .withFragmentShader(Identifier.fromNamespaceAndPath(MODID, "core/ghost_effect"))
             .withSampler("DiffuseSampler")  // Correct sampler declaration
             .withUniform("ScreenSize", UniformType.UNIFORM_BUFFER)
+            .withDepthStencilState(new DepthStencilState(CompareOp.NEVER_PASS, false))
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
             .build();

@@ -1,9 +1,12 @@
 package com.minecraftquietus.quietus.enchantment;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
+import net.minecraft.world.level.storage.loot.Validatable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -15,7 +18,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 public interface QuietusEnchantmentComponent {
 
-    public static final DeferredRegister.DataComponents ENCHANTMENT_COMPONENT_TYPES =
+    DeferredRegister.DataComponents ENCHANTMENT_COMPONENT_TYPES =
             DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, MODID);
 
     //Codec<DataComponentType<?>> COMPONENT_CODEC = Codec.lazyInitialized(() -> BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE.byNameCodec());
@@ -39,15 +42,19 @@ public static final DeferredHolder<DataComponentType<?>, DataComponentType<Condi
                         .persistent(ConditionalEffect.codec(crit_chance.CODEC, LootContextParamSets.ENCHANTED_DAMAGE))
                         .build());*/
 
-    public static final Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> CRIT_CHANCE =  ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
-            "crit_chance", builder -> builder.persistent(ConditionalEffect.codec(EnchantmentValueEffect.CODEC, LootContextParamSets.ENCHANTED_DAMAGE).listOf())
+    Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> CRIT_CHANCE =  ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
+            "crit_chance", builder -> builder.persistent(validatedListCodec(ConditionalEffect.codec(EnchantmentValueEffect.CODEC), LootContextParamSets.ENCHANTED_DAMAGE))
     );
 
-    public static final Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> MANA_COST_REDUCTION =  ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
-            "mana_cost_reduction", builder -> builder.persistent(ConditionalEffect.codec(EnchantmentValueEffect.CODEC, LootContextParamSets.ENCHANTED_ITEM).listOf())
+    Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> MANA_COST_REDUCTION =  ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
+            "mana_cost_reduction", builder -> builder.persistent(validatedListCodec(ConditionalEffect.codec(EnchantmentValueEffect.CODEC),LootContextParamSets.ENCHANTED_ITEM))
     );
 
-    public static void register(IEventBus eventBus)
+    private static <T extends Validatable> Codec<List<T>> validatedListCodec(Codec<T> elementCodec, ContextKeySet paramSet) {
+        return elementCodec.listOf().validate(Validatable.listValidatorForContext(paramSet));
+    }
+
+    static void register(IEventBus eventBus)
     {
         ENCHANTMENT_COMPONENT_TYPES.register(eventBus);
     }
