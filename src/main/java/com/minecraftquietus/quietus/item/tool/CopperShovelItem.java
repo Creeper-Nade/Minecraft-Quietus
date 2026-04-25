@@ -68,7 +68,7 @@ public class CopperShovelItem extends WeatheringCopperItem {
             }
 
             if (blockstate2 != null) {
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     level.setBlock(blockpos, blockstate2, 11);
                     level.gameEvent(GameEvent.BLOCK_CHANGE, blockpos, GameEvent.Context.of(player, blockstate2));
                     if (player != null) {

@@ -25,7 +25,7 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 import org.slf4j.Logger;
 
-@EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = MODID)
 public class SkillTreeClientAdvancementsSync {
     private static final Logger LOGGER = LogUtils.getLogger();
     
@@ -41,7 +41,7 @@ public class SkillTreeClientAdvancementsSync {
             Set<Identifier> requiredAdvancements = QuietusReloadableResources.getRequiredAdvancements();
             if (player instanceof ServerPlayer serverPlayer) {
                 PlayerAdvancements playerAdvancements = serverPlayer.getAdvancements();
-                ServerAdvancementManager advancementTree = serverPlayer.getServer().getAdvancements();
+                ServerAdvancementManager advancementTree = serverPlayer.level().getServer().getAdvancements();
 
                 Set<Identifier> completedRequired = requiredAdvancements.stream()
                     .filter(id -> {

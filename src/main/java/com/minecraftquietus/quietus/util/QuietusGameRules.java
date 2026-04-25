@@ -2,21 +2,23 @@ package com.minecraftquietus.quietus.util;
 
 import com.mojang.serialization.DynamicLike;
 import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRuleCategory;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
 public class QuietusGameRules {
-    public static GameRules.Key<GameRules.BooleanValue> GHOST_MODE_ENABLED;
-    public static GameRules.Key<GameRules.BooleanValue> FRAGMENT_SPAWNING;
-    public static GameRules.Key<GameRules.IntegerValue> TICKS_PER_DECAY;
+    public static GameRule<Boolean> GHOST_MODE_ENABLED;
+    public static GameRule<Boolean> FRAGMENT_SPAWNING;
+    public static GameRule<Integer> TICKS_PER_DECAY;
 
     public static void Init()
     {
-        GHOST_MODE_ENABLED = GameRules.register("doDeathSpectating", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
-        FRAGMENT_SPAWNING = GameRules.register("keepInventoryPartially", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true));
-        TICKS_PER_DECAY = GameRules.register("ticksPerDecay", GameRules.Category.UPDATES, GameRules.IntegerValue.create(100));
+        GHOST_MODE_ENABLED = GameRules.registerBoolean("doDeathSpectating", GameRuleCategory.PLAYER, true);
+        FRAGMENT_SPAWNING = GameRules.registerBoolean("keepInventoryPartially", GameRuleCategory.PLAYER, true);
+        TICKS_PER_DECAY = GameRules.registerInteger("ticksPerDecay", GameRuleCategory.UPDATES, 100,0);
     }
 
 

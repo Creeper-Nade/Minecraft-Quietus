@@ -60,8 +60,10 @@ import com.minecraftquietus.quietus.entity.ai.goal.ParabolaAttackGoal;
 import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.minecraftquietus.quietus.item.tool.QuietusProjectileWeaponItem;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
-public class Paraboler extends AbstractSkeleton {
+public class Paraboler extends Skeleton {
 
     private final RangedBowAttackGoal<AbstractSkeleton> bowGoal;
     private final ParabolaAttackGoal<AbstractSkeleton> parabolaBowGoal;
@@ -124,12 +126,12 @@ public class Paraboler extends AbstractSkeleton {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
+    public void addAdditionalSaveData(ValueOutput tag) {
         super.addAdditionalSaveData(tag);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
+    public void readAdditionalSaveData(ValueInput tag) {
         super.readAdditionalSaveData(tag);
     } 
 
@@ -202,7 +204,7 @@ public class Paraboler extends AbstractSkeleton {
         if (bowGoal == null || parabolaBowGoal == null || meleeGoal == null) {
             return; // stop if goals are not yet initialzed (expected to stop the call on this method by constructor by super AbstractSkeleton)
         }
-        if (this.level() != null && !this.level().isClientSide) {
+        if (this.level() != null && !this.level().isClientSide()) {
             // removal of actual goals
             this.goalSelector.removeGoal(this.parabolaBowGoal);
             this.goalSelector.removeGoal(this.bowGoal);

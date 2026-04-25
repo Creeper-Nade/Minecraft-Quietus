@@ -42,7 +42,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -166,11 +167,11 @@ public class QuietusCommonEvents {
     public static void onServerStarting(ServerStartingEvent event) {
         // Register your known conflicts
         GameruleConflictManager.registerConflict(
-                GameRules.RULE_KEEPINVENTORY,
+                GameRules.KEEP_INVENTORY,
                 QuietusGameRules.FRAGMENT_SPAWNING
         );
         GameruleConflictManager.registerConflict(
-                GameRules.RULE_DO_IMMEDIATE_RESPAWN,
+                GameRules.IMMEDIATE_RESPAWN,
                 QuietusGameRules.GHOST_MODE_ENABLED
         );
     }
@@ -218,8 +219,8 @@ public class QuietusCommonEvents {
             player.sendSystemMessage(reminder);
         }
     }
-    private static void sendConflictMessage(ServerPlayer player, GameRules.Key<?> rule1, GameRules.Key<?> rule2) {
-        Component conflictedGamerules = Component.literal(rule1.getId() + " & " + rule2.getId()).withStyle(ChatFormatting.YELLOW);
+    private static void sendConflictMessage(ServerPlayer player, GameRule<?> rule1, GameRule<?> rule2) {
+        Component conflictedGamerules = Component.literal(rule1.id() + " & " + rule2.id()).withStyle(ChatFormatting.YELLOW);
         player.sendSystemMessage(conflictedGamerules);
         if (Objects.nonNull(Quietus.playerData)) {
             Quietus.playerData.loadPlayer(player);
@@ -368,14 +369,14 @@ public class QuietusCommonEvents {
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);
             //ManaHudOverlay.SetTick(serverPlayer);
-            GameRules gameRules = serverPlayer.serverLevel().getGameRules();
+            GameRules gameRules = serverPlayer.level().getGameRules();
 
             //Placeholder method for enabling/disabling death screen in relation to the ghost mode, might be changed in the future
             LocalPlayer localPlayer= Minecraft.getInstance().player;
-            if(gameRules.getBoolean(QuietusGameRules.GHOST_MODE_ENABLED) &&localPlayer!=null) {
+            if(gameRules.get(QuietusGameRules.GHOST_MODE_ENABLED) &&localPlayer!=null) {
                 if (localPlayer.shouldShowDeathScreen()) localPlayer.setShowDeathScreen(false);
             }
-            else if(!gameRules.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN) &&localPlayer!=null) {
+            else if(!gameRules.get(GameRules.IMMEDIATE_RESPAWN) &&localPlayer!=null) {
                 if (!localPlayer.shouldShowDeathScreen()) localPlayer.setShowDeathScreen(true);
             }
 

@@ -20,6 +20,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.world.level.gamerules.GameRules;
 import org.slf4j.Logger;
 
 import net.minecraft.client.Minecraft;
@@ -63,7 +65,6 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-import static net.minecraft.world.level.GameRules.RULE_RANDOMTICKING;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
@@ -157,7 +158,7 @@ public class WeatheringHandler {
         }
         if (random.nextFloat() < tick_chance) {
             if (WeatheringItem.canWeather(itemstack.getItem())) { // only if this item is weatherable, and also take in random ticking chance
-                Optional<Item> next_optional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.dimensionType().ultraWarm());
+                Optional<Item> next_optional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.environmentAttributes().getDimensionValue(EnvironmentAttributes.WATER_EVAPORATES));
                 if (next_optional.isPresent()) {
                     itemstack = makeNewWeatheredStack(next_optional, itemstack);
                     hasChangedItem = true;
@@ -518,13 +519,13 @@ public class WeatheringHandler {
         player.inventoryMenu.broadcastChanges();
     }
     private static float getRandomTickChance(MinecraftServer server) {
-        return (float)server.getGameRules().getRule(RULE_RANDOMTICKING).get() / 4096.0f;
+        return (float)server.getGameRules().get(GameRules.RANDOM_TICK_SPEED) / 4096.0f;
     }
 
     /**
      * Decay methods
      */
     private static boolean isTimeToDecay(MinecraftServer server) {
-        return server.getTickCount() > (lastServerTick + server.getGameRules().getRule(QuietusGameRules.TICKS_PER_DECAY).get()); // decays once per 5 seconds (default game rule)
+        return server.getTickCount() > (lastServerTick + server.getGameRules().get(QuietusGameRules.TICKS_PER_DECAY)); // decays once per 5 seconds (default game rule)
     }
 }

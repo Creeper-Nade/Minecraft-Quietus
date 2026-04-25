@@ -15,7 +15,7 @@ import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-@EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = MODID)
 public class FoodDecayComponent {
     
 

@@ -12,6 +12,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.RandomSource;
 
+import net.minecraft.world.entity.monster.zombie.Husk;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.monster.zombie.ZombieVillager;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -28,14 +31,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.monster.Husk;
-import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.player.Player;
 
 import org.slf4j.Logger;
 
-@EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = MODID)
 public class SpawnEvent {
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -44,7 +44,7 @@ public class SpawnEvent {
         Entity entity = event.getEntity();
         ServerLevelAccessor levelAccessor = event.getLevel();
         Level level = levelAccessor.getLevel();
-        RandomSource random = level.random;
+        RandomSource random = level.getRandom();
         Vec3 pos = new Vec3(event.getX(), event.getY(), event.getZ());
         Vec3i pos_i = new Vec3i((int)event.getX(), (int)event.getY(), (int)event.getZ());
         EntitySpawnReason spawnReason = event.getSpawnType();
@@ -210,7 +210,7 @@ public class SpawnEvent {
         Player nearestPlayer = level.getNearestPlayer(position.x, position.y, position.z, -1.0d, false);
         if (nearestPlayer != null) {
             if (nearestPlayer.distanceToSqr(position) < (double)(24d*24d)
-             || level.getSharedSpawnPos().getCenter().distanceToSqr(position) < (double)(24d*24d)) {
+             || level.getRespawnData().pos().getCenter().distanceToSqr(position) < (double)(24d*24d)) {
                 return false;
             } else 
             if (nearestPlayer.distanceToSqr(position) > 128*128) {

@@ -60,7 +60,7 @@ import com.minecraftquietus.quietus.entity.monster.Bowslinger;
 import com.minecraftquietus.quietus.entity.monster.Paraboler;
 
 
-@EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = MODID)
 public class QuietusIModBusEvent {
     @SubscribeEvent
     public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {

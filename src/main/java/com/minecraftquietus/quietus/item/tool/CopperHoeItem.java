@@ -69,7 +69,7 @@ public class CopperHoeItem extends WeatheringCopperItem {
             if (predicate.test(context)) {
                 Player player = context.getPlayer();
                 level.playSound(player, blockpos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     consumer.accept(context);
                     if (player != null) {
                         context.getItemInHand().hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));

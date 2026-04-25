@@ -7,7 +7,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -19,12 +19,12 @@ import java.util.List;
 
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
-@EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = MODID)
 public class SpawnPlayerFragment {
     private static final Logger LOGGER = LogUtils.getLogger();
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && player.serverLevel().getGameRules().getBoolean(QuietusGameRules.FRAGMENT_SPAWNING) && !player.serverLevel().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+        if (event.getEntity() instanceof ServerPlayer player && player.level().getGameRules().get(QuietusGameRules.FRAGMENT_SPAWNING) && !player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
 
 
             // Collect loot (excluding hotbar/armor)
@@ -71,7 +71,7 @@ public class SpawnPlayerFragment {
     public static void onPlayerRespawn(PlayerEvent.Clone event) {
         if(event.getEntity() instanceof ServerPlayer player)
         {
-            if (event.isWasDeath() && player.serverLevel().getGameRules().getBoolean(QuietusGameRules.FRAGMENT_SPAWNING)&& !player.serverLevel().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+            if (event.isWasDeath() && player.level().getGameRules().get(QuietusGameRules.FRAGMENT_SPAWNING)&& !player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
                 event.getEntity().getInventory().replaceWith(event.getOriginal().getInventory());
             }
         }

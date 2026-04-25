@@ -24,6 +24,8 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -78,7 +80,7 @@ public abstract class QuietusProjectile extends Projectile {
 
         HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
 
-        if ((hitresult.getType() == HitResult.Type.BLOCK) && !level().isClientSide) {
+        if ((hitresult.getType() == HitResult.Type.BLOCK) && !level().isClientSide()) {
             this.onHitBlock((BlockHitResult) hitresult);
             return;
         }
@@ -86,11 +88,11 @@ public abstract class QuietusProjectile extends Projectile {
             this.onHitEntity((EntityHitResult) hitresult);
         }
         //ProjectileUtil.rotateTowardsMovement(this, 0.2F);
-        //if(level().isClientSide) this.applyInteria();
+        //if(level().isClientSide()) this.applyInteria();
 
         this.setPos(this.position().add(this.getDeltaMovement()));
         this.updateRotation();
-        if(this.tickCount> this.persistanceTicks && !level().isClientSide) {
+        if(this.tickCount> this.persistanceTicks && !level().isClientSide()) {
             discardAction();
         }
 
@@ -103,7 +105,7 @@ public abstract class QuietusProjectile extends Projectile {
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        if (!level().isClientSide && result.getEntity() != this.getOwner() &&!(result.getEntity() instanceof Projectile) && this.getOwner() instanceof LivingEntity livingOwner) {
+        if (!level().isClientSide() && result.getEntity() != this.getOwner() &&!(result.getEntity() instanceof Projectile) && this.getOwner() instanceof LivingEntity livingOwner) {
             //DamageSource damagesource = this.damageSources().mobProjectile(this, livingOwner);
             DamageSource damagesource = getDamageSource(this.getOwner());
 
@@ -202,12 +204,12 @@ public abstract class QuietusProjectile extends Projectile {
         return (double)this.getSynchedGravity();
     }
     @Override
-    public void addAdditionalSaveData(CompoundTag content) {
+    public void addAdditionalSaveData(ValueOutput content) {
         super.addAdditionalSaveData(content);
         content.putFloat(NBT_TAG_PROJECTILE_GRAVITY, this.gravity);
     }
     @Override
-    public void readAdditionalSaveData(CompoundTag content) {
+    public void readAdditionalSaveData(ValueInput content) {
         super.readAdditionalSaveData(content);
         float r = content.getFloatOr(NBT_TAG_PROJECTILE_GRAVITY, 0.05f);
         this.gravity = r;

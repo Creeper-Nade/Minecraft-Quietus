@@ -27,6 +27,7 @@ import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -35,8 +36,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import com.minecraftquietus.quietus.entity.ai.goal.VolleyAttackGoal;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
-public class Bowslinger extends AbstractSkeleton implements VolleyRangedAttackMob {
+public class Bowslinger extends Skeleton implements VolleyRangedAttackMob {
 
     private final RangedBowAttackGoal<AbstractSkeleton> bowGoal;
     private final VolleyAttackGoal<Bowslinger> bowslingerBowGoal;
@@ -94,14 +97,14 @@ public class Bowslinger extends AbstractSkeleton implements VolleyRangedAttackMo
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
+    public void addAdditionalSaveData(ValueOutput tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt(VOLLEY_TAG, this.getVolley());
         tag.putInt(VOLLEY_MAX_TAG, this.getVolleyMax());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
+    public void readAdditionalSaveData(ValueInput tag) {
         super.readAdditionalSaveData(tag);
         int i = tag.getIntOr(VOLLEY_TAG, 0);
         int j = tag.getIntOr(VOLLEY_MAX_TAG, 6+this.random.nextInt(2));
@@ -174,7 +177,7 @@ public class Bowslinger extends AbstractSkeleton implements VolleyRangedAttackMo
         if (bowGoal == null || bowslingerBowGoal == null || meleeGoal == null) {
             return; // stop if goals are not yet initialzed (expected to stop the call on this method by super constructor AbstractSkeleton)
         }
-        if (this.level() != null && !this.level().isClientSide) {
+        if (this.level() != null && !this.level().isClientSide()) {
             // removal of actual goals
             this.goalSelector.removeGoal(this.bowslingerBowGoal);
             this.goalSelector.removeGoal(this.bowGoal);

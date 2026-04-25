@@ -10,6 +10,7 @@ import com.minecraftquietus.quietus.server.packet.GrapplingJumpReleasePacket;
 import com.minecraftquietus.quietus.client.packet.GrapplingHookPhysicsPacket;
 import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.QuietusAttachments;
+import com.minecraftquietus.quietus.util.ServerPacketDistributor;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -42,7 +43,7 @@ public class GrapplingEvent {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Pre event) {
         Player player = event.getEntity();
-        if (player.level().isClientSide) return;  // Only run on server
+        if (player.level().isClientSide()) return;  // Only run on server
 
         GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
 
@@ -79,7 +80,7 @@ public class GrapplingEvent {
     @SubscribeEvent
     public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
         if (event.getEntity() instanceof Player player) {
-            if (player.level().isClientSide) return;
+            if (player.level().isClientSide()) return;
 
             GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
             if (attachment.hasActiveHook()) {
@@ -159,7 +160,7 @@ public class GrapplingEvent {
         Player player = event.getEntity();
 
         // On client side, check if we should override input
-        if (player.level().isClientSide && player.getPersistentData().getBooleanOr("QuietusGrappling",false)) {
+        if (player.level().isClientSide() && player.getPersistentData().getBooleanOr("QuietusGrappling",false)) {
             // Don't apply normal input while grappling
             // The velocity will come from the server packets
             player.setDeltaMovement(player.getDeltaMovement().scale(0.98)); // Dampen any local input
@@ -168,7 +169,7 @@ public class GrapplingEvent {
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         Player player = event.getEntity();
-        if (player.level().isClientSide) return;
+        if (player.level().isClientSide()) return;
 
         GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
         if (attachment.hasActiveHook()) {
@@ -179,7 +180,7 @@ public class GrapplingEvent {
     private static void removeHookFromAnyDimension(ServerPlayer player, GrapplingHookAttachment attachment) {
         if (!attachment.hasActiveHook()) return;
         int hookId = attachment.getHookEntityId();
-        for (ServerLevel world : player.server.getAllLevels()) {
+        for (ServerLevel world : player.level().getServer().getAllLevels()) {
             Entity e = world.getEntity(hookId);
             if (e instanceof GrapplingHookProjectile hook) {
                 hook.discard();
@@ -192,7 +193,7 @@ public class GrapplingEvent {
 
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof Player player && !player.level().isClientSide) {
+        if (event.getEntity() instanceof Player player && !player.level().isClientSide()) {
             GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
             if (attachment.hasActiveHook()) {
                 GrapplingHookItem.retrieveHookForPlayer(player);
@@ -202,7 +203,7 @@ public class GrapplingEvent {
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         Player player = event.getEntity();
-        if (!player.level().isClientSide) {
+        if (!player.level().isClientSide()) {
             GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
             if (attachment.hasActiveHook()) {
                 GrapplingHookItem.retrieveHookForPlayer(player);
@@ -230,7 +231,7 @@ public class GrapplingEvent {
         if (jumpDown && !jumpPressed) {
             // Jump key just pressed
             jumpPressed = true;
-            PlayerClientPacketDistributor.sendGrappleJumpPackToServer();
+            ServerPacketDistributor.sendGrappleJumpPackToServer();
         } else if (!jumpDown && jumpPressed) {
             jumpPressed = false;
         }

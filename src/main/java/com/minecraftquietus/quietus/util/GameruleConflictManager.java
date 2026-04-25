@@ -1,15 +1,16 @@
 package com.minecraftquietus.quietus.util;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRule;
+import net.minecraft.world.level.gamerules.GameRules;
 
 import java.util.*;
 
 public class GameruleConflictManager {
     //The Gamerule conflict manager only supports detection of boolean gamerules currrently
-    private static final Map<GameRules.Key<GameRules.BooleanValue>, Set<GameRules.Key<GameRules.BooleanValue>>> CONFLICT_MAP = new HashMap<>();
+    private static final Map<GameRule<Boolean>, Set<GameRule<Boolean>>> CONFLICT_MAP = new HashMap<>();
 
-    public static void registerConflict(GameRules.Key<GameRules.BooleanValue> rule1, GameRules.Key<GameRules.BooleanValue> rule2) {
+    public static void registerConflict(GameRule<Boolean> rule1, GameRule<Boolean> rule2) {
         CONFLICT_MAP.computeIfAbsent(rule1, k -> new HashSet<>()).add(rule2);
     }
 
@@ -17,12 +18,12 @@ public class GameruleConflictManager {
         List<ConflictPair> conflicts = new ArrayList<>();
         GameRules rules = level.getGameRules();
 
-        for (Map.Entry<GameRules.Key<GameRules.BooleanValue>, Set<GameRules.Key<GameRules.BooleanValue>>> entry : CONFLICT_MAP.entrySet()) {
-            GameRules.Key<GameRules.BooleanValue> primaryRule = entry.getKey();
+        for (Map.Entry<GameRule<Boolean>, Set<GameRule<Boolean>>> entry : CONFLICT_MAP.entrySet()) {
+            GameRule<Boolean> primaryRule = entry.getKey();
 
-            if (rules.getBoolean(primaryRule)) {
-                for (GameRules.Key<GameRules.BooleanValue> conflictingRule : entry.getValue()) {
-                    if (rules.getBoolean(conflictingRule)) {
+            if (rules.get(primaryRule)) {
+                for (GameRule<Boolean> conflictingRule : entry.getValue()) {
+                    if (rules.get(conflictingRule)) {
                         conflicts.add(new ConflictPair(primaryRule, conflictingRule));
                     }
                 }
@@ -31,5 +32,5 @@ public class GameruleConflictManager {
         return conflicts;
     }
 
-    public record ConflictPair(GameRules.Key<?> firstRule, GameRules.Key<?> secondRule) {}
+    public record ConflictPair(GameRule<?> firstRule, GameRule<?> secondRule) {}
 }

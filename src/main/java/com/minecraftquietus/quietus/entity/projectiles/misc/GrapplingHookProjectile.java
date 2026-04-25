@@ -25,6 +25,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -80,7 +82,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
             this.setNoGravity(true);
 
             // Check for discard
-            if (this.tickCount > this.persistanceTicks && !level().isClientSide) {
+            if (this.tickCount > this.persistanceTicks && !level().isClientSide()) {
                 discardAction();
             }
             return;
@@ -202,7 +204,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
 
 
         // Check for timeout
-        if (this.tickCount > this.persistanceTicks && !level().isClientSide) {
+        if (this.tickCount > this.persistanceTicks && !level().isClientSide()) {
             discardAction();
         }
     }
@@ -317,14 +319,14 @@ public class GrapplingHookProjectile extends QuietusProjectile {
 
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
+    public void addAdditionalSaveData(ValueOutput tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("in_block", this.isInBlock());
         tag.putFloat("length", this.getLength());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
+    public void readAdditionalSaveData(ValueInput tag) {
         super.readAdditionalSaveData(tag);
         this.setInBlock(tag.getBooleanOr("in_block",false));
         this.setLength(tag.getFloatOr("length",0));

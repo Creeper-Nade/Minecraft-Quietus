@@ -1,5 +1,8 @@
 package com.minecraftquietus.quietus.entity.monster;
 
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.object.PlayState;
+import com.geckolib.animation.state.AnimationTest;
 import com.minecraftquietus.quietus.client.particle.particle_options.DustExplosionParticleOptions;
 import com.minecraftquietus.quietus.client.particle.particle_options.DustImplosionParticleOptions;
 import com.minecraftquietus.quietus.entity.QuietusEntityDataSerializers;
@@ -8,6 +11,7 @@ import com.minecraftquietus.quietus.sounds.QuietusSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -39,14 +43,13 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import com.geckolib.animatable.GeoAnimatable;
 import com.geckolib.animatable.GeoEntity;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.animatable.processing.AnimationController;
-import com.geckolib.animatable.processing.AnimationTest;
-import com.geckolib.animation.PlayState;
 import com.geckolib.animation.RawAnimation;
 import com.geckolib.constant.DataTickets;
 import com.geckolib.util.GeckoLibUtil;
@@ -92,35 +95,36 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
     protected void defineSynchedData(SynchedEntityData.Builder dataBuild) {
         super.defineSynchedData(dataBuild);;
         //dataBuild.define(HEAD_ITEM, ItemStack.EMPTY);
-        dataBuild.define(HeadTexture,DefaultPlayerSkin.getDefaultSkin().texture());
+        dataBuild.define(HeadTexture,DefaultPlayerSkin.getDefaultTexture());
         dataBuild.define(HAS_TARGET, false);
         dataBuild.define(IS_SPAWNING, false); // Add this line
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
+    public void addAdditionalSaveData(ValueOutput tag) {
         super.addAdditionalSaveData(tag);
         //save experience
         tag.putInt("StoredExperience", this.storedExperience);
         // Save the texture location to the NBT tag
-        if (this.getPlayerHeadTexture() != DefaultPlayerSkin.getDefaultSkin().texture()) {
+        if (this.getPlayerHeadTexture() != DefaultPlayerSkin.getDefaultTexture()) {
             tag.putString("HeadTexture", this.getPlayerHeadTexture().toString());
         }
         // Save the loot inventory to the NBT tag
-        ContainerHelper.saveAllItems(tag, this.lootInventory.getItems(),this.level().registryAccess());
+        ContainerHelper.saveAllItems(tag, this.lootInventory.getItems());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
+    public void readAdditionalSaveData(ValueInput tag) {
         super.readAdditionalSaveData(tag);
+        String _headTexture= tag.getStringOr("HeadTexture","null");
         // Read the texture location from the NBT tag
-        if (tag.contains("HeadTexture")) {
-            Identifier savedTexture = Identifier.parse(tag.getStringOr("HeadTexture","null"));
+        if (!_headTexture.equals("null")) {
+            Identifier savedTexture = Identifier.parse(_headTexture);
             this.entityData.set(HeadTexture, savedTexture);
         }
         this.storedExperience = tag.getIntOr("StoredExperience",0);
 
-        ContainerHelper.loadAllItems(tag, this.lootInventory.getItems(),this.level().registryAccess());
+        ContainerHelper.loadAllItems(tag, this.lootInventory.getItems());
     }
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
@@ -135,7 +139,7 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
     public void setPlayerData(Player player) {
         //pass head texture
         Minecraft minecraft = Minecraft.getInstance();
-        Identifier headTex=minecraft.getSkinManager().getInsecureSkin(player.getGameProfile()).texture();
+        Identifier headTex=minecraft.getSkinManager().get(player.getGameProfile()).join().get().body().id();
         entityData.set(HeadTexture, headTex);
 
         this.setStoredExperience(calculateTotalExperience(player));
@@ -381,7 +385,7 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
                 //visual
                 Vec3 pos = this.position();
                 serverLevel.sendParticles(
-                        ParticleTypes.FLASH,
+                        ColorParticleOption.create(ParticleTypes.FLASH,0xFFFFFFFF),
                         pos.x,
                         pos.y + this.getBbHeight() / 2,  // Center of entity
                         pos.z,
@@ -391,7 +395,7 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
                 );
 
                 //retrieve stuffs
-                player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS,10.0f,1);
+                serverLevel.playPlayerSound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS,10.0f,1);
                 player.giveExperiencePoints(this.storedExperience);
                 boolean has_warned_full_inventory=false;
                 Component full_inventory_warning = Component.translatable("message.quietus.full_inventory",player.getName()).withStyle(ChatFormatting.RED);
@@ -480,17 +484,17 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
         // Play spawn animation first
 
         if (this.isSpawning()) {
-            animTest.controller().transitionLength(0);
+            animTest.controller().setTransitionTicks(0);
             return animTest.setAndContinue(SPAWN_ANIM);
         }
 
 
         if (animTest.getDataOrDefault(DataTickets.SWINGING_ARM, false))
         {
-            animTest.controller().transitionLength(2);
+            animTest.controller().setTransitionTicks(2);
             return animTest.setAndContinue(ATTACK_ANIM);
         }
-        animTest.controller().transitionLength(5);
+        animTest.controller().setTransitionTicks(5);
 
 
         if (animTest.isMoving()&& hasTarget)
