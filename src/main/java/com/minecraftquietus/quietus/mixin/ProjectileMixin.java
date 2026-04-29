@@ -18,7 +18,7 @@ public class ProjectileMixin {
     )
     private void onCanHitEntity(Entity target, CallbackInfoReturnable<Boolean> cir) {
         // check if target has immunity tag
-        if (target.getType().is(QuietusTags.Entity.IMMUNE_PROJECTILE_FROM_MOB)) {
+        if (target.getType().getTags().toList().contains(QuietusTags.Entity.IMMUNE_PROJECTILE_FROM_MOB)) {
             Entity owner = ((Projectile) (Object) this).getOwner();
 
             // if owner is not player, prevent hitting

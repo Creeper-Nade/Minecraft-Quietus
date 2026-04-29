@@ -1,6 +1,7 @@
 package com.minecraftquietus.quietus.mixin;
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.KeyEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,8 +22,8 @@ public abstract class AbstractContainerScreenMixin {
         ),
         cancellable = true
     )
-    private void onKeyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-        if (QuietusKeyBindings.SKILL_TREE_KEY.get().matches(keyCode, scanCode)) {
+    private void onKeyPressed(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
+        if (QuietusKeyBindings.SKILL_TREE_KEY.get().matches(event)) {
             Minecraft.getInstance().setScreen(new SkillTreeScreen(ClientSkillTreePayloadHandler.getSkillTree()));
             cir.setReturnValue(true);
         }

@@ -16,10 +16,10 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(Gui.class)
 public abstract class GuiMixin {
     @ModifyArg(
-            method = "renderAirLevel",
+            method = "extractAirLevel",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Gui;renderAirBubbles(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/world/entity/player/Player;III)V"
+                    target = "Lnet/minecraft/client/gui/Gui;extractAirBubbles(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/world/entity/player/Player;III)V"
             ),
             index = 3 // Y position parameter index
     )

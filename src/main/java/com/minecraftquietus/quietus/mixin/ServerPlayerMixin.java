@@ -7,19 +7,21 @@ import com.minecraftquietus.quietus.util.PlayerClientPacketDistributor;
 import com.minecraftquietus.quietus.util.QuietusGameRules;
 import com.minecraftquietus.quietus.util.sound.EntitySoundSource;
 import com.mojang.authlib.GameProfile;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,8 +32,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
-    public ServerPlayerMixin(Level level, BlockPos pos, float yRot, GameProfile gameProfile) {
-        super(level, pos, yRot, gameProfile);
+    public ServerPlayerMixin(Level level, GameProfile gameProfile) {
+        super(level, gameProfile);
     }
     @Inject(method = "die", at = @At("HEAD"))
     private void handleGhostDeathHead(DamageSource cause, CallbackInfo ci) {
@@ -42,15 +44,15 @@ public abstract class ServerPlayerMixin extends Player {
         player.level().playSound(null,player.getX(),player.getY(),player.getZ(),QuietusSounds.Steve_UOH.value(), EntitySoundSource.of(player), 0.8F, 1.0F);
         player.level().playSound(null,player.getX(),player.getY(),player.getZ(),SoundEvents.BELL_BLOCK, EntitySoundSource.of(player), 1.0F, 1.0F);
 
-        GameRules gameRules= player.serverLevel().getGameRules();
-        if(gameRules.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN) || !gameRules.getBoolean(QuietusGameRules.GHOST_MODE_ENABLED))
+        GameRules gameRules= player.level().getServer().getGameRules();
+        if(gameRules.get(GameRules.IMMEDIATE_RESPAWN) || !gameRules.get(QuietusGameRules.GHOST_MODE_ENABLED))
             return;
         // Set ghost state
         CompoundTag data = player.getPersistentData();
         boolean boss_exists = !player.level().getEntities(
                 (Entity) null, // No specific entity type filter
                 player.getBoundingBox().inflate(1000), // 100 block radius
-                entity -> entity.getType().is(QuietusTags.Entity.BOSS_MONSTER)// Check tag
+                entity -> entity.getType().getTags().toList().contains(QuietusTags.Entity.BOSS_MONSTER)// Check tag
         ).isEmpty();
         int cooldown=100;
         if(boss_exists) cooldown=300;
@@ -60,7 +62,7 @@ public abstract class ServerPlayerMixin extends Player {
         data.putString("originalGameMode", player.gameMode.getGameModeForPlayer().getName());
         // Serialize death message with registry access
         HolderLookup.Provider registries = player.level().registryAccess();
-        String json = Component.Serializer.toJson(deathMessage, registries);
+        String json = ComponentSerialization.CODEC.encodeStart(registries.createSerializationContext(JsonOps.INSTANCE), deathMessage).toString();
         data.putString("deathMessage", json);
 
         PlayerClientPacketDistributor.sendGhostPackToPlayer(player,true,deathMessage,cooldown,hardcore);
@@ -70,8 +72,8 @@ public abstract class ServerPlayerMixin extends Player {
     @Inject(method = "die", at = @At("TAIL"))
     private void handleGhostDeathTail(DamageSource cause, CallbackInfo ci) {
         ServerPlayer player = (ServerPlayer)(Object)this;
-        GameRules gameRules= player.serverLevel().getGameRules();
-        if(gameRules.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN) || !gameRules.getBoolean(QuietusGameRules.GHOST_MODE_ENABLED))
+        GameRules gameRules= player.level().getServer().getGameRules();
+        if(gameRules.get(GameRules.IMMEDIATE_RESPAWN) || !gameRules.get(QuietusGameRules.GHOST_MODE_ENABLED))
             return;
         // Switch to spectator mode
         player.setGameMode(GameType.SPECTATOR);
@@ -167,7 +169,7 @@ public abstract class ServerPlayerMixin extends Player {
 
 
 
-        player.connection.player = player.server.getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
+        player.connection.player = player.level().getServer().getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
 
         //if we are going to halve player's health upon revival, like in Terraria
         //player.connection.player.setHealth(player.getMaxHealth() / 2);

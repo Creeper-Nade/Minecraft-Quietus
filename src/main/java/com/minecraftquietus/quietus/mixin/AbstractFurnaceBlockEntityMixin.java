@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -35,62 +36,52 @@ public abstract class AbstractFurnaceBlockEntityMixin {
         locals = LocalCapture.CAPTURE_FAILHARD
     )
     private static void modifyDecayBeforeBurn(
-        RegistryAccess registryAccess,
-        @Nullable RecipeHolder<? extends AbstractCookingRecipe> recipe,
-        SingleRecipeInput recipeInput,
-        NonNullList<ItemStack> items,
-        int maxStackSize,
-        CallbackInfoReturnable<Boolean> cir,
-        ItemStack itemstack, // Input stack (slot 0)
-        ItemStack itemstack1, // Output stack (assembled from recipe)
-        ItemStack itemstack2  // Current output slot (slot 2)
+            NonNullList<ItemStack> items, ItemStack inputItemStack, ItemStack result, CallbackInfo ci, ItemStack resultItemStack
     ) {
         // Only modify decay if components exist
-        if (itemstack1.has(QuietusComponents.CAN_DECAY.get()) && 
-            itemstack.has(QuietusComponents.CAN_DECAY.get())) {
+        if (items.get(1).has(QuietusComponents.CAN_DECAY.get()) &&
+            inputItemStack.has(QuietusComponents.CAN_DECAY.get())) {
             float new_fraction = Math.min(1.0f, 
-                itemstack.get(QuietusComponents.CAN_DECAY.get())
-                    .getDecayFraction(itemstack.get(QuietusComponents.DECAY.get())) + 0.2f
+                inputItemStack.get(QuietusComponents.CAN_DECAY.get())
+                    .getDecayFraction(inputItemStack.get(QuietusComponents.DECAY.get())) + 0.2f
             );
-            itemstack1.set(
+            items.get(1).set(
                 QuietusComponents.DECAY.get(),
-                (int)Math.floor((1-new_fraction) * itemstack1.get(QuietusComponents.CAN_DECAY.get()).maxDecay())
+                (int)Math.floor((1-new_fraction) * items.get(1).get(QuietusComponents.CAN_DECAY.get()).maxDecay())
             );
         }
     }
+    /**
+     * Updates:
+     * 1. Vanilla 'burn' no longer contains an equality check; it assumes canBurn passed [cite: 379-381].
+     * 2. We inject before 'grow' to merge decay components.
+     */
     @Inject(
-        method = "burn",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/item/ItemStack;isSameItemSameComponents(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z",
-            shift = At.Shift.AFTER
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD,
-        cancellable = true
+            method = "burn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/ItemStack;grow(I)V"
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD
     )
     private static void burnOutputMergeDecay(
-        RegistryAccess registryAccess,
-        @Nullable RecipeHolder<? extends AbstractCookingRecipe> recipe,
-        SingleRecipeInput recipeInput,
-        NonNullList<ItemStack> items,
-        int maxStackSize,
-        CallbackInfoReturnable<Boolean> cir,
-        ItemStack itemstack, // stored reactant stack
-        ItemStack itemstack1, // result stack from recipe of reactant stack
-        ItemStack itemstack2 // stored result stack
+            NonNullList<ItemStack> items, ItemStack inputItemStack, ItemStack result, CallbackInfo ci, ItemStack resultItemStack
     ) {
-        if (!itemstack2.isEmpty() && !ItemStack.isSameItemSameComponents(itemstack2, itemstack1) && // after if vanilla comparison failed, try modded check regardless of decay component
-            ItemStackUtil.isSameItemSameComponentsExceptDecay(itemstack2, itemstack1)) {
-            itemstack2.grow(itemstack1.getCount());
-            if (itemstack1.has(QuietusComponents.CAN_DECAY.get()) && itemstack2.has(QuietusComponents.CAN_DECAY.get())) {
-                itemstack2.set(
-                    QuietusComponents.DECAY.get(), 
-                    (int)(Math.round(
-                        (double)(itemstack2.getOrDefault(QuietusComponents.DECAY.get(), 0)*itemstack2.getCount() + itemstack1.getOrDefault(QuietusComponents.DECAY.get(), 0)*itemstack1.getCount()) 
-                        / (double)(itemstack2.getCount() + itemstack1.getCount())))
-                ); // stack sizes do not need to be checked; neoforge has fixed respecting max stack size in canBurn method
+        // If they are the same item but differ in components (like decay), merge them manually
+        if (!ItemStack.isSameItemSameComponents(resultItemStack, result) &&
+                ItemStackUtil.isSameItemSameComponentsExceptDecay(resultItemStack, result)) {
+
+            if (result.has(QuietusComponents.CAN_DECAY.get()) && resultItemStack.has(QuietusComponents.CAN_DECAY.get())) {
+                int totalCount = resultItemStack.getCount() + result.getCount();
+
+                long avgDecay = Math.round(
+                        ((double)resultItemStack.getOrDefault(QuietusComponents.DECAY.get(), 0) * resultItemStack.getCount() +
+                                (double)result.getOrDefault(QuietusComponents.DECAY.get(), 0) * result.getCount())
+                                / (double)totalCount
+                );
+
+                resultItemStack.set(QuietusComponents.DECAY.get(), (int)avgDecay);
             }
-            /* reactant (itemstack) will be then removed by 1 in vanilla code */
         }
     }
 
@@ -105,14 +96,18 @@ public abstract class AbstractFurnaceBlockEntityMixin {
         return ItemStackUtil.isSameItemSameComponentsExceptDecay(stack1, stack2);
     }
 
+    /**
+     * Updates:
+     * 1. Target the 3-parameter overload used by Neoforge.
+     */
     @Redirect(
-        method = "setItem",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/item/ItemStack;isSameItemSameComponents(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"
-        )
+            method = "setItem(ILnet/minecraft/world/item/ItemStack;Z)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/ItemStack;isSameItemSameComponents(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"
+            )
     )
-    private static boolean redirectSetItemComparison(ItemStack itemstack, ItemStack stack) {
-        return ItemStackUtil.isSameItemSameComponentsExceptDecay(itemstack, stack);
+    private static boolean redirectSetItemComparison(ItemStack oldStack, ItemStack newStack) {
+        return ItemStackUtil.isSameItemSameComponentsExceptDecay(oldStack, newStack);
     }
 }
