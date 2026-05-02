@@ -15,6 +15,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -79,7 +80,7 @@ public class QuietusAxeItem extends Item {
                 level.setBlock(blockpos, optional.get(), 11);
                 level.gameEvent(GameEvent.BLOCK_CHANGE, blockpos, GameEvent.Context.of(player, optional.get()));
                 if (player != null) {
-                    itemstack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+                    itemstack.hurtAndBreak(1, player, context.getHand().asEquipmentSlot());
                 }
 
                 return InteractionResult.SUCCESS;
@@ -130,7 +131,7 @@ public class QuietusAxeItem extends Item {
     }
 
     @Override
-    public boolean canPerformAction(ItemStack stack, net.neoforged.neoforge.common.ItemAbility itemAbility) {
+    public boolean canPerformAction(ItemInstance stack, net.neoforged.neoforge.common.ItemAbility itemAbility) {
         return net.neoforged.neoforge.common.ItemAbilities.DEFAULT_AXE_ACTIONS.contains(itemAbility);
     }
 }

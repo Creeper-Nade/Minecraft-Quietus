@@ -61,19 +61,19 @@ public class QuietusItems {
     public static final DeferredRegister.Items REGISTRAR = DeferredRegister.createItems(MODID);
     
     //#region MISCELLANEOUS
-    public static final DeferredItem<Item> HARDENED_FUR = REGISTRAR.registerItem("hardened_fur",Item::new,new Item.Properties().attributes(
+    public static final DeferredItem<Item> HARDENED_FUR = REGISTRAR.registerItem("hardened_fur",Item::new,()->new Item.Properties().attributes(
         ItemAttributeModifiers.builder()
             .add(QuietusAttributes.MAX_MANA.getDelegate(), new AttributeModifier(BASE_MANA_REGEN_BONUS_ID, 5, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND).build()
     ));
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = REGISTRAR.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
-    public static final DeferredItem<Item> EXAMPLE_ITEM = REGISTRAR.registerSimpleItem("example_item", new Item.Properties().food(new FoodProperties.Builder()
+    public static final DeferredItem<Item> EXAMPLE_ITEM = REGISTRAR.registerSimpleItem("example_item", () ->new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
     //#endregion
 
     //#region FOODS
-    public static final DeferredItem<Item> MOLD = REGISTRAR.registerItem("mold", Item::new, new Item.Properties().food(QuietusFoods.MOLD, QuietusConsumables.MOLD));
-    public static final DeferredItem<Item> MOLD_BUCKET = REGISTRAR.registerItem("mold_bucket", Item::new, new Item.Properties().craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.MOLD_BUCKET, QuietusConsumables.MOLD_BUCKET));
-    public static final DeferredItem<Item> MOLD_BOWL = REGISTRAR.registerItem("mold_bowl", Item::new, new Item.Properties().craftRemainder(Items.BOWL).usingConvertsTo(Items.BOWL).food(QuietusFoods.MOLD_BOWL, QuietusConsumables.MOLD_BOWL));
+    public static final DeferredItem<Item> MOLD = REGISTRAR.registerItem("mold", Item::new, () ->new Item.Properties().food(QuietusFoods.MOLD, QuietusConsumables.MOLD));
+    public static final DeferredItem<Item> MOLD_BUCKET = REGISTRAR.registerItem("mold_bucket", Item::new, () ->new Item.Properties().craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.MOLD_BUCKET, QuietusConsumables.MOLD_BUCKET));
+    public static final DeferredItem<Item> MOLD_BOWL = REGISTRAR.registerItem("mold_bowl", Item::new, () ->new Item.Properties().craftRemainder(Items.BOWL).usingConvertsTo(Items.BOWL).food(QuietusFoods.MOLD_BOWL, QuietusConsumables.MOLD_BOWL));
     public static final DeferredItem<Item> YOGHURT_BUCKET = REGISTRAR.registerItem("yoghurt_bucket", properties -> new Item(new QuietusItemProperties().canDecay(192, new ItemStack(MOLD_BUCKET.get())).craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.YOGHURT_BUCKET, QuietusConsumables.YOGHURT_BUCKET).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "yoghurt_bucket")))));
     public static final DeferredItem<Item> CHEESE_BUCKET = REGISTRAR.registerItem("cheese_bucket", properties -> new Item(new QuietusItemProperties().canDecay(192, new ItemStack(MOLD_BUCKET.get())).craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.CHEESE_BUCKET, QuietusConsumables.CHEESE_BUCKET).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "cheese_bucket")))));
     //#endregion
@@ -132,7 +132,7 @@ public class QuietusItems {
             }
         super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
     }
-    }, new Item.Properties());
+    }, () ->new Item.Properties());
         public static final DeferredItem<Item> AMETHYST_LEGGINGS = REGISTRAR.registerItem("amethyst_leggings", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.LEGGINGS).repairable(Items.AMETHYST_SHARD).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
                 {
                     @Override
@@ -143,7 +143,7 @@ public class QuietusItems {
                             components.accept(Component.translatable("tooltip.quietus.amethyst_armor."+i));
                         }
                         super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
-                    }}, new Item.Properties());
+                    }}, () ->new Item.Properties());
         public static final DeferredItem<Item> AMETHYST_CHESTPLATE = REGISTRAR.registerItem("amethyst_chestplate", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.CHESTPLATE).repairable(Items.AMETHYST_SHARD).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))){
                     @Override
                     public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay tooltipDisplay, Consumer<Component> components, TooltipFlag tooltipFlag) {
@@ -153,7 +153,7 @@ public class QuietusItems {
                             components.accept(Component.translatable("tooltip.quietus.amethyst_armor."+i));
                         }
                         super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
-                    }}, new Item.Properties());
+                    }}, () ->new Item.Properties());
         public static final DeferredItem<Item> AMETHYST_HELMET = REGISTRAR.registerItem("amethyst_helmet", properties -> new AmethystArmorItem(new QuietusItemProperties().quietusHumanoidArmor(QuietusArmorMaterials.AMETHYST, ArmorType.HELMET).repairable(Items.AMETHYST_SHARD).setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel())))
                 {
                     @Override
@@ -164,12 +164,12 @@ public class QuietusItems {
                             components.accept(Component.translatable("tooltip.quietus.amethyst_armor."+i));
                         }
                         super.appendHoverText(pStack, pContext, tooltipDisplay, components, tooltipFlag);
-                    }}, new Item.Properties());
+                    }}, () ->new Item.Properties());
     
     //#endregion
 
     //#region WEAPONS & TOOLS
-        public static final DeferredItem<Item> TRIPLEBOW = REGISTRAR.registerItem("triplebow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> TRIPLEBOW = REGISTRAR.registerItem("triplebow", AmmoProjectileWeaponItem::new, () ->new QuietusItemProperties()
             .weaponProperty( 
                 3,
                 (xRot,index,random)-> xRot + (index-0.5f)*8.0f*(random.nextFloat()-0.5f), 
@@ -185,7 +185,7 @@ public class QuietusItems {
             .durability(384)
             .enchantable(1)
         );
-        public static final DeferredItem<Item> INFINIBOW = REGISTRAR.registerItem("infinibow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> INFINIBOW = REGISTRAR.registerItem("infinibow", AmmoProjectileWeaponItem::new, () ->new QuietusItemProperties()
             .weaponProperty(
                 50,
                 (xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), 
@@ -201,7 +201,7 @@ public class QuietusItems {
             .durability(384)
             .enchantable(1)
         );
-        public static final DeferredItem<Item> PULLBOW = REGISTRAR.registerItem("pullbow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> PULLBOW = REGISTRAR.registerItem("pullbow", AmmoProjectileWeaponItem::new, () ->new QuietusItemProperties()
             .weaponProperty( 
                 3,
                 (xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), 
@@ -217,7 +217,7 @@ public class QuietusItems {
             .durability(384)
             .enchantable(1)
         );
-        public static final DeferredItem<Item> INSTABOW = REGISTRAR.registerItem("instabow", AmmoProjectileWeaponItem::new, new QuietusItemProperties()
+        public static final DeferredItem<Item> INSTABOW = REGISTRAR.registerItem("instabow", AmmoProjectileWeaponItem::new, () ->new QuietusItemProperties()
             .weaponProperty( 
                 3,
                 (xRot,index,random)-> xRot + (index-1)*5.0f*(random.nextFloat()-0.5f), 

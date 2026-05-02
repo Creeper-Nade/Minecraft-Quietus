@@ -18,12 +18,12 @@ public class QuietusDamageType {
 
     public static void bootstrap(BootstrapContext<DamageType> context)
     {
-        register(context,MAGIC_PROJECTILE_DAMAGE,new DamageType(MAGIC_PROJECTILE_DAMAGE.location().toString(),
+        register(context,MAGIC_PROJECTILE_DAMAGE,new DamageType(MAGIC_PROJECTILE_DAMAGE.identifier().toString(),
                 DamageScaling.WHEN_CAUSED_BY_LIVING_NON_PLAYER,
                 0.1f,
                 DamageEffects.HURT,
                 DeathMessageType.DEFAULT));
-        register(context,MAGIC_PROJECTILE_DAMAGE_BYPASS_INVINCIBLE_FRAME,new DamageType(MAGIC_PROJECTILE_DAMAGE_BYPASS_INVINCIBLE_FRAME.location().toString(),
+        register(context,MAGIC_PROJECTILE_DAMAGE_BYPASS_INVINCIBLE_FRAME,new DamageType(MAGIC_PROJECTILE_DAMAGE_BYPASS_INVINCIBLE_FRAME.identifier().toString(),
                 DamageScaling.WHEN_CAUSED_BY_LIVING_NON_PLAYER,
                 0.1f,
                 DamageEffects.HURT,

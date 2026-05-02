@@ -17,8 +17,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ArrowItem;
@@ -243,7 +243,7 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
             }
         }
         // get average durability use of all ammo launched
-        weapon.hurtAndBreak((int)(totalDurabilityUse / (float)projectileItems.size()), shooter, LivingEntity.getSlotForHand(hand));
+        weapon.hurtAndBreak((int)(totalDurabilityUse / (float)projectileItems.size()), shooter, hand.asEquipmentSlot());
     }
 
     /**

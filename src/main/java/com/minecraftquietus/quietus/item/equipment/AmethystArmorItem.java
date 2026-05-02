@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.object.PlayState;
 import com.minecraftquietus.quietus.client.model.equipments.AmethystArmorRenderer;
 import com.minecraftquietus.quietus.entity.projectiles.QuietusProjectiles;
 import com.minecraftquietus.quietus.entity.projectiles.magic.SmallAmethystShardProjectile;
@@ -33,8 +35,6 @@ import com.geckolib.animatable.client.GeoRenderProvider;
 import com.geckolib.animatable.instance.AnimatableInstanceCache;
 import com.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
 import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.animatable.processing.AnimationController;
-import com.geckolib.animation.PlayState;
 import com.geckolib.constant.dataticket.DataTicket;
 import com.geckolib.renderer.GeoArmorRenderer;
 
@@ -108,7 +108,7 @@ public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoI
             private AmethystArmorRenderer renderer;
 
             @Override
-            public <S extends HumanoidRenderState> GeoArmorRenderer<?, ?> getGeoArmorRenderer(@Nullable S livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, EquipmentClientInfo.LayerType type, @Nullable HumanoidModel<S> original) {
+            public GeoArmorRenderer<?, ?> getGeoArmorRenderer(ItemStack itemStack, EquipmentSlot equipmentSlot) {
                 if(this.renderer == null)
                     this.renderer = new AmethystArmorRenderer();
 

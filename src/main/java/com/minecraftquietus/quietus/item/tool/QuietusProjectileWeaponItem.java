@@ -35,8 +35,6 @@ import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
@@ -265,7 +263,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
                 level.addFreshEntity(projectile);
             }
         }
-        weapon.hurtAndBreak(1, shooter, LivingEntity.getSlotForHand(hand));
+        weapon.hurtAndBreak(1, shooter, hand.asEquipmentSlot());
     }
 
     /**

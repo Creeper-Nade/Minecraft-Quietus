@@ -39,25 +39,25 @@ public record QuietusArmorMaterial(
         AttributeModifier.Operation _mana_regen_bonus_operation = this.maxMana.getOrDefault(armorType, AttributeModifierValue.NONE).operation();
 
         EquipmentSlotGroup equipmentslotgroup = EquipmentSlotGroup.bySlot(armorType.getSlot());
-        Identifier Identifier = Identifier.withDefaultNamespace("armor." + armorType.getName());
+        Identifier id = Identifier.withDefaultNamespace("armor." + armorType.getName());
         
         ItemAttributeModifiers.Builder itemattributemodifiers$builder = ItemAttributeModifiers.builder();
         itemattributemodifiers$builder.add(
-            Attributes.ARMOR, new AttributeModifier(Identifier, _defense, _defense_operation), equipmentslotgroup
+            Attributes.ARMOR, new AttributeModifier(id, _defense, _defense_operation), equipmentslotgroup
         );
         itemattributemodifiers$builder.add(
-            QuietusAttributes.MAX_MANA.getDelegate(), new AttributeModifier(Identifier, _max_mana, _max_mana_operation), equipmentslotgroup
+            QuietusAttributes.MAX_MANA.getDelegate(), new AttributeModifier(id, _max_mana, _max_mana_operation), equipmentslotgroup
         );
         itemattributemodifiers$builder.add(
-            QuietusAttributes.MANA_REGEN_BONUS.getDelegate(), new AttributeModifier(Identifier, _mana_regen_bonus, _mana_regen_bonus_operation), equipmentslotgroup
+            QuietusAttributes.MANA_REGEN_BONUS.getDelegate(), new AttributeModifier(id, _mana_regen_bonus, _mana_regen_bonus_operation), equipmentslotgroup
         );
         itemattributemodifiers$builder.add(
-            Attributes.ARMOR_TOUGHNESS, new AttributeModifier(Identifier, this.toughness, AttributeModifier.Operation.ADD_VALUE), equipmentslotgroup
+            Attributes.ARMOR_TOUGHNESS, new AttributeModifier(id, this.toughness, AttributeModifier.Operation.ADD_VALUE), equipmentslotgroup
         );
         if (this.knockbackResistance > 0.0F) {
             itemattributemodifiers$builder.add(
                 Attributes.KNOCKBACK_RESISTANCE,
-                new AttributeModifier(Identifier, this.knockbackResistance, AttributeModifier.Operation.ADD_VALUE),
+                new AttributeModifier(id, this.knockbackResistance, AttributeModifier.Operation.ADD_VALUE),
                 equipmentslotgroup
             );
         }

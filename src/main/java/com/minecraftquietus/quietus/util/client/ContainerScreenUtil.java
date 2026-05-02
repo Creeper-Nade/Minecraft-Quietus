@@ -9,8 +9,8 @@ public final class ContainerScreenUtil {
     
     public static boolean isMouseInArea(AbstractContainerScreen<?> containerScreen, int xMin, int yMin, int xMax, int yMax) {
         Minecraft minecraft = Minecraft.getInstance();
-        int containerGUILeft = containerScreen.getGuiLeft();
-        int containerGUITop = containerScreen.getGuiTop();
+        int containerGUILeft = containerScreen.getLeftPos();
+        int containerGUITop = containerScreen.getTopPos();
         // Get scaled mouse position
         Window window = minecraft.getWindow();
         double mouseX = minecraft.mouseHandler.xpos();
