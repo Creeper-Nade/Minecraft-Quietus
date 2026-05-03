@@ -11,14 +11,19 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -72,34 +77,38 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
     // Actually render the entity. The first parameter matches the render state's generic type.
     // Calling super will handle leash and name tag rendering for you, if applicable.
     @Override
-    public void render(GrapplingHookRenderState state, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+    public void submit(GrapplingHookRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
         poseStack.pushPose();
         //poseStack.translate(0.0F, 0.0F, 0.0F);
         poseStack.translate(-0.5F / 16.0F, 5.0F / 16.0F, 0.0F); // Convert pixels to blocks (1/16th of a block)
         poseStack.mulPose(Axis.YP.rotationDegrees(state.yRot));
         poseStack.mulPose(Axis.XP.rotationDegrees(-state.xRot));
 
-        VertexConsumer vertexconsumer = ItemRenderer.getFoilBuffer(
-                buffer, this.model.renderType(this.getTextureLocation()),false, false);
-
-
-        this.model.renderToBuffer(poseStack, vertexconsumer, packedLight, OverlayTexture.NO_OVERLAY);
+        submitNodeCollector.submitModel(this.model, Unit.INSTANCE, poseStack, this.getTextureLocation(), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, (ModelFeatureRenderer.CrumblingOverlay)null);
         poseStack.popPose();
 
         // Render the line (rope) if we have a valid offset
         if (state.lineOriginOffset != null && !state.lineOriginOffset.equals(Vec3.ZERO)) {
-            float fx = (float) state.lineOriginOffset.x;
-            float fy = (float) state.lineOriginOffset.y;
-            float fz = (float) state.lineOriginOffset.z;
+            float xa = (float) state.lineOriginOffset.x;
+            float ya = (float) state.lineOriginOffset.y;
+            float za = (float) state.lineOriginOffset.z;
+            float width = Minecraft.getInstance().gameRenderer.getGameRenderState().windowRenderState.appropriateLineWidth;
 
-            VertexConsumer lineConsumer = buffer.getBuffer(RenderType.lineStrip());
-            PoseStack.Pose pose = poseStack.last();
+            submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
+                int steps = 16;
 
-            for (int j = 0; j <= 16; ++j) {
-                stringVertex(fx, fy, fz, lineConsumer, pose, fraction(j, 16), fraction(j + 1, 16));
-            }
+                for(int i = 0; i < 16; ++i) {
+                    float a0 = fraction(i, 16);
+                    float a1 = fraction(i + 1, 16);
+                    stringVertex(xa, ya, za, buffer, pose, a0, a1, width);
+                    stringVertex(xa, ya, za, buffer, pose, a1, a0, width);
+                }
+
+            });
+
         }
-        super.render(state, poseStack, buffer, packedLight);
+        poseStack.popPose();
+        super.submit(state, poseStack, submitNodeCollector, camera);
         // do your own rendering here
     }
 
@@ -110,8 +119,9 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         boolean isRightHand = (arm == HumanoidArm.RIGHT);
         int armFactor=isRightHand?1:-1;
         if (this.entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player) {
-            double fovScale = VIEW_BOBBING_SCALE / (double) (Integer) this.entityRenderDispatcher.options.fov().get();
-            Vec3 cameraOffset = this.entityRenderDispatcher.camera.getNearPlane()
+            float fov=this.entityRenderDispatcher.options.fov().get().intValue();
+            double fovScale = VIEW_BOBBING_SCALE / fov;
+            Vec3 cameraOffset = this.entityRenderDispatcher.camera.getNearPlane(fov)
                     .getPointOnPlane((float) armFactor * 0.525F, -0.4F)
                     .scale(fovScale)
                     .yRot(handAngle * 0.5F)
@@ -180,7 +190,7 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
     }
 
     private static void stringVertex(float x, float y, float z, VertexConsumer consumer, PoseStack.Pose pose,
-                                     float stringFraction, float nextStringFraction) {
+                                     float stringFraction, float nextStringFraction,float width) {
         float fx = x * stringFraction;
         float fy = y * (stringFraction * stringFraction + stringFraction) * 0.5F + 0.25F;
         float fz = z * stringFraction;
@@ -194,9 +204,7 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         ny /= norm;
         nz /= norm;
 
-        consumer.addVertex(pose, fx, fy, fz)
-                .setColor(-16777216)   // black (opaque)
-                .setNormal(pose, nx, ny, nz);
+        consumer.addVertex(pose, x, y, z).setColor(-16777216).setNormal(pose, nx, ny, nz).setLineWidth(width);
     }
     @Override
     protected boolean affectedByCulling(GrapplingHookProjectile display) {
