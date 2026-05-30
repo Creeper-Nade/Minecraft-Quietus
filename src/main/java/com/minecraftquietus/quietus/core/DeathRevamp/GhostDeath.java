@@ -34,6 +34,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.LenientJsonParser;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StrictJsonParser;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -98,7 +99,7 @@ public class GhostDeath{
 
         HolderLookup.Provider registries = player.level().registryAccess();
         String json = nbt.getStringOr("deathMessage","death.attack.generic");
-        JsonElement element = StrictJsonParser.parse(json);
+        JsonElement element = LenientJsonParser.parse(json);
         //change old Component.Serializer.FromJson
         Component deathMessage = ComponentSerialization.CODEC.parse(registries.createSerializationContext(JsonOps.INSTANCE), element).getOrThrow(JsonParseException::new);
 

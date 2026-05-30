@@ -12,7 +12,7 @@ import com.minecraftquietus.quietus.client.handler.ClientSkillTreePayloadHandler
 import static com.minecraftquietus.quietus.Quietus.MODID;
 
 
-@OnlyIn(Dist.CLIENT)
+
 @EventBusSubscriber(modid = MODID, value = Dist.CLIENT)
 public class ClientSkillTreeEvent {
 

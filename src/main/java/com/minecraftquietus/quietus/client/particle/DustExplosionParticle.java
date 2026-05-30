@@ -8,7 +8,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jspecify.annotations.Nullable;
 
-@OnlyIn(Dist.CLIENT)
+
 public class DustExplosionParticle extends DustParticleBase<DustExplosionParticleOptions> {
     public DustExplosionParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, DustExplosionParticleOptions options, SpriteSet sprites) {
         super(level, x, y, z, xSpeed, ySpeed, zSpeed, options, sprites);
@@ -35,7 +35,7 @@ public class DustExplosionParticle extends DustParticleBase<DustExplosionParticl
         return this.quadSize * (1.0F - f * f * 0.5F);
     }
 
-    @OnlyIn(Dist.CLIENT)
+
     public static class Provider implements ParticleProvider<DustExplosionParticleOptions> {
         private final SpriteSet sprites;
 

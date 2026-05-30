@@ -180,14 +180,14 @@ public class QuietusIModBusEvent {
         );
     }
     
-    @OnlyIn(Dist.CLIENT)
+
     @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(QuietusParticles.DUST_EXPLOSION.get(), DustExplosionParticle.Provider::new);
         event.registerSpriteSet(QuietusParticles.DUST_IMPLOSION.get(), DustImplosionParticle.Provider::new);
     }
 
-    @OnlyIn(Dist.CLIENT)
+
     @SubscribeEvent // on the mod event bus only on the physical client
     public static void registerConditionalProperties(RegisterConditionalItemModelPropertyEvent event) {
         event.register(

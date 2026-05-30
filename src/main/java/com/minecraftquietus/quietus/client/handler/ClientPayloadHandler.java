@@ -29,7 +29,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-@OnlyIn(Dist.CLIENT)
+
 public class ClientPayloadHandler {
     private static final ClientPayloadHandler INSTANCE = new ClientPayloadHandler();
 

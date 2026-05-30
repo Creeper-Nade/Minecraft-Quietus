@@ -23,7 +23,7 @@ import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
+
 public class ClientSkillTree {
 
     private static final Logger LOGGER = LogUtils.getLogger();

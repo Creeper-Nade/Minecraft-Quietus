@@ -13,7 +13,7 @@ import net.minecraft.util.RandomSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
+
 public class DustImplosionParticle extends DustParticleBase<DustImplosionParticleOptions> {
     private final double xStart;
     private final double yStart;
@@ -135,7 +135,7 @@ public class DustImplosionParticle extends DustParticleBase<DustImplosionParticl
         return this.quadSize * (1.0F - f * f * 0.5F);
     }
 
-    @OnlyIn(Dist.CLIENT)
+
     public static class Provider implements ParticleProvider<DustImplosionParticleOptions> {
         private final SpriteSet sprites;
 

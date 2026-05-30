@@ -8,7 +8,7 @@ import net.minecraft.sounds.SoundSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
+
 public class GhostAmbientSound extends AbstractTickableSoundInstance {
     private static final float FADE_SPEED = 0.02f;
     private float targetVolume;

@@ -28,7 +28,7 @@ import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
+
 public class CustomScreen extends Screen implements ClientAdvancements.Listener {
     private static final Identifier WINDOW_LOCATION = Identifier.withDefaultNamespace("textures/gui/advancements/window.png");
     public static final int WINDOW_WIDTH = 252;
