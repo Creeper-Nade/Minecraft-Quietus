@@ -6,16 +6,20 @@ import com.minecraftquietus.quietus.item.QuietusComponents;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public record CanDecay(
     int maxDecay,
-    ItemStack convertInto
+    Holder<Item> convertInto
 ) {
     public float getDecayFraction(int decay) {
         return 1.0f - (float)decay / (float)this.maxDecay;
@@ -55,8 +59,8 @@ public record CanDecay(
         return value > this.maxDecay;
     }
     public Optional<ItemStack> changeDecayAndMakeConvertedItemIfDecayed(ItemStack itemstack, int amount) {
-        if (this.setDecay(itemstack, itemstack.getOrDefault(QuietusComponents.DECAY.get(), 0).intValue()+amount)) {
-            ItemStack newstack = this.convertInto.copy();
+        if (this.setDecay(itemstack, itemstack.getOrDefault(QuietusComponents.DECAY.get(), 0).intValue() + amount)) {
+            ItemStack newstack = new ItemStack(this.convertInto); 
             newstack.setCount(itemstack.getCount());
             return Optional.of(newstack);
         }
@@ -67,13 +71,13 @@ public record CanDecay(
     public static final Codec<CanDecay> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.INT.fieldOf("max_decay").forGetter(CanDecay::maxDecay),
-            ItemStack.OPTIONAL_CODEC.optionalFieldOf("convert_into", ItemStack.EMPTY).forGetter(CanDecay::convertInto)
+            BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("convert_into").forGetter(CanDecay::convertInto)
         ).apply(instance, CanDecay::new)
     );
     // Serialization Codec for network
     public static final StreamCodec<RegistryFriendlyByteBuf, CanDecay> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.INT, CanDecay::maxDecay,
-        ItemStack.OPTIONAL_STREAM_CODEC, CanDecay::convertInto,
+        ByteBufCodecs.holderRegistry(Registries.ITEM), CanDecay::convertInto,
         CanDecay::new
     );
 
@@ -83,7 +87,7 @@ public record CanDecay(
             return true;
         } else {
             return other instanceof CanDecay candecay 
-                ? this.convertInto.getItem().equals(candecay.convertInto().getItem()) && this.convertInto.getCount() == candecay.convertInto().getCount() && this.convertInto.getComponentsPatch().equals(candecay.convertInto().getComponentsPatch()) 
+                ? this.convertInto.equals(candecay.convertInto())
                     && this.maxDecay == candecay.maxDecay()
                 : false;
         }
@@ -95,13 +99,13 @@ public record CanDecay(
 
     public static class Builder {
         private int maxDecay;
-        private ItemStack convertsInto = ItemStack.EMPTY; // default convert item
+        private Holder<Item> convertsInto; // default convert item
 
         public CanDecay.Builder maxDecay(int maxDecay) {
             this.maxDecay = maxDecay;
             return this;
         }
-        public CanDecay.Builder convertsInto(ItemStack convertsInto) {
+        public CanDecay.Builder convertsInto(Holder<Item> convertsInto) {
             this.convertsInto = convertsInto;
             return this;
         }

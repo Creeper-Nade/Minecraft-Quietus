@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import com.minecraftquietus.quietus.item.component.CanDecay;
 import com.minecraftquietus.quietus.item.component.UsesMana;
@@ -18,6 +19,7 @@ import com.minecraftquietus.quietus.item.property.ProjectileWeaponProperty;
 import com.minecraftquietus.quietus.util.QuietusAttributes;
 import com.minecraftquietus.quietus.util.TriFunction;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -91,8 +93,14 @@ public class QuietusItemProperties extends Item.Properties {
             .repairable(material.repairIngredient());
     }
 
-    public QuietusItemProperties canDecay(int maxDecay, ItemStack convertInto) {
-        return (QuietusItemProperties)this.component(QuietusComponents.CAN_DECAY, CanDecay.builder().maxDecay(maxDecay).convertsInto(convertInto).build());
+    public QuietusItemProperties canDecay(int maxDecay, Holder<Item> convertInto) {
+        return (QuietusItemProperties) this.component(
+            QuietusComponents.CAN_DECAY, 
+            CanDecay.builder()
+                .maxDecay(maxDecay)
+                .convertsInto(convertInto) // Evaluated when NeoForge processes the properties builder
+                .build()
+        );
     }
 
     public ProjectileWeaponProperty projectileWeaponProperty;

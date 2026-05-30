@@ -5,6 +5,7 @@ import com.minecraftquietus.quietus.item.QuietusItems;
 import com.minecraftquietus.quietus.item.component.CanDecay;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -66,27 +67,27 @@ public class FoodDecayComponent {
         
         // 蛋糕
         event.modify(Items.CAKE, builder ->
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(800).convertsInto(new ItemStack(QuietusItems.MOLD.get())).build())
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(800).convertsInto(QuietusItems.MOLD).build())
         );
         
         // stew
         event.modify(Items.MUSHROOM_STEW, builder ->  // 蘑菇炖菜
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(512).convertsInto(new ItemStack(QuietusItems.MOLD_BOWL.get())).build()).set(DataComponents.MAX_STACK_SIZE, 16)
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(512).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
         event.modify(Items.BEETROOT_SOUP, builder ->  // 甜菜汤
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(512).convertsInto(new ItemStack(QuietusItems.MOLD_BOWL.get())).build()).set(DataComponents.MAX_STACK_SIZE, 16)
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(512).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
         event.modify(Items.RABBIT_STEW, builder ->    // 兔肉煲
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(512).convertsInto(new ItemStack(QuietusItems.MOLD_BOWL.get())).build()).set(DataComponents.MAX_STACK_SIZE, 16)
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(512).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
         event.modify(Items.SUSPICIOUS_STEW, builder ->    // suspicious stew
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(512).convertsInto(new ItemStack(QuietusItems.MOLD_BOWL.get())).build()).set(DataComponents.MAX_STACK_SIZE, 16)
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(512).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
 
         // milk bucket has more than one decaying result. This is changed in WeatheringHandler via DecayEvent. 
         // default mold bucket. 50% to be otherwise.
         event.modify(Items.MILK_BUCKET, builder ->  
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(384).convertsInto(new ItemStack(QuietusItems.MOLD_BUCKET.get())).build()).set(DataComponents.MAX_STACK_SIZE, 16)
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(384).convertsInto(QuietusItems.MOLD_BUCKET).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
         
         // golden foods
@@ -117,13 +118,13 @@ public class FoodDecayComponent {
 
     private static void modifyToDecayableMeat(ModifyDefaultComponentsEvent event, Item item, int maxDecay) {
         event.modify(item, builder ->
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(maxDecay).convertsInto(new ItemStack(Items.ROTTEN_FLESH)).build())
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(maxDecay).convertsInto(BuiltInRegistries.ITEM.wrapAsHolder(Items.ROTTEN_FLESH)).build())
         );
     }
 
     private static void modifyToDecayablePlant(ModifyDefaultComponentsEvent event, Item item, int maxDecay) {
         event.modify(item, builder ->
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(maxDecay).convertsInto(new ItemStack(QuietusItems.MOLD.get())).build())
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(maxDecay).convertsInto(QuietusItems.MOLD).build())
         );
     }
 
