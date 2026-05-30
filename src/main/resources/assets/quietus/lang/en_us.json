@@ -9,9 +9,9 @@
   "skillTree.quietus.unlock": "Unlock (%1$d/%2$d)",
   "skillTree.quietus.upgrade": "Upgrade (%1$d/%2$d)",
 
-  "gamerule.doDeathSpectating": "Enters ghost mode upon death",
-  "gamerule.ticksPerDecay": "Number of game ticks taken for all items to decay once",
-  "gamerule.keepInventoryPartially": "Preserves items in major slots while spawning Fragment upon death",
+  "gamerule.do_death_spectating": "Enters ghost mode upon death",
+  "gamerule.ticks_per_decay": "Number of game ticks taken for all items to decay once",
+  "gamerule.keep_inventory_partially": "Preserves items in major slots while spawning Fragment upon death",
   "death.attack.quietus:magic_projectile_damage": "%1$s magically disappeared",
   "death.attack.quietus:magic_projectile_damage.player": "%1$s was voodooed by %2$s",
   "death.attack.quietus:magic_projectile_damage_bypass_invincible_frame": "%1$s magically disappeared",

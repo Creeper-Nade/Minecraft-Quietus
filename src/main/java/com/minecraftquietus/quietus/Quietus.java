@@ -87,6 +87,9 @@ public class Quietus
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public Quietus(IEventBus modEventBus, ModContainer modContainer)
     {
+        // initialization
+        QuietusItems.init();
+
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         
@@ -97,6 +100,7 @@ public class Quietus
         
 
         // Registering registries and their contents
+        modEventBus.register(QuietusGameRules.class);
         QuietusItems.register(modEventBus);
         QuietusComponents.register(modEventBus);
         QuietusEnchantmentComponent.register(modEventBus);
@@ -161,13 +165,17 @@ public class Quietus
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
-
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
+    /**
+     * Happens after registration.
+     * This is called when registration finishes, 
+     * and all modded registries will be by now locked. 
+     * (Used for data and mapping. )
+     * (Do not instantiate new items here.)
+     * @param event
+     */
+    private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             QuietusItems.registerWeatheringMappings();
-            QuietusGameRules.Init();
-            QuietusItems.init();
         });
     }
 

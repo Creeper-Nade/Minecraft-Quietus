@@ -1,24 +1,30 @@
 package com.minecraftquietus.quietus.util;
 
-import com.mojang.serialization.DynamicLike;
-import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.gamerules.GameRule;
 import net.minecraft.world.level.gamerules.GameRuleCategory;
 import net.minecraft.world.level.gamerules.GameRules;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
-import java.util.function.Supplier;
+import static com.minecraftquietus.quietus.Quietus.MODID;
 
 public class QuietusGameRules {
     public static GameRule<Boolean> GHOST_MODE_ENABLED;
     public static GameRule<Boolean> FRAGMENT_SPAWNING;
     public static GameRule<Integer> TICKS_PER_DECAY;
-
-    public static void Init()
-    {
-        GHOST_MODE_ENABLED = GameRules.registerBoolean("doDeathSpectating", GameRuleCategory.PLAYER, true);
-        FRAGMENT_SPAWNING = GameRules.registerBoolean("keepInventoryPartially", GameRuleCategory.PLAYER, true);
-        TICKS_PER_DECAY = GameRules.registerInteger("ticksPerDecay", GameRuleCategory.UPDATES, 100,0);
+    
+    @SubscribeEvent
+    public static void onRegister(RegisterEvent event) {
+        // Safe check to verify we are executing on the Game Rules registry lifecycle
+        if (event.getRegistryKey().equals(Registries.GAME_RULE)) {
+            
+            // Appending the namespace directly inside the identifier string bypasses default lowercase rules
+            GHOST_MODE_ENABLED = GameRules.registerBoolean(MODID + ":do_death_spectating", GameRuleCategory.PLAYER, true);
+            FRAGMENT_SPAWNING = GameRules.registerBoolean(MODID + ":keep_inventory_partially", GameRuleCategory.PLAYER, true);
+            TICKS_PER_DECAY = GameRules.registerInteger(MODID + ":ticks_per_decay", GameRuleCategory.UPDATES, 100, 0);
+            
+        }
     }
 
 
