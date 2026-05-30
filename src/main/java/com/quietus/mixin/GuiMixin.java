@@ -1,0 +1,34 @@
+package com.quietus.mixin;
+
+import com.quietus.client.hud.ManaHudOverlay;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.world.entity.player.Player;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+
+// mixin/GuiMixin.java
+@Mixin(Gui.class)
+public abstract class GuiMixin {
+    @ModifyArg(
+            method = "extractAirLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/Gui;extractAirBubbles(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/world/entity/player/Player;III)V"
+            ),
+            index = 3 // Y position parameter index
+    )
+    private int adjustOxygenBarY(int originalY) {
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            //System.out.println(1);
+
+            int rows = ManaHudOverlay.getRowCount();
+            //System.out.println(rows);
+            return originalY - ((rows-1) * (10- ManaHudOverlay.row_space))-10; // 10px per row + 5px buffer
+        }
+        return originalY;
+    }
+}
