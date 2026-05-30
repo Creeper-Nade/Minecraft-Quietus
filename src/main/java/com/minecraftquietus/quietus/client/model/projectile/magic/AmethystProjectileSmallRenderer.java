@@ -19,11 +19,11 @@ import static com.minecraftquietus.quietus.Quietus.MODID;
 
 public class AmethystProjectileSmallRenderer extends EntityRenderer<QuietusProjectile, ProjectileRenderState> {
 
-    private AmethystProjectileSmallModel model;
+    private AmethystProjectileSmallModel<ProjectileRenderState> model;
 
     public AmethystProjectileSmallRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.model= new AmethystProjectileSmallModel(context.bakeLayer(AmethystProjectileModel.LAYER_LOCATION));
+        this.model= new AmethystProjectileSmallModel<>(context.bakeLayer(AmethystProjectileModel.LAYER_LOCATION));
     }
 
     // Tell the render engine how to create a new entity render state.
@@ -53,8 +53,8 @@ public class AmethystProjectileSmallRenderer extends EntityRenderer<QuietusProje
         poseStack.mulPose(Axis.YP.rotationDegrees(state.yRot));
         poseStack.mulPose(Axis.XP.rotationDegrees(-state.xRot));
 
-        submitNodeCollector.order(0).submitModel(this.model, Unit.INSTANCE, poseStack, this.getTextureLocation(), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, (ModelFeatureRenderer.CrumblingOverlay)null);
-        submitNodeCollector.order(1).submitModel(this.model, Unit.INSTANCE, poseStack, ItemFeatureRenderer.getFoilRenderType(this.model.renderType(this.getTextureLocation()), false), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, (ModelFeatureRenderer.CrumblingOverlay)null);
+        submitNodeCollector.order(0).submitModel(this.model, state, poseStack, this.getTextureLocation(), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, (ModelFeatureRenderer.CrumblingOverlay)null);
+        submitNodeCollector.order(1).submitModel(this.model, state, poseStack, ItemFeatureRenderer.getFoilRenderType(this.model.renderType(this.getTextureLocation()), false), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, (ModelFeatureRenderer.CrumblingOverlay)null);
         poseStack.popPose();
         super.submit(state, poseStack, submitNodeCollector, camera);
         // do your own rendering here
