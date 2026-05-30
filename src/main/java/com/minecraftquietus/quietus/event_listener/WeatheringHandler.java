@@ -29,6 +29,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -137,10 +138,11 @@ public class WeatheringHandler {
      * @param surroundingItems surrounding item stacks taken in account for weathering check
      * @param random random source
      * @param level the level of weathering occurence
+     * @param pos the position of weathering occurence
      * @param server the server of weathering occurence
      * @return WeatheringResult record
      */
-    public static WeatheringResult doWeatherItem(ItemStack stack, ItemStack[] surroundingItems, RandomSource random, Level level, MinecraftServer server) {
+    public static WeatheringResult doWeatherItem(ItemStack stack, ItemStack[] surroundingItems, RandomSource random, Level level, BlockPos pos, MinecraftServer server) {
         boolean hasChangedItem = false;
         boolean hasDecayed = false;
         ItemStack itemstack = stack;
@@ -148,7 +150,7 @@ public class WeatheringHandler {
         if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) {
             Optional<ItemStack> converted_to = itemstack.get(QuietusComponents.CAN_DECAY.get()).changeDecayAndMakeConvertedItemIfDecayed(itemstack, 1);
             hasDecayed = true;
-            if (converted_to.isPresent()) {
+            if (converted_to != null && converted_to.isPresent()) {
                 DecayEvent event = new DecayEvent(itemstack, converted_to.get(), level);
                 if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
                     itemstack = event.getFinalItem();
@@ -158,7 +160,7 @@ public class WeatheringHandler {
         }
         if (random.nextFloat() < tick_chance) {
             if (WeatheringItem.canWeather(itemstack.getItem())) { // only if this item is weatherable, and also take in random ticking chance
-                Optional<Item> next_optional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.environmentAttributes().getDimensionValue(EnvironmentAttributes.WATER_EVAPORATES));
+                Optional<Item> next_optional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.environmentAttributes().getValue(EnvironmentAttributes.WATER_EVAPORATES, pos));
                 if (next_optional.isPresent()) {
                     itemstack = makeNewWeatheredStack(next_optional, itemstack);
                     hasChangedItem = true;
@@ -167,31 +169,34 @@ public class WeatheringHandler {
             }
         }
         if (itemstack.has(DataComponents.CONTAINER)) { // additional weathering if item has container, after checking components
-            Optional<ItemContainerContents> weathered_contents = makeDoWeatherItemContainerContent(itemstack.get(DataComponents.CONTAINER), 9, random, level, server);
-            if (weathered_contents.isPresent())
+            Optional<ItemContainerContents> weathered_contents = makeDoWeatherItemContainerContent(itemstack.get(DataComponents.CONTAINER), 9, random, level, pos, server);
+            if (weathered_contents.isPresent()) {
                 itemstack.set(DataComponents.CONTAINER, weathered_contents.get());
-                return WeatheringResult.of(itemstack, hasChangedItem, hasDecayed, weathered_contents);
+            }
+            return WeatheringResult.of(itemstack, hasChangedItem, hasDecayed, weathered_contents);
         }
         return WeatheringResult.of(itemstack, hasChangedItem, hasDecayed);
     }
 
-    public static Optional<ItemContainerContents> makeDoWeatherItemContainerContent(ItemContainerContents containerContents, int perRow, RandomSource random, Level level, MinecraftServer server) {
+    public static Optional<ItemContainerContents> makeDoWeatherItemContainerContent(ItemContainerContents containerContents, int perRow, RandomSource random, Level level, BlockPos pos, MinecraftServer server) {
         boolean hasChanged = false;
         List<ItemStack> itemsList = new ArrayList<>(containerContents.getSlots());
         for (int i = 0; i < containerContents.getSlots(); i++) {
             ItemStack itemstack = containerContents.getStackInSlot(i); // ItemContainerContents#getStackInSlot returns a copy of the ItemStack 
             ItemStack[] surroundingItems = ContainerUtil.getSurroundingItems(i, 1, 1, containerContents, perRow, false);
-            WeatheringResult result = doWeatherItem(itemstack, surroundingItems, random, level, server); // may result in endless loop: doWeatherItem calls for this method to weather contents in item container
+            WeatheringResult result = doWeatherItem(itemstack, surroundingItems, random, level, pos, server); // may result in endless loop: doWeatherItem calls for this method to weather contents in item container
             if (result.isItemChanged()) {
                 itemsList.add(result.itemStack());
                 hasChanged = true;
-            } else 
+            } else {
                 itemsList.add(itemstack);
-                if (result.hasDecayed() || result.changedContainerContents().isPresent())
-                    hasChanged = true;
+            }
+            if (result.hasDecayed() || result.changedContainerContents().isPresent()) {
+                hasChanged = true;
+            }
         }
-        return hasChanged ? 
-            Optional.of(ItemContainerContents.fromItems(itemsList)) 
+        return hasChanged ?
+            Optional.of(ItemContainerContents.fromItems(itemsList))
             : Optional.empty();
     }
 
@@ -215,7 +220,7 @@ public class WeatheringHandler {
                 for (int i = 0; i < armorItems.length; ++i) {
                     ItemStack itemstack = armorItems[i];
                     //if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) PlayerData.sendPackToDecayItemFromSlotOfEntity(livingEntity, slots[i], 1);
-                    WeatheringResult result = doWeatherItem(itemstack, armorItems, livingEntity.getRandom(), level, server);
+                    WeatheringResult result = doWeatherItem(itemstack, armorItems, livingEntity.getRandom(), level, livingEntity.blockPosition(), server);
                     if (result.isItemChanged()) replaceItem(livingEntity, result.get(), slots[i]);
                     else {
                         if (result.hasDecayed()) PlayerClientPacketDistributor.sendPackToDecayItemFromSlotOfEntity(livingEntity, slots[i], 1);
@@ -247,7 +252,7 @@ public class WeatheringHandler {
                                     surroundingItems.add(inventory.getItem(index));
                             }
                         }
-                        WeatheringResult result = doWeatherItem(itemstack, surroundingItems.toArray(new ItemStack[0]), player.getRandom(), level, server);
+                        WeatheringResult result = doWeatherItem(itemstack, surroundingItems.toArray(new ItemStack[0]), player.getRandom(), level, player.blockPosition(), server);
                         if (result.isItemChanged()) replaceInventoryItem(player, result.get(), i);
                     }
                 }
@@ -258,7 +263,7 @@ public class WeatheringHandler {
                 int containerSize = containerEntity.getContainerSize();
                 for (int i = 0; i < containerSize; i++) {
                     ItemStack itemstack = containerEntity.getItem(i);
-                    WeatheringResult result = doWeatherItem(itemstack, ContainerUtil.getSurroundingItems(i, 1, 1, containerEntity, perRow, false), entity.getRandom(), level, server);
+                    WeatheringResult result = doWeatherItem(itemstack, ContainerUtil.getSurroundingItems(i, 1, 1, containerEntity, perRow, false), entity.getRandom(), level, entity.blockPosition(), server);
                     if (result.isItemChanged()) containerEntity.setItem(i, result.get());
                 }
             } else
@@ -266,12 +271,12 @@ public class WeatheringHandler {
             if (entity instanceof ItemFrame itemFrame) {
                 ItemStack itemstack = itemFrame.getItem();
                 if (itemstack.has(QuietusComponents.CAN_DECAY) && isTimeToDecay(server)) PlayerClientPacketDistributor.sendPackToDecayItemFromSlotOfEntity(entity, EquipmentSlot.MAINHAND, 1);
-                WeatheringResult result = doWeatherItem(itemstack, new ItemStack[0], entity.getRandom(), level, server);
+                WeatheringResult result = doWeatherItem(itemstack, new ItemStack[0], entity.getRandom(), level, entity.blockPosition(), server);
                 if (result.isItemChanged()) itemFrame.setItem(result.get());
             } else 
             if (entity instanceof ItemEntity itemEntity) {
                 ItemStack itemstack = itemEntity.getItem();
-                WeatheringResult result = doWeatherItem(itemstack, new ItemStack[0], entity.getRandom(), level, server);
+                WeatheringResult result = doWeatherItem(itemstack, new ItemStack[0], entity.getRandom(), level, entity.blockPosition(), server);
                 if (result.isItemChanged()) itemEntity.setItem(result.get());
             }
         }
@@ -308,7 +313,7 @@ public class WeatheringHandler {
                         if (furnaceBlockEntity.getBlockState().getValue(AbstractFurnaceBlock.LIT)) { // is lit
                             for (int i = 1; i < furnaceSize; i ++) { // vanilla furnaces have fuel on slot 1, result on slot 2.
                                 ItemStack itemstack = furnaceBlockEntity.getItem(i);
-                                WeatheringResult result = doWeatherItem(itemstack, ContainerUtil.getSurroundingItems(i, 1, 1, furnaceBlockEntity, perRow, false), level.getRandom(), level, server);
+                                WeatheringResult result = doWeatherItem(itemstack, ContainerUtil.getSurroundingItems(i, 1, 1, furnaceBlockEntity, perRow, false), level.getRandom(), level, furnaceBlockEntity.getBlockPos(), server);
                                 if (result.isItemChanged()) furnaceBlockEntity.setItem(i, result.get());
                             }
                             continue; // skip following generic logic
@@ -322,7 +327,7 @@ public class WeatheringHandler {
                     int containerSize = container.getContainerSize();
                     for (int i = 0; i < containerSize; i++) {
                         ItemStack itemstack = container.getItem(i);
-                        WeatheringResult result = doWeatherItem(itemstack, ContainerUtil.getSurroundingItems(i, 1, 1, container, perRow, false), level.getRandom(), level, server);
+                        WeatheringResult result = doWeatherItem(itemstack, ContainerUtil.getSurroundingItems(i, 1, 1, container, perRow, false), level.getRandom(), level, container.getBlockPos(), server);
                         if (result.isItemChanged()) container.setItem(i, result.get());
                     }
                 }

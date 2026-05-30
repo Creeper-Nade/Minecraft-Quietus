@@ -22,34 +22,6 @@ public class WeatheringCopperItem extends Item implements WeatheringCopperItems 
             return OXIDATION_CHANCE;
         }
     }
-
-    // Codecs mapping item.properties and weatherstates (currently unused)
-    //#region
-    // Codec of Item.Properties: durability, enchantable, attributeModifiers, repairable (why? idk, since when oxidizing an instance of WeatheringCopperItems, only id, attributes and name component is changed while the rest are just copied onto the new item. This Codec is backed for future use.)
-    public static final Codec<Item.Properties> PROPERTIES_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codec.INT.optionalFieldOf("durability", 0).forGetter(p -> 0), // Defaults to 0
-        Codec.INT.optionalFieldOf("enchantable", 20).forGetter(p -> 20), // Defaults to 20 (same as oxidized_copper)
-        ItemAttributeModifiers.CODEC.optionalFieldOf("attribute",ItemAttributeModifiers.EMPTY).forGetter(p -> ItemAttributeModifiers.EMPTY),
-        Codec.BOOL.optionalFieldOf("repairable", true).forGetter(p -> true)
-    ).apply(instance, (durability, enchantable, attributes, repairable) -> {
-        Item.Properties propItem = new Item.Properties()
-            .durability(durability)
-            .enchantable(enchantable);
-        if (!attributes.equals(ItemAttributeModifiers.EMPTY)) {
-            propItem.attributes(attributes); 
-        }
-        if (!repairable) {
-            propItem.setNoCombineRepair();
-        }
-        return propItem;
-    }));
-    public static final MapCodec<WeatheringCopperItem> CODEC = RecordCodecBuilder.mapCodec(instance ->
-        instance.group(
-            WeatheringCopperItems.WeatherState.WEATHERSTATE_CODEC.fieldOf("weathering_state").forGetter(WeatheringCopperItem::getAge),
-            PROPERTIES_CODEC.fieldOf("properties").forGetter(WeatheringCopperItem::getProperties)
-        ).apply(instance, WeatheringCopperItem::new)
-    );
-    //#endregion
     
     private final WeatheringCopperItems.WeatherState weatherState; 
 
@@ -86,7 +58,6 @@ public class WeatheringCopperItem extends Item implements WeatheringCopperItems 
         return OXIDATION_MAP.containsKey(this);
     }
 
-    
 }
 
 

@@ -360,15 +360,24 @@ public class QuietusItems {
     public static void registerWeatheringMappings() {
         // Register copper items in the OXIDATION_MAP of WeatheringCopperItems
         // copper armor
+        WeatheringCopperItems.registerWeathering(Items.COPPER_BOOTS, EXPOSED_COPPER_BOOTS.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_BOOTS.get(), WEATHERED_COPPER_BOOTS.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_BOOTS.get(), OXIDIZED_COPPER_BOOTS.get());
+        WeatheringCopperItems.registerWeathering(Items.COPPER_LEGGINGS, EXPOSED_COPPER_LEGGINGS.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_LEGGINGS.get(), WEATHERED_COPPER_LEGGINGS.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_LEGGINGS.get(), OXIDIZED_COPPER_LEGGINGS.get());
+        WeatheringCopperItems.registerWeathering(Items.COPPER_CHESTPLATE, EXPOSED_COPPER_CHESTPLATE.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_CHESTPLATE.get(), WEATHERED_COPPER_CHESTPLATE.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_CHESTPLATE.get(), OXIDIZED_COPPER_CHESTPLATE.get());
+        WeatheringCopperItems.registerWeathering(Items.COPPER_HELMET, EXPOSED_COPPER_HELMET.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_HELMET.get(), WEATHERED_COPPER_HELMET.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_HELMET.get(), OXIDIZED_COPPER_HELMET.get());
         // copper tools & weapons
+        WeatheringCopperItems.registerWeathering(Items.COPPER_SWORD, EXPOSED_COPPER_SWORD.get());
+        WeatheringCopperItems.registerWeathering(Items.COPPER_SHOVEL, EXPOSED_COPPER_SHOVEL.get());
+        WeatheringCopperItems.registerWeathering(Items.COPPER_PICKAXE, EXPOSED_COPPER_PICKAXE.get());
+        WeatheringCopperItems.registerWeathering(Items.COPPER_AXE, EXPOSED_COPPER_AXE.get());
+        WeatheringCopperItems.registerWeathering(Items.COPPER_HOE, EXPOSED_COPPER_HOE.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_SWORD.get(), WEATHERED_COPPER_SWORD.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_SHOVEL.get(), WEATHERED_COPPER_SHOVEL.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_PICKAXE.get(), WEATHERED_COPPER_PICKAXE.get());
