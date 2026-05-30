@@ -214,9 +214,9 @@ public class Quietus
     } */
 
     private void registerPipeline(RegisterRenderPipelinesEvent event) {
-        event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
         event.registerPipeline(GhostDeath.ghostPipeline);
         event.registerPipeline(FragmentHeadLayer.GRAY_SCALE);
+        event.registerPipeline(Ore_Vision.LINES_NO_DEPTH);
         //event.registerPipeline(QuietusEmissiveLayer.FIXED_EMISSIVE);
     }
 
