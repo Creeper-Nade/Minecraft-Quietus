@@ -73,7 +73,7 @@ public class QuietusShovelItem extends Item {
                     level.setBlock(blockpos, blockstate2, 11);
                     level.gameEvent(GameEvent.BLOCK_CHANGE, blockpos, GameEvent.Context.of(player, blockstate2));
                     if (player != null) {
-                        context.getItemInHand().hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+                        context.getItemInHand().hurtAndBreak(1, player, context.getHand().asEquipmentSlot());
                     }
                 }
 
@@ -89,7 +89,6 @@ public class QuietusShovelItem extends Item {
         return FLATTENABLES.get(originalState.getBlock());
     }
 
-    @Override
     public boolean canPerformAction(ItemStack stack, net.neoforged.neoforge.common.ItemAbility itemAbility) {
         return net.neoforged.neoforge.common.ItemAbilities.DEFAULT_SHOVEL_ACTIONS.contains(itemAbility);
     }

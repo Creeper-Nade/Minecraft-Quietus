@@ -15,6 +15,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -22,6 +23,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.ItemAbility;
 
 public class CopperShovelItem extends WeatheringCopperItem {
 
@@ -72,7 +75,7 @@ public class CopperShovelItem extends WeatheringCopperItem {
                     level.setBlock(blockpos, blockstate2, 11);
                     level.gameEvent(GameEvent.BLOCK_CHANGE, blockpos, GameEvent.Context.of(player, blockstate2));
                     if (player != null) {
-                        context.getItemInHand().hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.getHand()));
+                        context.getItemInHand().hurtAndBreak(1, player, context.getHand().asEquipmentSlot());
                     }
                 }
 
@@ -89,8 +92,8 @@ public class CopperShovelItem extends WeatheringCopperItem {
     }
 
     @Override
-    public boolean canPerformAction(ItemStack stack, net.neoforged.neoforge.common.ItemAbility itemAbility) {
-        return net.neoforged.neoforge.common.ItemAbilities.DEFAULT_SHOVEL_ACTIONS.contains(itemAbility);
+    public boolean canPerformAction(ItemInstance stack, ItemAbility itemAbility) {
+        return ItemAbilities.DEFAULT_SHOVEL_ACTIONS.contains(itemAbility);
     }
     
 }

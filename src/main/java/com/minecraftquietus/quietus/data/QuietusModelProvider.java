@@ -81,27 +81,22 @@ public class QuietusModelProvider extends ModelProvider {
 
 
         //copper tools
-        itemModels.generateFlatItem(QuietusItems.COPPER_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_AXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 
-        itemModels.generateFlatItem(QuietusItems.COPPER_HOE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_HOE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_HOE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_HOE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 
-        itemModels.generateFlatItem(QuietusItems.COPPER_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_PICKAXE.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 
-        itemModels.generateFlatItem(QuietusItems.COPPER_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_SHOVEL.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 
-        itemModels.generateFlatItem(QuietusItems.COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.EXPOSED_COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
@@ -123,11 +118,6 @@ public class QuietusModelProvider extends ModelProvider {
 
 
         //trimmables
-
-        itemModels.generateTrimmableItem(QuietusItems.COPPER_HELMET.get(), QuietusArmorMaterials.COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.COPPER_CHESTPLATE.get(), QuietusArmorMaterials.COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.COPPER_LEGGINGS.get(), QuietusArmorMaterials.COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/leggings_trim"), false);
-        itemModels.generateTrimmableItem(QuietusItems.COPPER_BOOTS.get(), QuietusArmorMaterials.COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/boots_trim"),  false);
 
         itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_HELMET.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/helmet_trim"), false);
         itemModels.generateTrimmableItem(QuietusItems.EXPOSED_COPPER_CHESTPLATE.get(), QuietusArmorMaterials.EXPOSED_COPPER_KEY, Identifier.fromNamespaceAndPath("minecraft", "trims/items/chestplate_trim"), false);

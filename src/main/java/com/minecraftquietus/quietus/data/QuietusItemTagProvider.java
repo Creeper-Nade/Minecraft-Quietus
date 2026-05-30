@@ -18,10 +18,6 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         this.tag(ItemTags.TRIMMABLE_ARMOR)
-                .add(QuietusItems.COPPER_HELMET.get())
-                .add(QuietusItems.COPPER_CHESTPLATE.get())
-                .add(QuietusItems.COPPER_LEGGINGS.get())
-                .add(QuietusItems.COPPER_BOOTS.get())
 
                 .add(QuietusItems.EXPOSED_COPPER_HELMET.get())
                 .add(QuietusItems.EXPOSED_COPPER_CHESTPLATE.get())
@@ -59,7 +55,6 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
                 .add(QuietusItems.AMETHYST_BOOTS.get());
 
         this.tag(ItemTags.FOOT_ARMOR)
-                .add(QuietusItems.COPPER_BOOTS.get())
                 .add(QuietusItems.EXPOSED_COPPER_BOOTS.get())
                 .add(QuietusItems.WEATHERED_COPPER_BOOTS.get())
                 .add(QuietusItems.OXIDIZED_COPPER_BOOTS.get())
@@ -69,7 +64,6 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
                 .add(QuietusItems.AMETHYST_BOOTS.get());
 
         this.tag(ItemTags.LEG_ARMOR)
-                .add(QuietusItems.COPPER_LEGGINGS.get())
                 .add(QuietusItems.EXPOSED_COPPER_LEGGINGS.get())
                 .add(QuietusItems.WEATHERED_COPPER_LEGGINGS.get())
                 .add(QuietusItems.OXIDIZED_COPPER_LEGGINGS.get())
@@ -79,7 +73,6 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
                 .add(QuietusItems.AMETHYST_LEGGINGS.get());
 
         this.tag(ItemTags.HEAD_ARMOR)
-                .add(QuietusItems.COPPER_HELMET.get())
                 .add(QuietusItems.EXPOSED_COPPER_HELMET.get())
                 .add(QuietusItems.WEATHERED_COPPER_HELMET.get())
                 .add(QuietusItems.OXIDIZED_COPPER_HELMET.get())
@@ -89,7 +82,6 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
                 .add(QuietusItems.AMETHYST_HELMET.get());
 
         this.tag(ItemTags.CHEST_ARMOR)
-                .add(QuietusItems.COPPER_CHESTPLATE.get())
                 .add(QuietusItems.EXPOSED_COPPER_CHESTPLATE.get())
                 .add(QuietusItems.WEATHERED_COPPER_CHESTPLATE.get())
                 .add(QuietusItems.OXIDIZED_COPPER_CHESTPLATE.get())

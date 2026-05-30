@@ -85,10 +85,6 @@ public class QuietusItems {
          * Instead, modify the second argument (the item creation factory) for item (instead of Item::new) and put the property with desired ArmorMaterial as argument, and add otherwise properties in the third argument class Item.Properties.
          */
         // copper armor & variants<-((normal),exposed,weathered,oxidized)
-        public static final DeferredItem<Item> COPPER_BOOTS = registerCopperArmor("copper_boots", WeatheringCopperItems.WeatherState.UNAFFECTED, QuietusArmorMaterials.COPPER, ArmorType.BOOTS);
-        public static final DeferredItem<Item> COPPER_LEGGINGS = registerCopperArmor("copper_leggings", WeatheringCopperItems.WeatherState.UNAFFECTED, QuietusArmorMaterials.COPPER, ArmorType.LEGGINGS);
-        public static final DeferredItem<Item> COPPER_CHESTPLATE = registerCopperArmor("copper_chestplate", WeatheringCopperItems.WeatherState.UNAFFECTED, QuietusArmorMaterials.COPPER, ArmorType.CHESTPLATE);
-        public static final DeferredItem<Item> COPPER_HELMET = registerCopperArmor("copper_helmet", WeatheringCopperItems.WeatherState.UNAFFECTED, QuietusArmorMaterials.COPPER, ArmorType.HELMET);
         public static final DeferredItem<Item> EXPOSED_COPPER_BOOTS = registerCopperArmor("exposed_copper_boots", WeatheringCopperItems.WeatherState.EXPOSED, QuietusArmorMaterials.EXPOSED_COPPER, ArmorType.BOOTS);
         public static final DeferredItem<Item> EXPOSED_COPPER_LEGGINGS = registerCopperArmor("exposed_copper_leggings", WeatheringCopperItems.WeatherState.EXPOSED, QuietusArmorMaterials.EXPOSED_COPPER, ArmorType.LEGGINGS);
         public static final DeferredItem<Item> EXPOSED_COPPER_CHESTPLATE = registerCopperArmor("exposed_copper_chestplate", WeatheringCopperItems.WeatherState.EXPOSED, QuietusArmorMaterials.EXPOSED_COPPER, ArmorType.CHESTPLATE);
@@ -320,11 +316,11 @@ public class QuietusItems {
                         .setId(ResourceKey.create(Registries.ITEM, Identifier.parse("quietus:chain_grappling_hook")))
         ));
 
-        public static final DeferredItem<Item> COPPER_SWORD = REGISTRAR.registerItem("copper_sword", properties -> new WeatheringCopperItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().sword(QuietusToolMaterial.COPPER, 3.0f, -2.4f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "copper_sword")))));    
+        /* public static final DeferredItem<Item> COPPER_SWORD = REGISTRAR.registerItem("copper_sword", properties -> new WeatheringCopperItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().sword(QuietusToolMaterial.COPPER, 3.0f, -2.4f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "copper_sword")))));    
         public static final DeferredItem<Item> COPPER_SHOVEL = REGISTRAR.registerItem("copper_shovel", properties -> new CopperShovelItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().shovel(QuietusToolMaterial.COPPER, 1.5f, -3.0f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "copper_shovel")))));
         public static final DeferredItem<Item> COPPER_PICKAXE = REGISTRAR.registerItem("copper_pickaxe", properties -> new WeatheringCopperItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().pickaxe(QuietusToolMaterial.COPPER, 1.5f, -2.8f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "copper_pickaxe")))));    
         public static final DeferredItem<Item> COPPER_AXE = REGISTRAR.registerItem("copper_axe", properties -> new CopperAxeItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().axe(QuietusToolMaterial.COPPER, 6.5f, -3.2f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "copper_axe")))));
-        public static final DeferredItem<Item> COPPER_HOE = REGISTRAR.registerItem("copper_hoe", properties -> new CopperHoeItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().hoe(QuietusToolMaterial.COPPER, -1.5f, -1.5f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "copper_hoe")))));
+        public static final DeferredItem<Item> COPPER_HOE = REGISTRAR.registerItem("copper_hoe", properties -> new CopperHoeItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().hoe(QuietusToolMaterial.COPPER, -1.5f, -1.5f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "copper_hoe"))))); */
         public static final DeferredItem<Item> EXPOSED_COPPER_SWORD = REGISTRAR.registerItem("exposed_copper_sword", properties -> new WeatheringCopperItem(WeatheringCopperItems.WeatherState.EXPOSED, new QuietusItemProperties().sword(QuietusToolMaterial.EXPOSED_COPPER, 3.0f, -2.4f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "exposed_copper_sword")))));    
         public static final DeferredItem<Item> EXPOSED_COPPER_SHOVEL = REGISTRAR.registerItem("exposed_copper_shovel", properties -> new CopperShovelItem(WeatheringCopperItems.WeatherState.EXPOSED, new QuietusItemProperties().shovel(QuietusToolMaterial.EXPOSED_COPPER, 1.5f, -3.0f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "exposed_copper_shovel")))));
         public static final DeferredItem<Item> EXPOSED_COPPER_PICKAXE = REGISTRAR.registerItem("exposed_copper_pickaxe", properties -> new WeatheringCopperItem(WeatheringCopperItems.WeatherState.EXPOSED, new QuietusItemProperties().pickaxe(QuietusToolMaterial.EXPOSED_COPPER, 2.0f, -2.9f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "exposed_copper_pickaxe")))));    
@@ -351,19 +347,9 @@ public class QuietusItems {
             event.accept(HARDENED_FUR);
         }
         if (tabKey == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-            event.accept(COPPER_SHOVEL);
-            event.accept(COPPER_PICKAXE);
-            event.accept(COPPER_AXE);
-            event.accept(COPPER_HOE);
         }
         if (tabKey == CreativeModeTabs.COMBAT) {
-            event.accept(COPPER_SWORD);
-            event.accept(COPPER_AXE);
             event.accept(AMETHYST_STAFF);
-            event.accept(COPPER_HELMET);
-            event.accept(COPPER_CHESTPLATE);
-            event.accept(COPPER_LEGGINGS);
-            event.accept(COPPER_BOOTS);
             event.accept(AMETHYST_HELMET);
             event.accept(AMETHYST_CHESTPLATE);
             event.accept(AMETHYST_LEGGINGS);
@@ -374,24 +360,15 @@ public class QuietusItems {
     public static void registerWeatheringMappings() {
         // Register copper items in the OXIDATION_MAP of WeatheringCopperItems
         // copper armor
-        WeatheringCopperItems.registerWeathering(COPPER_BOOTS.get(), EXPOSED_COPPER_BOOTS.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_BOOTS.get(), WEATHERED_COPPER_BOOTS.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_BOOTS.get(), OXIDIZED_COPPER_BOOTS.get());
-        WeatheringCopperItems.registerWeathering(COPPER_LEGGINGS.get(), EXPOSED_COPPER_LEGGINGS.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_LEGGINGS.get(), WEATHERED_COPPER_LEGGINGS.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_LEGGINGS.get(), OXIDIZED_COPPER_LEGGINGS.get());
-        WeatheringCopperItems.registerWeathering(COPPER_CHESTPLATE.get(), EXPOSED_COPPER_CHESTPLATE.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_CHESTPLATE.get(), WEATHERED_COPPER_CHESTPLATE.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_CHESTPLATE.get(), OXIDIZED_COPPER_CHESTPLATE.get());
-        WeatheringCopperItems.registerWeathering(COPPER_HELMET.get(), EXPOSED_COPPER_HELMET.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_HELMET.get(), WEATHERED_COPPER_HELMET.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_HELMET.get(), OXIDIZED_COPPER_HELMET.get());
         // copper tools & weapons
-        WeatheringCopperItems.registerWeathering(COPPER_SWORD.get(), EXPOSED_COPPER_SWORD.get());
-        WeatheringCopperItems.registerWeathering(COPPER_SHOVEL.get(), EXPOSED_COPPER_SHOVEL.get());
-        WeatheringCopperItems.registerWeathering(COPPER_PICKAXE.get(), EXPOSED_COPPER_PICKAXE.get());
-        WeatheringCopperItems.registerWeathering(COPPER_AXE.get(), EXPOSED_COPPER_AXE.get());
-        WeatheringCopperItems.registerWeathering(COPPER_HOE.get(), EXPOSED_COPPER_HOE.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_SWORD.get(), WEATHERED_COPPER_SWORD.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_SHOVEL.get(), WEATHERED_COPPER_SHOVEL.get());
         WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_PICKAXE.get(), WEATHERED_COPPER_PICKAXE.get());
@@ -420,6 +397,16 @@ public class QuietusItems {
         /* Arguments: 
          *  the Item object, int array of possible WeatherStates(picked randomly from the array), float of oxidation chance, the Class<?> enumeration of WeatherState class this item should have (just take from existing classes as shown below)
         */
+        Class<?> class_weathering_copper_armor_item = WeatheringCopperItems.WeatherState.class;
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_BOOTS, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_LEGGINGS, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_CHESTPLATE, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_HELMET, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_SWORD, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_SHOVEL, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_PICKAXE, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_AXE, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_HOE, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
         Class<?> class_weathering_iron_armor_item = WeatheringIronItems.WeatherState.class;
         WeatheringItem.registerExtraWeatheringItem(Items.IRON_BOOTS, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, WeatheringIronItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_iron_armor_item);
         WeatheringItem.registerExtraWeatheringItem(Items.IRON_LEGGINGS, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, WeatheringIronItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_iron_armor_item);
