@@ -26,7 +26,7 @@ public class HumanoidModelMixin<T extends HumanoidRenderState> {
     @Shadow @Final public ModelPart rightArm;
 
     @Shadow @Final public ModelPart leftArm;
-    private static final float SMOOTHING = 0.3F; // adjust for responsiveness
+    private static final float SMOOTHING = 0.1F; // adjust for responsiveness
     private static final float ATTACK_SMOOTHING = 0.2F; // how fast blend responds to attackTime changes
 
     @Inject(method = "setupAnim", at = @At("RETURN"))
@@ -89,6 +89,7 @@ public class HumanoidModelMixin<T extends HumanoidRenderState> {
         float finalBlend = blend * smoothedAttackBlend;
         if (finalBlend <= 0.01F) return;
 
+        System.out.println(finalBlend);
         targetArm.xRot = targetArm.xRot * (1 - finalBlend) + currentPitch * finalBlend;
         targetArm.yRot = targetArm.yRot * (1 - finalBlend) + finalYaw * finalBlend;
     }

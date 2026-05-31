@@ -96,11 +96,22 @@ public class GhostDeath{
         CompoundTag nbt= player.getPersistentData();
 
         HolderLookup.Provider registries = player.level().registryAccess();
-        String json = nbt.getStringOr("deathMessage","death.attack.generic");
-        JsonElement element = LenientJsonParser.parse(json);
-        //change old Component.Serializer.FromJson
-        Component deathMessage = ComponentSerialization.CODEC.parse(registries.createSerializationContext(JsonOps.INSTANCE), element).getOrThrow(JsonParseException::new);
-
+        String json = nbt.getStringOr("deathMessage", "death.attack.generic");
+        JsonElement element;
+        try {
+            element = LenientJsonParser.parse(json);
+        } catch (JsonParseException e) {
+            // Fallback: create a valid component JSON for the generic death message
+            Component fallbackComponent = Component.translatable("death.attack.generic");
+            element = ComponentSerialization.CODEC.encodeStart(
+                    registries.createSerializationContext(JsonOps.INSTANCE),
+                    fallbackComponent
+            ).getOrThrow(JsonParseException::new);
+        }
+        Component deathMessage = ComponentSerialization.CODEC.parse(
+                registries.createSerializationContext(JsonOps.INSTANCE),
+                element
+        ).getOrThrow(JsonParseException::new);
         Boolean isGhost = nbt.getBooleanOr("isGhost",false);
         boolean hardcore = player.level().getLevelData().isHardcore();
         int ReviveCD = nbt.getIntOr("reviveCooldown",0);
@@ -312,8 +323,7 @@ public class GhostDeath{
             .withVertexShader(Identifier.fromNamespaceAndPath(MODID, "core/ghost_effect"))
             .withFragmentShader(Identifier.fromNamespaceAndPath(MODID, "core/ghost_effect"))
             .withSampler("DiffuseSampler")  // Correct sampler declaration
-            .withUniform("ScreenSize", UniformType.UNIFORM_BUFFER)
-            .withDepthStencilState(new DepthStencilState(CompareOp.NEVER_PASS, false))
+            .withUniform("GhostEffectUbo", UniformType.UNIFORM_BUFFER)
             .withCull(false)
             .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
             .build();

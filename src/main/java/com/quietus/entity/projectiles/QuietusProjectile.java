@@ -97,6 +97,7 @@ public abstract class QuietusProjectile extends Projectile {
     }
     @Override
     protected boolean canHitEntity(Entity target) {
+        if (!target.canBeHitByProjectile()) {return false;}
         //this is for quietus projectile from player to work on ghost
         return super.canHitEntity(target) || (this.getOwner() instanceof Player);
     }
