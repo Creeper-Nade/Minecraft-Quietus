@@ -114,7 +114,7 @@ public class PlayerSkillTree {
                 writer.close();
             }
         } catch (IOException | JsonIOException var7) {
-            LOGGER.error("Couldn't save player advancements to {}", this.playerSavePath, var7);
+            LOGGER.error("Couldn't save player skill tree to {}", this.playerSavePath, var7);
         }
 
     }

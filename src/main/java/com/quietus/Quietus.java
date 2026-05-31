@@ -51,6 +51,7 @@ import com.quietus.server.QuietusReloadableResources;
 import com.quietus.skill.QuietusSkills;
 import com.quietus.entity.QuietusEntityTypes;
 import com.quietus.entity.projectiles.QuietusProjectiles;
+import com.quietus.event_listener.QuietusCommonEvents;
 import com.quietus.client.hud.ManaHudOverlay;
 
 
@@ -189,9 +190,7 @@ public class Quietus
      * @param event
      */
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
-        LOGGER.info("HELLO from server starting");
+    public void onServerStarting(ServerStartingEvent event) {
         playerData = new PlayerData(event.getServer());
     }
 
@@ -200,9 +199,9 @@ public class Quietus
      * @param event
      */
     @SubscribeEvent
-    public void onServerStopping(ServerStoppingEvent event)
-    {
+    public void onServerStopping(ServerStoppingEvent event) {
         QuietusReloadableResources.close();
+        event.getServer().getPlayerList().getPlayers().forEach(QuietusCommonEvents::saveServerPlayerData);
         playerData = null;
     }
 

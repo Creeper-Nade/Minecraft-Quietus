@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+
+import com.mojang.logging.LogUtils;
 import com.quietus.Quietus;
 
 import net.minecraft.server.MinecraftServer;
@@ -15,6 +18,8 @@ import net.minecraft.world.level.storage.LevelResource;
 import static com.quietus.server.QuietusReloadableResources.skillTreeManager;
 
 public class PlayerData {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final MinecraftServer server;
     private final Path worldPath;

@@ -12,9 +12,6 @@ import com.quietus.item.component.CanDecay;
 import com.quietus.item.equipment.RetaliatesOnDamaged;
 import com.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.quietus.potion.QuietusPotions;
-import com.quietus.util.ManaUtil;
-import com.quietus.util.QuietusAttachments;
-import com.quietus.util.QuietusGameRules;
 import com.quietus.util.*;
 import com.quietus.tags.QuietusTags;
 import com.mojang.logging.LogUtils;
@@ -190,10 +187,14 @@ public class QuietusCommonEvents {
     public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
-            /* Player data */
-            if (Objects.nonNull(Quietus.playerData)) {
-                Quietus.playerData.savePlayer(serverPlayer);
-            }
+            saveServerPlayerData(serverPlayer);
+        }
+    }
+
+    public static void saveServerPlayerData(ServerPlayer serverPlayer) {
+        /* Player data */
+        if (Objects.nonNull(Quietus.playerData)) {
+            Quietus.playerData.savePlayer(serverPlayer);
         }
     }
 
