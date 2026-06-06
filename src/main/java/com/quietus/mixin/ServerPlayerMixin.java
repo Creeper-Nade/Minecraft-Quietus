@@ -17,6 +17,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -176,14 +179,19 @@ public abstract class ServerPlayerMixin extends Player {
 
 
 
-        logPlayerState(player, "BEFORE_REVIVE");
-        player.connection.player = player.level().getServer().getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
-        logPlayerState(player, "AFTER_REVIVE");
+        //logPlayerState(player, "BEFORE_REVIVE");
+        ServerPlayer newPlayer = player.level().getServer().getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
+        player.connection.player = newPlayer;
+        //logPlayerState(player, "AFTER_REVIVE");
 
         //if we are going to halve player's health upon revival, like in Terraria
         //player.connection.player.setHealth(player.getMaxHealth() / 2);
 
         player.connection.resetPosition();
+        ServerGamePacketListenerImplMixin accessor = (ServerGamePacketListenerImplMixin) newPlayer.connection;
+        accessor.setWaitingForRespawn(false);
+        accessor.setClientLoadedTimeoutTimer(60);
+        //player.connection.restartClientLoadTimerAfterRespawn();
     }
     private static final Logger LOGGER = LogUtils.getLogger();
     private static void logPlayerState(ServerPlayer player, String stage) {

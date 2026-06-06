@@ -89,7 +89,6 @@ public class HumanoidModelMixin<T extends HumanoidRenderState> {
         float finalBlend = blend * smoothedAttackBlend;
         if (finalBlend <= 0.01F) return;
 
-        System.out.println(finalBlend);
         targetArm.xRot = targetArm.xRot * (1 - finalBlend) + currentPitch * finalBlend;
         targetArm.yRot = targetArm.yRot * (1 - finalBlend) + finalYaw * finalBlend;
     }
