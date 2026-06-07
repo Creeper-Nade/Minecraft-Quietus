@@ -25,8 +25,6 @@ public class SpawnPlayerFragment {
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player && player.level().getGameRules().get(QuietusGameRules.FRAGMENT_SPAWNING) && !player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
-
-
             // Collect loot (excluding hotbar/armor)
             List<ItemStack> ghostLoot = new ArrayList<>();
             for (int i = 0; i < player.getInventory().getContainerSize(); i++) {

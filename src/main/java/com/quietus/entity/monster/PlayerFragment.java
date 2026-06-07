@@ -139,7 +139,7 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
     public void setPlayerData(Player player) {
         //pass head texture
         Minecraft minecraft = Minecraft.getInstance();
-        Identifier headTex=minecraft.getSkinManager().get(player.getGameProfile()).join().get().body().id();
+        Identifier headTex=minecraft.getSkinManager().get(player.getGameProfile()).join().get().body().texturePath();
         entityData.set(HeadTexture, headTex);
 
         this.setStoredExperience(calculateTotalExperience(player));
