@@ -1,6 +1,9 @@
 package com.quietus.client.model.mob;
 
+import com.geckolib.cache.model.GeoBone;
 import com.geckolib.renderer.base.RenderPassInfo;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
+import com.mojang.blaze3d.platform.CompareOp;
 import com.quietus.client.model.QuietusDataTickets;
 import com.quietus.entity.monster.PlayerFragment;
 import com.mojang.blaze3d.pipeline.BlendFunction;
@@ -33,6 +36,9 @@ import com.geckolib.renderer.base.GeoRenderState;
 import com.geckolib.renderer.base.GeoRenderer;
 import com.geckolib.renderer.layer.GeoRenderLayer;
 import com.geckolib.util.RenderUtil;
+import net.neoforged.neoforge.client.stencil.StencilOperation;
+
+import java.util.Optional;
 
 import static com.quietus.Quietus.MODID;
 
@@ -62,53 +68,65 @@ public class FragmentHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderSt
     public void submitRenderTask(RenderPassInfo<R> renderPassInfo, SubmitNodeCollector renderTasks) {
         R renderState = renderPassInfo.renderState();
 
-        // Get the entity from the render state using our custom data ticket
-        if (!renderState.hasGeckolibData(QuietusDataTickets.PLAYER_FRAGMENT_ENTITY)) {
-            return;
-        }
+        if (!renderState.hasGeckolibData(QuietusDataTickets.PLAYER_FRAGMENT_ENTITY)) return;
 
         PlayerFragment ghost = renderState.getGeckolibData(QuietusDataTickets.PLAYER_FRAGMENT_ENTITY);
 
         getDefaultBakedModel(renderState).getBone("head").ifPresent(headBone -> {
-            Identifier texture = ghost.getPlayerHeadTexture();
-            RenderType renderType = getRenderType(renderState, texture);
+            Identifier texture = ensureFullTexturePath(ghost.getPlayerHeadTexture());
 
-            if (renderType != null) {
-                // Submit custom geometry to the node collector
-                renderTasks.submitCustomGeometry(renderPassInfo.poseStack(), renderType, (pose, vertexConsumer) -> {
-                    final PoseStack poseStack = renderPassInfo.poseStack();
+            // Always render grayscale head
+            RenderType grayscaleType = getRenderType(renderState,texture);
+            if (grayscaleType != null) {
+                submitHeadGeometry(renderPassInfo, renderTasks, headBone, grayscaleType);
+            }
 
-                    poseStack.pushPose();
-                    // Sync the pose stack with the geometry collector's current state
-                    poseStack.last().set(pose);
-
-                    // Execute model posing safely within Geckolib's isolated animation state
-                    renderPassInfo.renderPosed(() -> {
-                        // 1. Snaps the PoseStack EXACTLY to the coordinate space of the head bone.
-                        // (This entirely replaces all your old parent grabbing and scaling math)
-                        RenderUtil.transformToBone(poseStack, headBone);
-
-                        // 2. Apply your custom offsets
-                        // Note: Because the parent math is now accurate natively, you might want
-                        // to test if `-0.8f` is still exactly what you need here.
-                        poseStack.translate(0, -0.8f, 0);
-
-                        // 3. Rotate to match ghost's head direction
-                        poseStack.mulPose(Axis.ZP.rotationDegrees(180));
-
-                        // 4. Render the skull
-                        skullModel.renderToBuffer(poseStack, vertexConsumer, renderPassInfo.packedLight(), renderPassInfo.packedOverlay());
-                    });
-
-                    poseStack.popPose();
-                });
+            // If glowing, also submit the outline using vanilla outline pipeline
+            if (renderState instanceof EntityRenderState entityRenderState && entityRenderState.appearsGlowing()) {
+                RenderType outlineType = RenderTypes.outline(texture);
+                submitHeadGeometry(renderPassInfo, renderTasks, headBone, outlineType);
             }
         });
+    }
+    private void submitHeadGeometry(RenderPassInfo<R> renderPassInfo, SubmitNodeCollector renderTasks,
+                                    GeoBone headBone, RenderType renderType) {
+        renderTasks.submitCustomGeometry(renderPassInfo.poseStack(), renderType, (pose, vertexConsumer) -> {
+            final PoseStack poseStack = renderPassInfo.poseStack();
+            poseStack.pushPose();
+            poseStack.last().set(pose);
+            renderPassInfo.renderPosed(() -> {
+                // 1. Snaps the PoseStack EXACTLY to the coordinate space of the head bone.
+                // (This entirely replaces all your old parent grabbing and scaling math)
+                RenderUtil.transformToBone(poseStack, headBone);
+
+                // 2. Apply your custom offsets
+                // Note: Because the parent math is now accurate natively, you might want
+                // to test if `-0.8f` is still exactly what you need here.
+                //poseStack.translate(0, 0.8f, 0);
+
+                // 3. Rotate to match ghost's head direction
+                poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+
+                // 4. Render the skull
+                skullModel.renderToBuffer(poseStack, vertexConsumer, renderPassInfo.packedLight(), renderPassInfo.packedOverlay());
+            });
+            poseStack.popPose();
+        });
+    }
+    private Identifier ensureFullTexturePath(Identifier raw) {
+        String path = raw.getPath();
+        // If it already starts with "textures/", assume it's correct
+        if (path.startsWith("textures/")) {
+            return raw;
+        }
+        // Otherwise, prepend "textures/" and append ".png"
+        String fixedPath = "textures/" + path + ".png";
+        return Identifier.fromNamespaceAndPath(raw.getNamespace(), fixedPath);
     }
 
     protected RenderType getRenderType(R renderState, Identifier texture) {
         if (!(renderState instanceof EntityRenderState entityRenderState))
-            return createGrayscaleRenderType(texture, false);
+            return createGrayscaleRenderType(texture);
 
         boolean invisible = entityRenderState.isInvisible;
 
@@ -116,17 +134,11 @@ public class FragmentHeadLayer<T extends GeoAnimatable, O, R extends GeoRenderSt
         if (invisible && Boolean.FALSE.equals(renderState.getGeckolibData(DataTickets.INVISIBLE_TO_PLAYER)))
             return RenderTypes.entityTranslucentCullItemTarget(texture);
 
-        if (entityRenderState.appearsGlowing()) {
-            if (invisible)
-                return RenderTypes.outline(texture);
-
-            return createGrayscaleRenderType(texture, true);
-        }
-
-        return invisible ? null : createGrayscaleRenderType(texture, false);
+        return invisible ? null : createGrayscaleRenderType(texture);
     }
 
-    public static RenderType createGrayscaleRenderType(Identifier texture, boolean outline) {
+    public static RenderType createGrayscaleRenderType(Identifier texture) {
+        //RenderSetup.OutlineProperty outlineProperty= outline ? RenderSetup.OutlineProperty.AFFECTS_OUTLINE : RenderSetup.OutlineProperty.NONE;
         RenderSetup state = RenderSetup.builder(GRAY_SCALE).withTexture("Sampler0", texture).useLightmap().useOverlay().setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING).sortOnUpload().setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE).createRenderSetup();
 
         return RenderType.create(

@@ -5,10 +5,11 @@
   "mixins": [
     "AbstractFurnaceBlockEntityMixin",
     "GuiMixin",
+    "HumanoidModelMixin",
     "PlayerMixin",
     "ProjectileMixin",
-    "ServerPlayerMixin",
-    "HumanoidModelMixin"
+    "ServerGamePacketListenerImplMixin",
+    "ServerPlayerMixin"
   ],
   "client": [],
   "server": [],

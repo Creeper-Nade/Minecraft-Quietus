@@ -1,5 +1,8 @@
 package com.quietus.mixin;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.mojang.logging.LogUtils;
 import com.quietus.client.handler.ClientPayloadHandler;
 import com.quietus.sounds.QuietusSounds;
 import com.quietus.tags.QuietusTags;
@@ -14,6 +17,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -23,6 +29,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -62,7 +69,11 @@ public abstract class ServerPlayerMixin extends Player {
         data.putString("originalGameMode", player.gameMode.getGameModeForPlayer().getName());
         // Serialize death message with registry access
         HolderLookup.Provider registries = player.level().registryAccess();
-        String json = ComponentSerialization.CODEC.encodeStart(registries.createSerializationContext(JsonOps.INSTANCE), deathMessage).toString();
+        JsonElement jsonElement = ComponentSerialization.CODEC.encodeStart(
+                registries.createSerializationContext(JsonOps.INSTANCE),
+                deathMessage
+        ).getOrThrow(JsonParseException::new);
+        String json = jsonElement.toString();
         data.putString("deathMessage", json);
 
         PlayerClientPacketDistributor.sendGhostPackToPlayer(player,true,deathMessage,cooldown,hardcore);
@@ -168,12 +179,37 @@ public abstract class ServerPlayerMixin extends Player {
 
 
 
-
-        player.connection.player = player.level().getServer().getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
+        //logPlayerState(player, "BEFORE_REVIVE");
+        ServerPlayer newPlayer = player.level().getServer().getPlayerList().respawn(player, false, Entity.RemovalReason.KILLED);
+        player.connection.player = newPlayer;
+        //logPlayerState(player, "AFTER_REVIVE");
 
         //if we are going to halve player's health upon revival, like in Terraria
         //player.connection.player.setHealth(player.getMaxHealth() / 2);
 
         player.connection.resetPosition();
+        ServerGamePacketListenerImplMixin accessor = (ServerGamePacketListenerImplMixin) newPlayer.connection;
+        accessor.setWaitingForRespawn(false);
+        accessor.setClientLoadedTimeoutTimer(60);
+        //player.connection.restartClientLoadTimerAfterRespawn();
+    }
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static void logPlayerState(ServerPlayer player, String stage) {
+        ServerPlayer actual = player.connection != null ? player.connection.player : null;
+        LOGGER.info("[{}] Player: {} | gameMode: {} | health: {} | dead: {} | invulnerableTime: {} | abilities.invulnerable: {} | invisible: {} | isRemoved: {}",
+                stage,
+                player.getName().getString(),
+                player.gameMode.getGameModeForPlayer(),
+                player.getHealth(),
+                player.isDeadOrDying(),
+                player.invulnerableTime,
+                player.getAbilities().invulnerable,
+                player.isInvisible(),
+                player.isRemoved()
+        );
+        if (actual != null && actual != player) {
+            LOGGER.info("[{}] Connection.player is different: gameMode={}, health={}, dead={}",
+                    stage, actual.gameMode.getGameModeForPlayer(), actual.getHealth(), actual.isDeadOrDying());
+        }
     }
 }

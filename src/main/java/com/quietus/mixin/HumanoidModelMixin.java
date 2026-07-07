@@ -26,7 +26,7 @@ public class HumanoidModelMixin<T extends HumanoidRenderState> {
     @Shadow @Final public ModelPart rightArm;
 
     @Shadow @Final public ModelPart leftArm;
-    private static final float SMOOTHING = 0.3F; // adjust for responsiveness
+    private static final float SMOOTHING = 0.1F; // adjust for responsiveness
     private static final float ATTACK_SMOOTHING = 0.2F; // how fast blend responds to attackTime changes
 
     @Inject(method = "setupAnim", at = @At("RETURN"))

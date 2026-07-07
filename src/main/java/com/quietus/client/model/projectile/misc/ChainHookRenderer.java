@@ -1,5 +1,6 @@
 package com.quietus.client.model.projectile.misc;
 
+import com.quietus.client.model.projectile.magic.ProjectileRenderState;
 import com.quietus.entity.projectiles.misc.GrapplingHookProjectile;
 import com.quietus.item.QuietusComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -8,6 +9,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
@@ -29,13 +31,13 @@ import static com.quietus.Quietus.MODID;
 
 public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, GrapplingHookRenderState> {
 
-    private ChainHookModel model;
+    private ChainHookModel<GrapplingHookRenderState> model;
     private static final double VIEW_BOBBING_SCALE = 960.0; // from FishingHookRenderer
     private static HumanoidArm cachedArm;
 
     public ChainHookRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.model= new ChainHookModel(context.bakeLayer(ChainHookModel.LAYER_LOCATION));
+        this.model= new ChainHookModel<>(context.bakeLayer(ChainHookModel.LAYER_LOCATION));
     }
 
     // Tell the render engine how to create a new entity render state.
@@ -44,7 +46,11 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         return new GrapplingHookRenderState();
     }
 
-    
+    @Override
+    public boolean shouldRender(GrapplingHookProjectile entity, Frustum culler, double camX, double camY, double camZ) {
+        return super.shouldRender(entity, culler, camX, camY, camZ) && entity.getPlayerOwner() != null;
+    }
+
 
     // Update the render state by copying the needed values from the passed entity to the passed state.
     // Both Entity and EntityRenderState may be replaced with more concrete types,
@@ -68,22 +74,24 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
             state.lineOriginOffset = Vec3.ZERO;
         }
     }
-
-
     // Actually render the entity. The first parameter matches the render state's generic type.
     // Calling super will handle leash and name tag rendering for you, if applicable.
     @Override
     public void submit(GrapplingHookRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        poseStack.pushPose();
-        //poseStack.translate(0.0F, 0.0F, 0.0F);
-        poseStack.translate(-0.5F / 16.0F, 5.0F / 16.0F, 0.0F); // Convert pixels to blocks (1/16th of a block)
+        poseStack.pushPose(); // first push – preserves original transform for line
+        poseStack.pushPose(); // second push – for hook model transformations
+
+        // Transform the hook model
+        poseStack.translate(-0.5F / 16.0F, 5.0F / 16.0F, 0.0F);
         poseStack.mulPose(Axis.YP.rotationDegrees(state.yRot));
         poseStack.mulPose(Axis.XP.rotationDegrees(-state.xRot));
 
-        submitNodeCollector.submitModel(this.model, Unit.INSTANCE, poseStack, this.getTextureLocation(), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, (ModelFeatureRenderer.CrumblingOverlay)null);
-        poseStack.popPose();
+        submitNodeCollector.submitModel(this.model, state, poseStack, this.getTextureLocation(),
+                state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
 
-        // Render the line (rope) if we have a valid offset
+        poseStack.popPose(); // remove hook model transformations, keep original translation
+
+        // Render the line (rope)
         if (state.lineOriginOffset != null && !state.lineOriginOffset.equals(Vec3.ZERO)) {
             float xa = (float) state.lineOriginOffset.x;
             float ya = (float) state.lineOriginOffset.y;
@@ -91,21 +99,16 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
             float width = Minecraft.getInstance().gameRenderer.getGameRenderState().windowRenderState.appropriateLineWidth;
 
             submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
-                int steps = 16;
-
-                for(int i = 0; i < 16; ++i) {
+                for (int i = 0; i < 16; ++i) {
                     float a0 = fraction(i, 16);
                     float a1 = fraction(i + 1, 16);
                     stringVertex(xa, ya, za, buffer, pose, a0, a1, width);
                     stringVertex(xa, ya, za, buffer, pose, a1, a0, width);
                 }
-
             });
-
         }
-        poseStack.popPose();
+        poseStack.popPose(); // final pop – balances the first push
         super.submit(state, poseStack, submitNodeCollector, camera);
-        // do your own rendering here
     }
 
     // ========== Helper methods copied/adapted from FishingHookRenderer ==========
@@ -186,21 +189,26 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
     }
 
     private static void stringVertex(float x, float y, float z, VertexConsumer consumer, PoseStack.Pose pose,
-                                     float stringFraction, float nextStringFraction,float width) {
+                                     float stringFraction, float nextStringFraction, float width) {
         float fx = x * stringFraction;
         float fy = y * (stringFraction * stringFraction + stringFraction) * 0.5F + 0.25F;
         float fz = z * stringFraction;
-
         float nx = x * nextStringFraction - fx;
         float ny = y * (nextStringFraction * nextStringFraction + nextStringFraction) * 0.5F + 0.25F - fy;
         float nz = z * nextStringFraction - fz;
-
         float norm = Mth.sqrt(nx * nx + ny * ny + nz * nz);
+
+        // Safety check: skip if norm is zero (would cause division by zero)
+        if (norm < 1e-6f) return;
+
         nx /= norm;
         ny /= norm;
         nz /= norm;
 
-        consumer.addVertex(pose, x, y, z).setColor(-16777216).setNormal(pose, nx, ny, nz).setLineWidth(width);
+        consumer.addVertex(pose, fx, fy, fz)
+                .setColor(-16777216)
+                .setNormal(pose, nx, ny, nz)
+                .setLineWidth(width);
     }
     @Override
     protected boolean affectedByCulling(GrapplingHookProjectile display) {
