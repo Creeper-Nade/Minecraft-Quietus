@@ -24,6 +24,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & RangedAttackMob> extends Goal {
+    private static final float FORCE_DIRECT_ATTACK_RADIUS_SQR = 36.0f;
+
     private final T mob;
     private ItemStack weapon;
     private final double speedModifier;
@@ -31,7 +33,7 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
     private final float attackRadiusSqr;
     private int attackTime = -1;
     private int seeTime;
-    private boolean strafingClockwise;
+    //private boolean strafingClockwise;
     private boolean strafingBackwards;
     private int strafingTime = -1;
 
@@ -97,8 +99,7 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
             double maxSearchHeight = Math.max(15.0d, l.y + 20.0d);
             double dist_target_sqr = this.mob.distanceToSqr(target.getX(), target.getY(), target.getZ());
             boolean has_sight = !(searchAllPossibleParabola(gravity, mobPosShootFrom, targetPosToHit, target.getHitbox(), friction, minHeight, maxSearchHeight, 0.5, this.mob.level()).isEmpty());
-            /* boolean has_sight = this.mob.getSensing().hasLineOfSight(target) ? true : 
-                searchAllPossibleParabola(gravity, mobPosShootFrom, targetPosToHit, target.getHitbox(), friction, minHeight, maxSearchHeight, 0.5, this.mob.level()).isEmpty() ? false : true; */
+            boolean has_direct_sight = this.mob.getSensing().hasLineOfSight(target);
             boolean has_sight_last = this.seeTime > 0;
             if (has_sight != has_sight_last) {
                 this.seeTime = 0;
@@ -137,17 +138,35 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
                     this.strafingBackwards = true;
                 }
 
-                this.mob.getMoveControl().strafe(this.strafingBackwards ? -0.5F : 0.5F, 0.0F/* this.strafingClockwise ? 0.5F : -0.5F */);
+                this.mob.getMoveControl().strafe(this.strafingBackwards ? -0.5F : 0.5F, 0.0F);
                 if (this.mob.getControlledVehicle() instanceof Mob mob) {
-                    mob.lookAt(target, 30.0F, 30.0F);
+                    mob.lookAt(target, 40.0F, 40.0F);
                 }
 
-                this.mob.lookAt(target, 30.0F, 30.0F);
+                this.mob.lookAt(target, 40.0F, 40.0F);
             } else {
-                this.mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+                this.mob.getLookControl().setLookAt(target, 40.0F, 40.0F);
             }
 
             if (this.mob.isUsingItem()) {
+                int useTicks = this.mob.getTicksUsingItem();
+                if (this.attackRadiusSqr > FORCE_DIRECT_ATTACK_RADIUS_SQR && has_direct_sight && dist_target_sqr <= FORCE_DIRECT_ATTACK_RADIUS_SQR) { // can shoot directly, and enemy is too close (within 6 blocks), then shoot straight direct attack
+                    if (this.weapon.getItem() instanceof BowItem) {
+                        if (useTicks >= 10) {
+                            this.mob.stopUsingItem();
+                            this.mob.performRangedAttack(target, BowItem.getPowerForTime(useTicks*2));
+                            this.attackTime = (int)(this.minAttackInterval*0.4);
+                        }
+                    } else if (this.weapon.getItem() instanceof QuietusProjectileWeaponItem weapon_item && weapon_item.getUseDuration(weapon, this.mob) > 0 && weapon_item.getPowerDuration(weapon, this.mob) >= 0) {
+                        if (useTicks >= (weapon_item.getPowerDuration(weapon, this.mob))*0.4) {
+                            /* System.out.println("x: "+ v0.x + " | y: " + v0.y + " | z: " + v0.z);
+                            System.out.println(dist_target + " | " + time + " | " + target.position().x + " " + target.position().y + " "+ target.position().z); */
+                            this.mob.stopUsingItem();
+                            this.mob.performRangedAttack(target, weapon_item.getPowerForTime(useTicks*2));
+                            this.attackTime = this.minAttackInterval;
+                        }
+                    }
+                }
                 if (!has_sight && this.seeTime < -60) { // lost sight
                     this.mob.stopUsingItem();
                 } else if (has_sight) {
@@ -155,10 +174,10 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
                      * t = V0y/g ± √(2g(H-y))/g = √(2/g)*(√H±√(H-y))/g
                      */
                     RandomSource random = this.mob.getRandom();
-                    double dist_target = Math.sqrt(dist_target_sqr);
-                    double turning_point = 0.0d;
+                    //double dist_target = Math.sqrt(dist_target_sqr);
+                    //double turning_point = 0.0d;
                     double v0x = 0.0d; double v0y = 0.0d; double v0z = 0.0d;
-                    double time = 0.0d;
+                    //double time = 0.0d;
                     List<Double[]> parabolaList = searchAllPossibleParabola(gravity, mobPosShootFrom, targetPosToHit, target.getHitbox(), friction, minHeight, maxSearchHeight, 0.25d, this.mob.level());
                     int size = parabolaList.size();
                     int size_half = (int)Math.round((size+1)/2.0d);
@@ -166,8 +185,8 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
                         parabolaList.get(
                             random.nextInt(size_half, size) - random.nextInt(0, size_half)
                         );
-                    turning_point = parabola[0];
-                    time = parabola[1];
+                    //turning_point = parabola[0];
+                    //time = parabola[1];
                     v0x = parabola[2];
                     v0y = parabola[3];
                     v0z = parabola[4];
@@ -178,15 +197,14 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
                     Vec3 shooter_dm = this.mob.getKnownMovement();
                     shooter_dm = shooter_dm.add(0.0d, this.mob.onGround() ? -(shooter_dm.y) : 0.0d, 0.0d);
                     this.mob.lookAt(Anchor.EYES, mobPosShootFrom.add(v0).add(shooter_dm.reverse()));
-                    int useTicks = this.mob.getTicksUsingItem();
                     if (this.weapon.getItem() instanceof BowItem) {
-                        if (useTicks >= 10) {
+                        if (useTicks >= 30) {
                             this.mob.stopUsingItem();
                             this.mob.performRangedAttack(target, BowItem.getPowerForTime(useTicks*2)*(float)v0.length());
-                            this.attackTime = this.minAttackInterval;
+                            this.attackTime = (int)(this.minAttackInterval*0.4);
                         }
                     } else if (this.weapon.getItem() instanceof QuietusProjectileWeaponItem weapon_item && weapon_item.getUseDuration(weapon, this.mob) > 0 && weapon_item.getPowerDuration(weapon, this.mob) >= 0) {
-                        if (useTicks >= (weapon_item.getPowerDuration(weapon, this.mob))/2) {
+                        if (useTicks >= (weapon_item.getPowerDuration(weapon, this.mob))*1.2) {
                             /* System.out.println("x: "+ v0.x + " | y: " + v0.y + " | z: " + v0.z);
                             System.out.println(dist_target + " | " + time + " | " + target.position().x + " " + target.position().y + " "+ target.position().z); */
                             this.mob.stopUsingItem();
@@ -229,25 +247,6 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
      * @param level
      * @return list of arrays of 5 doubles respectively being: turning_point (relative to initialPos), time, v0x, v0y, v0z
      */
-    /* private static List<Double[]> searchAllPossibleParabola(double gravity, Vec3 initialPos, Vec3 targetPos, AABB targetHitBox, double friction, double minHeight, double maxSearchHeight, double step, Level level) {
-        List<Double[]> out = new ArrayList<>();
-        Vec3 dist = targetPos.subtract(initialPos);
-        for (double i = minHeight; i <= maxSearchHeight; i += step) {
-            double turning_point = i;
-            final double const_1 = (gravity*friction) / (friction-1.0d); // the minimum vy possible (noted as f*)
-            double time = turning_point / const_1 + 1 / Math.log(friction);
-            double v0y = (1.0d - 1.0d/Math.pow(friction,time)) * const_1;
-            double v0x = dist.x / time / Math.pow(friction, time);
-            double v0z = dist.z / time / Math.pow(friction, time);
-            System.out.println(time);
-            Vec3 v = new Vec3(v0x, v0y, v0z);
-            if (isParabolaClear(gravity, initialPos, friction, level, time, v)) {
-                Double[] coll = {turning_point,time,v0x,v0y,v0z};
-                out.add(coll);
-            }
-        }
-        return out;
-    } */
     private static List<Double[]> searchAllPossibleParabola(double gravity, Vec3 initialPos, Vec3 targetPos, AABB targetHitBox, double friction, double minHeight, double maxSearchHeight, double step, Level level) {
         List<Double[]> out = new ArrayList<>();
         Vec3 dist = targetPos.add(initialPos.reverse());
@@ -255,8 +254,8 @@ public class ParabolaAttackGoal<T extends net.minecraft.world.entity.Mob & Range
             double turning_point = i;
             double time = Math.sqrt(2.0d/gravity)*(Math.sqrt(turning_point)+Math.sqrt(turning_point-dist.y)); // descending hit
             double v0y = Math.sqrt(2 * turning_point * gravity);
-            double v0x = dist.x / time / 0.9d; // 0.9d is imperical factor, do not change
-            double v0z = dist.z / time / 0.9d; // 0.9d is imperical factor, do not change
+            double v0x = dist.x / time / 0.9d; // 0.9d is imperical factor (negates air drag of projectile and stuff), do not change
+            double v0z = dist.z / time / 0.9d; // 0.9d is imperical factor (negates air drag of projectile and stuff), do not change
             Vec3 p = initialPos;
             Vec3 v = new Vec3(v0x, v0y, v0z);
             if (isParabolaClear(gravity, initialPos, friction, level, time, v)) {

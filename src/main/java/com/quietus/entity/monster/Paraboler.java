@@ -67,9 +67,9 @@ public class Paraboler extends Skeleton {
 
     private byte selectedAttackGoal = 2; // 2 for meleeGoa, 1 for bowGoal, 0 for parabolaBowGoal
 
-    private static final int HARD_ATTACK_INTERVAL_BASE = 12;
-    private static final int NORMAL_ATTACK_INTERVAL_BASE = 15;
-    private static final double ABNORMAL_INTERVAL_MULTIPLIER = 2.5;
+    private static final int HARD_ATTACK_INTERVAL_BASE = 32;
+    private static final int NORMAL_ATTACK_INTERVAL_BASE = 40;
+    private static final double ABNORMAL_INTERVAL_MULTIPLIER = 0.2;
     private int hardAttackInterval = 12;
     private int normalAttackInterval = 15;
 
@@ -84,7 +84,7 @@ public class Paraboler extends Skeleton {
     public Paraboler(EntityType<? extends Skeleton> type, Level level) {
         super(type, level);
         this.bowGoal = new RangedBowAttackGoal<>(this, 1.25, 40, 20.0F);
-        this.parabolaBowGoal = new ParabolaAttackGoal<>(this, 1.00, 4, 17.0F);
+        this.parabolaBowGoal = new ParabolaAttackGoal<>(this, 1.00, 40, 40.0F);
         this.meleeGoal = new MeleeAttackGoal(this, 1.2, false) {
                 @Override
                 public void stop() {
@@ -164,7 +164,7 @@ public class Paraboler extends Skeleton {
     }
     
     public static AttributeSupplier.Builder createAttributes() {
-        return AbstractSkeleton.createAttributes().add(Attributes.MAX_HEALTH, 20.0);
+        return AbstractSkeleton.createAttributes().add(Attributes.MAX_HEALTH, 20.0).add(Attributes.FOLLOW_RANGE, 50.0);
     }
 
     /**
