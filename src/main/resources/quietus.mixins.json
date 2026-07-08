@@ -9,7 +9,9 @@
     "PlayerMixin",
     "ProjectileMixin",
     "ServerGamePacketListenerImplMixin",
-    "ServerPlayerMixin"
+    "ServerPlayerMixin",
+    "AbstractContainerScreenMixin",
+    "GuiGraphicsExtractorMixin"
   ],
   "client": [],
   "server": [],

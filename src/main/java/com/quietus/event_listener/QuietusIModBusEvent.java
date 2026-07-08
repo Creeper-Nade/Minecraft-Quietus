@@ -2,7 +2,6 @@ package com.quietus.event_listener;
 
 import com.quietus.client.handler.ClientPayloadHandler;
 import com.quietus.client.handler.ClientSkillTreePayloadHandler;
-import com.quietus.client.item.DecayBarDecorator;
 import com.quietus.client.model.mob.PlayerFragmentRenderer;
 import com.quietus.client.model.projectile.magic.AmethystProjectileModel;
 import com.quietus.client.model.projectile.magic.AmethystProjectileSmallModel;
@@ -136,9 +135,10 @@ public class QuietusIModBusEvent {
 
     @SubscribeEvent
     public static void registerDecorators(RegisterItemDecorationsEvent event) {
-        for (Item item : BuiltInRegistries.ITEM) {
-            event.register(item, DecayBarDecorator.INSTANCE);
-        }
+        /* put item decorators here (like durability bar, item count etc.). 
+         * The rendering ALWAYS go after vanilla decorators, and the item sprite.
+         * That means, whatever item decorators will render on top of the vailla
+         * decorators and the item sprite. */
     }
 
 
