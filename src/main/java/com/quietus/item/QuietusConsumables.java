@@ -45,6 +45,18 @@ public class QuietusConsumables {
         )
         .build();
 
+    public static final Consumable MOLD_BOTTLE = Consumables.defaultDrink()
+        .onConsume(
+            new ApplyStatusEffectsConsumeEffect(
+                List.of(
+                    new MobEffectInstance(MobEffects.HUNGER, 100, 0),
+                    new MobEffectInstance(MobEffects.NAUSEA, 40, 0),
+                    new MobEffectInstance(MobEffects.POISON, 25, 0)
+                )
+            )
+        )
+        .build();
+
     public static final Consumable YOGHURT_BUCKET = Consumables.defaultDrink().build();
     public static final Consumable CHEESE_BUCKET = Consumables.defaultDrink().build();
 
