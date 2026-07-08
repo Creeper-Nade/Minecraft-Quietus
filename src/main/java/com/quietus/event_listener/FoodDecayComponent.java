@@ -58,7 +58,7 @@ public class FoodDecayComponent {
         modifyToDecayablePlant(event, Items.POISONOUS_POTATO, 192);
         
         // 面包类 (高保鲜度)
-        modifyToDecayablePlant(event, Items.BREAD, 384);
+        modifyToDecayablePlant(event, Items.BREAD, 576);
         modifyToDecayablePlant(event, Items.PUMPKIN_PIE, 576);
 
         // 曲奇 (极高保鲜度)
@@ -83,22 +83,23 @@ public class FoodDecayComponent {
         event.modify(Items.SUSPICIOUS_STEW, builder ->    // suspicious stew
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(256).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
+
         event.modify(Items.HONEY_BOTTLE, builder ->    // honey bottle
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(Integer.MAX_VALUE).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(Integer.MAX_VALUE).convertsInto(QuietusItems.MOLD_BOTTLE).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
 
         // milk bucket has more than one decaying result. This is changed in WeatheringHandler via DecayEvent. 
         // default mold bucket. 50% to be otherwise.
         event.modify(Items.MILK_BUCKET, builder ->  
-            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(128).convertsInto(QuietusItems.MOLD_BUCKET).build()).set(DataComponents.MAX_STACK_SIZE, 16)
+            builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(128).convertsInto(QuietusItems.MOLD_BUCKET).build())
         );
         
         
         // 其他植物类食材
         modifyToDecayablePlant(event, Items.CARROT, 480);
         modifyToDecayablePlant(event, Items.BEETROOT, 448);
-        modifyToDecayablePlant(event, Items.APPLE, 384);
-        modifyToDecayablePlant(event, Items.MELON, 384);
+        modifyToDecayablePlant(event, Items.APPLE, 768);
+        modifyToDecayablePlant(event, Items.MELON, 1024);
         modifyToDecayablePlant(event, Items.PUMPKIN, 384);
         modifyToDecayablePlant(event, Items.MELON_SLICE, 64);
         modifyToDecayablePlant(event, Items.GLISTERING_MELON_SLICE, 256);
