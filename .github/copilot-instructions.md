@@ -1,1 +1,0 @@
-Do not override the "Summary" section of the current commit, instead, write the "Description" section of current commit based off what is already written in the "Summary" section.
