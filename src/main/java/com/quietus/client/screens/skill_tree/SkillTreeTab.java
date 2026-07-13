@@ -16,11 +16,15 @@ import com.quietus.skilltree.TreePosition;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
+public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, SkillTreeScrollable {
 
     protected static final int TAB_DISPLAY_WIDTH = 38;
     protected static final int TAB_DISPLAY_HEIGHT = 28;
@@ -36,7 +40,6 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     private final Minecraft minecraft;
     private final ClientSkillTree skillTree;
     private final SkillTreeScreen screen;
-    private final int index;
     private final SkillCategory category;
     private final SkillCategory.DisplayInfo display;
     private final Identifier icon;
@@ -51,12 +54,13 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
 
     private final TreePosition positioning;
 
-    public SkillTreeTab(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, SkillCategory.DisplayInfo display, TreePosition positioning, double scrollX, double scrollY) {
+    public SkillTreeTab(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int x, int y, SkillCategory category, SkillCategory.DisplayInfo display, TreePosition positioning, double scrollX, double scrollY) {
+        super(x, y, TAB_DISPLAY_WIDTH, TAB_DISPLAY_HEIGHT, display.name());
+
         this.minecraft = minecraft;
         this.skillTree = clientSkillTree;
         this.screen = screen;
 
-        this.index = index;
         this.category = category;
         this.display = display;
         this.icon = display.icon().isPresent() ? 
@@ -70,9 +74,9 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     }
 
     @Nullable
-    public static SkillTreeTab create(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int index, SkillCategory category, TreePosition positioning) {
+    public static SkillTreeTab create(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, SkillCategory category, TreePosition positioning) {
         Optional<SkillCategory.DisplayInfo> display = category.display();
-        return display.map(displayInfo -> new SkillTreeTab(minecraft, clientSkillTree, screen, index, category, displayInfo, positioning, 0.0d, 0.0d)).orElse(null);
+        return display.map(displayInfo -> new SkillTreeTab(minecraft, clientSkillTree, screen, 0, 0, category, displayInfo, positioning, 0.0d, 0.0d)).orElse(null);
     }
     
     public void addWidget(SkillTreeNode node) {
@@ -89,7 +93,28 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
         }
     }
 
-    public void draw(GuiGraphicsExtractor guiGraphicsExtractor, int offsetX, int offsetY, int mouseX, int mouseY, boolean selected) {
+    @Override
+    protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
+        int x = this.getX();
+        int y = this.getY();
+        
+        if (this.isActive()) {
+            if (this.isHovered()) {
+                gui.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_HOVERED_LOCATION, x, y, 0.0f, 0.0f, 38, 28, 38, 28);
+            } else {
+                gui.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_LOCATION, x, y, 0.0f, 0.0f, 38, 28, 38, 28);
+            }
+        } else {
+            gui.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_SELECTED_LOCATION, x, y, 0.0f, 0.0f, 38, 28, 38, 28);
+        }
+        if (this.minecraft.getResourceManager().getResource(this.icon).isPresent()) {
+            gui.blit(RenderPipelines.GUI_TEXTURED, this.icon, x+5, y+5, 0.0f, 0.0f, 18, 18, 18, 18);
+        } else {
+            gui.blit(RenderPipelines.GUI_TEXTURED, DEFAULT_ICON, x+5, y+5, 0.0f, 0.0f, 18, 18, 18, 18);
+        }
+    }
+
+    /* public void draw(GuiGraphicsExtractor guiGraphicsExtractor, int offsetX, int offsetY, int mouseX, int mouseY, boolean selected) {
         if (selected) {
             guiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_SELECTED_LOCATION, offsetX, offsetY, 0.0f, 0.0f, 38, 28, 38, 28);
         } else {
@@ -104,9 +129,9 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
         } else {
             guiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, DEFAULT_ICON, offsetX + 5, offsetY + 5, 0.0f, 0.0f, 18, 18, 18, 18);
         }
-    }
+    } */
 
-    public void drawContents(GuiGraphicsExtractor guiGraphicsExtractor, int offsetX, int offsetY, int width, int height) {
+    public void drawContents(GuiGraphicsExtractor guiGraphicsExtractor, int offsetX, int offsetY, int width, int height, int mouseX, int mouseY, float delta) {
         guiGraphicsExtractor.enableScissor(offsetX, offsetY, offsetX + width, offsetY + height);
 
         guiGraphicsExtractor.fill(offsetX, offsetY, offsetX+width, offsetY+height, 0xFFFFFFFF);
@@ -118,8 +143,8 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
         this.drawEdges(guiGraphicsExtractor, relX, relY);
 
         for (SkillTreeWidget widget : this.widgets.values()) {
-            widget.updatePosition(relX, relY);
-            widget.extractRenderState(guiGraphicsExtractor, 0, 0, 0);
+            widget.updatePositionOffset(relX, relY);
+            widget.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, delta);
             //widget.draw(guiGraphicsExtractor, relX, relY);
         }
 
@@ -210,12 +235,12 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
         guiGraphicsExtractor.pose().popMatrix();
     }
 
-    public boolean isDisplayOver(int offsetX, int offsetY, double mouseX, double mouseY) {
+    /* public boolean isDisplayOver(int offsetX, int offsetY, double mouseX, double mouseY) {
         return mouseX > offsetX 
           && mouseX < offsetX + TAB_DISPLAY_WIDTH
           && mouseY > offsetY
           && mouseY < offsetY + TAB_DISPLAY_HEIGHT;
-    }
+    } */
 
     @Override
     public void drag(double dragX, double dragY) {
@@ -244,12 +269,22 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
         }
     }
 
-    public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
+    @Override
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        this.screen.setSelectedTab(this);
+    }
+
+    @Override
+    public void playDownSound(SoundManager soundManager) {
+        //soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    }
+
+    /* public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
         if (mouseButton == 0 && isDisplayOver(offsetX, offsetY, mouseX, mouseY)) {
             return true;
         }
         return false;
-    }
+    } */
     
     public boolean clickOnTree(MouseButtonEvent event, boolean doubleClick) {
         for (SkillTreeWidget widget : this.widgets.values()) {
@@ -287,5 +322,11 @@ public class SkillTreeTab implements SkillTreeDraggable, SkillTreeScrollable {
     }
     protected TreePosition getPositioning() {
         return this.positioning;
+    }
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput arg0) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateWidgetNarration'");
     }
 }
