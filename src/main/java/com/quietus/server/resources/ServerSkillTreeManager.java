@@ -49,7 +49,7 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
 
     public static final String DIR_NAME = String.join("/", MODID, "skill_tree"); 
 
-    public static final String FILENAME_TAB_DATA = "_tab_.json";
+    public static final String FILENAME_TAB_METADATA = "_tab_.json"; // filename of the metadata file of a skill category.
     
     private final DynamicOps<JsonElement> ops;
     private final Codec<? extends SkillPoint> skillPointCodec;
@@ -183,7 +183,7 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
 
             try {
                 String filename = location.getPath().substring(location.getPath().lastIndexOf("/")+1); // skill nodes data files must be in one tab directory
-                boolean shouldProcess = scanningForCategory ? filename.equals(FILENAME_TAB_DATA) : !filename.equals(FILENAME_TAB_DATA);
+                boolean shouldProcess = scanningForCategory ? filename.equals(FILENAME_TAB_METADATA) : !filename.equals(FILENAME_TAB_METADATA);
                 
                 if (shouldProcess) {
                     Identifier outputId = scanningForCategory ? id.withPath(id.getPath().substring(0, id.getPath().lastIndexOf("/"))) : id;
