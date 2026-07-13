@@ -89,7 +89,8 @@ public class ServerSkillTreeManager extends ContextAwareReloadListener {
     public @Nullable SkillTreeNode getNode(Identifier location) {
         SkillTreeNode node = null;
         for (SkillCategory category : this.categories.values()) {
-            if (Objects.nonNull(category.getNode(location))) node = category.getNode(location);
+            if (Objects.nonNull(category.getNode(location))) 
+                node = category.getNode(location);
         }
         return node;
     }

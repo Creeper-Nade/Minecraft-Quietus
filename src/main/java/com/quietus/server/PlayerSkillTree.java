@@ -123,7 +123,8 @@ public class PlayerSkillTree {
         data.forEach((Identifier, progress) -> {
             SkillTreeNode node = null;
             for (SkillCategory category : manager.getCategories().values()) {
-                node = category.getNode(Identifier);
+                if (category.hasNode(Identifier))
+                    node = category.getNode(Identifier);
             }
             if (node == null) {
                 LOGGER.warn("Ignored skill tree node '{}' in file {} - it doesn't exist anymore?", Identifier, this.playerSavePath);

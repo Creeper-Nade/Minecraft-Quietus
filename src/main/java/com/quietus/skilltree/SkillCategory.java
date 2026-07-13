@@ -204,6 +204,9 @@ public class SkillCategory {
         return positioning.layout(nodes);
     }
 
+    public boolean hasNode(Identifier location) {
+        return this.nodes.containsKey(location);
+    }
     public @Nullable SkillTreeNode getNode(Identifier location) {
         return this.nodes.get(location);
     }
