@@ -13,6 +13,9 @@ import com.quietus.util.ServerPacketDistributor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -29,10 +32,6 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     private static final ChatFormatting[] PREREQUISITES_STYLE = {ChatFormatting.GRAY};
     public static final ChatFormatting[] PREREQUISITES_CHECK_STYLE = {ChatFormatting.GREEN};
     public static final ChatFormatting[] PREREQUISITES_CROSS_STYLE = {ChatFormatting.RED};
-    private static final String KEY_UPGRADEBUTTON_UNLOCK = "gui.skill_tree.upgrade_button.unlock";
-    private static final String KEY_UPGRADEBUTTON_UPGRADE = "gui.skill_tree.upgrade_button.upgrade";
-    private static final String KEY_UPGRADEBUTTON_LOCKED = "gui.skill_tree.upgrade_button.locked";
-    private static final String KEY_UPGRADEBUTTON_LOCKEDUPGRADE = "gui.skill_tree.upgrade_button.locked_upgrade";
 
     protected static final int WIDTH = 180;
     protected static final int MAX_HEIGHT = SkillTreeScreen.WINDOW_HEIGHT;
@@ -54,6 +53,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     private final Component description;
     private final SkillTreeWidget widget;
     private final SkillTreeScreen screen;
+    private final UpgradeButton button;
 
     private int height;
     private int topHeight;
@@ -71,14 +71,16 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     private double headingScrollY = 0.0d;
     private double descriptionScrollY = 0.0d;
 
-    private UpgradeButtonState upgradeState = UpgradeButtonState.LOCKED;
-
     private SkillTreeInfoScreen(Font font, Component heading, Component description, SkillTreeWidget widget, SkillTreeScreen screen) {
         this.font = font;
         this.heading = heading;
         this.description = description;
         this.widget = widget;
         this.screen = screen;
+
+        int upgradeButtonX = SkillTreeWidget.ICON_WIDTH + 6;
+        int upgradeButtonY = (SkillTreeWidget.ICON_HEIGHT - UpgradeButton.HEIGHT) / 2;
+        this.button = new UpgradeButton(font, this, upgradeButtonX, upgradeButtonY, upgradeButtonX, upgradeButtonY);
 
         this.calcLinesHeights(font, heading, description);
     }
@@ -160,6 +162,14 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         this.height = this.topHeight + (SkillTreeWidget.ICON_HEIGHT + SECTION_V_MARGIN - CONTENTS_RESOURCE_V_MARGIN - 2) + (this.descriptionParHeight+V_MARGIN*2+CONTENTS_CONTAINER_PADDING*2+CONTENTS_RESOURCE_V_MARGIN*2);
     }
 
+    public void update(ClientSkillTree tree) {
+        Prerequisites widgetPrerequisite = this.widget.getNode().getSkillPoint().unlock().prerequisites();
+        this.button.updateState(
+            tree.getOrStartProgress(this.widget.getNode()), 
+            widgetPrerequisite.requirements().test(Prerequisites.CompletionStatus.make(widgetPrerequisite, tree.getCompletedAdvancements(), tree.getCompletedParents()))
+        );
+    }
+
     /**
      * Draws the info screen
      * @param GuiGraphicsExtractor
@@ -168,15 +178,15 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
      * @param offsetX x offset, exactly where the icon will be drawn
      * @param offsetY y offset, exactly where the icon will be drawn
      */
-    public void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, int offsetX, int offsetY, ClientSkillTree tree) {
+    public void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, int offsetX, int offsetY, float delta, ClientSkillTree tree) {
         
         // calculate left and top x and y
         final int left_x = offsetX - H_MARGIN;
         final int top_y = offsetY - this.headingParHeight - V_MARGIN*2 - HEADING_RESOURCE_V_MARGIN;
         final int description_y = offsetY + SkillTreeWidget.ICON_HEIGHT + SECTION_V_MARGIN - CONTENTS_RESOURCE_V_MARGIN - 2;
         final int heading_inside_x = offsetX;
-        final int upgradebutton_x = offsetX + SkillTreeWidget.ICON_WIDTH + 6;
-        final int upgradebutton_y = offsetY + (SkillTreeWidget.ICON_HEIGHT - UpgradeButtonState.HEIGHT) / 2;
+        /* final int upgradebutton_x = offsetX + SkillTreeWidget.ICON_WIDTH + 6;
+        final int upgradebutton_y = offsetY + (SkillTreeWidget.ICON_HEIGHT - UpgradeButton.HEIGHT) / 2; */
         final int heading_inside_y = top_y + V_MARGIN + HEADING_RESOURCE_V_MARGIN;
         final int description_inside_x = left_x + H_MARGIN + CONTENTS_CONTAINER_PADDING;
         final int description_inside_y = description_y + V_MARGIN + CONTENTS_RESOURCE_V_MARGIN + CONTENTS_CONTAINER_PADDING;
@@ -209,7 +219,9 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         this.widget.drawAbsolute(GuiGraphicsExtractor, offsetX, offsetY);
 
         // upgrade button
-        Prerequisites widgetPrerequisite = this.widget.getNode().getSkillPoint().unlock().prerequisites();
+        this.button.updatePositionOffset(offsetX, offsetY);
+        this.button.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, delta);
+        /* Prerequisites widgetPrerequisite = this.widget.getNode().getSkillPoint().unlock().prerequisites();
         SkillPointProgress.ClientData progress = tree.getOrStartProgress(this.widget.getNode());
         this.upgradeState = UpgradeButtonState.get(
             progress.times() > 0, 
@@ -223,8 +235,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             progress.times(), 
             progress.maxAmount(), 
             this.font
-        );
-
+        ); */
     }
     private void calcAndDrawDescriptionScrollBar(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
         GuiGraphicsExtractor.verticalLine(offsetX, offsetY, offsetY + this.descriptionParHeight, 0xFF555555); // track bar
@@ -243,14 +254,18 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         GuiGraphicsExtractor.verticalLine(offsetX, offsetY-thumb_offsetY, offsetY-thumb_offsetY+thumbHeight, 0xFFFAFAFA);
     }
 
-    public boolean mouseClicked(int offsetX, int offsetY, double mouseX, double mouseY, int button) {
-        if (this.isMouseOverUpgradeButton(offsetX, offsetY, mouseX, mouseY)) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (this.button.mouseClicked(event, doubleClick)) {
+            return true;
+        };
+        return false;
+        /* if (this.isMouseOverUpgradeButton(offsetX, offsetY, mouseX, mouseY)) {
             if ((this.upgradeState == UpgradeButtonState.UNLOCK || this.upgradeState == UpgradeButtonState.UPGRADE)) {
                 ServerPacketDistributor.requestSkillTreeUpgrade(this.widget.getNode());
             }
             return true;
         }
-        return false;
+        return false; */
     }
 
 
@@ -302,9 +317,9 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     public boolean isMouseOverUpgradeButton(int offsetX, int offsetY, double mouseX, double mouseY) {
         return (
             mouseX > offsetX + SkillTreeWidget.ICON_WIDTH + 15 &&
-            mouseY > offsetY + (SkillTreeWidget.ICON_HEIGHT - UpgradeButtonState.HEIGHT) / 2 &&
-            mouseX < offsetX + SkillTreeWidget.ICON_WIDTH + 15 + UpgradeButtonState.WIDTH &&
-            mouseY < offsetY + (SkillTreeWidget.ICON_HEIGHT - UpgradeButtonState.HEIGHT) / 2 + UpgradeButtonState.HEIGHT
+            mouseY > offsetY + (SkillTreeWidget.ICON_HEIGHT - UpgradeButton.HEIGHT) / 2 &&
+            mouseX < offsetX + SkillTreeWidget.ICON_WIDTH + 15 + UpgradeButton.WIDTH &&
+            mouseY < offsetY + (SkillTreeWidget.ICON_HEIGHT - UpgradeButton.HEIGHT) / 2 + UpgradeButton.HEIGHT
         );
     }
 
@@ -331,38 +346,87 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         }
     }
 
+    private void sendRequestforUpgrade() {
+        ServerPacketDistributor.requestSkillTreeUpgrade(this.widget.getNode());
+    }
+
+    private class UpgradeButton extends AbstractWidget {
+        private static final Identifier FILL_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/upgrade_button_fill.png");
+        private static final int INSIDE_X = 4;
+        private static final int INSIDE_Y = 4;
+        protected static final int WIDTH = 134;
+        protected static final int HEIGHT = 18;
+
+        private SkillPointProgress.ClientData progress;
+        private SkillTreeInfoScreen.UpgradeButtonState state = UpgradeButtonState.LOCKED;
+        private final int screenX;
+        private final int screenY;
+        private final Font font;
+        private final SkillTreeInfoScreen screen;
+
+        UpgradeButton(Font font, SkillTreeInfoScreen screen, int x, int y, int screenX, int screenY) {
+            super(x, y, WIDTH, HEIGHT, Component.translatable("gui.skill_tree.upgrade_button.upgrade"));
+
+            this.screenX = screenX;
+            this.screenY = screenY;
+            this.font = font;
+            this.screen = screen;
+            
+        }
+
+        @Override
+        protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
+            this.state.draw(gui, this.getX(), this.getY(), this.isHovered(), this.progress.progressAmount(), this.progress.maxAmount(), this.font);
+        }
+
+        public void updateState(SkillPointProgress.ClientData progress, boolean unlocked) {
+            this.progress = progress;
+            this.state = UpgradeButtonState.get(progress.times() > 0, unlocked);
+        }
+
+        public void updatePositionOffset(int offsetX, int offsetY) {
+            this.setPosition(this.screenX + offsetX, this.screenY + offsetY);
+        }
+
+        @Override
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
+            if (this.state == UpgradeButtonState.UNLOCK || this.state == UpgradeButtonState.UPGRADE) {
+                this.screen.sendRequestforUpgrade();
+            }
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput arg0) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'updateWidgetNarration'");
+        }
+    }
 
     private enum UpgradeButtonState {
         UNLOCK(
             Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/unlock"), 
-            KEY_UPGRADEBUTTON_UNLOCK,
+            "gui.skill_tree.upgrade_button.unlock",
             true, 
             false
         ),
         UPGRADE(
             Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/upgrade"), 
-            KEY_UPGRADEBUTTON_UPGRADE,
+            "gui.skill_tree.upgrade_button.upgrade",
             true, 
             true
         ),
         LOCKED(
             Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked"), 
-            KEY_UPGRADEBUTTON_UNLOCK,
+            "gui.skill_tree.upgrade_button.locked",
             false, 
             false
         ),
         LOCKED_UPGRADE(
             Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked_upgrade"), 
-            KEY_UPGRADEBUTTON_LOCKEDUPGRADE,
+            "gui.skill_tree.upgrade_button.locked_upgrade",
             false, 
             true
         );
-
-        private static final Identifier FILL_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/upgrade_button_fill.png");
-        protected static final int WIDTH = 134;
-        protected static final int HEIGHT = 18;
-        private static final int INSIDE_X = 4;
-        private static final int INSIDE_Y = 4;
 
         private final Identifier spriteLocation;
         private final String text;
@@ -387,22 +451,22 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         private void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font) {
             Identifier loc = (isHovered && this.hasHover) ? this.spriteLocation.withPath(this.spriteLocation.getPath() + "_hovered") : this.spriteLocation;
             if (this.doDrawLines && currentProgress > 0) {
-                int innerWidth = WIDTH - 2 * INSIDE_X;
-                int innerHeight = HEIGHT - 2 * INSIDE_Y;
+                int innerWidth = UpgradeButton.WIDTH - 2 * UpgradeButton.INSIDE_X;
+                int innerHeight = UpgradeButton.HEIGHT - 2 * UpgradeButton.INSIDE_Y;
 
                 // Draw progress fill
                 int fillWidth = (int) Math.round((double) innerWidth * currentProgress / maxProgress);
-                GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, FILL_LOCATION, offsetX + INSIDE_X, offsetY + INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight);
+                GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, UpgradeButton.FILL_LOCATION, offsetX + UpgradeButton.INSIDE_X, offsetY + UpgradeButton.INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight);
 
                 // Draw vertical dividers
                 for (int i = 1; i < maxProgress; i++) {
-                    int lineX = offsetX + INSIDE_X + (int) Math.round((double) i * innerWidth / maxProgress);
-                    GuiGraphicsExtractor.verticalLine(lineX, offsetY + INSIDE_Y, offsetY + HEIGHT - INSIDE_Y - 1, 0xFF000000);
+                    int lineX = offsetX + UpgradeButton.INSIDE_X + (int) Math.round((double) i * innerWidth / maxProgress);
+                    GuiGraphicsExtractor.verticalLine(lineX, offsetY + UpgradeButton.INSIDE_Y, offsetY + UpgradeButton.HEIGHT - UpgradeButton.INSIDE_Y - 1, 0xFF000000);
                 }
             }
-            GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, loc, offsetX, offsetY, UpgradeButtonState.WIDTH, UpgradeButtonState.HEIGHT);
+            GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, loc, offsetX, offsetY, UpgradeButton.WIDTH, UpgradeButton.HEIGHT);
             ChatFormatting textFormat = this.hasHover ? ChatFormatting.WHITE : ChatFormatting.GRAY; 
-            GuiGraphicsExtractor.centeredText(font, (Component)Component.translatable(this.text, currentProgress, maxProgress).withStyle(textFormat), offsetX + WIDTH/2, offsetY + HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
+            GuiGraphicsExtractor.centeredText(font, (Component)Component.translatable(this.text, currentProgress, maxProgress).withStyle(textFormat), offsetX + UpgradeButton.WIDTH/2, offsetY + UpgradeButton.HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
         }
     }
 

@@ -137,10 +137,10 @@ public class SkillTreeWidget extends AbstractWidget {
 
     @Override
     public void onClick(MouseButtonEvent event, boolean doubleClick) {
-        if (this.matches(this.tab.getScreen().getSelectedWidget())) {
-            this.tab.getScreen().setSelectedWidget(null);
+        if (this.node.equals(this.tab.getScreen().getSelectedNode())) {
+            this.tab.getScreen().setSelectedNode(null);
         } else {
-            this.tab.getScreen().setSelectedWidget(this);
+            this.tab.getScreen().setSelectedNode(this);
         }
     }
 
