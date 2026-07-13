@@ -77,7 +77,7 @@ public class SkillTreeWidget extends AbstractWidget {
         this.drawAbsolute(gui, this.getX(), this.getY());
     }
 
-    public void updatePosition(int offsetX, int offsetY) {
+    public void updatePositionOffset(int offsetX, int offsetY) {
         this.setPosition(this.vertexPos.x() + offsetX, this.vertexPos.y() + offsetY);
     }
 
@@ -87,50 +87,50 @@ public class SkillTreeWidget extends AbstractWidget {
         this.drawAbsolute(GuiGraphicsExtractor, render_x, render_y);
     } */
 
-    public void drawAbsolute(GuiGraphicsExtractor GuiGraphicsExtractor, int x, int y) {
-        GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+    public void drawAbsolute(GuiGraphicsExtractor gui, int x, int y) {
+        gui.blit(RenderPipelines.GUI_TEXTURED, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
         if (this.minecraft.getResourceManager().getResource(this.icon).isPresent()) {
-            GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+            gui.blit(RenderPipelines.GUI_TEXTURED, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
         } else {
-            GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, DEFAULT_ICON, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+            gui.blit(RenderPipelines.GUI_TEXTURED, DEFAULT_ICON, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
         }
     }
 
-    public void drawConnectivity(GuiGraphicsExtractor GuiGraphicsExtractor, LegacyPosition graph, int offsetX, int offsetY) {
+    public void drawConnectivity(GuiGraphicsExtractor gui, LegacyPosition graph, int offsetX, int offsetY) {
         
     }
     
-    /* public void drawConnectivity(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
+    /* public void drawConnectivity(GuiGraphicsExtractor gui, int offsetX, int offsetY) {
         int toX = offsetX + this.x + WIDTH/2;
         int toY = offsetY + this.y + HEIGHT/2;
         for (SkillTreeWidget widget : this.orParents) {
             int fromX = offsetX + widget.x + WIDTH/2;
             int fromY = offsetY + widget.y + HEIGHT/2;
             if (this.x == widget.x) {
-                GuiGraphicsExtractor.verticalLine(fromX, fromY, toY, 0xFF000000);
+                gui.verticalLine(fromX, fromY, toY, 0xFF000000);
             } else {
                 int tp_1_x = fromX;
                 int tp_1_y = fromY + HEIGHT;
                 int tp_2_x = toX;
                 int tp_2_y = tp_1_y;
-                GuiGraphicsExtractor.verticalLine(fromX, fromY, tp_1_y, 0xFF000000);
-                GuiGraphicsExtractor.horizontalLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
-                GuiGraphicsExtractor.verticalLine(tp_2_x, tp_2_y, toY, 0xFF000000);
+                gui.verticalLine(fromX, fromY, tp_1_y, 0xFF000000);
+                gui.horizontalLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
+                gui.verticalLine(tp_2_x, tp_2_y, toY, 0xFF000000);
             }
         }
         for (SkillTreeWidget widget : this.mustParents) {
             int fromX = offsetX + widget.x + WIDTH/2;
             int fromY = offsetY + widget.y + HEIGHT/2;
             if (this.x == widget.x) {
-                GuiGraphicsExtractor.verticalLine(fromX, fromY, toY, 0xFF000000);
+                gui.verticalLine(fromX, fromY, toY, 0xFF000000);
             } else {
                 int tp_1_x = fromX;
                 int tp_1_y = fromY + HEIGHT;
                 int tp_2_x = toX;
                 int tp_2_y = tp_1_y;
-                GuiGraphicsExtractor.verticalLine(fromX, fromY, tp_1_y, 0xFF000000);
-                GuiGraphicsExtractor.horizontalLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
-                GuiGraphicsExtractor.verticalLine(tp_2_x, tp_2_y, toY, 0xFF000000);
+                gui.verticalLine(fromX, fromY, tp_1_y, 0xFF000000);
+                gui.horizontalLine(tp_1_x, tp_2_x, tp_1_y, 0xFF000000);
+                gui.verticalLine(tp_2_x, tp_2_y, toY, 0xFF000000);
             }
         }
     } */
