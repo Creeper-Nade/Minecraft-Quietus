@@ -48,6 +48,9 @@ public class TreePosition {
     }
 
     public void makeGraphOf(SkillCategory skillCategory) {
+        if (skillCategory.getNodesMap().isEmpty()) { // skip and do nothing for empty category
+            return;
+        }
         Collection<SkillTreeNode> nodes = skillCategory.getNodesMap().values();
         Collection<SkillTreeNode> roots = skillCategory.getRoots();
         Map<SkillTreeNode,Integer> inDeg = nodes.stream().collect(Collectors.toMap((node) -> node, (node) -> node.parents().size()));

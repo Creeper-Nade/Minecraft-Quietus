@@ -10,14 +10,22 @@ import com.quietus.skilltree.TreePosition;
 import com.quietus.skilltree.LegacyPosition;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import net.minecraft.advancements.TreeNodePosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 
 import static com.quietus.Quietus.MODID;
 
-public class SkillTreeWidget {
+public class SkillTreeWidget extends AbstractWidget {
 
     /* Width and height responsible for calculation of hover and clicking */
     protected static final int HEIGHT = 26;
@@ -36,15 +44,17 @@ public class SkillTreeWidget {
     private final Identifier icon;
     private final String languangeKey;
 
-    private final int x;
-    private final int y;
+    private final TreePosition.Vertex vertexPos;
     private final Set<SkillTreeWidget> mustParents = new ReferenceOpenHashSet<>();
     private final Set<SkillTreeWidget> orParents = new ReferenceOpenHashSet<>();
     private final Set<SkillTreeWidget> children = new ReferenceOpenHashSet<>();
 
     private final SkillPointType widgettype;
 
-    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, int x, int y, SkillPoint.DisplayInfo display) {
+    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, TreePosition.Vertex vertexPos, SkillPoint.DisplayInfo display) {
+        super(vertexPos.x(), vertexPos.y(), WIDTH, HEIGHT, display.header());
+
+        this.vertexPos = vertexPos;
         this.tab = tab;
         this.minecraft = minecraft;
         this.skillTree = clientSkillTree;
@@ -54,21 +64,28 @@ public class SkillTreeWidget {
             node.getId().withPath((id) -> "textures/gui/icons/skill_tree/node/" + id + ".png");
             //Identifier.fromNamespaceAndPath(node.getId().getNamespace(), "textures/gui/icons/skill_tree/node/" + node.getId().getPath() + ".png");
         this.languangeKey = node.getId().toLanguageKey();
-        this.x = x;
-        this.y = y;
 
         this.widgettype = display.type();
     }
 
-    public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, TreePosition.Vertex vertexPos, SkillPoint.DisplayInfo display) {
+    /* public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeNode node, TreePosition.Vertex vertexPos, SkillPoint.DisplayInfo display) {
         this(tab, minecraft, clientSkillTree, node, vertexPos.x(), vertexPos.y(), display);
+    } */
+
+    @Override
+    protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
+        this.drawAbsolute(gui, this.getX(), this.getY());
     }
 
-    public void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
-        int render_x = this.x + offsetX;
-        int render_y = this.y + offsetY;
-        this.drawAbsolute(GuiGraphicsExtractor, render_x, render_y);
+    public void updatePosition(int offsetX, int offsetY) {
+        this.setPosition(this.vertexPos.x() + offsetX, this.vertexPos.y() + offsetY);
     }
+
+    /* public void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
+        int render_x = this.getX() + offsetX;
+        int render_y = this.getY() + offsetY;
+        this.drawAbsolute(GuiGraphicsExtractor, render_x, render_y);
+    } */
 
     public void drawAbsolute(GuiGraphicsExtractor GuiGraphicsExtractor, int x, int y) {
         GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
@@ -118,7 +135,21 @@ public class SkillTreeWidget {
         }
     } */
 
-    public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
+    @Override
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        if (this.matches(this.tab.getScreen().getSelectedWidget())) {
+            this.tab.getScreen().setSelectedWidget(null);
+        } else {
+            this.tab.getScreen().setSelectedWidget(this);
+        }
+    }
+
+    @Override
+    public void playDownSound(SoundManager soundManager) {
+        //soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    }
+
+    /* public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
         int offsetWithScrollX = offsetX + (int)this.tab.scrollX;
         int offsetWithScrollY = offsetY + (int)this.tab.scrollY;
         if (mouseButton == 0 && this.isMouseOver(offsetWithScrollX, offsetWithScrollY, (int)mouseX, (int)mouseY)) {
@@ -131,11 +162,11 @@ public class SkillTreeWidget {
             return true;
         }
         return false;
-    }
+    } */
 
     public boolean isMouseOver(int offsetX, int offsetY, int mouseX, int mouseY) {
-        int actual_x = this.x + offsetX;
-        int actual_y = this.y + offsetY;
+        int actual_x = this.getX() + offsetX;
+        int actual_y = this.getY() + offsetY;
         return 
             mouseX > actual_x 
             && mouseX < actual_x + WIDTH
@@ -185,6 +216,12 @@ public class SkillTreeWidget {
             }
         }
         return false;
+    }
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput arg0) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateWidgetNarration'");
     }
 
 }

@@ -34,7 +34,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     private static final String KEY_UPGRADEBUTTON_LOCKED = "gui.skill_tree.upgrade_button.locked";
     private static final String KEY_UPGRADEBUTTON_LOCKEDUPGRADE = "gui.skill_tree.upgrade_button.locked_upgrade";
 
-    protected static final int WIDTH = 200;
+    protected static final int WIDTH = 180;
     protected static final int MAX_HEIGHT = SkillTreeScreen.WINDOW_HEIGHT;
     private static final int MAX_SCROLL_HEADING_LINES = 3;
     private static final int TEXT_LINE_SPACING = 2;
@@ -175,7 +175,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         final int top_y = offsetY - this.headingParHeight - V_MARGIN*2 - HEADING_RESOURCE_V_MARGIN;
         final int description_y = offsetY + SkillTreeWidget.ICON_HEIGHT + SECTION_V_MARGIN - CONTENTS_RESOURCE_V_MARGIN - 2;
         final int heading_inside_x = offsetX;
-        final int upgradebutton_x = offsetX + SkillTreeWidget.ICON_WIDTH + 15;
+        final int upgradebutton_x = offsetX + SkillTreeWidget.ICON_WIDTH + 6;
         final int upgradebutton_y = offsetY + (SkillTreeWidget.ICON_HEIGHT - UpgradeButtonState.HEIGHT) / 2;
         final int heading_inside_y = top_y + V_MARGIN + HEADING_RESOURCE_V_MARGIN;
         final int description_inside_x = left_x + H_MARGIN + CONTENTS_CONTAINER_PADDING;
@@ -401,7 +401,8 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
                 }
             }
             GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, loc, offsetX, offsetY, UpgradeButtonState.WIDTH, UpgradeButtonState.HEIGHT);
-            GuiGraphicsExtractor.centeredText(font, Component.translatable(this.text, currentProgress, maxProgress), offsetX + WIDTH/2, offsetY + HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
+            ChatFormatting textFormat = this.hasHover ? ChatFormatting.WHITE : ChatFormatting.GRAY; 
+            GuiGraphicsExtractor.centeredText(font, (Component)Component.translatable(this.text, currentProgress, maxProgress).withStyle(textFormat), offsetX + WIDTH/2, offsetY + HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
         }
     }
 

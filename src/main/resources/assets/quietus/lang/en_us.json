@@ -145,6 +145,15 @@
 
 
   "__comment": "SKILL TREE LOCALISATIONS",
+  "skillTree.quietus.tab.occult.name": "Occult",
+  "skillTree.quietus.tab.occult.description" : "Occult description bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+  "skillTree.quietus.tab.strength.name": "Strength",
+  "skillTree.quietus.tab.strength.description" : "Strength description bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+  "skillTree.quietus.tab.technique.name": "Technique",
+  "skillTree.quietus.tab.technique.description" : "Technique description bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+  "skillTree.quietus.tab.vitality.name": "Vitality",
+  "skillTree.quietus.tab.vitality.description" : "Vitality description bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla",
+
   "skillTree.quietus.example_tab/example_root.header": "Provisional Findings Regarding the Unresolved Matter with Polyrectostalgamite using process Ampére-Lotus Glysentite",
   "skillTree.quietus.example_tab/example_root.description": "The procedure was officially advanced, though not entirely completed. He might have agreed, if previously consulted, but the matter was left unresolved. It should be concluded without being resolved, which is generally understood. They are neither for nor against the prevailing circumstances. Having been thoroughly re-examined, the entire concept was quietly abandoned. Above text is gibberish, only for testing. 神秘的东方文字",
   "skillTree.quietus.example_tab/example.header": "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ",

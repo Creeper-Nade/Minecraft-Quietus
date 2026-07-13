@@ -246,6 +246,10 @@ public class SkillCategory {
         return this.display;
     }
 
+    public Identifier getId() {
+        return this.id;
+    }
+
     @Override
     public int hashCode() {
         return this.id.hashCode();
