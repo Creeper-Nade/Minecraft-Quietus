@@ -17,8 +17,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -221,21 +219,6 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         // upgrade button
         this.button.updatePositionOffset(offsetX, offsetY);
         this.button.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, delta);
-        /* Prerequisites widgetPrerequisite = this.widget.getNode().getSkillPoint().unlock().prerequisites();
-        SkillPointProgress.ClientData progress = tree.getOrStartProgress(this.widget.getNode());
-        this.upgradeState = UpgradeButtonState.get(
-            progress.times() > 0, 
-            widgetPrerequisite.requirements().test(Prerequisites.CompletionStatus.make(widgetPrerequisite, tree.getCompletedAdvancements(), tree.getCompletedParents()))
-        );
-        this.upgradeState.draw(
-            GuiGraphicsExtractor, 
-            upgradebutton_x, 
-            upgradebutton_y, 
-            this.isMouseOverUpgradeButton(offsetX, offsetY, mouseX, mouseY) && !progress.isMaxed(), 
-            progress.times(), 
-            progress.maxAmount(), 
-            this.font
-        ); */
     }
     private void calcAndDrawDescriptionScrollBar(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
         GuiGraphicsExtractor.verticalLine(offsetX, offsetY, offsetY + this.descriptionParHeight, 0xFF555555); // track bar
@@ -259,13 +242,6 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             return true;
         };
         return false;
-        /* if (this.isMouseOverUpgradeButton(offsetX, offsetY, mouseX, mouseY)) {
-            if ((this.upgradeState == UpgradeButtonState.UNLOCK || this.upgradeState == UpgradeButtonState.UPGRADE)) {
-                ServerPacketDistributor.requestSkillTreeUpgrade(this.widget.getNode());
-            }
-            return true;
-        }
-        return false; */
     }
 
 
@@ -306,20 +282,6 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             mouseY > offsetY + SkillTreeWidget.ICON_HEIGHT + SECTION_V_MARGIN - 2 + V_MARGIN + CONTENTS_CONTAINER_PADDING &&
             mouseX < offsetX + CONTENTS_CONTAINER_PADDING + actualDescriptionWidth &&
             mouseY < offsetY + SkillTreeWidget.ICON_HEIGHT + SECTION_V_MARGIN - 2 + V_MARGIN + CONTENTS_CONTAINER_PADDING + this.descriptionParHeight
-        );
-    }
-    /**
-     * Whether or not the mouse is hovering over the area of upgrade button
-     * Used for determining if the hover effect on the button should appear
-     * or if the click is on the upgrade button
-     * @return true if mouse is hovering over heading, false otherwise
-     */
-    public boolean isMouseOverUpgradeButton(int offsetX, int offsetY, double mouseX, double mouseY) {
-        return (
-            mouseX > offsetX + SkillTreeWidget.ICON_WIDTH + 15 &&
-            mouseY > offsetY + (SkillTreeWidget.ICON_HEIGHT - UpgradeButton.HEIGHT) / 2 &&
-            mouseX < offsetX + SkillTreeWidget.ICON_WIDTH + 15 + UpgradeButton.WIDTH &&
-            mouseY < offsetY + (SkillTreeWidget.ICON_HEIGHT - UpgradeButton.HEIGHT) / 2 + UpgradeButton.HEIGHT
         );
     }
 

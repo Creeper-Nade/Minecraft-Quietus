@@ -123,10 +123,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
                 this.tabs.put(id, createdtab);
             category.setListener(this); // adds widgets to the tab via SkillCategory's listener
         });
-        /* if (this.selectedTab != null && !this.tabs.values().stream().map(tab -> tab.getCategory()).collect(Collectors.toList()).contains(this.selectedTab.getCategory())) {
-            LOGGER.info("The client has skill category {} selected but it exists no more!", this.selectedTab.getCategory().getId().toString());
-            this.selectedTab = null;
-        } */
         if (!this.tabs.isEmpty()) {
             if (this.selectedTab == null) {
                 this.selectedTab = this.tabs.values().iterator().next();
@@ -257,7 +253,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     }
 
     private void renderInfoWindow(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float delta, int offsetX, int offsetY) {
-        //LOGGER.info("[DDebug] selected tab: {}, selected widget: {}, widget info screen: {}", this.selectedTab.getCategory().getId().toString(), this.selectedNode.getId().toString(), this.selectedWidgetInfo);
         this.selectedWidgetInfo.draw(GuiGraphicsExtractor, mouseX, mouseY, offsetX, this.infoWindowY, delta, this.skillTree);
     }
 
@@ -270,12 +265,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         int treeOffsetX = WINDOW_INSIDE_X + (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
         int treeOffsetY = WINDOW_INSIDE_TOP_Y + offsetY;
         int infoOffsetX = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
-        /* int infoOffsetY = offsetY;
-        if (this.selectedTab != null && this.selectedNode != null) {
-            infoOffsetY += this.selectedTab.getPositioning().getVertices().get(this.selectedNode).y() + WINDOW_INSIDE_TOP_Y + (int)this.selectedTab.scrollY;
-            infoOffsetY += Math.min(0, (offsetY + WINDOW_HEIGHT) - (infoOffsetY - selectedWidgetInfo.getTopHeight() + selectedWidgetInfo.getHeight())); // snaps to the bottom if InfoScreen has lower bottom
-            infoOffsetY += Math.max(0, offsetY - (infoOffsetY - selectedWidgetInfo.getTopHeight())); // snaps to the top if InfoScreen has higher top
-        } */
 
         if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, this.infoWindowY, mouseX, mouseY)) {
             this.focusedDraggable = this.selectedWidgetInfo;
@@ -296,7 +285,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
 
         if (this.selectedTab != null) {
-            /* if (this.selectedTab.clickOnTree(treeOffsetX, treeOffsetY, mouseX, mouseY, event.button())) { */
             if (this.selectedTab.clickOnTree(event, doubleClick)) {
                 return true;
             }
@@ -306,13 +294,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             if (tab.mouseClicked(event, doubleClick)) 
                 return true;
         }
-
-        /* for (SkillTreeTab tab : this.tabs.values()) {
-            if (tab.clickOnTree(infoOffsetX, treeOffsetY, mouseX, mouseY, event.button())) {
-                this.selectedTab = tab;
-                return true;
-            }
-        } */
 
         return super.mouseClicked(event, doubleClick);
     }
@@ -334,12 +315,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         int treeOffsetX = WINDOW_INSIDE_X + (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
         int treeOffsetY = WINDOW_INSIDE_TOP_Y + offsetY;
         int infoOffsetX =  + (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
-        /* int infoOffsetY = offsetY;
-        if (this.selectedTab != null && this.selectedNode != null) {
-            infoOffsetY += this.selectedTab.getPositioning().getVertices().get(this.selectedNode).y() + WINDOW_INSIDE_TOP_Y + (int)this.selectedTab.scrollY;
-            infoOffsetY += Math.min(0, (offsetY + WINDOW_HEIGHT) - (infoOffsetY - selectedWidgetInfo.getTopHeight() + selectedWidgetInfo.getHeight())); // snaps to the bottom if InfoScreen has lower bottom
-            infoOffsetY += Math.max(0, offsetY - (infoOffsetY - selectedWidgetInfo.getTopHeight())); // snaps to the top if InfoScreen has higher top
-        } */
 
         if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(infoOffsetX, this.infoWindowY, mouseX, mouseY)) {
             this.focusedScrollable = this.selectedWidgetInfo;
@@ -362,7 +337,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     }
 
     private int calcInverse(double yIntercept, double xIntercept, double smoothnessMult, double x, boolean pn) {
-        //final double pn_mult = this.selectedWidget == null ? 1.0d : -1.0d; // positive or negative for √(sigma)
         double pn_mult = pn ? 1.0d : -1.0d; // positive or negative for √(sigma)
         double yIntercept_abs = Math.abs(yIntercept);
         float sigma = (float) (
