@@ -376,12 +376,14 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         @Override
         protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
-            this.state.draw(gui, this.getX(), this.getY(), this.isHovered(), this.progress.progressAmount(), this.progress.maxAmount(), this.font);
+            this.state.draw(gui, this.getX(), this.getY(), this.isHovered() && this.isActive(), this.progress.times(), this.progress.maxAmount(), this.font);
         }
 
         public void updateState(SkillPointProgress.ClientData progress, boolean unlocked) {
             this.progress = progress;
-            this.state = UpgradeButtonState.get(progress.times() > 0, unlocked);
+            UpgradeButtonState newState = UpgradeButtonState.get(progress.times() > 0, unlocked);
+            this.state = newState;
+            this.active = !progress.isMaxed() && newState != UpgradeButtonState.LOCKED && newState != UpgradeButtonState.LOCKED_UPGRADE;
         }
 
         public void updatePositionOffset(int offsetX, int offsetY) {

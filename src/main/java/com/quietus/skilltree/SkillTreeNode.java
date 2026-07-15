@@ -57,6 +57,9 @@ public class SkillTreeNode {
     public Identifier getId() {
         return this.id;
     }
+    public Identifier getCategoryId() {
+        return this.id.withPath(this.id.getPath().substring(0, id.getPath().lastIndexOf("/")));
+    }
 
     public boolean isRoot() {
         return this.parents.size() == 0;

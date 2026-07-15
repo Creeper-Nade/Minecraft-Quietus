@@ -38,7 +38,7 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     private static final int SCROLL_EXTRA_MARGIN_Y = 20;
     
     private final Minecraft minecraft;
-    private final ClientSkillTree skillTree;
+    private ClientSkillTree skillTree;
     private final SkillTreeScreen screen;
     private final SkillCategory category;
     private final SkillCategory.DisplayInfo display;
@@ -52,7 +52,7 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     private int maxX = Integer.MIN_VALUE;
     private int maxY = Integer.MIN_VALUE;
 
-    private final TreePosition positioning;
+    private TreePosition positioning;
 
     public SkillTreeTab(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int x, int y, SkillCategory category, SkillCategory.DisplayInfo display, TreePosition positioning, double scrollX, double scrollY) {
         super(x, y, TAB_DISPLAY_WIDTH, TAB_DISPLAY_HEIGHT, display.name());
@@ -77,6 +77,12 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     public static SkillTreeTab create(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, SkillCategory category, TreePosition positioning) {
         Optional<SkillCategory.DisplayInfo> display = category.display();
         return display.map(displayInfo -> new SkillTreeTab(minecraft, clientSkillTree, screen, 0, 0, category, displayInfo, positioning, 0.0d, 0.0d)).orElse(null);
+    }
+
+    protected void reset(ClientSkillTree tree, TreePosition positioning) {
+        this.widgets.clear();
+        this.positioning = positioning;
+        this.skillTree = tree;
     }
     
     public void addWidget(SkillTreeNode node) {
