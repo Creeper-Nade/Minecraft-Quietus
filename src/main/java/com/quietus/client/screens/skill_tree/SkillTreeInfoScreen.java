@@ -168,6 +168,10 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         );
     }
 
+    public void renderTick(int offsetX, int offsetY, float delta) {
+        this.button.updatePositionOffset(offsetX, offsetY);
+    }
+
     /**
      * Draws the info screen
      * @param GuiGraphicsExtractor
@@ -215,9 +219,9 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         
         // icon 
         this.widget.drawAbsolute(GuiGraphicsExtractor, offsetX, offsetY);
-
+    }
+    public void drawWidgets(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float delta) {
         // upgrade button
-        this.button.updatePositionOffset(offsetX, offsetY);
         this.button.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, delta);
     }
     private void calcAndDrawDescriptionScrollBar(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
@@ -321,8 +325,8 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         private SkillPointProgress.ClientData progress;
         private SkillTreeInfoScreen.UpgradeButtonState state = UpgradeButtonState.LOCKED;
-        private final int screenX;
-        private final int screenY;
+        private final int screenX; // x coords relative to SkillTreeInfoScreen
+        private final int screenY; // y coords relative to SkillTreeInfoScreen
         private final Font font;
         private final SkillTreeInfoScreen screen;
 

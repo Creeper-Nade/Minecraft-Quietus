@@ -50,6 +50,8 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     private int maxX = Integer.MIN_VALUE;
     private int maxY = Integer.MIN_VALUE;
 
+    private int relX, relY = 0;
+
     private TreePosition positioning;
 
     public SkillTreeTab(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int x, int y, SkillCategory category, SkillCategory.DisplayInfo display, TreePosition positioning, double scrollX, double scrollY) {
@@ -91,6 +93,14 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         }
     }
 
+    protected void renderTick(int offsetX, int offsetY, float delta) {
+        this.clampScroll(0.0d, 0.0d);
+        this.relX = offsetX + (int)this.scrollX;
+        this.relY = offsetY + (int)this.scrollY;
+
+        this.widgets.values().forEach(widget -> widget.updatePositionOffset(this.relX, this.relY));
+    }
+
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
         int x = this.getX();
@@ -112,24 +122,18 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         }
     }
 
-    public void drawContents(GuiGraphicsExtractor guiGraphicsExtractor, int offsetX, int offsetY, int width, int height, int mouseX, int mouseY, float delta) {
-        guiGraphicsExtractor.enableScissor(offsetX, offsetY, offsetX + width, offsetY + height);
-
-        guiGraphicsExtractor.fill(offsetX, offsetY, offsetX+width, offsetY+height, 0xFFFFFFFF);
-
-        this.clampScroll(0.0d, 0.0d);
-        int relX = offsetX + (int)this.scrollX;
-        int relY = offsetY + (int)this.scrollY;
+    public void drawWidgetsAndEdges(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
         
-        this.drawEdges(guiGraphicsExtractor, relX, relY);
+        this.drawEdges(gui, this.relX, this.relY);
 
         for (SkillTreeWidget widget : this.widgets.values()) {
-            widget.updatePositionOffset(relX, relY);
-            widget.extractRenderState(guiGraphicsExtractor, mouseX, mouseY, delta);
-            //widget.draw(guiGraphicsExtractor, relX, relY);
+            widget.extractRenderState(gui, mouseX, mouseY, delta);
         }
 
-        guiGraphicsExtractor.disableScissor();
+    }
+
+    public void drawBackground(GuiGraphicsExtractor gui, int offsetX, int offsetY, int width, int height, int mouseX, int mouseY, float delta) {
+        gui.fill(offsetX, offsetY, offsetX+width, offsetY+height, 0x80FFFFFF); // TODO: temporary background, needs to be properly textured per tab
     }
 
     private void drawEdges(GuiGraphicsExtractor guiGraphicsExtractor, int offsetX, int offsetY) {
