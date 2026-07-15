@@ -140,7 +140,7 @@ public class SkillTreeWidget extends AbstractWidget {
         if (this.node.equals(this.tab.getScreen().getSelectedNode())) {
             this.tab.getScreen().setSelectedNode(null);
         } else {
-            this.tab.getScreen().setSelectedNode(this);
+            this.tab.getScreen().setSelectedNode(this.node);
         }
     }
 
