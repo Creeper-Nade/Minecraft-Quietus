@@ -1,0 +1,20 @@
+{
+    "max_nodes_per_layer": 16,
+    "seed": 2026,
+
+    "prerequisites": {
+
+    },
+    "tab_display": {
+        "icon": "quietus:textures/gui/icons/skill_tree/tab/example.png",
+        "name": {
+            "translate": "skillTree.quietus.tab.test4.name"
+        },
+        "description": {
+            "translate": "skillTree.quietus.tab.example.description"
+        },
+        "prerequisites": {
+
+        }
+    }
+}

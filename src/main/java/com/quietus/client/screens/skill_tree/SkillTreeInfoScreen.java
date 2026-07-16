@@ -3,6 +3,7 @@ package com.quietus.client.screens.skill_tree;
 import java.util.Objects;
 import java.util.Set;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import com.quietus.client.multiplayer.ClientSkillTree;
 import com.quietus.client.util.GuiGraphicsExtractorUtil;
 import com.quietus.skilltree.Prerequisites;
@@ -97,7 +98,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         Component prerequisitesDescription = makePrerequisitesDescription(widget.getNode().getSkillPoint(), screen.getSkillTree());
         if (prerequisitesDescription != null) {
-            description = MutableComponent.create(description.getContents()).append(Component.literal("\n\n")).append(prerequisitesDescription);
+            description = MutableComponent.create(description.getContents()).append("\n\n").append(prerequisitesDescription);
         }
 
         SkillTreeInfoScreen out = new SkillTreeInfoScreen(font, heading, description, widget, screen);
@@ -174,13 +175,13 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
     /**
      * Draws the info screen
-     * @param GuiGraphicsExtractor
+     * @param gui
      * @param mouseX
      * @param mouseY
      * @param offsetX x offset, exactly where the icon will be drawn
      * @param offsetY y offset, exactly where the icon will be drawn
      */
-    public void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, int offsetX, int offsetY, float delta, ClientSkillTree tree) {
+    public void draw(GuiGraphicsExtractor gui, int mouseX, int mouseY, int offsetX, int offsetY, float delta, ClientSkillTree tree) {
         
         // calculate left and top x and y
         final int left_x = offsetX - H_MARGIN;
@@ -194,31 +195,42 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         final int description_inside_y = description_y + V_MARGIN + CONTENTS_RESOURCE_V_MARGIN + CONTENTS_CONTAINER_PADDING;
 
         // description container
-        GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, CONTENTS_SPRITE_LOCATION, left_x, description_y, WIDTH, this.descriptionParHeight+V_MARGIN*2+CONTENTS_CONTAINER_PADDING*2+CONTENTS_RESOURCE_V_MARGIN*2);
+        gui.blitSprite(RenderPipelines.GUI_TEXTURED, CONTENTS_SPRITE_LOCATION, left_x, description_y, WIDTH, this.descriptionParHeight+V_MARGIN*2+CONTENTS_CONTAINER_PADDING*2+CONTENTS_RESOURCE_V_MARGIN*2);
         // header container
-        GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, HEADER_SPRITE_LOCATION, left_x, top_y, WIDTH, this.headingParHeight + V_MARGIN + SECTION_V_MARGIN + SkillTreeWidget.ICON_HEIGHT + CONTENTS_CONTAINER_PADDING + SECTION_V_MARGIN);
+        gui.blitSprite(RenderPipelines.GUI_TEXTURED, HEADER_SPRITE_LOCATION, left_x, top_y, WIDTH, this.headingParHeight + V_MARGIN + SECTION_V_MARGIN + SkillTreeWidget.ICON_HEIGHT + CONTENTS_CONTAINER_PADDING + SECTION_V_MARGIN);
         // header
         if (this.isScrollHeading) {
-            GuiGraphicsExtractor.enableScissor(heading_inside_x, heading_inside_y, heading_inside_x + HEADING_TEXT_MAX_WIDTH, heading_inside_y + this.headingParHeight);
-            GuiGraphicsExtractorUtil.drawWordWrap(GuiGraphicsExtractor, this.font, this.heading, heading_inside_x, heading_inside_y + (int)Math.round(this.headingScrollY), HEADING_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
-            GuiGraphicsExtractor.disableScissor();
-            this.calcAndDrawHeadingScrollBar(GuiGraphicsExtractor, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, heading_inside_y);
+            gui.enableScissor(heading_inside_x, heading_inside_y, heading_inside_x + HEADING_TEXT_MAX_WIDTH, heading_inside_y + this.headingParHeight);
+            GuiGraphicsExtractorUtil.drawWordWrap(gui, this.font, this.heading, heading_inside_x, heading_inside_y + (int)Math.round(this.headingScrollY), HEADING_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
+            gui.disableScissor();
+            this.calcAndDrawHeadingScrollBar(gui, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, heading_inside_y);
         } else {
-            GuiGraphicsExtractorUtil.drawWordWrap(GuiGraphicsExtractor, this.font, this.heading, heading_inside_x, heading_inside_y, HEADING_TEXT_MAX_WIDTH, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
+            GuiGraphicsExtractorUtil.drawWordWrap(gui, this.font, this.heading, heading_inside_x, heading_inside_y, HEADING_TEXT_MAX_WIDTH, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
         }
     
         // description
         if (this.isScrollDescription) {
-            GuiGraphicsExtractor.enableScissor(description_inside_x, description_inside_y, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, description_inside_y + this.descriptionParHeight);
-            GuiGraphicsExtractorUtil.drawWordWrap(GuiGraphicsExtractor, this.font, this.description, description_inside_x, description_inside_y + (int)Math.round(this.descriptionScrollY), DESCRIPTION_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
-            GuiGraphicsExtractor.disableScissor();
-            this.calcAndDrawDescriptionScrollBar(GuiGraphicsExtractor, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, description_inside_y);
+            gui.enableScissor(description_inside_x, description_inside_y, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, description_inside_y + this.descriptionParHeight);
+            GuiGraphicsExtractorUtil.drawWordWrap(gui, this.font, this.description, description_inside_x, description_inside_y + (int)Math.round(this.descriptionScrollY), DESCRIPTION_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
+            gui.disableScissor();
+            this.calcAndDrawDescriptionScrollBar(gui, description_inside_x + DESCRIPTION_TEXT_MAX_WIDTH, description_inside_y);
         } else {
-            GuiGraphicsExtractorUtil.drawWordWrap(GuiGraphicsExtractor, this.font, this.description, description_inside_x, description_inside_y, DESCRIPTION_TEXT_MAX_WIDTH, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
+            GuiGraphicsExtractorUtil.drawWordWrap(gui, this.font, this.description, description_inside_x, description_inside_y, DESCRIPTION_TEXT_MAX_WIDTH, TEXT_LINE_SPACING, 0xFFFFFFFF, true);
         }
         
         // icon 
-        this.widget.drawAbsolute(GuiGraphicsExtractor, offsetX, offsetY);
+        this.widget.drawAbsolute(gui, offsetX, offsetY);
+
+        /* Cursor */
+        if (this.button.isHovered() && this.button.isActive()) {
+            gui.requestCursor(CursorTypes.POINTING_HAND);
+        }
+        if (this.equals(this.screen.focusedDraggable()) && this.screen.isDragging()) {
+            if (this.scrollingHeading && this.isScrollHeading)
+                gui.requestCursor(CursorTypes.RESIZE_NS);
+            if (this.scrollingDescription && this.isScrollDescription)
+                gui.requestCursor(CursorTypes.RESIZE_NS);
+        }
     }
     public void drawWidgets(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float delta) {
         // upgrade button
