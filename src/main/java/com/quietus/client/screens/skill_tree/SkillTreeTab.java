@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import com.mojang.blaze3d.platform.cursor.CursorType;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import com.quietus.client.multiplayer.ClientSkillTree;
 import com.quietus.skilltree.SkillCategory;
 import com.quietus.skilltree.SkillTreeNode;
@@ -16,10 +18,13 @@ import com.quietus.skilltree.TreePosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 
 public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, SkillTreeScrollable {
@@ -71,6 +76,14 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         this.scrollY = scrollY;
 
         this.positioning = positioning;
+
+        this.setTooltip(this.buildTooltip());
+    }
+
+    private Tooltip buildTooltip() {
+        Component name = this.display.name();
+        Component description = this.display.description();
+        return Tooltip.create(MutableComponent.create(name.getContents()).append("\n").append(description));
     }
 
     @Nullable
@@ -98,7 +111,22 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         this.relX = offsetX + (int)this.scrollX;
         this.relY = offsetY + (int)this.scrollY;
 
-        this.widgets.values().forEach(widget -> widget.updatePositionOffset(this.relX, this.relY));
+        this.widgets.values().forEach(widget -> {
+            widget.updatePositionOffset(this.relX, this.relY);
+            
+            if (
+                widget.getX() + SkillTreeWidget.WIDTH < offsetX ||
+                widget.getY() + SkillTreeWidget.HEIGHT < offsetY ||
+                widget.getX() > offsetX + this.screen.dynamicInsideWidth() ||
+                widget.getY() > offsetY + SkillTreeScreen.WINDOW_INSIDE_HEIGHT
+            ) { // hide and deactivate widget when it would be cropped out by scissors (see {@link SkillTreeScreen})
+                widget.active = false;
+                widget.visible = false;
+            } else {
+                widget.active = true;
+                widget.visible = true;
+            }
+        });
     }
 
     @Override
@@ -109,6 +137,7 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         if (this.isActive()) {
             if (this.isHovered()) {
                 gui.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_HOVERED_LOCATION, x, y, 0.0f, 0.0f, 38, 28, 38, 28);
+                gui.requestCursor(CursorTypes.POINTING_HAND);
             } else {
                 gui.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_LOCATION, x, y, 0.0f, 0.0f, 38, 28, 38, 28);
             }
@@ -130,6 +159,13 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
             widget.extractRenderState(gui, mouseX, mouseY, delta);
         }
 
+        boolean overClickable = false;
+        for (SkillTreeWidget widget : this.widgets.values()) {
+            if (widget.isHovered() && widget.isActive()) {
+                overClickable = true;
+            }
+        }
+        if (overClickable) gui.requestCursor(CursorTypes.POINTING_HAND);
     }
 
     public void drawBackground(GuiGraphicsExtractor gui, int offsetX, int offsetY, int width, int height, int mouseX, int mouseY, float delta) {

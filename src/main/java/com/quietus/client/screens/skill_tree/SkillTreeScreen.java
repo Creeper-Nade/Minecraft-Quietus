@@ -26,6 +26,7 @@ import com.quietus.client.multiplayer.ClientSkillTree;
 import com.quietus.skilltree.SkillTreeNode;
 import com.quietus.skilltree.TreePosition;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.cursor.CursorType;
 import com.mojang.logging.LogUtils;
 import com.quietus.skilltree.SkillCategory;
 
@@ -65,9 +66,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final int DYNAMIC_POSITIONING_TICKS = 40;
     
     private int infoDynamicTicks = DYNAMIC_POSITIONING_TICKS;
-    private int infoWindowDynamicWidth = WINDOW_WIDTH;
-    private int infoWindowInsideDynamicWidth = WINDOW_INSIDE_WIDTH;
-    private int infoDynamicOffset = 0;
+    private int windowDynamicWidth = WINDOW_WIDTH;
+    private int windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH;
+    private int windowDynamicOffset = 0;
     private float infoDynamicTicksF = DYNAMIC_POSITIONING_TICKS;
     private float infoWindowDynamicWidthF = WINDOW_WIDTH;
     private float infoWindowInsideDynamicWidthF = WINDOW_INSIDE_WIDTH;
@@ -194,13 +195,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.infoDynamicTicks = this.selectedNode == null ?
             Math.min(this.infoDynamicTicks+1, DYNAMIC_POSITIONING_TICKS)
             : Math.max(this.infoDynamicTicks-1, 0);
-        this.infoWindowDynamicWidth = WINDOW_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
-        this.infoWindowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
+        this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
+        this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
         
-        this.infoDynamicOffset = (int)Math.round(calcInverse((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 80.0d, this.infoDynamicTicks, this.selectedNode == null));
+        this.windowDynamicOffset = (int)Math.round(calcInverse((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 80.0d, this.infoDynamicTicks, this.selectedNode == null));
 
-        this.infoWindowDynamicWidth = WINDOW_WIDTH + (int)Math.round(calcInverse((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 45.0d, this.infoDynamicTicks, this.selectedNode == null));
-        this.infoWindowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round(calcInverse((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 45.0d, this.infoDynamicTicks, this.selectedNode == null));
+        this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round(calcInverse((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 45.0d, this.infoDynamicTicks, this.selectedNode == null));
+        this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round(calcInverse((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 45.0d, this.infoDynamicTicks, this.selectedNode == null));
         
         // float
         this.infoDynamicTicksF = this.selectedNode == null ?
@@ -216,10 +217,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
         /* Offset calculation */
         this.offsetY = (this.height - WINDOW_HEIGHT) / 2;
-        this.offsetX = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidth) / 2 + this.infoDynamicOffset;
+        this.offsetX = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.windowDynamicWidth) / 2 + this.windowDynamicOffset;
         this.offsetXTree = this.offsetX + WINDOW_INSIDE_X;
         this.offsetYTree = this.offsetY + WINDOW_INSIDE_TOP_Y;
-        this.offsetXInfo = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidth) / 2 + this.infoWindowDynamicWidth + GAP_WINDOW_INFO + this.infoDynamicOffset;
+        this.offsetXInfo = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.windowDynamicWidth) / 2 + this.windowDynamicWidth + GAP_WINDOW_INFO + this.windowDynamicOffset;
         this.offsetXFTree = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidthF) / 2 + this.infoDynamicOffsetF;
         this.offsetXFInfo = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidthF) / 2 + this.infoWindowDynamicWidthF + GAP_WINDOW_INFO + this.infoDynamicOffsetF;
 
@@ -286,14 +287,14 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         if (this.selectedTab == null) {
 
         } else {
-            this.selectedTab.drawBackground(gui, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.infoWindowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT, mouseX, mouseY, delta);
-            gui.enableScissor(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.infoWindowInsideDynamicWidth, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT);
+            this.selectedTab.drawBackground(gui, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.windowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT, mouseX, mouseY, delta);
+            gui.enableScissor(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT);
             gui.pose().translate(-this.offsetX, 0.0f);
             this.selectedTab.drawWidgetsAndEdges(gui, mouseX, mouseY, delta);
             gui.disableScissor();
             gui.pose().translate(+this.offsetX, 0.0f);
         }
-        gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_SPRITE_LOCATION, offsetX, offsetY, this.infoWindowDynamicWidth, WINDOW_HEIGHT);
+        gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_SPRITE_LOCATION, offsetX, offsetY, this.windowDynamicWidth, WINDOW_HEIGHT);
     }
 
     private void renderInfoWindow(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta, int offsetX, int offsetY) {
@@ -343,12 +344,19 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (event.button() == 0) {
             if (this.focusedDraggable != null) {
-                this.focusedDraggable.drag(dragX, dragY); 
+                this.focusedDraggable.drag(dragX, dragY);
+                this.setDragging(true);
                 return true;
             }
         }
         return super.mouseDragged(event, dragX, dragY);
     }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        this.setDragging(false);
+        return super.mouseReleased(event);
+   }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
@@ -439,11 +447,19 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.tabs.get(categoryId).addWidget(node);
     }
 
+    protected SkillTreeDraggable focusedDraggable() {
+        return this.focusedDraggable;
+    }
+    
+
     protected int dynamicInsideOffset() {
-        return this.infoDynamicOffset;
+        return this.windowDynamicOffset;
     }
     protected int dynamicInsideWidth() {
-        return this.infoWindowInsideDynamicWidth;
+        return this.windowInsideDynamicWidth;
+    }
+    protected int yOffset() {
+        return this.offsetY;
     }
 
     protected ClientSkillTree getSkillTree() {
