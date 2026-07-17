@@ -92,6 +92,15 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         return display.map(displayInfo -> new SkillTreeTab(minecraft, clientSkillTree, screen, 0, 0, category, displayInfo, positioning, 0.0d, 0.0d)).orElse(null);
     }
     
+    protected void applyScrollData(TabScrollData data) {
+        this.scrollX = data.scrollX();
+        this.scrollY = data.scrollY();
+        this.clampScroll(0.0d, 0.0d);
+    }
+    protected TabScrollData makeScrollData() {
+        return new TabScrollData(this.scrollX, this.scrollY);
+    }
+
     public void addWidget(SkillTreeNode node) {
         if (node.getSkillPoint().display().isPresent()) {
             TreePosition.Vertex vertexPos = this.positioning.getVertices().get(node);
@@ -328,4 +337,9 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'updateWidgetNarration'");
     }
+
+    public record TabScrollData(
+        double scrollX,
+        double scrollY
+    ) {}
 }
