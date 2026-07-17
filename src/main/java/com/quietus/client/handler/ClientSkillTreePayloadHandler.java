@@ -1,15 +1,23 @@
 package com.quietus.client.handler;
 
+import static com.quietus.Quietus.MODID;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 
 import com.quietus.client.multiplayer.ClientSkillTree;
 import com.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
 import com.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
 import com.quietus.client.packet.SkillTreeUpdatePacket;
 import com.quietus.client.screens.skill_tree.SkillTreeScreen;
+import com.quietus.client.screens.skill_tree.SkillTreeTab;
+import com.quietus.client.screens.skill_tree.SkillTreeTab.TabScrollData;
 import com.quietus.skilltree.SkillCategory;
 
 import net.minecraft.client.Minecraft;
@@ -23,6 +31,10 @@ public class ClientSkillTreePayloadHandler {
 
     private static ClientSkillTree skillTree;
     private static Minecraft minecraft = Minecraft.getInstance();
+
+    private static Map<Identifier,SkillTreeTab.TabScrollData> scrollData = new HashMap<>();
+    private static List<Identifier> tabsOrder = new ArrayList<>();
+    @Nullable private static Identifier tabSelected = null;
     
 
     public static void initialize() {
@@ -31,6 +43,9 @@ public class ClientSkillTreePayloadHandler {
 
     public static void close() {
         skillTree = null;
+        scrollData.clear();
+        tabsOrder.clear();
+        tabSelected = null;
     }
 
     public static void handleSkillTreeUpdate(SkillTreeUpdatePacket packet, final IPayloadContext context) {
@@ -78,4 +93,24 @@ public class ClientSkillTreePayloadHandler {
     public static Map<Identifier, SkillCategory> getCategories() {
         return skillTree.getCategories();
     }
+
+    public static void putScrollDataEntry(Identifier id, SkillTreeTab.TabScrollData data) {
+        scrollData.put(id, data);
+    }
+    public static void putTabsOrderAndSelected(List<Identifier> id, Identifier selected) {
+        tabsOrder = id;
+        tabSelected = selected;
+    }
+    public static Map<Identifier,SkillTreeTab.TabScrollData> getScrollData() {
+        Map<Identifier,SkillTreeTab.TabScrollData> out = new HashMap<>();
+        out.putAll(scrollData);
+        return out;
+    }
+    public static List<Identifier> getTabsOrder() {
+        return tabsOrder;
+    }
+    public static Identifier getTabSelected() {
+        return tabSelected;
+    }
+
 }

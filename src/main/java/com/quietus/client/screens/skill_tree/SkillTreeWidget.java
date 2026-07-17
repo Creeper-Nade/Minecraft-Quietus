@@ -81,12 +81,6 @@ public class SkillTreeWidget extends AbstractWidget {
         this.setPosition(this.vertexPos.x() + offsetX, this.vertexPos.y() + offsetY);
     }
 
-    /* public void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
-        int render_x = this.getX() + offsetX;
-        int render_y = this.getY() + offsetY;
-        this.drawAbsolute(GuiGraphicsExtractor, render_x, render_y);
-    } */
-
     public void drawAbsolute(GuiGraphicsExtractor gui, int x, int y) {
         gui.blit(RenderPipelines.GUI_TEXTURED, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
         if (this.minecraft.getResourceManager().getResource(this.icon).isPresent()) {
@@ -148,21 +142,6 @@ public class SkillTreeWidget extends AbstractWidget {
     public void playDownSound(SoundManager soundManager) {
         //soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
-
-    /* public boolean click(int offsetX, int offsetY, double mouseX, double mouseY, int mouseButton) {
-        int offsetWithScrollX = offsetX + (int)this.tab.scrollX;
-        int offsetWithScrollY = offsetY + (int)this.tab.scrollY;
-        if (mouseButton == 0 && this.isMouseOver(offsetWithScrollX, offsetWithScrollY, (int)mouseX, (int)mouseY)) {
-            //this.tab.getScreen().addWidgetScreen(this, new SkillTreeWidgetScreen(this.minecraft, this.skillTree, this, this.tab.getScreen(), this.x + (int)this.tab.scrollX, this.y + (int)this.tab.scrollY));
-            if (this.matches(this.tab.getScreen().getSelectedWidget())) {
-                this.tab.getScreen().setSelectedWidget(null);
-            } else {
-                this.tab.getScreen().setSelectedWidget(this);
-            }
-            return true;
-        }
-        return false;
-    } */
 
     public boolean isMouseOver(int offsetX, int offsetY, int mouseX, int mouseY) {
         int actual_x = this.getX() + offsetX;

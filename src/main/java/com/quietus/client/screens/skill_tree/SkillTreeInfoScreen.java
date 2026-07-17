@@ -232,25 +232,25 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
                 gui.requestCursor(CursorTypes.RESIZE_NS);
         }
     }
-    public void drawWidgets(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float delta) {
+    public void drawWidgets(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
         // upgrade button
-        this.button.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, delta);
+        this.button.extractRenderState(gui, mouseX, mouseY, delta);
     }
-    private void calcAndDrawDescriptionScrollBar(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
-        GuiGraphicsExtractor.verticalLine(offsetX, offsetY, offsetY + this.descriptionParHeight, 0xFF555555); // track bar
+    private void calcAndDrawDescriptionScrollBar(GuiGraphicsExtractor gui, int offsetX, int offsetY) {
+        gui.verticalLine(offsetX, offsetY, offsetY + this.descriptionParHeight, 0xFF555555); // track bar
 
         int thumbHeight = Math.max(8, (int)((float)this.descriptionParHeight / this.totalDescriptionParHeight * this.descriptionParHeight));
         float scrollRatio = (float)this.descriptionScrollY / (this.totalDescriptionParHeight - this.descriptionParHeight);
         int thumb_offsetY = (int)(scrollRatio * (this.descriptionParHeight - thumbHeight));
-        GuiGraphicsExtractor.verticalLine(offsetX, offsetY-thumb_offsetY, offsetY-thumb_offsetY+thumbHeight, 0xFFFAFAFA);
+        gui.verticalLine(offsetX, offsetY-thumb_offsetY, offsetY-thumb_offsetY+thumbHeight, 0xFFFAFAFA);
     }
-    private void calcAndDrawHeadingScrollBar(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY) {
-        GuiGraphicsExtractor.verticalLine(offsetX, offsetY, offsetY + this.headingParHeight, 0xFF555555); // track bar
+    private void calcAndDrawHeadingScrollBar(GuiGraphicsExtractor gui, int offsetX, int offsetY) {
+        gui.verticalLine(offsetX, offsetY, offsetY + this.headingParHeight, 0xFF555555); // track bar
 
         int thumbHeight = Math.max(8, (int)((float)this.headingParHeight / this.totalHeadingParHeight * this.headingParHeight));
         float scrollRatio = (float)this.headingScrollY / (this.totalHeadingParHeight - this.headingParHeight);
         int thumb_offsetY = (int)(scrollRatio * (this.headingParHeight - thumbHeight));
-        GuiGraphicsExtractor.verticalLine(offsetX, offsetY-thumb_offsetY, offsetY-thumb_offsetY+thumbHeight, 0xFFFAFAFA);
+        gui.verticalLine(offsetX, offsetY-thumb_offsetY, offsetY-thumb_offsetY+thumbHeight, 0xFFFAFAFA);
     }
 
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
@@ -325,6 +325,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     }
 
     private void sendRequestforUpgrade() {
+        this.screen.saveData();
         ServerPacketDistributor.requestSkillTreeUpgrade(this.widget.getNode());
     }
 
