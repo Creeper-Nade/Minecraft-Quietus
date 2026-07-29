@@ -1,27 +1,21 @@
 package com.quietus.client.model.projectile.misc;
 
-import com.quietus.client.model.projectile.magic.ProjectileRenderState;
 import com.quietus.entity.projectiles.misc.GrapplingHookProjectile;
 import com.quietus.item.QuietusComponents;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Unit;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +26,27 @@ import static com.quietus.Quietus.MODID;
 public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, GrapplingHookRenderState> {
 
     private ChainHookModel<GrapplingHookRenderState> model;
+    private static final Identifier CHAIN_TEXTURE = Identifier.fromNamespaceAndPath(
+            MODID, "textures/entity/projectile/chain_hook_chain.png"
+    );
+    private static final RenderType CHAIN_RENDER_TYPE = RenderTypes.entityCutout(CHAIN_TEXTURE);
+    private static final float CHAIN_HALF_WIDTH = 1.5F / 16.0F;
+    private static final float CHAIN_FIRST_STRIP_MIN_U = 0.0F;
+    private static final float CHAIN_FIRST_STRIP_MAX_U = 3.0F / 16.0F;
+    private static final float CHAIN_SECOND_STRIP_MIN_U = 3.0F / 16.0F;
+    private static final float CHAIN_SECOND_STRIP_MAX_U = 6.0F / 16.0F;
     private static final double VIEW_BOBBING_SCALE = 960.0; // from FishingHookRenderer
+    private static final Vec3 MODEL_TRANSLATION = new Vec3(-0.5 / 16.0, 5.0 / 16.0, 0.0);
+    /*
+     * Top-center of the anchor texture after the model's rotations. The two
+     * crossed planes place it on opposite sides, so their midpoint is the
+     * shared rope attachment.
+     */
+    private static final Vec3 ROPE_ATTACHMENT_IN_MODEL = new Vec3(
+            0.0,
+            -0.18935 / 16.0,
+            (-3.1464 / Math.sqrt(2.0) - 3.0) / 16.0
+    );
     private static HumanoidArm cachedArm;
 
     public ChainHookRenderer(EntityRendererProvider.Context context) {
@@ -67,10 +81,17 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
             float attackAnim = player.getAttackAnim(partialTick);
             float handAngle = Mth.sin(Mth.sqrt(attackAnim) * (float) Math.PI);
             Vec3 handPos = getPlayerHandPos(player, handAngle, partialTick);
-            // Slight vertical offset to attach line to the "tip" of the hook (like fishing bobber)
-            Vec3 hookPos = entity.getPosition(partialTick).add(0.0, 0.25, 0.0);
-            state.lineOriginOffset = handPos.subtract(hookPos);
+            Vec3 attachmentOffset = ROPE_ATTACHMENT_IN_MODEL
+                    // Vec3.xRot has the opposite sign convention from the
+                    // quaternion used by Axis.XP/PoseStack.
+                    .xRot((float) Math.toRadians(state.xRot))
+                    .yRot((float) Math.toRadians(state.yRot))
+                    .add(MODEL_TRANSLATION);
+            Vec3 attachmentPos = entity.getPosition(partialTick).add(attachmentOffset);
+            state.lineStartOffset = attachmentOffset;
+            state.lineOriginOffset = handPos.subtract(attachmentPos);
         } else {
+            state.lineStartOffset = Vec3.ZERO;
             state.lineOriginOffset = Vec3.ZERO;
         }
     }
@@ -82,7 +103,7 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         poseStack.pushPose(); // second push – for hook model transformations
 
         // Transform the hook model
-        poseStack.translate(-0.5F / 16.0F, 5.0F / 16.0F, 0.0F);
+        poseStack.translate(MODEL_TRANSLATION.x, MODEL_TRANSLATION.y, MODEL_TRANSLATION.z);
         poseStack.mulPose(Axis.YP.rotationDegrees(state.yRot));
         poseStack.mulPose(Axis.XP.rotationDegrees(-state.xRot));
 
@@ -91,21 +112,9 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
 
         poseStack.popPose(); // remove hook model transformations, keep original translation
 
-        // Render the line (rope)
+        // Render a textured, infinitely repeating chain between the hook and the player's hand.
         if (state.lineOriginOffset != null && !state.lineOriginOffset.equals(Vec3.ZERO)) {
-            float xa = (float) state.lineOriginOffset.x;
-            float ya = (float) state.lineOriginOffset.y;
-            float za = (float) state.lineOriginOffset.z;
-            float width = Minecraft.getInstance().gameRenderer.getGameRenderState().windowRenderState.appropriateLineWidth;
-
-            submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
-                for (int i = 0; i < 16; ++i) {
-                    float a0 = fraction(i, 16);
-                    float a1 = fraction(i + 1, 16);
-                    stringVertex(xa, ya, za, buffer, pose, a0, a1, width);
-                    stringVertex(xa, ya, za, buffer, pose, a1, a0, width);
-                }
-            });
+            renderChain(poseStack, submitNodeCollector, state.lineStartOffset, state.lineOriginOffset, state.lightCoords);
         }
         poseStack.popPose(); // final pop – balances the first push
         super.submit(state, poseStack, submitNodeCollector, camera);
@@ -184,31 +193,48 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         return cachedArm;
     }
 
-    private static float fraction(int numerator, int denominator) {
-        return (float) numerator / (float) denominator;
+    private static void renderChain(PoseStack poseStack, SubmitNodeCollector submitNodeCollector,
+                                    Vec3 startOffset, Vec3 chainVector, int packedLight) {
+        float length = (float) chainVector.length();
+        if (length < 1.0E-4F) {
+            return;
+        }
+
+        Vec3 direction = chainVector.scale(1.0 / length);
+        float xRot = (float) Math.acos(Mth.clamp(direction.y, -1.0, 1.0));
+        float yRot = (float) (Math.PI / 2.0) - (float) Math.atan2(direction.z, direction.x);
+        float maxV = length;
+
+        poseStack.pushPose();
+        poseStack.translate(startOffset.x, startOffset.y, startOffset.z);
+        poseStack.mulPose(Axis.YP.rotation(yRot));
+        poseStack.mulPose(Axis.XP.rotation(xRot));
+        poseStack.mulPose(Axis.YP.rotationDegrees(45.0F));
+
+        submitNodeCollector.submitCustomGeometry(poseStack, CHAIN_RENDER_TYPE, (pose, buffer) -> {
+            // These dimensions and U ranges match vanilla's block/chain model exactly.
+            chainVertex(buffer, pose, -CHAIN_HALF_WIDTH, length, 0.0F, CHAIN_FIRST_STRIP_MIN_U, maxV, packedLight, 0.0F, 0.0F, 1.0F);
+            chainVertex(buffer, pose, -CHAIN_HALF_WIDTH, 0.0F, 0.0F, CHAIN_FIRST_STRIP_MIN_U, 0.0F, packedLight, 0.0F, 0.0F, 1.0F);
+            chainVertex(buffer, pose, CHAIN_HALF_WIDTH, 0.0F, 0.0F, CHAIN_FIRST_STRIP_MAX_U, 0.0F, packedLight, 0.0F, 0.0F, 1.0F);
+            chainVertex(buffer, pose, CHAIN_HALF_WIDTH, length, 0.0F, CHAIN_FIRST_STRIP_MAX_U, maxV, packedLight, 0.0F, 0.0F, 1.0F);
+
+            chainVertex(buffer, pose, 0.0F, length, -CHAIN_HALF_WIDTH, CHAIN_SECOND_STRIP_MIN_U, maxV, packedLight, 1.0F, 0.0F, 0.0F);
+            chainVertex(buffer, pose, 0.0F, 0.0F, -CHAIN_HALF_WIDTH, CHAIN_SECOND_STRIP_MIN_U, 0.0F, packedLight, 1.0F, 0.0F, 0.0F);
+            chainVertex(buffer, pose, 0.0F, 0.0F, CHAIN_HALF_WIDTH, CHAIN_SECOND_STRIP_MAX_U, 0.0F, packedLight, 1.0F, 0.0F, 0.0F);
+            chainVertex(buffer, pose, 0.0F, length, CHAIN_HALF_WIDTH, CHAIN_SECOND_STRIP_MAX_U, maxV, packedLight, 1.0F, 0.0F, 0.0F);
+        });
+        poseStack.popPose();
     }
 
-    private static void stringVertex(float x, float y, float z, VertexConsumer consumer, PoseStack.Pose pose,
-                                     float stringFraction, float nextStringFraction, float width) {
-        float fx = x * stringFraction;
-        float fy = y * (stringFraction * stringFraction + stringFraction) * 0.5F + 0.25F;
-        float fz = z * stringFraction;
-        float nx = x * nextStringFraction - fx;
-        float ny = y * (nextStringFraction * nextStringFraction + nextStringFraction) * 0.5F + 0.25F - fy;
-        float nz = z * nextStringFraction - fz;
-        float norm = Mth.sqrt(nx * nx + ny * ny + nz * nz);
-
-        // Safety check: skip if norm is zero (would cause division by zero)
-        if (norm < 1e-6f) return;
-
-        nx /= norm;
-        ny /= norm;
-        nz /= norm;
-
-        consumer.addVertex(pose, fx, fy, fz)
-                .setColor(-16777216)
-                .setNormal(pose, nx, ny, nz)
-                .setLineWidth(width);
+    private static void chainVertex(VertexConsumer consumer, PoseStack.Pose pose,
+                                    float x, float y, float z, float u, float v, int packedLight,
+                                    float normalX, float normalY, float normalZ) {
+        consumer.addVertex(pose, x, y, z)
+                .setColor(-1)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(packedLight)
+                .setNormal(pose, normalX, normalY, normalZ);
     }
     @Override
     protected boolean affectedByCulling(GrapplingHookProjectile display) {
