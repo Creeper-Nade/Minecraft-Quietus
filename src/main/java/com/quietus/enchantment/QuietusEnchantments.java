@@ -27,6 +27,10 @@ public class QuietusEnchantments {
             Identifier.fromNamespaceAndPath(Quietus.MODID, "acupuncture"));
     public static final ResourceKey<Enchantment> CONSERVATION = ResourceKey.create(Registries.ENCHANTMENT,
             Identifier.fromNamespaceAndPath(Quietus.MODID, "conservation"));
+    public static final ResourceKey<Enchantment> ELONGATION = ResourceKey.create(Registries.ENCHANTMENT,
+            Identifier.fromNamespaceAndPath(Quietus.MODID, "elongation"));
+    public static final ResourceKey<Enchantment> RESILIENCE = ResourceKey.create(Registries.ENCHANTMENT,
+            Identifier.fromNamespaceAndPath(Quietus.MODID, "resilience"));
 
     public static void bootstrap(BootstrapContext<Enchantment> context) {
         var enchantments = context.lookup(Registries.ENCHANTMENT);
@@ -68,6 +72,24 @@ public class QuietusEnchantments {
                 Enchantment.dynamicCost(35, 20),
                 4,
                 EquipmentSlotGroup.MAINHAND)).withEffect(QuietusEnchantmentComponent.MANA_COST_REDUCTION.get(), new AddValue(LevelBasedValue.perLevel(0.1F,0.05F))));
+
+        register(context, ELONGATION, Enchantment.enchantment(Enchantment.definition(
+                items.getOrThrow(QuietusTags.Items.GRAPPLING_HOOK),
+                5,
+                3,
+                Enchantment.dynamicCost(5, 15),
+                Enchantment.dynamicCost(25, 15),
+                2,
+                EquipmentSlotGroup.MAINHAND)));
+
+        register(context, RESILIENCE, Enchantment.enchantment(Enchantment.definition(
+                items.getOrThrow(QuietusTags.Items.GRAPPLING_HOOK),
+                3,
+                3,
+                Enchantment.dynamicCost(10, 20),
+                Enchantment.dynamicCost(30, 20),
+                3,
+                EquipmentSlotGroup.MAINHAND)));
     }
 
     private static void register(BootstrapContext<Enchantment> registry, ResourceKey<Enchantment> key,

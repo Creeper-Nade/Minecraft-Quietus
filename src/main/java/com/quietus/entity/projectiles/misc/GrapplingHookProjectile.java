@@ -2,6 +2,7 @@ package com.quietus.entity.projectiles.misc;
 
 import com.quietus.core.GrapplingHookAttachment;
 import com.quietus.entity.projectiles.QuietusProjectile;
+import com.quietus.item.QuietusComponents;
 import com.quietus.item.property.GrapplingHookProperty;
 import com.quietus.util.PlayerClientPacketDistributor;
 import com.quietus.util.QuietusAttachments;
@@ -14,9 +15,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -41,6 +44,8 @@ public class GrapplingHookProjectile extends QuietusProjectile {
             SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DATA_FRICTION_MULTIPLIER =
             SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> DATA_CASTING_OFFHAND =
+            SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.BOOLEAN);
 
 
     private GrapplingHookProperty grapplingHookProperty;
@@ -57,6 +62,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
         builder.define(DATA_MAX_TRAVEL_DISTANCE, 100.0F);
         builder.define(DATA_PULL_STRENGTH, 0.1F);
         builder.define(DATA_FRICTION_MULTIPLIER, 0.99F);
+        builder.define(DATA_CASTING_OFFHAND, false);
     }
 
     @Override
@@ -70,18 +76,27 @@ public class GrapplingHookProjectile extends QuietusProjectile {
     }
     @Override
     public void tick() {
+        if (!this.level().isClientSide() && this.getOwner() instanceof Player player) {
+            updateCastingHand(player);
+        }
 
-        // If we're stuck in a block, don't move
+        // If the supporting block was removed or no longer has collision at the
+        // hook's position, release the hook so gravity can take over again.
         if (this.isInBlock()) {
-            // Maintain position and don't apply gravity
-            this.setDeltaMovement(Vec3.ZERO);
-            this.setNoGravity(true);
+            if (this.isStillAnchoredToBlock()) {
+                this.setDeltaMovement(Vec3.ZERO);
+                this.setNoGravity(true);
 
-            // Check for discard
-            if (this.tickCount > this.persistanceTicks && !level().isClientSide()) {
-                discardAction();
+                // Check for discard
+                if (this.tickCount > this.persistanceTicks && !level().isClientSide()) {
+                    discardAction();
+                }
+                return;
             }
-            return;
+
+            this.setInBlock(false);
+            this.setNoGravity(false);
+            this.setLength(0.0F);
         }
 
         // Use arrow-like collision detection
@@ -205,6 +220,37 @@ public class GrapplingHookProjectile extends QuietusProjectile {
         }
     }
 
+    /**
+     * Checks this position and its neighboring block cells because a hook can
+     * rest exactly on a block boundary. This also supports partial collision
+     * shapes such as slabs and fences.
+     */
+    private boolean isStillAnchoredToBlock() {
+        Vec3 hookPosition = this.position();
+        BlockPos center = this.blockPosition();
+
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                for (int z = -1; z <= 1; z++) {
+                    BlockPos blockPos = center.offset(x, y, z);
+                    BlockState blockState = this.level().getBlockState(blockPos);
+                    if (blockState.isAir()) {
+                        continue;
+                    }
+
+                    VoxelShape collisionShape = blockState.getCollisionShape(this.level(), blockPos);
+                    for (AABB bounds : collisionShape.toAabbs()) {
+                        if (bounds.move(blockPos).inflate(1.0E-4D).contains(hookPosition)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     @Override
     protected void onHitBlock(BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
@@ -301,6 +347,42 @@ public class GrapplingHookProjectile extends QuietusProjectile {
     public float getMaxTravelDistance() {
         return this.entityData.get(DATA_MAX_TRAVEL_DISTANCE);
     }
+
+    public void setCastingHand(InteractionHand hand) {
+        this.entityData.set(DATA_CASTING_OFFHAND, hand == InteractionHand.OFF_HAND);
+    }
+
+    public InteractionHand getCastingHand() {
+        return this.entityData.get(DATA_CASTING_OFFHAND)
+                ? InteractionHand.OFF_HAND
+                : InteractionHand.MAIN_HAND;
+    }
+
+    public HumanoidArm getCastingArm(Player player) {
+        return getCastingHand() == InteractionHand.MAIN_HAND
+                ? player.getMainArm()
+                : player.getMainArm().getOpposite();
+    }
+
+    private void updateCastingHand(Player player) {
+        if (player.getMainHandItem().has(QuietusComponents.GRAPPLING_HOOK_CAST.get())) {
+            setCastingHand(InteractionHand.MAIN_HAND);
+            return;
+        }
+        if (player.getOffhandItem().has(QuietusComponents.GRAPPLING_HOOK_CAST.get())) {
+            setCastingHand(InteractionHand.OFF_HAND);
+            return;
+        }
+
+        InteractionHand currentHand = getCastingHand();
+        InteractionHand otherHand = currentHand == InteractionHand.MAIN_HAND
+                ? InteractionHand.OFF_HAND
+                : InteractionHand.MAIN_HAND;
+        if (!player.getItemInHand(currentHand).isEmpty()
+                && player.getItemInHand(otherHand).isEmpty()) {
+            setCastingHand(otherHand);
+        }
+    }
     @Override
     public void onRemovedFromLevel() {
         super.onRemovedFromLevel();
@@ -319,6 +401,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("in_block", this.isInBlock());
         tag.putFloat("length", this.getLength());
+        tag.putBoolean("casting_offhand", this.entityData.get(DATA_CASTING_OFFHAND));
     }
 
     @Override
@@ -326,6 +409,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
         super.readAdditionalSaveData(tag);
         this.setInBlock(tag.getBooleanOr("in_block",false));
         this.setLength(tag.getFloatOr("length",0));
+        this.entityData.set(DATA_CASTING_OFFHAND, tag.getBooleanOr("casting_offhand", false));
     }
 
 }

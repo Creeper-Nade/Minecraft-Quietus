@@ -82,8 +82,14 @@ public class HumanoidModelMixin<T extends HumanoidRenderState> {
             attackBlend = 1.0F;
         }
 
-        float smoothedAttackBlend = data.getFloatOr("QuietusGrappleAttackBlend", attackBlend);
-        smoothedAttackBlend = smoothedAttackBlend * (1 - ATTACK_SMOOTHING) + attackBlend * ATTACK_SMOOTHING;
+        float smoothedAttackBlend;
+        if (isAttackingArm) {
+            smoothedAttackBlend = data.getFloatOr("QuietusGrappleAttackBlend", attackBlend);
+            smoothedAttackBlend = smoothedAttackBlend * (1 - ATTACK_SMOOTHING) + attackBlend * ATTACK_SMOOTHING;
+        } else {
+            // Do not carry the previous hand's swing into a newly selected arm.
+            smoothedAttackBlend = 1.0F;
+        }
         data.putFloat("QuietusGrappleAttackBlend", smoothedAttackBlend);
 
         float finalBlend = blend * smoothedAttackBlend;

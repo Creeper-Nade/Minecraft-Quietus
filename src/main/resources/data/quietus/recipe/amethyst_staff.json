@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "R": "quietus:amethyst_resonator",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "  R",
+    " S ",
+    "S  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "quietus:amethyst_staff"
+  }
+}

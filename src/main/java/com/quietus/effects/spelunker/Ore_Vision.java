@@ -29,6 +29,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import org.joml.Vector3f;
@@ -99,7 +100,7 @@ public class Ore_Vision {
         }
     }
 
-    public static void RemoveSingleBlock(BlockEvent.BreakEvent event)
+    public static void RemoveSingleBlock(BreakBlockEvent event)
     {
         VISIBLE_ORES.remove(event.getPos());
         needsRefresh = true;

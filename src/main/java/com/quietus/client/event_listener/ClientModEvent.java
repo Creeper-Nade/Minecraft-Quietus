@@ -44,6 +44,8 @@ public class ClientModEvent {
 
     @SubscribeEvent
     public static void onKeyMappingRegister(RegisterKeyMappingsEvent event) {
+        event.registerCategory(QuietusKeyBindings.TRANSLATION_KEY_CATEGORY_QUIETUS);
         event.register(QuietusKeyBindings.SKILL_TREE_KEY.get());
+        event.register(QuietusKeyBindings.GRAPPLING_HOOK_KEY.get());
     }
 }

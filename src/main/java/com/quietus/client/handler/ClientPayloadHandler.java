@@ -10,11 +10,8 @@ import com.quietus.client.packet.WeatherItemContainerPacket;
 import com.quietus.core.DeathRevamp.GhostDeath;
 import com.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.quietus.item.QuietusComponents;
-import com.quietus.item.tool.GrapplingHookItem;
-import com.quietus.server.packet.GrapplingJumpReleasePacket;
 import com.quietus.client.packet.GrapplingActiveHookPacket;
 import com.quietus.client.packet.GrapplingHookPhysicsPacket;
-import com.quietus.util.QuietusAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.component.DataComponents;
@@ -151,14 +148,6 @@ public class ClientPayloadHandler {
 
                 // Also set a flag to indicate we're controlling movement
                 player.getPersistentData().putBoolean("QuietusGrappling", true);
-            }
-        });
-    }
-    public static void handleGrappleJump(GrapplingJumpReleasePacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
-            if (!player.level().isClientSide() && player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT).hasActiveHook()) {
-                GrapplingHookItem.retrieveHookForPlayer(player);
             }
         });
     }

@@ -18,6 +18,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -64,6 +65,14 @@ public class QuietusItems {
         ItemAttributeModifiers.builder()
             .add(QuietusAttributes.MAX_MANA.getDelegate(), new AttributeModifier(BASE_MANA_REGEN_BONUS_ID, 5, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND).build()
     ));
+    public static final DeferredItem<Item> AMETHYST_RESONATOR = REGISTRAR.registerItem("amethyst_resonator", Item::new);
+    public static final DeferredItem<AmethystUpgradeSmithingTemplateItem> AMETHYST_UPGRADE_SMITHING_TEMPLATE =
+            REGISTRAR.registerItem(
+                    "amethyst_upgrade_smithing_template",
+                    AmethystUpgradeSmithingTemplateItem::new,
+                    () -> new Item.Properties().rarity(Rarity.UNCOMMON)
+            );
+    public static final DeferredItem<Item> IRON_ROD = REGISTRAR.registerItem("iron_rod", Item::new);
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = REGISTRAR.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
     public static final DeferredItem<Item> EXAMPLE_ITEM = REGISTRAR.registerSimpleItem("example_item", () ->new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
@@ -71,6 +80,8 @@ public class QuietusItems {
 
     //#region FOODS
     public static final DeferredItem<Item> MOLD = REGISTRAR.registerItem("mold", Item::new, () ->new Item.Properties().food(QuietusFoods.MOLD, QuietusConsumables.MOLD));
+    public static final DeferredItem<Item> BLUE_BERRIES = REGISTRAR.registerItem("blue_berries", Item::new,
+            () -> new QuietusItemProperties().canDecay(192, MOLD).food(QuietusFoods.BLUE_BERRIES));
     public static final DeferredItem<Item> MOLD_BUCKET = REGISTRAR.registerItem("mold_bucket", Item::new, () ->new Item.Properties().craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.MOLD_BUCKET, QuietusConsumables.MOLD_BUCKET).stacksTo(1));
     public static final DeferredItem<Item> MOLD_BOWL = REGISTRAR.registerItem("mold_bowl", Item::new, () ->new Item.Properties().craftRemainder(Items.BOWL).usingConvertsTo(Items.BOWL).food(QuietusFoods.MOLD_BOWL, QuietusConsumables.MOLD_BOWL).stacksTo(16));
     public static final DeferredItem<Item> MOLD_BOTTLE = REGISTRAR.registerItem("mold_bottle", Item::new, () ->new Item.Properties().craftRemainder(Items.GLASS_BOTTLE).usingConvertsTo(Items.GLASS_BOTTLE).food(QuietusFoods.MOLD_BOTTLE, QuietusConsumables.MOLD_BOTTLE).stacksTo(16));
@@ -310,7 +321,8 @@ public class QuietusItems {
                         )
                         .addSound(QuietusProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL,1.0F,0.5F)
                         .addSound("retrieve", SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL)
-                        .durability(100)
+                        .durability(250)
+                        .enchantable(15)
                         .stacksTo(1)
                         .useItemDescriptionPrefix()
                         .setId(ResourceKey.create(Registries.ITEM, Identifier.parse("quietus:chain_grappling_hook")))
@@ -343,10 +355,17 @@ public class QuietusItems {
         if (tabKey == CreativeModeTabs.BUILDING_BLOCKS) {
             event.accept(EXAMPLE_BLOCK_ITEM);
         }
+        if (tabKey == CreativeModeTabs.FOOD_AND_DRINKS) {
+            event.accept(BLUE_BERRIES);
+        }
         if (tabKey == CreativeModeTabs.INGREDIENTS){
             event.accept(HARDENED_FUR);
+            event.accept(AMETHYST_RESONATOR);
+            event.accept(AMETHYST_UPGRADE_SMITHING_TEMPLATE);
+            event.accept(IRON_ROD);
         }
         if (tabKey == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+            event.accept(CHAIN_GRAPPLING_HOOK);
         }
         if (tabKey == CreativeModeTabs.COMBAT) {
             event.accept(AMETHYST_STAFF);

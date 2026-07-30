@@ -74,6 +74,7 @@ public class Quietus
             .icon(() -> QuietusItems.HARDENED_FUR.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(QuietusItems.HARDENED_FUR.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(QuietusItems.CHAIN_GRAPPLING_HOOK.get());
             }).build());
 
 

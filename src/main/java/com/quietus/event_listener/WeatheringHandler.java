@@ -61,6 +61,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.ItemStackedOnOtherEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -396,7 +397,7 @@ public class WeatheringHandler {
         }
     }
     @SubscribeEvent
-    public static void onBlockDestruction(BlockEvent.BreakEvent event) {
+    public static void onBlockDestruction(BreakBlockEvent event) {
         BlockEntity blockEntity = event.getLevel().getBlockEntity(event.getPos());
         if (blockEntity instanceof BaseContainerBlockEntity container) {
             LOADED_CONTAINERS.remove(container);
