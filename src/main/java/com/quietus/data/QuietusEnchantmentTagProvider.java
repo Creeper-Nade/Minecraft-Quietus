@@ -20,7 +20,9 @@ public class QuietusEnchantmentTagProvider extends EnchantmentTagsProvider {
                 .add(QuietusEnchantments.IMPACT)
                 .add(QuietusEnchantments.HEX)
                 .add(QuietusEnchantments.ACUPUNCTURE)
-                .add(QuietusEnchantments.CONSERVATION);
+                .add(QuietusEnchantments.CONSERVATION)
+                .add(QuietusEnchantments.ELONGATION)
+                .add(QuietusEnchantments.RESILIENCE);
         this.tag(EnchantmentTags.TRADES_SWAMP_COMMON)
                 .add(QuietusEnchantments.HEX);
         this.tag(EnchantmentTags.TRADES_SAVANNA_COMMON)

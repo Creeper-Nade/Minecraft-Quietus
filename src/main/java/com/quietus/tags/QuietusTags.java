@@ -33,7 +33,12 @@ public class QuietusTags {
         public static final TagKey<Item> PROJECTILE_FIRING_WEAPON= createTag("projectile_firing_weapon");
         //this tag is for any item that consumes mana (e.g. healing wand)
         public static final TagKey<Item> MAGIC_ENCHANTABLE = createTag("magic_enchantable");
-        
+        // All grappling hook variants belong here so they share enchantment compatibility.
+        public static final TagKey<Item> GRAPPLING_HOOK = createTag("grappling_hook");
+        public static final TagKey<Item> AMETHYST_UPGRADE_HELMET_BASES = createTag("amethyst_upgrade_helmet_bases");
+        public static final TagKey<Item> AMETHYST_UPGRADE_CHESTPLATE_BASES = createTag("amethyst_upgrade_chestplate_bases");
+        public static final TagKey<Item> AMETHYST_UPGRADE_LEGGINGS_BASES = createTag("amethyst_upgrade_leggings_bases");
+        public static final TagKey<Item> AMETHYST_UPGRADE_BOOTS_BASES = createTag("amethyst_upgrade_boots_bases");
 
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(Identifier.fromNamespaceAndPath(MODID, name));

@@ -1,6 +1,7 @@
 package com.quietus.event_listener;
 
 import com.quietus.client.handler.ClientPayloadHandler;
+import com.quietus.client.QuietusKeyBindings;
 import com.quietus.client.model.projectile.misc.ChainHookRenderer;
 import com.quietus.core.GrapplingHookAttachment;
 import com.quietus.entity.projectiles.misc.GrapplingHookProjectile;
@@ -23,7 +24,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.slf4j.Logger;
@@ -33,7 +33,6 @@ import static com.quietus.Quietus.MODID;
 @EventBusSubscriber(modid=MODID)
 public class GrapplingEvent {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static boolean jumpPressed = false;
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Pre event) {
@@ -71,18 +70,6 @@ public class GrapplingEvent {
         }
     }
 
-    // Jump-to-release mechanic (like Terraria)
-    @SubscribeEvent
-    public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            if (player.level().isClientSide()) return;
-
-            GrapplingHookAttachment attachment = player.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
-            if (attachment.hasActiveHook()) {
-                GrapplingHookItem.retrieveHookForPlayer(player);
-            }
-        }
-    }
     private static Vec3 calculateGrapplingPhysics(Player player, GrapplingHookProjectile hook) {
         Vec3 hookPos = hook.position();
         Vec3 playerPos = player.getEyePosition();
@@ -222,13 +209,8 @@ public class GrapplingEvent {
         Player player = mc.player;
         if (player == null) return;
 
-        boolean jumpDown = mc.options.keyJump.isDown();
-        if (jumpDown && !jumpPressed) {
-            // Jump key just pressed
-            jumpPressed = true;
-            ServerPacketDistributor.sendGrappleJumpPackToServer();
-        } else if (!jumpDown && jumpPressed) {
-            jumpPressed = false;
+        while (QuietusKeyBindings.GRAPPLING_HOOK_KEY.get().consumeClick()) {
+            ServerPacketDistributor.sendGrapplingHookActionToServer();
         }
 
         // --- Arm rotation logic ---

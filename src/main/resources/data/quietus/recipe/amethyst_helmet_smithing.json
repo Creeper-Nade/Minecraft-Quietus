@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "quietus:amethyst_resonator",
+  "base": "#quietus:amethyst_upgrade_helmet_bases",
+  "result": {
+    "id": "quietus:amethyst_helmet"
+  },
+  "template": "quietus:amethyst_upgrade_smithing_template"
+}

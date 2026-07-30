@@ -27,18 +27,16 @@ sourceSets {
 }
 repositories {
     mavenLocal()
-    exclusiveContent {
-        forRepository {
             maven {
                 name = 'GeckoLib'
                 url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
             }
-        }
-        filter {
-            includeGroupAndSubgroups('com.geckolib')
-        }
-    }
+            maven {
+                name = "Illusive Soulworks maven"
+                url = "https://maven.theillusivec4.top/"
+            }
 }
+
 
 base {
     archivesName = mod_id
@@ -150,6 +148,10 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
     implementation "com.geckolib:geckolib-neoforge-${geckolibMinecraftVersion}:${geckolibVersion}"
+    // Compile against only the API artifact
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    // Use the full Curios API jar at runtime
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

@@ -8,6 +8,7 @@ import com.quietus.client.screens.skill_tree.SkillTreeScreen;
 import com.quietus.effects.QuietusMobEffects;
 import com.quietus.effects.spelunker.Ore_Vision;
 import com.quietus.item.QuietusComponents;
+import com.quietus.item.QuietusItems;
 import com.quietus.item.component.CanDecay;
 import com.quietus.item.equipment.RetaliatesOnDamaged;
 import com.quietus.item.tool.AmmoProjectileWeaponItem;
@@ -60,6 +61,7 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import org.slf4j.Logger;
@@ -252,8 +254,7 @@ public class QuietusCommonEvents {
         builder.addMix(Potions.THICK, Items.GLOW_BERRIES, QuietusPotions.SPELUNKING);
         builder.addMix(QuietusPotions.SPELUNKING, Items.REDSTONE, QuietusPotions.LONG_SPELUNKING); // longer duration of potion of spelunking
         builder.addMix(QuietusPotions.SPELUNKING, Items.GLOW_INK_SAC, QuietusPotions.STRONG_SPELUNKING);
-        //placeholder ingredients for instant mana potion, will be changed to a custom ingredient in the future
-        builder.addMix(Potions.AWKWARD, Items.QUARTZ, QuietusPotions.LESSER_INSTANT_MANA);
+        builder.addMix(Potions.AWKWARD, QuietusItems.BLUE_BERRIES.get(), QuietusPotions.LESSER_INSTANT_MANA);
     }
 
     @SubscribeEvent
@@ -266,7 +267,7 @@ public class QuietusCommonEvents {
     }
 
     @SubscribeEvent
-    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+    public static void onBlockBreak(BreakBlockEvent event) {
         if (event.getState().is(Tags.Blocks.ORES)) {
             Ore_Vision.RemoveSingleBlock(event);
         }
@@ -303,7 +304,7 @@ public class QuietusCommonEvents {
     @SubscribeEvent
     public static void onEntityHurtPost(LivingDamageEvent.Post event) {
         LivingEntity entity = event.getEntity();
-        float damage = event.getNewDamage();
+        float damage = event.getHealthDamage();
         if (event.getReduction(DamageContainer.Reduction.ARMOR) > 0.0f && event.getReduction(DamageContainer.Reduction.INVULNERABILITY) == 0.0f) { // armor reducted damage
             Map<EquipmentSlot, ItemStack> armorMap = new HashMap<>(EquipmentSlot.values().length);
             for (EquipmentSlot slot : EquipmentSlot.values()) {

@@ -39,12 +39,17 @@ public class QuietusModelProvider extends ModelProvider {
        //flat items
         //RegisterBasicModel(itemModels,QuietusItems.HARDENED_FUR.get(),"item/ingredients/");
         itemModels.itemModelOutput.accept(QuietusItems.HARDENED_FUR.get(),ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID,"item/ingredients/hardened_fur")));
+        itemModels.itemModelOutput.accept(QuietusItems.AMETHYST_RESONATOR.get(), ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/ingredients/amethyst_resonator")));
+        itemModels.itemModelOutput.accept(QuietusItems.AMETHYST_UPGRADE_SMITHING_TEMPLATE.get(), ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/ingredients/amethyst_upgrade_smithing_template")));
+        itemModels.itemModelOutput.accept(QuietusItems.IRON_ROD.get(), ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/ingredients/iron_rod")));
         itemModels.generateFlatItem(QuietusItems.EXAMPLE_ITEM.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(QuietusItems.MOLD.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(QuietusItems.MOLD_BOWL.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(QuietusItems.MOLD_BUCKET.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(QuietusItems.MOLD_BOTTLE.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(QuietusItems.YOGHURT_BUCKET.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(QuietusItems.CHEESE_BUCKET.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.itemModelOutput.accept(QuietusItems.BLUE_BERRIES.get(), ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/consumables/blue_berries")));
 
     //handheld
         itemModels.itemModelOutput.accept(QuietusItems.AMETHYST_STAFF.get(),ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID,"item/combat/magic_weapon/amethyst_staff")));

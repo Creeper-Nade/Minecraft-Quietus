@@ -23,7 +23,8 @@ import com.quietus.client.packet.SkillTreeUpdatePacket;
 import com.quietus.client.packet.WeatherItemContainerPacket;
 
 import com.quietus.server.handler.SkillTreeGUIPayloadHandler;
-import com.quietus.server.packet.GrapplingJumpReleasePacket;
+import com.quietus.server.handler.GrapplingHookPayloadHandler;
+import com.quietus.server.packet.GrapplingHookActionPacket;
 import com.quietus.server.packet.SkillTreeGUIRequest;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -119,9 +120,9 @@ public class QuietusIModBusEvent {
             SkillTreeGUIPayloadHandler::handleSkillTreeRequest
         );
         registrar.playToServer(
-            GrapplingJumpReleasePacket.TYPE,
-            GrapplingJumpReleasePacket.STREAM_CODEC,
-            ClientPayloadHandler::handleGrappleJump
+            GrapplingHookActionPacket.TYPE,
+            GrapplingHookActionPacket.STREAM_CODEC,
+            GrapplingHookPayloadHandler::handleAction
         );
     }
 
@@ -170,12 +171,12 @@ public class QuietusIModBusEvent {
 
     @SubscribeEvent 
     /**
-     * Change potion max stack size to 16.
+     * Change all potion bottle types' max stack size to 16.
      */
     public static void modifyComponents(ModifyDefaultComponentsEvent event) {
-        event.modify(Items.POTION, builder ->    // suspicious stew
-            builder.set(DataComponents.MAX_STACK_SIZE, 16)
-        );
+        event.modify(Items.POTION, builder -> builder.set(DataComponents.MAX_STACK_SIZE, 16));
+        event.modify(Items.SPLASH_POTION, builder -> builder.set(DataComponents.MAX_STACK_SIZE, 16));
+        event.modify(Items.LINGERING_POTION, builder -> builder.set(DataComponents.MAX_STACK_SIZE, 16));
     }
     
 

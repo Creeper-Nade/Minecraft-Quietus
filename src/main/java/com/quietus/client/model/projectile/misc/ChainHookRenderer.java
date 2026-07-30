@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -36,6 +37,8 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
     private static final float CHAIN_SECOND_STRIP_MIN_U = 3.0F / 16.0F;
     private static final float CHAIN_SECOND_STRIP_MAX_U = 6.0F / 16.0F;
     private static final double VIEW_BOBBING_SCALE = 960.0; // from FishingHookRenderer
+    private static final float FIRST_PERSON_SWING_YAW = 0.5F;
+    private static final float FIRST_PERSON_SWING_PITCH = 0.7F;
     private static final Vec3 MODEL_TRANSLATION = new Vec3(-0.5 / 16.0, 5.0 / 16.0, 0.0);
     /*
      * Top-center of the anchor texture after the model's rotations. The two
@@ -47,7 +50,7 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
             -0.18935 / 16.0,
             (-3.1464 / Math.sqrt(2.0) - 3.0) / 16.0
     );
-    private static HumanoidArm cachedArm;
+    private static HumanoidArm cachedArm = HumanoidArm.RIGHT;
 
     public ChainHookRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -78,9 +81,27 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         // Compute line offset from hook to player's hand
         Player player = entity.getPlayerOwner();
         if (player != null) {
-            float attackAnim = player.getAttackAnim(partialTick);
+            HumanoidArm heldCastingArm = getHeldCastingArm(player);
+            HumanoidArm castingArm = heldCastingArm != null
+                    ? heldCastingArm
+                    : getAvailableCastingArm(entity, player);
+            InteractionHand castingHand = castingArm == player.getMainArm()
+                    ? InteractionHand.MAIN_HAND
+                    : InteractionHand.OFF_HAND;
+            float attackAnim = player.swinging && player.swingingArm == castingHand
+                    ? player.getAttackAnim(partialTick)
+                    : 0.0F;
             float handAngle = Mth.sin(Mth.sqrt(attackAnim) * (float) Math.PI);
-            Vec3 handPos = getPlayerHandPos(player, handAngle, partialTick);
+            if (player == Minecraft.getInstance().player) {
+                cachedArm = castingArm;
+            }
+            Vec3 handPos = getPlayerHandPos(
+                    player,
+                    castingArm,
+                    heldCastingArm != null,
+                    handAngle,
+                    partialTick
+            );
             Vec3 attachmentOffset = ROPE_ATTACHMENT_IN_MODEL
                     // Vec3.xRot has the opposite sign convention from the
                     // quaternion used by Axis.XP/PoseStack.
@@ -122,18 +143,22 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
 
     // ========== Helper methods copied/adapted from FishingHookRenderer ==========
 
-    private Vec3 getPlayerHandPos(Player player, float handAngle, float partialTick) {
-        HumanoidArm arm = getHoldingArm(player);
+    private Vec3 getPlayerHandPos(Player player, HumanoidArm arm, boolean castingHookHeld,
+                                  float handAngle, float partialTick) {
         boolean isRightHand = (arm == HumanoidArm.RIGHT);
         int armFactor=isRightHand?1:-1;
         if (this.entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player) {
             float fov=this.entityRenderDispatcher.options.fov().get().intValue();
             double fovScale = VIEW_BOBBING_SCALE / fov;
+            float horizontalAnchor = castingHookHeld ? 0.525F : 0.6F;
+            float verticalAnchor = castingHookHeld ? -0.4F : -0.55F;
             Vec3 cameraOffset = this.entityRenderDispatcher.camera.getNearPlane(fov)
-                    .getPointOnPlane((float) armFactor * 0.525F, -0.4F)
-                    .scale(fovScale)
-                    .yRot(handAngle * 0.5F)
-                    .xRot(-handAngle * 0.7F);
+                    .getPointOnPlane((float) armFactor * horizontalAnchor, verticalAnchor)
+                    .scale(fovScale);
+            Vec3 cameraUp = new Vec3(this.entityRenderDispatcher.camera.upVector()).normalize();
+            Vec3 cameraLeft = new Vec3(this.entityRenderDispatcher.camera.leftVector()).normalize();
+            cameraOffset = rotateAroundAxis(cameraOffset, cameraUp, handAngle * FIRST_PERSON_SWING_YAW);
+            cameraOffset = rotateAroundAxis(cameraOffset, cameraLeft, handAngle * FIRST_PERSON_SWING_PITCH);
             return player.getEyePosition(partialTick).add(cameraOffset);
         } else {
 
@@ -153,10 +178,15 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
             double worldShoulderZ = localShoulder.x * sinYaw + localShoulder.z * cosYaw;
             Vec3 shoulder = player.getEyePosition(partialTick).add(worldShoulderX, localShoulder.y, worldShoulderZ);
 
-            // Arm vector: down and forward to reach item tip
-            double armLength = 0.80 * scale;      // shoulder to hand
-            double forwardOffset = 0.15 * scale;  // hand to item tip (adjust!)
-            Vec3 localArm = new Vec3(0, -armLength, forwardOffset);
+            /*
+             * Retract an unheld hook anchor along the arm itself. Applying this
+             * as a forward-axis offset makes it become vertical or sideways
+             * when the arm rotates.
+             */
+            double handRetraction = (castingHookHeld ? 0.0 : 0.15) * scale;
+            double armLength = 0.80 * scale - handRetraction;
+            double itemTipOffset = (castingHookHeld ? 0.15 : 0.0) * scale;
+            Vec3 localArm = new Vec3(0, -armLength, itemTipOffset);
 
             // Apply custom rotations
             var data = player.getPersistentData();
@@ -177,20 +207,41 @@ public class ChainHookRenderer extends EntityRenderer<GrapplingHookProjectile, G
         }
     }
 
-    private static HumanoidArm getHoldingArm(Player player) {
-        // In vanilla fishing, this checks if the main hand item can perform the "fishing_rod_cast" ability.
-        // For grappling hook, we can simply return the main arm if the item is a grappling hook, else opposite.
-        // Simplified: assume the grappling hook is in the main hand if present.
-        // More robust: check if the main hand item is a GrapplingHookItem.
-        // For now, just use main arm (you can enhance later).
-        ItemStack mainHandItem=player.getMainHandItem();
-        if(mainHandItem.get(QuietusComponents.GRAPPLING_HOOK_CAST.get())==null && player.getOffhandItem().get(QuietusComponents.GRAPPLING_HOOK_CAST.get())==null) return cachedArm;
-        cachedArm= mainHandItem.get(QuietusComponents.GRAPPLING_HOOK_CAST.get())!=null?player.getMainArm() : player.getMainArm().getOpposite();
-        return cachedArm;
+    private static HumanoidArm getHeldCastingArm(Player player) {
+        ItemStack mainHandItem = player.getMainHandItem();
+        if (mainHandItem.get(QuietusComponents.GRAPPLING_HOOK_CAST.get()) != null) {
+            return player.getMainArm();
+        }
+        if (player.getOffhandItem().get(QuietusComponents.GRAPPLING_HOOK_CAST.get()) != null) {
+            return player.getMainArm().getOpposite();
+        }
+        return null;
+    }
+
+    private static HumanoidArm getAvailableCastingArm(GrapplingHookProjectile hook, Player player) {
+        InteractionHand castingHand = hook.getCastingHand();
+        InteractionHand otherHand = castingHand == InteractionHand.MAIN_HAND
+                ? InteractionHand.OFF_HAND
+                : InteractionHand.MAIN_HAND;
+        if (!player.getItemInHand(castingHand).isEmpty()
+                && player.getItemInHand(otherHand).isEmpty()) {
+            castingHand = otherHand;
+        }
+        return castingHand == InteractionHand.MAIN_HAND
+                ? player.getMainArm()
+                : player.getMainArm().getOpposite();
     }
     public static HumanoidArm getCachedArm()
     {
         return cachedArm;
+    }
+
+    private static Vec3 rotateAroundAxis(Vec3 vector, Vec3 axis, float angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        return vector.scale(cos)
+                .add(axis.cross(vector).scale(sin))
+                .add(axis.scale(axis.dot(vector) * (1.0 - cos)));
     }
 
     private static void renderChain(PoseStack poseStack, SubmitNodeCollector submitNodeCollector,

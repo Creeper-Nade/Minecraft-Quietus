@@ -3,11 +3,13 @@ package com.quietus.item.tool;
 import com.quietus.core.GrapplingHookAttachment;
 import com.quietus.entity.projectiles.QuietusProjectile;
 import com.quietus.entity.projectiles.misc.GrapplingHookProjectile;
+import com.quietus.enchantment.QuietusEnchantmentHelper;
 import com.quietus.item.QuietusComponents;
 import com.quietus.item.QuietusItemProperties;
 import com.quietus.item.property.GrapplingHookProperty;
 import com.quietus.util.PlayerClientPacketDistributor;
 import com.quietus.util.QuietusAttachments;
+import com.quietus.util.GrapplingHookCurios;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -29,6 +31,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class GrapplingHookItem extends QuietusProjectileWeaponItem {
     private final GrapplingHookProperty grapplingHookProperty;
+    private InteractionHand pendingCastingHand = InteractionHand.MAIN_HAND;
+
     public GrapplingHookItem(Item.Properties properties) {
         super(properties);
 
@@ -54,7 +58,33 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
             return player instanceof ServerPlayer? InteractionResult.SUCCESS_SERVER:InteractionResult.SUCCESS;
         }
 
-        return super.InteractionAction(player,level,itemstack);
+        InteractionHand castingHand = player.getOffhandItem() == itemstack
+                ? InteractionHand.OFF_HAND
+                : InteractionHand.MAIN_HAND;
+        return castHook(player, level, itemstack, castingHand);
+    }
+
+    public InteractionResult useFromCurio(ServerPlayer player, ItemStack stack) {
+        InteractionHand castingHand = selectCurioCastingHand(player);
+        InteractionResult result = castHook(player, player.level(), stack, castingHand);
+        player.swing(castingHand, true);
+        return result;
+    }
+
+    private InteractionResult castHook(Player player, Level level, ItemStack stack, InteractionHand castingHand) {
+        pendingCastingHand = castingHand;
+        try {
+            return super.InteractionAction(player, level, stack);
+        } finally {
+            pendingCastingHand = InteractionHand.MAIN_HAND;
+        }
+    }
+
+    private static InteractionHand selectCurioCastingHand(Player player) {
+        if (player.getMainHandItem().isEmpty()) {
+            return InteractionHand.MAIN_HAND;
+        }
+        return InteractionHand.OFF_HAND;
     }
 
     @Override
@@ -63,7 +93,11 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
         if(projectile instanceof GrapplingHookProjectile hook)
         {
             // Configure projectile with both grappling hook and projectile properties
-            hook.setGrapplingHookProperty(grapplingHookProperty);
+            GrapplingHookProperty effectiveProperties = level instanceof ServerLevel serverLevel
+                    ? QuietusEnchantmentHelper.modifyGrapplingHookProperties(serverLevel, weapon, grapplingHookProperty)
+                    : grapplingHookProperty;
+            hook.setGrapplingHookProperty(effectiveProperties);
+            hook.setCastingHand(pendingCastingHand);
             // Store hook reference in attachment
             GrapplingHookAttachment attachment = shooter.getData(QuietusAttachments.GRAPPLE_ATTACHMENT);
             attachment.setHookEntityId(hook.getId());
@@ -93,6 +127,8 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
                     stack.remove(QuietusComponents.GRAPPLING_HOOK_CAST.get());
                 }
             }
+            GrapplingHookCurios.findEquippedHook(player)
+                    .ifPresent(result -> result.stack().remove(QuietusComponents.GRAPPLING_HOOK_CAST.get()));
             attachment.clear();
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.NEUTRAL,

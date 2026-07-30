@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "minecraft:iron_chain",
+    "R": "quietus:iron_rod"
+  },
+  "pattern": [
+    "  R",
+    " RC",
+    "R C"
+  ],
+  "result": {
+    "count": 1,
+    "id": "quietus:chain_grappling_hook"
+  }
+}

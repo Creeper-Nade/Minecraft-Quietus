@@ -28,6 +28,7 @@ public class AmethystArmorRenderer<R extends HumanoidRenderState & GeoRenderStat
     protected GeoBone waistBone = null;
     public AmethystArmorRenderer() {
         super(new AmethystArmorModel());
+        this.withRenderLayer(new AmethystArmorTrimLayer<>(this));
         if (IS_MAC_ARM) this.withRenderLayer(new AutoGlowingGeoLayer<>(this));
         else this.withRenderLayer(new QuietusEmissiveLayer<>(this)); // do not render quietus emissive on mac with ARM architecture
     }

@@ -76,7 +76,7 @@ public abstract class QuietusProjectile extends Projectile {
         this.applyInertia();
         this.spawnTrailParticles();
 
-        HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
+        HitResult hitresult = this.getHitResultOnMoveVector();
 
         if ((hitresult.getType() == HitResult.Type.BLOCK) && !level().isClientSide()) {
             this.onHitBlock((BlockHitResult) hitresult);
@@ -95,6 +95,39 @@ public abstract class QuietusProjectile extends Projectile {
         }
 
     }
+
+    /**
+     * Vanilla projectile collision traces the projectile's centre line and only
+     * gradually grows its entity-hit margin during the first few ticks. Quietus
+     * projectiles have a visible width, so a close edge hit could otherwise pass
+     * through an entity even though the projectile body overlapped its hitbox.
+     */
+    private HitResult getHitResultOnMoveVector() {
+        HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
+        if (hitResult.getType() == HitResult.Type.ENTITY) {
+            return hitResult;
+        }
+
+        Vec3 from = this.position();
+        Vec3 movement = this.getDeltaMovement();
+        Vec3 to = hitResult.getType() == HitResult.Type.BLOCK
+                ? hitResult.getLocation()
+                : from.add(movement);
+        float projectileRadius = this.getBbWidth() * 0.5F;
+        float entityMargin = Math.max(ProjectileUtil.computeMargin(this), projectileRadius);
+        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(
+                this.level(),
+                this,
+                from,
+                to,
+                this.getBoundingBox().expandTowards(movement).inflate(1.0),
+                this::canHitEntity,
+                entityMargin
+        );
+
+        return entityHitResult != null ? entityHitResult : hitResult;
+    }
+
     @Override
     protected boolean canHitEntity(Entity target) {
         if (!target.canBeHitByProjectile()) {return false;}

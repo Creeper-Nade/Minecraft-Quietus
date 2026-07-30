@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:sweet_berries",
+    "L": "minecraft:lapis_lazuli"
+  },
+  "pattern": [
+    " L ",
+    "LBL",
+    " L "
+  ],
+  "result": {
+    "count": 1,
+    "id": "quietus:blue_berries"
+  }
+}

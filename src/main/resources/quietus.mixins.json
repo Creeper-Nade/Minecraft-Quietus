@@ -13,7 +13,9 @@
     "AbstractContainerScreenMixin",
     "GuiGraphicsExtractorMixin"
   ],
-  "client": [],
+  "client": [
+    "SmithingScreenMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1
