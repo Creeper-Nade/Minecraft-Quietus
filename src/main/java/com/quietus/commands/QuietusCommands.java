@@ -1,6 +1,7 @@
 package com.quietus.commands;
 
 import com.quietus.server.commands.SkillCommands;
+import com.quietus.server.commands.WorldThreatCommands;
 
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
@@ -8,5 +9,6 @@ public class QuietusCommands {
     
     public static void registerCommands(RegisterCommandsEvent event) {
         SkillCommands.register(event.getDispatcher());
+        WorldThreatCommands.register(event.getDispatcher());
     }
 }
