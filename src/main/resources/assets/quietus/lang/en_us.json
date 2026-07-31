@@ -145,6 +145,14 @@
   "commands.skill.set.multiple.success": "Set %s levels of %s for %s players",
   "commands.skill.set.multiple.failure": "Levels of %s for %s players are unchanged",
 
+  "commands.quietus.threat.query": "Threat Level: %s, World Stage: %s, Volatility: %s",
+  "commands.quietus.threat.get": "Threat Level: %s",
+  "commands.quietus.threat.set": "Set Threat Level to %s",
+  "commands.quietus.threat.stage.get": "World Stage: %s",
+  "commands.quietus.threat.stage.set": "Set World Stage to %s",
+  "commands.quietus.threat.volatility.get": "Threat Volatility: %s",
+  "commands.quietus.threat.volatility.set": "Set Threat Volatility to %s",
+
 
   "quietus.client.networking.failed.skillTree": "Failed to request skill tree update from server",
 

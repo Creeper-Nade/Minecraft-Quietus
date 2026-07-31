@@ -8,11 +8,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gamerules.GameRules;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.slf4j.Logger;
+import top.theillusivec4.curios.api.common.DropRule;
+import top.theillusivec4.curios.api.event.DropRulesEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +65,15 @@ public class SpawnPlayerFragment {
     private static boolean isKeptSlot(int slot) {
         return (slot >= 0 && slot < 9) || // Hotbar
                 (slot >= 36 && slot <= 40); // Armor
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void keepCuriosEquipped(DropRulesEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player
+                && player.level().getGameRules().get(QuietusGameRules.FRAGMENT_SPAWNING)
+                && !player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
+            event.addOverride(stack -> true, DropRule.ALWAYS_KEEP);
+        }
     }
 
 

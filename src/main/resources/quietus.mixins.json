@@ -13,7 +13,13 @@
     "ServerGamePacketListenerSweepMixin",
     "ServerPlayerMixin",
     "AbstractContainerScreenMixin",
-    "GuiGraphicsExtractorMixin"
+    "GuiGraphicsExtractorMixin",
+    "DrownedJockeyMixin",
+    "HuskJockeyMixin",
+    "MobEquipmentMixin",
+    "NaturalSpawnerMixin",
+    "SpiderJockeyMixin",
+    "ZombieEquipmentMixin"
   ],
   "client": [
     "SmithingScreenMixin"
