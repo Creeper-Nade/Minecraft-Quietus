@@ -45,6 +45,7 @@ import com.quietus.block.QuietusBlocks;
 import com.quietus.effects.QuietusMobEffects;
 import com.quietus.item.QuietusComponents;
 import com.quietus.item.QuietusItems;
+import com.quietus.loot.AmethystUpgradeTemplateLoot;
 import com.quietus.potion.QuietusPotions;
 import com.quietus.server.PlayerData;
 import com.quietus.server.QuietusReloadableResources;
@@ -116,6 +117,7 @@ public class Quietus
 
         // register resource loading listeners
         NeoForge.EVENT_BUS.addListener(QuietusReloadableResources::onAddingServerResourceReloadListeners);
+        NeoForge.EVENT_BUS.addListener(AmethystUpgradeTemplateLoot::onLootTableLoad);
         QuietusEntityDataSerializers.register(modEventBus);
         QuietusParticles.register(modEventBus);
 

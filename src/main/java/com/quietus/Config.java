@@ -37,6 +37,8 @@ public class Config
             .comment("A list of items to log on common setup.")
             .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), Config::validateItemName);
 
+    public static final Loot LOOT = new Loot(BUILDER);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static boolean logDirtBlock;
@@ -60,6 +62,44 @@ public class Config
         items = ITEM_STRINGS.get().stream()
                 .map(itemName -> BuiltInRegistries.ITEM.getValue(Identifier.parse(itemName)))
                 .collect(Collectors.toSet());
+    }
+
+    public static class Loot {
+        public final ModConfigSpec.DoubleValue trialChamberVaultChance;
+        public final ModConfigSpec.DoubleValue ominousTrialChamberVaultChance;
+        public final ModConfigSpec.DoubleValue mineshaftMinecartChance;
+        public final ModConfigSpec.DoubleValue monsterRoomChestChance;
+        public final ModConfigSpec.DoubleValue strongholdLibraryChance;
+        public final ModConfigSpec.DoubleValue strongholdCorridorChance;
+
+        private Loot(ModConfigSpec.Builder builder) {
+            builder.push("loot");
+            builder.comment(
+                    "Chance for an Amethyst Upgrade Smithing Template to be added to each generated reward.",
+                    "Values range from 0.0 (disabled) to 1.0 (guaranteed).",
+                    "Run /reload after changing these values so the loot tables are rebuilt."
+            );
+
+            trialChamberVaultChance = chance(builder, "trialChamberVaultChance", 0.14,
+                    "Normal Trial Chamber vault reward chance.");
+            ominousTrialChamberVaultChance = chance(builder, "ominousTrialChamberVaultChance", 0.25,
+                    "Ominous Trial Chamber vault reward chance.");
+            mineshaftMinecartChance = chance(builder, "mineshaftMinecartChance", 0.07,
+                    "Abandoned mineshaft chest minecart chance.");
+            monsterRoomChestChance = chance(builder, "monsterRoomChestChance", 0.03,
+                    "Underground monster room (dungeon) chest chance.");
+            strongholdLibraryChance = chance(builder, "strongholdLibraryChance", 1.0,
+                    "Stronghold library chest chance.");
+            strongholdCorridorChance = chance(builder, "strongholdCorridorChance", 0.1,
+                    "Stronghold corridor chest chance.");
+
+            builder.pop();
+        }
+
+        private static ModConfigSpec.DoubleValue chance(ModConfigSpec.Builder builder, String name,
+                                                         double defaultValue, String comment) {
+            return builder.comment(comment).defineInRange(name, defaultValue, 0.0, 1.0);
+        }
     }
 
 

@@ -1,9 +1,12 @@
 package com.quietus.client.event_listener;
 
 import com.quietus.client.model.projectile.misc.ChainHookRenderer;
+import com.quietus.client.hud.GrapplingHookHudOverlay;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.neoforged.api.distmarker.Dist;
@@ -23,6 +26,8 @@ import com.mojang.logging.LogUtils;
 public class ClientModEvent {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final net.minecraft.resources.Identifier GRAPPLING_HOOK_HUD_LAYER =
+            net.minecraft.resources.Identifier.fromNamespaceAndPath(MODID, "grappling_hook_hotbar_slot");
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
@@ -47,5 +52,14 @@ public class ClientModEvent {
         event.registerCategory(QuietusKeyBindings.TRANSLATION_KEY_CATEGORY_QUIETUS);
         event.register(QuietusKeyBindings.SKILL_TREE_KEY.get());
         event.register(QuietusKeyBindings.GRAPPLING_HOOK_KEY.get());
+    }
+
+    @SubscribeEvent
+    public static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerAbove(
+                VanillaGuiLayers.HOTBAR,
+                GRAPPLING_HOOK_HUD_LAYER,
+                GrapplingHookHudOverlay::render
+        );
     }
 }

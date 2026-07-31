@@ -7,8 +7,10 @@
     "GuiMixin",
     "HumanoidModelMixin",
     "PlayerMixin",
+    "PlayerSweepInvoker",
     "ProjectileMixin",
     "ServerGamePacketListenerImplMixin",
+    "ServerGamePacketListenerSweepMixin",
     "ServerPlayerMixin",
     "AbstractContainerScreenMixin",
     "GuiGraphicsExtractorMixin"
