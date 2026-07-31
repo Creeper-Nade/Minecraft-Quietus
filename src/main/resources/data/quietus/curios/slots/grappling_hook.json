@@ -1,7 +1,7 @@
 {
   "order": 45,
   "size": 1,
-  "icon": "curios:slot/empty_curio_slot",
+  "icon": "quietus:container/slot/grapple_gui_icon",
   "validators": [
     "curios:tag"
   ],

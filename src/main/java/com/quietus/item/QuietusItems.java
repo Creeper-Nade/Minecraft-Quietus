@@ -251,12 +251,12 @@ public class QuietusItems {
                             1,
                             (xRot,index,random)-> xRot, 
                             (yRot,index,random)-> yRot,
-                            1.4f,
+                            2.0f,
                             0.5f,
                             (itemstack)-> true,
                             0,
                             -1,
-                            16
+                            20
                         )
                         .durability(384)
                             .enchantable(2).repairable(Items.AMETHYST_SHARD)
@@ -302,11 +302,11 @@ public class QuietusItems {
                 new QuietusItemProperties()
                         .addProjectile(0, 0.0F, 0.0D, (damage) -> damage, 0.0F, 0.05F, Integer.MAX_VALUE, QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get())
                         .grapplingHook(
-                                2.0F,    // maxRange
+                                1.0F,    // maxRange
                                 0.5F,      // pullStrength
                                 0.99F,     // frictionMultiplier
                                 3.0F,
-                                20.0F
+                                15.0F
                         )
                         .weaponProperty(
                                 1,
