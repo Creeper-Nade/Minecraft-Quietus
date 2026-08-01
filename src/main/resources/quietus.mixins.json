@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AbstractFurnaceBlockEntityMixin",
+    "EntityMobTeamMixin",
     "GuiMixin",
     "HumanoidModelMixin",
     "PlayerMixin",
@@ -12,6 +13,7 @@
     "ServerGamePacketListenerImplMixin",
     "ServerGamePacketListenerSweepMixin",
     "ServerPlayerMixin",
+    "SkeletonConversionAccessor",
     "AbstractContainerScreenMixin",
     "GuiGraphicsExtractorMixin",
     "DrownedJockeyMixin",

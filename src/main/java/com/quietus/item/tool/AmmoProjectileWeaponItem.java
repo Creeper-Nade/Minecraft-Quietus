@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import com.quietus.entity.monster.ThemedSkeleton;
 import com.quietus.item.QuietusItemProperties;
 
 import net.minecraft.server.level.ServerLevel;
@@ -290,7 +291,10 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
         if (isCrit) {
             abstractarrow.setCritArrow(true);
         }
-        return customArrow(abstractarrow, ammo, weapon);
+        AbstractArrow customizedArrow = customArrow(abstractarrow, ammo, weapon);
+        return shooter instanceof ThemedSkeleton themedSkeleton
+                ? themedSkeleton.applySkeletonTheme(customizedArrow)
+                : customizedArrow;
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.quietus.event_listener;
 
 import static com.quietus.Quietus.MODID;
 
+import com.quietus.entity.monster.SkeletonAppearance;
+import com.quietus.entity.monster.ThemedSkeleton;
 import com.quietus.world.threat.WorldThreatData;
 import com.quietus.world.threat.SpawnDiagnostics;
 import com.quietus.world.threat.WorldThreatSystem;
@@ -36,7 +38,8 @@ public final class SpawnEvent {
         if (isZombieFamily(entityType)) {
             SpawnDiagnostics.recordNaturalZombieFinalization();
         }
-        if (entityType == EntityType.SKELETON && replaceSkeletonWithSelectedVariant(event)) {
+        if (SkeletonAppearance.isVanillaSkeletonVariant(entityType)
+                && replaceSkeletonWithSelectedRole(event)) {
             return;
         }
     }
@@ -73,9 +76,10 @@ public final class SpawnEvent {
         WorldThreatSystem.applyStageHealth(mob, threat.getStage(), true);
     }
 
-    /** Replaces a natural vanilla skeleton only after its vanilla spawn checks have passed. */
-    private static boolean replaceSkeletonWithSelectedVariant(FinalizeSpawnEvent event) {
+    /** Replaces a natural vanilla skeleton variant only after its vanilla spawn checks have passed. */
+    private static boolean replaceSkeletonWithSelectedRole(FinalizeSpawnEvent event) {
         Level level = event.getLevel().getLevel();
+        SkeletonAppearance appearance = SkeletonAppearance.fromEntityType(event.getEntity().getType());
         WorldThreatData threat = WorldThreatData.get(level.getServer());
         EntityType<?> selectedType = WorldThreatSystem.selectSkeletonVariant(
                 threat.getStage(), threat.getThreat(), level.getRandom());
@@ -103,6 +107,10 @@ public final class SpawnEvent {
             if (replacement.isSpawnCancelled()) {
                 replacement.discard();
                 return false;
+            }
+
+            if (replacement instanceof ThemedSkeleton themedSkeleton) {
+                themedSkeleton.setSkeletonAppearance(appearance);
             }
 
             boolean added = level.addFreshEntity(replacement);
