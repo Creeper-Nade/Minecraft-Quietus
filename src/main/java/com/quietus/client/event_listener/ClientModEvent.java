@@ -2,6 +2,7 @@ package com.quietus.client.event_listener;
 
 import com.quietus.client.model.projectile.misc.ChainHookRenderer;
 import com.quietus.client.hud.GrapplingHookHudOverlay;
+import com.quietus.client.hud.VoidOrreryHudOverlay;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
@@ -28,6 +29,8 @@ public class ClientModEvent {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final net.minecraft.resources.Identifier GRAPPLING_HOOK_HUD_LAYER =
             net.minecraft.resources.Identifier.fromNamespaceAndPath(MODID, "grappling_hook_hotbar_slot");
+    private static final net.minecraft.resources.Identifier VOID_ORRERY_HUD_LAYER =
+            net.minecraft.resources.Identifier.fromNamespaceAndPath(MODID, "void_orrery");
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
@@ -60,6 +63,11 @@ public class ClientModEvent {
                 VanillaGuiLayers.HOTBAR,
                 GRAPPLING_HOOK_HUD_LAYER,
                 GrapplingHookHudOverlay::render
+        );
+        event.registerAbove(
+                VanillaGuiLayers.HOTBAR,
+                VOID_ORRERY_HUD_LAYER,
+                VoidOrreryHudOverlay::render
         );
     }
 }

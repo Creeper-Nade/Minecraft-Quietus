@@ -73,6 +73,8 @@ public class QuietusItems {
                     () -> new Item.Properties().rarity(Rarity.UNCOMMON)
             );
     public static final DeferredItem<Item> IRON_ROD = REGISTRAR.registerItem("iron_rod", Item::new);
+    public static final DeferredItem<Item> VOID_ORRERY = REGISTRAR.registerItem(
+            "void_orrery", Item::new, () -> new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = REGISTRAR.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
     public static final DeferredItem<Item> EXAMPLE_ITEM = REGISTRAR.registerSimpleItem("example_item", () ->new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
@@ -366,6 +368,7 @@ public class QuietusItems {
         }
         if (tabKey == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(CHAIN_GRAPPLING_HOOK);
+            event.accept(VOID_ORRERY);
         }
         if (tabKey == CreativeModeTabs.COMBAT) {
             event.accept(AMETHYST_STAFF);

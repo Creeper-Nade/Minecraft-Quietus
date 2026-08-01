@@ -4,8 +4,11 @@ import com.quietus.Quietus;
 import com.quietus.tags.QuietusTags;
 import com.quietus.world.threat.WorldThreatData;
 import com.quietus.world.threat.WorldThreatSystem;
+import com.quietus.client.packet.DisturbancePacket;
+import com.quietus.item.QuietusItems;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.entity.Entity;
@@ -17,6 +20,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = Quietus.MODID)
 public final class WorldThreatEvents {
@@ -34,6 +38,16 @@ public final class WorldThreatEvents {
         Holder<WorldClock> overworldClock = level.registryAccess().getOrThrow(WorldClocks.OVERWORLD);
         long currentDay = Math.floorDiv(level.getServer().clockManager().getTotalTicks(overworldClock), TICKS_PER_DAY);
         WorldThreatData.get(level).updateThroughDay(currentDay, level.getRandom());
+
+        if (level.getGameTime() % 20L == 0L) {
+            WorldThreatData data = WorldThreatData.get(level);
+            for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
+                if (player.getInventory().contains(stack -> stack.is(QuietusItems.VOID_ORRERY.get()))) {
+                    PacketDistributor.sendToPlayer(player,
+                            new DisturbancePacket(data.getThreat(), data.getStage(), data.getVolatility()));
+                }
+            }
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

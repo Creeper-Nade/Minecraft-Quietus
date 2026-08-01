@@ -7,6 +7,7 @@ import com.quietus.client.packet.GhostStatePacket;
 import com.quietus.client.packet.ManaPacket;
 import com.quietus.client.packet.PlayerRevivalCooldownPacket;
 import com.quietus.client.packet.WeatherItemContainerPacket;
+import com.quietus.client.packet.DisturbancePacket;
 import com.quietus.core.DeathRevamp.GhostDeath;
 import com.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.quietus.item.QuietusComponents;
@@ -43,6 +44,10 @@ public class ClientPayloadHandler {
 
     private static boolean hasActiveHook=false;
     private static int activeHookID;
+
+    private static double Disturbance;
+    private static int DisturbanceStage;
+    private static double DisturbanceVolatility;
 
     private static Minecraft minecraft = Minecraft.getInstance();
 
@@ -157,6 +162,13 @@ public class ClientPayloadHandler {
             activeHookID= packet.hookEntityId();
         });
     }
+    public static void handleDisturbance(DisturbancePacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Disturbance = packet.disturbance();
+            DisturbanceStage = packet.stage();
+            DisturbanceVolatility = packet.volatility();
+        });
+    }
     public int GetMaxManaFromPack() {return MaxMana;}
     public boolean GetManaChargeStatus(){return ManaFastCharging;}
     public int GetManaFromPack() {return Mana;}
@@ -169,4 +181,7 @@ public class ClientPayloadHandler {
     public int getActiveHookID() {
         return activeHookID;
     }
+    public double getDisturbance() { return Disturbance; }
+    public int getDisturbanceStage() { return DisturbanceStage; }
+    public double getDisturbanceVolatility() { return DisturbanceVolatility; }
 }
