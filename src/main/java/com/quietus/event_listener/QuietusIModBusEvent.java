@@ -21,6 +21,7 @@ import com.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
 import com.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
 import com.quietus.client.packet.SkillTreeUpdatePacket;
 import com.quietus.client.packet.WeatherItemContainerPacket;
+import com.quietus.client.packet.DisturbancePacket;
 
 import com.quietus.server.handler.SkillTreeGUIPayloadHandler;
 import com.quietus.server.handler.GrapplingHookPayloadHandler;
@@ -87,6 +88,11 @@ public class QuietusIModBusEvent {
             WeatherItemContainerPacket.TYPE,
             WeatherItemContainerPacket.STREAM_CODEC,
             ClientPayloadHandler::handleWeatherItemContainer
+        );
+        registrar.playToClient(
+            DisturbancePacket.TYPE,
+            DisturbancePacket.STREAM_CODEC,
+            ClientPayloadHandler::handleDisturbance
         );
         registrar.playToClient(
             GrapplingHookPhysicsPacket.TYPE,

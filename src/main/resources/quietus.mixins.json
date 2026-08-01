@@ -24,6 +24,9 @@
     "ZombieEquipmentMixin"
   ],
   "client": [
+    "AbstractContainerScreenAccessor",
+    "GuiGraphicsExtractorAccessor",
+    "InventoryScreenMixin",
     "SmithingScreenMixin"
   ],
   "server": [],

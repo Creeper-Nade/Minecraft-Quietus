@@ -1,6 +1,7 @@
 package com.quietus.mixin;
 
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
@@ -11,6 +12,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,9 +22,30 @@ public abstract class ServerGamePacketListenerSweepMixin {
     @Shadow
     public ServerPlayer player;
 
-    @Inject(method = "handleAnimate", at = @At("HEAD"))
+    @Unique
+    private long quietus$lastMainHandBlockInteractionTick = Long.MIN_VALUE;
+
+    @Inject(method = "handleUseItemOn", at = @At("TAIL"))
+    private void rememberBlockInteraction(ServerboundUseItemOnPacket packet, CallbackInfo ci) {
+        if (packet.getHand() == InteractionHand.MAIN_HAND) {
+            this.quietus$lastMainHandBlockInteractionTick = this.player.level().getGameTime();
+        }
+    }
+
+    @Inject(
+            method = "handleAnimate",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/level/ServerPlayer;resetLastActionTime()V"
+            )
+    )
     private void sweepOnMiss(ServerboundSwingPacket packet, CallbackInfo ci) {
         if (packet.getHand() != InteractionHand.MAIN_HAND) {
+            return;
+        }
+        // A successful right-click block interaction sends a swing packet too.
+        // It is not evidence of a missed left-click attack.
+        if (this.quietus$lastMainHandBlockInteractionTick == this.player.level().getGameTime()) {
             return;
         }
 
