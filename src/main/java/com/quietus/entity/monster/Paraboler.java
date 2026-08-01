@@ -10,12 +10,10 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -59,7 +57,7 @@ import com.quietus.item.tool.QuietusProjectileWeaponItem;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public class Paraboler extends Skeleton {
+public class Paraboler extends ThemedSkeleton {
 
     private final RangedBowAttackGoal<AbstractSkeleton> bowGoal;
     private final ParabolaAttackGoal<AbstractSkeleton> parabolaBowGoal;
@@ -249,23 +247,4 @@ public class Paraboler extends Skeleton {
         this.normalAttackInterval = (int)((double)NORMAL_ATTACK_INTERVAL_BASE * multiplier);
     }
 
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return SoundEvents.SKELETON_AMBIENT;
-    }
-
-    @Override
-    protected SoundEvent getHurtSound(DamageSource damageSource) {
-        return SoundEvents.SKELETON_HURT;
-    }
-
-    @Override
-    protected SoundEvent getDeathSound() {
-        return SoundEvents.SKELETON_DEATH;
-    }
-
-    @Override
-    protected SoundEvent getStepSound() {
-        return SoundEvents.SKELETON_STEP;
-    }
 }
