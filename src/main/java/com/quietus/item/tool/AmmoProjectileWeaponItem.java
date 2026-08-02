@@ -7,6 +7,8 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import com.quietus.combat.ProjectileVolleyBalance;
+import com.quietus.entity.monster.Paraboler;
 import com.quietus.entity.monster.ThemedSkeleton;
 import com.quietus.item.QuietusItemProperties;
 
@@ -227,17 +229,36 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
         float f2 = (projectileItems.size() - 1) % 2 * f1 / 2.0F;
         float f3 = 1.0F;
         int totalDurabilityUse = 0;
+        int volleySize = ProjectileVolleyBalance.countProjectiles(projectileItems);
+        float extraProjectileDamageContribution = shooter instanceof Paraboler
+                ? ProjectileVolleyBalance.PARABOLER_EXTRA_PROJECTILE_DAMAGE_CONTRIBUTION
+                : ProjectileVolleyBalance.EXTRA_PROJECTILE_DAMAGE_CONTRIBUTION;
         for (int i = 0; i < projectileItems.size(); i++) {
             ItemStack projectileItem = projectileItems.get(i);
             if (!projectileItem.isEmpty()) {
                 float f4 = f2 + f3 * ((i + 1) / 2) * f1;
                 f3 = -f3;
                 int index = i;
+                Projectile createdProjectile = this.createProjectile(level, shooter, weapon, projectileItem, isCrit);
+                if (shooter instanceof Paraboler && createdProjectile instanceof AbstractArrow arrow) {
+                    // Vanilla skeletons initialize arrows through ProjectileUtil.getMobArrow(), but this
+                    // custom weapon path normally bypasses it. Normalize the base damage against launch
+                    // speed so the Paraboler's slower arcs do not collapse to near-zero impact damage.
+                    float safeVelocity = Math.max(velocity, 0.25F);
+                    arrow.setBaseDamageFromMob(
+                            ProjectileVolleyBalance.PARABOLER_PRE_VOLLEY_ARROW_DAMAGE / (2.0F * safeVelocity)
+                    );
+                }
+                Projectile projectile = ProjectileVolleyBalance.apply(
+                        createdProjectile,
+                        volleySize,
+                        extraProjectileDamageContribution
+                );
                 Projectile.spawnProjectile(
-                    this.createProjectile(level, shooter, weapon, projectileItem, isCrit),
+                    projectile,
                     level,
                     projectileItem,
-                    projectile -> this.shootProjectile(shooter, projectile, index, velocity, inaccuracy, f4, target)
+                    spawnedProjectile -> this.shootProjectile(shooter, spawnedProjectile, index, velocity, inaccuracy, f4, target)
                 );
                 totalDurabilityUse += this.getDurabilityUse(projectileItem);
                 

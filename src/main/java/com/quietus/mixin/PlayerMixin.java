@@ -22,7 +22,7 @@ public class PlayerMixin {
     private void preventInventoryDrop(ServerLevel level, CallbackInfo ci) {
         //Player player = (Player) (Object) this;
 
-        if (level.getGameRules().get(QuietusGameRules.FRAGMENT_SPAWNING))
+        if (level.getGameRules().get(QuietusGameRules.PLAYER_FRAGMENT_ON_DEATH))
         {
             ci.cancel(); // Prevent the dropAll() call
         }
@@ -35,7 +35,7 @@ public class PlayerMixin {
             ),
             cancellable = true)
     private void modifyExperienceReward(ServerLevel level, CallbackInfoReturnable<Integer> cir) {
-        if (level.getGameRules().get(QuietusGameRules.FRAGMENT_SPAWNING)) {
+        if (level.getGameRules().get(QuietusGameRules.PLAYER_FRAGMENT_ON_DEATH)) {
             cir.setReturnValue(0); // No experience drops if ghost mechanic is active
         }
     }

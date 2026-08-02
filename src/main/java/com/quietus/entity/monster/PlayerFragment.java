@@ -149,10 +149,10 @@ public class PlayerFragment extends PathfinderMob implements GeoEntity {
         this.spawnTime = TOTAL_SPAWN_TIME;
         AttributeInstance maxHealth=  this.getAttribute(Attributes.MAX_HEALTH);
         AttributeInstance attack_dmg=  this.getAttribute(Attributes.ATTACK_DAMAGE);
-        double health = calculateFragmentStat(storedExperience, maxHealth.getBaseValue(),0.5f,80.0f);
+        double health = calculateFragmentStat(storedExperience, maxHealth.getBaseValue(),0.2f,80.0f);
         maxHealth.setBaseValue(health);
         this.setHealth((float) health);
-        attack_dmg.setBaseValue(calculateFragmentStat(storedExperience,attack_dmg.getBaseValue(),0.1f,8));
+        attack_dmg.setBaseValue(calculateFragmentStat(storedExperience,attack_dmg.getBaseValue(),0.05f,8));
 
         this.makeSound(this.getPreSpawnSound());
     }

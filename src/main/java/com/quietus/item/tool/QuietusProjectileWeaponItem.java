@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
+import com.quietus.combat.ProjectileVolleyBalance;
 import com.quietus.entity.projectiles.QuietusProjectile;
 import com.quietus.entity.projectiles.QuietusProjectiles;
 import com.quietus.item.QuietusItemProperties;
@@ -248,6 +249,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
             projectileProperty = Objects.requireNonNullElse(this.projectilePropertyMap.get(i), projectileProperty); // if this key not specified take previous property
             if (projectileProperty.isCustom()) { // custom projectile supports below arguments for projectiles configuring:
                 QuietusProjectile projectile = this.createProjectileWithKey(i, level, shooter, weapon, ItemStack.EMPTY, shooter.getRandom().nextDouble() < projectileProperty.critChance());
+                ProjectileVolleyBalance.apply(projectile, this.projectilesPerShot);
                 projectile.setOwner(shooter);
                 // CreeperNade: Offset the y position for -0.1f, this is the y pos for arrow in vanilla minecraft, and doesn't block view
                 projectile.setPos(shooter.getEyePosition().x,shooter.getEyePosition().y-0.1f,shooter.getEyePosition().z);

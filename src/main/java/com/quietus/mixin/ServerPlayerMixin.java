@@ -52,7 +52,7 @@ public abstract class ServerPlayerMixin extends Player {
         player.level().playSound(null,player.getX(),player.getY(),player.getZ(),SoundEvents.BELL_BLOCK, EntitySoundSource.of(player), 1.0F, 1.0F);
 
         GameRules gameRules= player.level().getServer().getGameRules();
-        if(gameRules.get(GameRules.IMMEDIATE_RESPAWN) || !gameRules.get(QuietusGameRules.GHOST_MODE_ENABLED))
+        if(gameRules.get(GameRules.IMMEDIATE_RESPAWN) || !gameRules.get(QuietusGameRules.GHOST_MODE_ON_DEATH))
             return;
         // Set ghost state
         CompoundTag data = player.getPersistentData();
@@ -84,7 +84,7 @@ public abstract class ServerPlayerMixin extends Player {
     private void handleGhostDeathTail(DamageSource cause, CallbackInfo ci) {
         ServerPlayer player = (ServerPlayer)(Object)this;
         GameRules gameRules= player.level().getServer().getGameRules();
-        if(gameRules.get(GameRules.IMMEDIATE_RESPAWN) || !gameRules.get(QuietusGameRules.GHOST_MODE_ENABLED))
+        if(gameRules.get(GameRules.IMMEDIATE_RESPAWN) || !gameRules.get(QuietusGameRules.GHOST_MODE_ON_DEATH))
             return;
         // Switch to spectator mode
         player.setGameMode(GameType.SPECTATOR);

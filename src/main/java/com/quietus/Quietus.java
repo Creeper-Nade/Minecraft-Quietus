@@ -68,15 +68,13 @@ public class Quietus
 
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "quietus" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
-    // Creates a creative tab with the id "quietus:example_tab" for the example item, that is placed after the combat tab
+    // Quietus' dedicated creative inventory tab.
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.quietus")) //The language key for the title of your CreativeModeTab
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> QuietusItems.HARDENED_FUR.get().getDefaultInstance())
-            .displayItems((parameters, output) -> {
-                output.accept(QuietusItems.HARDENED_FUR.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
-                output.accept(QuietusItems.CHAIN_GRAPPLING_HOOK.get());
-            }).build());
+            .displayItems((parameters, output) -> QuietusItems.addQuietusCreativeTabItems(output))
+            .build());
 
 
     @Nullable
