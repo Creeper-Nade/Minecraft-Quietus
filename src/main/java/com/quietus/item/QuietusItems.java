@@ -74,7 +74,7 @@ public class QuietusItems {
             );
     public static final DeferredItem<Item> IRON_ROD = REGISTRAR.registerItem("iron_rod", Item::new);
     public static final DeferredItem<Item> VOID_ORRERY = REGISTRAR.registerItem(
-            "void_orrery", Item::new, () -> new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+            "void_orrery", VoidOrreryItem::new, () -> new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = REGISTRAR.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
     public static final DeferredItem<Item> EXAMPLE_ITEM = REGISTRAR.registerSimpleItem("example_item", () ->new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
@@ -352,6 +352,59 @@ public class QuietusItems {
         public static final DeferredItem<Item> OXIDIZED_COPPER_HOE = REGISTRAR.registerItem("oxidized_copper_hoe", properties -> new CopperHoeItem(WeatheringCopperItems.WeatherState.OXIDIZED, new QuietusItemProperties().hoe(QuietusToolMaterial.OXIDIZED_COPPER, 0.0f, -1.5f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "oxidized_copper_hoe")))));
 
     //#endregion
+
+    /**
+     * Adds every finished Quietus item to the mod tab. Registered prototypes
+     * whose models still reference missing textures are deliberately omitted.
+     */
+    public static void addQuietusCreativeTabItems(CreativeModeTab.Output output) {
+        // Ingredients and food
+        output.accept(HARDENED_FUR.get());
+        output.accept(AMETHYST_RESONATOR.get());
+        output.accept(AMETHYST_UPGRADE_SMITHING_TEMPLATE.get());
+        output.accept(IRON_ROD.get());
+        output.accept(BLUE_BERRIES.get());
+
+        // Weapons and utilities
+        output.accept(TRIPLEBOW.get());
+        output.accept(AMETHYST_STAFF.get());
+        output.accept(CHAIN_GRAPPLING_HOOK.get());
+        output.accept(VOID_ORRERY.get());
+
+        // Amethyst armor
+        output.accept(AMETHYST_HELMET.get());
+        output.accept(AMETHYST_CHESTPLATE.get());
+        output.accept(AMETHYST_LEGGINGS.get());
+        output.accept(AMETHYST_BOOTS.get());
+
+        // Weathered copper armor
+        output.accept(EXPOSED_COPPER_HELMET.get());
+        output.accept(EXPOSED_COPPER_CHESTPLATE.get());
+        output.accept(EXPOSED_COPPER_LEGGINGS.get());
+        output.accept(EXPOSED_COPPER_BOOTS.get());
+        output.accept(WEATHERED_COPPER_HELMET.get());
+        output.accept(WEATHERED_COPPER_CHESTPLATE.get());
+        output.accept(WEATHERED_COPPER_LEGGINGS.get());
+        output.accept(WEATHERED_COPPER_BOOTS.get());
+        output.accept(OXIDIZED_COPPER_HELMET.get());
+        output.accept(OXIDIZED_COPPER_CHESTPLATE.get());
+        output.accept(OXIDIZED_COPPER_LEGGINGS.get());
+        output.accept(OXIDIZED_COPPER_BOOTS.get());
+
+        // Weathered iron armor
+        output.accept(EXPOSED_IRON_HELMET.get());
+        output.accept(EXPOSED_IRON_CHESTPLATE.get());
+        output.accept(EXPOSED_IRON_LEGGINGS.get());
+        output.accept(EXPOSED_IRON_BOOTS.get());
+        output.accept(WEATHERED_IRON_HELMET.get());
+        output.accept(WEATHERED_IRON_CHESTPLATE.get());
+        output.accept(WEATHERED_IRON_LEGGINGS.get());
+        output.accept(WEATHERED_IRON_BOOTS.get());
+        output.accept(OXIDIZED_IRON_HELMET.get());
+        output.accept(OXIDIZED_IRON_CHESTPLATE.get());
+        output.accept(OXIDIZED_IRON_LEGGINGS.get());
+        output.accept(OXIDIZED_IRON_BOOTS.get());
+    }
 
     public static void addCreativeTabItems(BuildCreativeModeTabContentsEvent event, ResourceKey<CreativeModeTab> tabKey) {
         if (tabKey == CreativeModeTabs.BUILDING_BLOCKS) {

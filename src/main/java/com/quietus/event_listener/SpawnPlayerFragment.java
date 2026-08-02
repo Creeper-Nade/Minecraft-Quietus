@@ -27,7 +27,7 @@ public class SpawnPlayerFragment {
     private static final Logger LOGGER = LogUtils.getLogger();
     @SubscribeEvent
     public static void onPlayerDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && player.level().getGameRules().get(QuietusGameRules.FRAGMENT_SPAWNING) && !player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
+        if (event.getEntity() instanceof ServerPlayer player && player.level().getGameRules().get(QuietusGameRules.PLAYER_FRAGMENT_ON_DEATH) && !player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
             // Collect loot (excluding hotbar/armor)
             List<ItemStack> ghostLoot = new ArrayList<>();
             for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
@@ -70,7 +70,7 @@ public class SpawnPlayerFragment {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void keepCuriosEquipped(DropRulesEvent event) {
         if (event.getEntity() instanceof ServerPlayer player
-                && player.level().getGameRules().get(QuietusGameRules.FRAGMENT_SPAWNING)
+                && player.level().getGameRules().get(QuietusGameRules.PLAYER_FRAGMENT_ON_DEATH)
                 && !player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
             event.addOverride(stack -> true, DropRule.ALWAYS_KEEP);
         }
@@ -81,7 +81,7 @@ public class SpawnPlayerFragment {
     public static void onPlayerRespawn(PlayerEvent.Clone event) {
         if(event.getEntity() instanceof ServerPlayer player)
         {
-            if (event.isWasDeath() && player.level().getGameRules().get(QuietusGameRules.FRAGMENT_SPAWNING)&& !player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
+            if (event.isWasDeath() && player.level().getGameRules().get(QuietusGameRules.PLAYER_FRAGMENT_ON_DEATH)&& !player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
                 event.getEntity().getInventory().replaceWith(event.getOriginal().getInventory());
             }
         }

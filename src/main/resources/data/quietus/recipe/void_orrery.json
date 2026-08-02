@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "quietus:amethyst_resonator",
+    "C": "minecraft:copper_ingot",
+    "E": "minecraft:ender_pearl"
+  },
+  "pattern": [
+    " C ",
+    "CEC",
+    " A "
+  ],
+  "result": {
+    "count": 1,
+    "id": "quietus:void_orrery"
+  }
+}

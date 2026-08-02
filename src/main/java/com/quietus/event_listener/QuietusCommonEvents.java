@@ -161,11 +161,11 @@ public class QuietusCommonEvents {
         // Register your known conflicts
         GameruleConflictManager.registerConflict(
                 GameRules.KEEP_INVENTORY,
-                QuietusGameRules.FRAGMENT_SPAWNING
+                QuietusGameRules.PLAYER_FRAGMENT_ON_DEATH
         );
         GameruleConflictManager.registerConflict(
                 GameRules.IMMEDIATE_RESPAWN,
-                QuietusGameRules.GHOST_MODE_ENABLED
+                QuietusGameRules.GHOST_MODE_ON_DEATH
         );
     }
 
@@ -369,7 +369,7 @@ public class QuietusCommonEvents {
 
             //Placeholder method for enabling/disabling death screen in relation to the ghost mode, might be changed in the future
             LocalPlayer localPlayer= Minecraft.getInstance().player;
-            if(gameRules.get(QuietusGameRules.GHOST_MODE_ENABLED) &&localPlayer!=null) {
+            if(gameRules.get(QuietusGameRules.GHOST_MODE_ON_DEATH) &&localPlayer!=null) {
                 if (localPlayer.shouldShowDeathScreen()) localPlayer.setShowDeathScreen(false);
             }
             else if(!gameRules.get(GameRules.IMMEDIATE_RESPAWN) &&localPlayer!=null) {

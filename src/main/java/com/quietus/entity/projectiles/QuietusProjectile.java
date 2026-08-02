@@ -3,6 +3,8 @@ package com.quietus.entity.projectiles;
 import java.util.Objects;
 import java.util.function.Function;
 
+import com.quietus.combat.ProjectileVolleyBalance;
+import com.quietus.util.QuietusGameRules;
 import com.quietus.enchantment.QuietusEnchantmentHelper;
 import com.quietus.item.property.QuietusProjectileProperty;
 
@@ -203,7 +205,10 @@ public abstract class QuietusProjectile extends Projectile {
         double d1 = Math.max((double)0.0F, (double)1.0F - target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
         Vec3 vec3 = this.getDeltaMovement().multiply((double)1.0F, (double)0.0F, (double)1.0F).normalize().scale(finalKnockback * 0.6 * d1);
         //Vec3 knockbackVec = this.getDeltaMovement().normalize().scale(finalKnockback);
-        target.knockback(finalKnockback,
+        float volleyKnockbackScale = QuietusGameRules.useRevampedInvulnerabilityFrames(target.level())
+                ? ProjectileVolleyBalance.knockbackScale(this)
+                : 1.0F;
+        target.knockback(finalKnockback * volleyKnockbackScale,
                 -vec3.x,
                 -vec3.z);
     }
