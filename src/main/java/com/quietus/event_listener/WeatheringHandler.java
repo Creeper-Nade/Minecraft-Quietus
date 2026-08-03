@@ -160,7 +160,8 @@ public class WeatheringHandler {
             }
         }
         if (random.nextFloat() < tick_chance) {
-            if (WeatheringItem.canWeather(itemstack.getItem())) { // only if this item is weatherable, and also take in random ticking chance
+            if (!itemstack.has(QuietusComponents.WAXED.get())
+                    && WeatheringItem.canWeather(itemstack.getItem())) { // only if this item is weatherable, unwaxed, and also passes random ticking chance
                 Optional<Item> next_optional = checkAndGetNextWeatherItem(itemstack, surroundingItems, level.environmentAttributes().getValue(EnvironmentAttributes.WATER_EVAPORATES, pos));
                 if (next_optional.isPresent()) {
                     itemstack = makeNewWeatheredStack(next_optional, itemstack);

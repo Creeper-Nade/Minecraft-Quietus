@@ -46,6 +46,12 @@ public class QuietusComponents {
             builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
+    /** Marker applied to rustable equipment that prevents further oxidation. */
+    public static final Supplier<DataComponentType<Unit>> WAXED = REGISTRAR.registerComponentType(
+            "waxed",
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
+    );
+
 
 
 
