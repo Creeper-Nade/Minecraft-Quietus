@@ -13,6 +13,8 @@ import com.quietus.core.DeathRevamp.GhostMovementHandler;
 import com.quietus.item.QuietusComponents;
 import com.quietus.client.packet.GrapplingActiveHookPacket;
 import com.quietus.client.packet.GrapplingHookPhysicsPacket;
+import com.quietus.client.packet.MagicCastStartPacket;
+import com.quietus.client.hud.MagicClickerHudOverlay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.component.DataComponents;
@@ -50,6 +52,11 @@ public class ClientPayloadHandler {
     private static double DisturbanceVolatility;
 
     private static Minecraft minecraft = Minecraft.getInstance();
+
+    public static void handleMagicCastStart(final MagicCastStartPacket payload, final IPayloadContext context) {
+        context.enqueueWork(() -> MagicClickerHudOverlay.handleStartResult(
+                payload.accepted(), payload.seed(), payload.hand()));
+    }
 
 
     public static void handleMana(final ManaPacket Mpack, final IPayloadContext context) {

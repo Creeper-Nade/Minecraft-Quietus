@@ -28,7 +28,7 @@ public class QuietusKeyBindings {
         TRANSLATION_KEY_GRAPPLING_HOOK,
         KeyConflictContext.IN_GAME,
         InputConstants.Type.KEYSYM,
-        GLFW.GLFW_KEY_G,
+        GLFW.GLFW_KEY_R,
         TRANSLATION_KEY_CATEGORY_QUIETUS
     ));
 }

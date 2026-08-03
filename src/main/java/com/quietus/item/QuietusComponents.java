@@ -40,6 +40,12 @@ public class QuietusComponents {
             builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
     );
 
+    /** Marker that inserts a Quietus item legend into vanilla's component tooltip order. */
+    public static final Supplier<DataComponentType<Unit>> ITEM_LEGEND = REGISTRAR.registerComponentType(
+            "item_legend",
+            builder -> builder.persistent(Unit.CODEC).networkSynchronized(Unit.STREAM_CODEC)
+    );
+
 
 
 

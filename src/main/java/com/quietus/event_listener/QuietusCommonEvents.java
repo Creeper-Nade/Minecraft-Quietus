@@ -12,6 +12,8 @@ import com.quietus.item.QuietusItems;
 import com.quietus.item.component.CanDecay;
 import com.quietus.item.equipment.RetaliatesOnDamaged;
 import com.quietus.item.tool.AmmoProjectileWeaponItem;
+import com.quietus.item.tool.GrapplingHookItem;
+import com.quietus.item.tooltip.WeaponStatTooltips;
 import com.quietus.potion.QuietusPotions;
 import com.quietus.util.*;
 import com.quietus.tags.QuietusTags;
@@ -63,6 +65,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import com.quietus.item.tool.MagicChantingWeaponItem;
 
 import org.slf4j.Logger;
 
@@ -101,7 +104,11 @@ public class QuietusCommonEvents {
                     player.stopUsingItem();
                     event.setCanceled(true);}
                 else {
-                    if (itemstack.getItem().getUseDuration(itemstack, player) == 0 ) {
+                    // A chanting weapon deducts mana atomically when its server
+                    // session starts. This event only gates that use before
+                    // vanilla can apply after-use effects such as cooldown.
+                    if (!(itemstack.getItem() instanceof MagicChantingWeaponItem)
+                            && itemstack.getItem().getUseDuration(itemstack, player) == 0) {
                         ManaUtil.get(player).consumeMana(mana_consume, player);
                     }
                 }
@@ -227,6 +234,26 @@ public class QuietusCommonEvents {
     @SubscribeEvent
     public static void onItemToolTip(ItemTooltipEvent event) {
         ItemStack itemstack = event.getItemStack();
+
+        WeaponStatTooltips.updateMeleeStats(itemstack, event.getEntity(), event.getToolTip());
+        if (WeaponStatTooltips.isProjectileWeapon(itemstack)
+                && !itemstack.has(QuietusComponents.ITEM_LEGEND.get())) {
+            WeaponStatTooltips.insertProjectileStatsBeforeDurability(
+                    itemstack, event.getEntity(), event.getFlags(), event.getToolTip());
+        }
+        WeaponStatTooltips.appendDurabilityIfMissing(itemstack, event.getToolTip());
+        if (itemstack.getItem() instanceof GrapplingHookItem) {
+            WeaponStatTooltips.insertTranslatedLinesBeforeFooter(
+                    itemstack,
+                    event.getToolTip(),
+                    "tooltip.quietus.grappling_hook.quick_cast.",
+                    2,
+                    Component.translatable("curios.identifier.grappling_hook")
+                            .withStyle(ChatFormatting.GOLD),
+                    QuietusKeyBindings.GRAPPLING_HOOK_KEY.get().getTranslatedKeyMessage()
+                            .copy().withStyle(ChatFormatting.GOLD)
+            );
+        }
 
         if (itemstack.has(QuietusComponents.CAN_DECAY.get())) {
             CanDecay decayComponent = itemstack.get(QuietusComponents.CAN_DECAY.get());

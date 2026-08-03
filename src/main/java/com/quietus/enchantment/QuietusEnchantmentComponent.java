@@ -21,39 +21,13 @@ public interface QuietusEnchantmentComponent {
     DeferredRegister.DataComponents ENCHANTMENT_COMPONENT_TYPES =
             DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, MODID);
 
-    //Codec<DataComponentType<?>> COMPONENT_CODEC = Codec.lazyInitialized(() -> BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE.byNameCodec());
-    //Codec<DataComponentMap> CODEC = DataComponentMap.makeCodec(COMPONENT_CODEC);
-
-   //DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>> CRIT_CHANCE = register("crit_chance", (p_380869_) -> p_380869_.persistent(ConditionalEffect.codec(EnchantmentValueEffect.CODEC, LootContextParamSets.ENCHANTED_DAMAGE).listOf()));
-  // public static final DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>> CRIT_CHANCE = ENCHANTMENT_COMPONENT_TYPES.registerComponentType("crit_chance",(p_380869_) -> p_380869_.persistent(ConditionalEffect.codec(EnchantmentValueEffect.CODEC, LootContextParamSets.ENCHANTED_DAMAGE).listOf()));
-/*
-    public static final Supplier<DataComponentType<crit_chance>> CRIT_CHANCE =
-            ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
-                    "crit_chance",
-                    builder -> builder.persistent(crit_chance.CODEC)
-            );*/
-/*
-public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConditionalEffect<crit_chance>>> CONDITIONAL_INCREMENT =
-        ENCHANTMENT_COMPONENT_TYPES.register("conditional_increment",
-                () -> DataComponentType.ConditionalEffect<crit_chance>builder()
-                        // The ContextKeySet needed depends on what the enchantment is supposed to do.
-                        // This might be one of ENCHANTED_DAMAGE, ENCHANTED_ITEM, ENCHANTED_LOCATION, ENCHANTED_ENTITY, or HIT_BLOCK
-                        // since all of these bring the enchantment level into context (along with whatever other information is indicated).
-                        .persistent(ConditionalEffect.codec(crit_chance.CODEC, LootContextParamSets.ENCHANTED_DAMAGE))
-                        .build());*/
-
-    Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> CRIT_CHANCE =  ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
-            "crit_chance", builder -> builder.persistent(validatedListCodec(ConditionalEffect.codec(EnchantmentValueEffect.CODEC), LootContextParamSets.ENCHANTED_DAMAGE))
-    );
-
     Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> MANA_COST_REDUCTION =  ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
             "mana_cost_reduction", builder -> builder.persistent(validatedListCodec(ConditionalEffect.codec(EnchantmentValueEffect.CODEC),LootContextParamSets.ENCHANTED_ITEM))
     );
 
     private static <T extends Validatable> Codec<List<T>> validatedListCodec(Codec<T> elementCodec, ContextKeySet paramSet) {
         return elementCodec.listOf().validate(Validatable.listValidatorForContext(paramSet));
-    }
-
+}
     static void register(IEventBus eventBus)
     {
         ENCHANTMENT_COMPONENT_TYPES.register(eventBus);

@@ -1,6 +1,7 @@
 package com.quietus.data;
 
 import com.quietus.enchantment.QuietusEnchantments;
+import com.quietus.tags.QuietusTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.EnchantmentTagsProvider;
@@ -16,10 +17,15 @@ public class QuietusEnchantmentTagProvider extends EnchantmentTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
+        this.tag(QuietusTags.Enchantments.ATTUNEMENT_ACUPUNCTURE_EXCLUSIVE)
+                .add(QuietusEnchantments.ACUPUNCTURE)
+                .add(QuietusEnchantments.ATTUNEMENT);
+
         this.tag(EnchantmentTags.NON_TREASURE)
                 .add(QuietusEnchantments.IMPACT)
                 .add(QuietusEnchantments.HEX)
                 .add(QuietusEnchantments.ACUPUNCTURE)
+                .add(QuietusEnchantments.ATTUNEMENT)
                 .add(QuietusEnchantments.CONSERVATION)
                 .add(QuietusEnchantments.ELONGATION)
                 .add(QuietusEnchantments.RESILIENCE);

@@ -44,8 +44,6 @@ public class QuietusSounds {
             "player_fragment_spawn",
             SoundEvent::createVariableRangeEvent
     );
-
-
     public static void register(IEventBus eventBus) {
         SOUND_EVENTS.register(eventBus);
     }

@@ -11,6 +11,7 @@ import com.quietus.combat.ProjectileVolleyBalance;
 import com.quietus.entity.monster.Paraboler;
 import com.quietus.entity.monster.ThemedSkeleton;
 import com.quietus.item.QuietusItemProperties;
+import com.quietus.util.RangedAmmoCurios;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -280,6 +281,7 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
             if (this.getAllSupportedProjectiles().test(stack)) list.add(stack);
         };
         player.getInventory().forEach(projectileItemAddUp);
+        RangedAmmoCurios.findAmmo(player).map(result -> result.stack()).ifPresent(projectileItemAddUp);
         return list;
     }
 

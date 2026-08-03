@@ -7,6 +7,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 
 import static com.quietus.Quietus.MODID;
@@ -35,6 +36,8 @@ public class QuietusTags {
         public static final TagKey<Item> MAGIC_ENCHANTABLE = createTag("magic_enchantable");
         // All grappling hook variants belong here so they share enchantment compatibility.
         public static final TagKey<Item> GRAPPLING_HOOK = createTag("grappling_hook");
+        // Extensible allow-list for items that may be stored in the Curios ammo slot.
+        public static final TagKey<Item> RANGED_WEAPON_AMMO = createTag("ranged_weapon_ammo");
         public static final TagKey<Item> AMETHYST_UPGRADE_HELMET_BASES = createTag("amethyst_upgrade_helmet_bases");
         public static final TagKey<Item> AMETHYST_UPGRADE_CHESTPLATE_BASES = createTag("amethyst_upgrade_chestplate_bases");
         public static final TagKey<Item> AMETHYST_UPGRADE_LEGGINGS_BASES = createTag("amethyst_upgrade_leggings_bases");
@@ -53,5 +56,11 @@ public class QuietusTags {
         private static TagKey<EntityType<?>> createTag(String name) {
             return TagKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(MODID, name));
         }
+    }
+
+    public static class Enchantments {
+        public static final TagKey<Enchantment> ATTUNEMENT_ACUPUNCTURE_EXCLUSIVE =
+                TagKey.create(Registries.ENCHANTMENT,
+                        Identifier.fromNamespaceAndPath(MODID, "attunement_acupuncture_exclusive"));
     }
 }

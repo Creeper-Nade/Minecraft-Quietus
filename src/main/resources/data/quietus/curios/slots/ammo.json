@@ -1,0 +1,11 @@
+{
+  "order": 46,
+  "size": 1,
+  "icon": "quietus:container/slot/ammo_gui_icon",
+  "validators": [
+    "curios:tag"
+  ],
+  "entities": [
+    "minecraft:player"
+  ]
+}
