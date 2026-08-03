@@ -1,7 +1,7 @@
 {
   "anvil_cost": 2,
   "description": {
-    "translate": "enchantment.quietus.acupuncture"
+    "translate": "enchantment.quietus.attunement"
   },
   "exclusive_set": "#quietus:attunement_acupuncture_exclusive",
   "max_cost": {
@@ -16,6 +16,6 @@
   "slots": [
     "mainhand"
   ],
-  "supported_items": "#quietus:projectile_firing_weapon",
+  "supported_items": "#quietus:magic_weapon",
   "weight": 5
 }

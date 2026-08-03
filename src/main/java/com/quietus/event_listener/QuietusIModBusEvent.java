@@ -16,16 +16,21 @@ import com.quietus.client.packet.GhostStatePacket;
 import com.quietus.client.packet.GrapplingActiveHookPacket;
 import com.quietus.client.packet.GrapplingHookPhysicsPacket;
 import com.quietus.client.packet.ManaPacket;
+import com.quietus.client.packet.MagicCastStartPacket;
 import com.quietus.client.packet.PlayerRevivalCooldownPacket;
 import com.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
 import com.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
 import com.quietus.client.packet.SkillTreeUpdatePacket;
 import com.quietus.client.packet.WeatherItemContainerPacket;
 import com.quietus.client.packet.DisturbancePacket;
+import com.quietus.item.QuietusTooltipAppenders;
+import com.quietus.item.QuietusComponents;
 
 import com.quietus.server.handler.SkillTreeGUIPayloadHandler;
 import com.quietus.server.handler.GrapplingHookPayloadHandler;
+import com.quietus.server.handler.MagicCastPayloadHandler;
 import com.quietus.server.packet.GrapplingHookActionPacket;
+import com.quietus.server.packet.MagicCastInputPacket;
 import com.quietus.server.packet.SkillTreeGUIRequest;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -42,6 +47,7 @@ import net.neoforged.neoforge.client.event.RegisterConditionalItemModelPropertyE
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
+import net.neoforged.neoforge.event.RegisterTooltipAppendersEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -62,6 +68,15 @@ import com.quietus.entity.monster.Paraboler;
 @EventBusSubscriber(modid = MODID)
 public class QuietusIModBusEvent {
     @SubscribeEvent
+    public static void registerTooltipAppenders(RegisterTooltipAppendersEvent event) {
+        event.registerComponentAppenderBefore(
+                QuietusComponents.ITEM_LEGEND,
+                DataComponents.DAMAGE,
+                QuietusTooltipAppenders.ITEM_LEGENDS
+        );
+    }
+
+    @SubscribeEvent
     public static void PayloadHandlerRegistration(final RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MODID)
             .executesOn(HandlerThread.MAIN);
@@ -69,6 +84,10 @@ public class QuietusIModBusEvent {
             ManaPacket.TYPE, 
             ManaPacket.STREAM_CODEC, 
             ClientPayloadHandler::handleMana);
+        registrar.playToClient(
+            MagicCastStartPacket.TYPE,
+            MagicCastStartPacket.STREAM_CODEC,
+            ClientPayloadHandler::handleMagicCastStart);
         registrar.playToClient(
             GhostStatePacket.TYPE,
             GhostStatePacket.STREAM_CODEC,
@@ -129,6 +148,11 @@ public class QuietusIModBusEvent {
             GrapplingHookActionPacket.TYPE,
             GrapplingHookActionPacket.STREAM_CODEC,
             GrapplingHookPayloadHandler::handleAction
+        );
+        registrar.playToServer(
+            MagicCastInputPacket.TYPE,
+            MagicCastInputPacket.STREAM_CODEC,
+            MagicCastPayloadHandler::handle
         );
     }
 

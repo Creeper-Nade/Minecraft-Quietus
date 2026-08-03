@@ -19,12 +19,15 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 
 public class QuietusEnchantments {
+
     public static final ResourceKey<Enchantment> IMPACT = ResourceKey.create(Registries.ENCHANTMENT,
             Identifier.fromNamespaceAndPath(Quietus.MODID, "impact"));
     public static final ResourceKey<Enchantment> HEX = ResourceKey.create(Registries.ENCHANTMENT,
             Identifier.fromNamespaceAndPath(Quietus.MODID, "hex"));
     public static final ResourceKey<Enchantment> ACUPUNCTURE = ResourceKey.create(Registries.ENCHANTMENT,
             Identifier.fromNamespaceAndPath(Quietus.MODID, "acupuncture"));
+    public static final ResourceKey<Enchantment> ATTUNEMENT = ResourceKey.create(Registries.ENCHANTMENT,
+            Identifier.fromNamespaceAndPath(Quietus.MODID, "attunement"));
     public static final ResourceKey<Enchantment> CONSERVATION = ResourceKey.create(Registries.ENCHANTMENT,
             Identifier.fromNamespaceAndPath(Quietus.MODID, "conservation"));
     public static final ResourceKey<Enchantment> ELONGATION = ResourceKey.create(Registries.ENCHANTMENT,
@@ -36,6 +39,8 @@ public class QuietusEnchantments {
         var enchantments = context.lookup(Registries.ENCHANTMENT);
         var items = context.lookup(Registries.ITEM);
         HolderGetter<EntityType<?>> entityTypes = context.lookup(Registries.ENTITY_TYPE);
+        var attunementAcupunctureExclusive = enchantments.getOrThrow(
+                QuietusTags.Enchantments.ATTUNEMENT_ACUPUNCTURE_EXCLUSIVE);
 
         register(context, HEX, Enchantment.enchantment(Enchantment.definition(
                         items.getOrThrow(QuietusTags.Items.MAGIC_WEAPON),
@@ -44,7 +49,7 @@ public class QuietusEnchantments {
                         Enchantment.dynamicCost(1, 10),
                         Enchantment.dynamicCost(20, 10),
                         1,
-                EquipmentSlotGroup.MAINHAND)).withEffect(EnchantmentEffectComponents.DAMAGE, new AddValue(LevelBasedValue.perLevel(1.0F)), LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.DIRECT_ATTACKER, EntityPredicate.Builder.entity().of(entityTypes, QuietusTags.Entity.MAGIC_PROJECTILE).build())));
+                EquipmentSlotGroup.MAINHAND)).withEffect(EnchantmentEffectComponents.DAMAGE, new AddValue(LevelBasedValue.perLevel(0.5F)), LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.DIRECT_ATTACKER, EntityPredicate.Builder.entity().of(entityTypes, QuietusTags.Entity.MAGIC_PROJECTILE).build())));
 
         register(context, IMPACT, Enchantment.enchantment(Enchantment.definition(
                 items.getOrThrow(QuietusTags.Items.PROJECTILE_FIRING_WEAPON),
@@ -62,7 +67,16 @@ public class QuietusEnchantments {
                 Enchantment.dynamicCost(5, 15),
                 Enchantment.dynamicCost(27, 15),
                 2,
-                EquipmentSlotGroup.MAINHAND)).withEffect(QuietusEnchantmentComponent.CRIT_CHANCE.get(), new AddValue(LevelBasedValue.perLevel(0.04F)), LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.DIRECT_ATTACKER, EntityPredicate.Builder.entity().of(entityTypes, QuietusTags.Entity.MAGIC_PROJECTILE).build())));
+                EquipmentSlotGroup.MAINHAND)).exclusiveWith(attunementAcupunctureExclusive));
+
+        register(context, ATTUNEMENT, Enchantment.enchantment(Enchantment.definition(
+                items.getOrThrow(QuietusTags.Items.MAGIC_WEAPON),
+                5,
+                3,
+                Enchantment.dynamicCost(5, 15),
+                Enchantment.dynamicCost(27, 15),
+                2,
+                EquipmentSlotGroup.MAINHAND)).exclusiveWith(attunementAcupunctureExclusive));
 
         register(context, CONSERVATION, Enchantment.enchantment(Enchantment.definition(
                 items.getOrThrow(QuietusTags.Items.MAGIC_ENCHANTABLE),

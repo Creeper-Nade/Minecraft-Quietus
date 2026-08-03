@@ -142,6 +142,26 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
         }
     }
 
+    public void fireChantingResult(ServerPlayer player, InteractionHand hand, ItemStack weapon,
+                                  int successes, int totalChecks) {
+        if (!(player.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        shootInternal(serverLevel, player, hand, weapon, this.shootVelocity, this.shootInaccuracy,
+                successes, totalChecks, null);
+        player.level().playSound(
+                null, player.getX(), player.getY(), player.getZ(),
+                this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundEvent(),
+                this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundSource(),
+                this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundVolume(),
+                this.soundMap.get(MAPKEY_SOUND_PLAYER_SHOOT).soundPitch()
+                        / (player.level().getRandom().nextFloat() * 0.4F + 1.2F)
+                        + shootVelocity * 0.5F
+        );
+        player.awardStat(Stats.ITEM_USED.get(this));
+        player.swing(hand, true);
+    }
+
     @Override
     public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
         if (this.getUseDuration(stack, entity) == 0 || this.powerDuration < 0) {
@@ -240,8 +260,14 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
         boolean isCrit,
         @Nullable LivingEntity target
     ) {
+        shootInternal(level, shooter, hand, weapon, velocity, inaccuracy, -1, -1, target);
+    }
+
+    private void shootInternal(ServerLevel level, LivingEntity shooter, InteractionHand hand,
+                               ItemStack weapon, float velocity, float inaccuracy,
+                               int castSuccesses, int castTotalChecks, @Nullable LivingEntity target) {
         float f = EnchantmentHelper.processProjectileSpread(level, weapon, shooter, 0.0F);
-        float f1 = this.projectilesPerShot == 1 ? 0.0F : 2.0F * f / (projectileItems.size() - 1);
+        float f1 = this.projectilesPerShot == 1 ? 0.0F : 2.0F * f / (this.projectilesPerShot - 1);
         float f2 = (this.projectilesPerShot - 1) % 2 * f1 / 2.0F;
         float f3 = 1.0F;
         QuietusProjectileProperty projectileProperty = MAP_DEFAULT_PROJECTILE_PROPERTY.get(0); // default
@@ -249,6 +275,10 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
             projectileProperty = Objects.requireNonNullElse(this.projectilePropertyMap.get(i), projectileProperty); // if this key not specified take previous property
             if (projectileProperty.isCustom()) { // custom projectile supports below arguments for projectiles configuring:
                 QuietusProjectile projectile = this.createProjectileWithKey(i, level, shooter, weapon, ItemStack.EMPTY, shooter.getRandom().nextDouble() < projectileProperty.critChance());
+                if (castTotalChecks > 0) {
+                    projectile.applyCastingResult(castSuccesses, castTotalChecks);
+                    projectile.rollCriticalHit();
+                }
                 ProjectileVolleyBalance.apply(projectile, this.projectilesPerShot);
                 projectile.setOwner(shooter);
                 // CreeperNade: Offset the y position for -0.1f, this is the y pos for arrow in vanilla minecraft, and doesn't block view
@@ -312,6 +342,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
             projectile = this.projectilePropertyMap.get(key).projectileType().create(level, EntitySpawnReason.LOAD);
             projectile.configure(this.projectilePropertyMap.get(key),weapon);
         }
+        projectile.setCritical(isCrit);
         return projectile;
     }
 
@@ -340,6 +371,18 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
 
     public int getProjectilesPerShot() {
         return this.projectilesPerShot;
+    }
+
+    public float getShootVelocity() {
+        return this.shootVelocity;
+    }
+
+    public int getConfiguredUseDuration() {
+        return this.useDuration;
+    }
+
+    public int getConfiguredPowerDuration() {
+        return this.powerDuration;
     }
 
     public QuietusProjectileProperty getProjectileProperty(int key) {

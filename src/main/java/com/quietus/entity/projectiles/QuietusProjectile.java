@@ -48,7 +48,11 @@ public abstract class QuietusProjectile extends Projectile {
     protected Function<Float,Float> critDamageOperation = (damage) -> (float)(damage*(1.0d+0.5d));
 
     protected static final String NBT_TAG_PROJECTILE_GRAVITY = "ProjectileGravity";
+    protected static final String NBT_TAG_CRITICAL = "Critical";
+    protected static final String NBT_TAG_MAXIMUM_CRIT_MULTIPLIER = "MaximumCritMultiplier";
     protected static final EntityDataAccessor<Float> DATA_PROJECTILE_GRAVITY_ID = SynchedEntityData.defineId(QuietusProjectile.class, EntityDataSerializers.FLOAT);
+    protected static final EntityDataAccessor<Boolean> DATA_CRITICAL_ID = SynchedEntityData.defineId(QuietusProjectile.class, EntityDataSerializers.BOOLEAN);
+    protected static final EntityDataAccessor<Boolean> DATA_MAXIMUM_CRIT_MULTIPLIER_ID = SynchedEntityData.defineId(QuietusProjectile.class, EntityDataSerializers.BOOLEAN);
 
     public QuietusProjectile(EntityType<? extends QuietusProjectile> type, Level level) {
         super(type, level);
@@ -77,6 +81,7 @@ public abstract class QuietusProjectile extends Projectile {
         }
         this.applyInertia();
         this.spawnTrailParticles();
+        this.spawnCriticalTrailParticles();
 
         HitResult hitresult = this.getHitResultOnMoveVector();
 
@@ -96,6 +101,35 @@ public abstract class QuietusProjectile extends Projectile {
             discardAction();
         }
 
+    }
+
+    /** Applies the result of an active chant after the weapon's normal projectile values are loaded. */
+    public void applyCastingResult(int successes, int totalChecks) {
+        float performance = totalChecks <= 0
+                ? 0.0F
+                : Math.clamp(successes / (float) totalChecks, 0.0F, 1.0F);
+        double baseCritChance = Math.clamp(this.critChance, 0.0D, 1.0D);
+        this.critChance = baseCritChance + (1.0D - baseCritChance) * performance;
+        float critMultiplier = 1.0F + 0.5F * performance;
+        this.critDamageOperation = damage -> damage * critMultiplier;
+        this.getEntityData().set(DATA_MAXIMUM_CRIT_MULTIPLIER_ID,
+                totalChecks > 0 && successes >= totalChecks);
+    }
+
+    public void setCritical(boolean critical) {
+        this.getEntityData().set(DATA_CRITICAL_ID, critical);
+    }
+
+    public boolean isCritical() {
+        return this.getEntityData().get(DATA_CRITICAL_ID);
+    }
+
+    public void rollCriticalHit() {
+        this.setCritical(this.random.nextDouble() < this.critChance);
+    }
+
+    public boolean hasMaximumCritMultiplier() {
+        return this.getEntityData().get(DATA_MAXIMUM_CRIT_MULTIPLIER_ID);
     }
 
     /**
@@ -143,19 +177,20 @@ public abstract class QuietusProjectile extends Projectile {
             //DamageSource damagesource = this.damageSources().mobProjectile(this, livingOwner);
             DamageSource damagesource = getDamageSource(this.getOwner());
 
-            boolean crit = this.makeCrit(result.getEntity(),damagesource);
+            boolean crit = this.isCritical();
 
             float damage = this.calculateDamage(crit, baseDamage,livingOwner,result.getEntity(),damagesource);
-                this.applyImpactEffects(result.getEntity(), damage, crit, livingOwner);
+            this.applyImpactEffects(result.getEntity(), damage, crit, livingOwner);
+            if (crit && this.hasMaximumCritMultiplier() && this.level() instanceof ServerLevel serverLevel) {
+                Vec3 pos = result.getEntity().position();
+                serverLevel.sendParticles(ParticleTypes.ENCHANTED_HIT,
+                        pos.x, pos.y + result.getEntity().getBbHeight() * 0.5D, pos.z,
+                        50, 0.0D, 0.5D, 0.0D, 0.5D);
+            }
             discardAction();
         }
     }
     
-    private boolean makeCrit(Entity target, DamageSource damageSource)
-    {
-        return this.random.nextDouble() < getCritChance(target,damageSource);
-    }
-
     /**
      * Calculate final damage that should be done. Calls critDamageOperation and apply to base damage if crit happens to chance
      * @param isCrit boolean whether or not is crit
@@ -169,7 +204,8 @@ public abstract class QuietusProjectile extends Projectile {
         damage = EnchantmentHelper.modifyDamage(serverLevel, item, target, damageSource, damage);
         if (isCrit)
         {
-            damage = this.critDamageOperation.apply(damage);
+            float acupunctureBonus = QuietusEnchantmentHelper.getAcupunctureCritMultiplierBonus(level(), item);
+            damage = this.critDamageOperation.apply(damage) + damage * acupunctureBonus;
         }
         //add some other additional crit dmg here
 
@@ -178,13 +214,7 @@ public abstract class QuietusProjectile extends Projectile {
     }
     public double getCritChance(Entity target, DamageSource damageSource)
     {
-        //reserved for addition of crit chance
-        double finalCrit = critChance;
-        if(this.level() instanceof ServerLevel serverLevel)
-           finalCrit = QuietusEnchantmentHelper.modifyCritChance(serverLevel, item, target, damageSource, critChance);
-
-
-        return finalCrit;
+        return critChance;
     }
 
     protected abstract void applyImpactEffects(Entity Target, float damage, boolean is_crit, Entity Owner);
@@ -232,6 +262,30 @@ public abstract class QuietusProjectile extends Projectile {
         this.setDeltaMovement(velocity.scale((double)f));
     }
 
+    private void spawnCriticalTrailParticles() {
+        if (!this.level().isClientSide() || !this.isCritical()) {
+            return;
+        }
+
+        Vec3 velocity = this.getDeltaMovement();
+        Vec3 pos = this.position();
+        var trailParticle = this.hasMaximumCritMultiplier()
+                ? ParticleTypes.ENCHANTED_HIT
+                : ParticleTypes.CRIT;
+        for (int i = 0; i < 4; ++i) {
+            double trailOffset = i / 4.0D;
+            this.level().addParticle(
+                    trailParticle,
+                    pos.x - velocity.x * trailOffset,
+                    pos.y - velocity.y * trailOffset,
+                    pos.z - velocity.z * trailOffset,
+                    -velocity.x,
+                    -velocity.y + 0.2D,
+                    -velocity.z
+            );
+        }
+    }
+
     public float getSynchedGravity() {
         return this.getEntityData().get(DATA_PROJECTILE_GRAVITY_ID);
     }
@@ -244,17 +298,24 @@ public abstract class QuietusProjectile extends Projectile {
     public void addAdditionalSaveData(ValueOutput content) {
         super.addAdditionalSaveData(content);
         content.putFloat(NBT_TAG_PROJECTILE_GRAVITY, this.gravity);
+        content.putBoolean(NBT_TAG_CRITICAL, this.isCritical());
+        content.putBoolean(NBT_TAG_MAXIMUM_CRIT_MULTIPLIER, this.hasMaximumCritMultiplier());
     }
     @Override
     public void readAdditionalSaveData(ValueInput content) {
         super.readAdditionalSaveData(content);
         float r = content.getFloatOr(NBT_TAG_PROJECTILE_GRAVITY, 0.05f);
         this.gravity = r;
+        this.setCritical(content.getBooleanOr(NBT_TAG_CRITICAL, false));
+        this.getEntityData().set(DATA_MAXIMUM_CRIT_MULTIPLIER_ID,
+                content.getBooleanOr(NBT_TAG_MAXIMUM_CRIT_MULTIPLIER, false));
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_PROJECTILE_GRAVITY_ID, 0.05f);
+        builder.define(DATA_CRITICAL_ID, false);
+        builder.define(DATA_MAXIMUM_CRIT_MULTIPLIER_ID, false);
     }
     
     @Override

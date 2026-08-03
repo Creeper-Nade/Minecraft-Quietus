@@ -50,6 +50,7 @@ public class QuietusModelProvider extends ModelProvider {
         itemModels.generateFlatItem(QuietusItems.YOGHURT_BUCKET.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(QuietusItems.CHEESE_BUCKET.get(), ModelTemplates.FLAT_ITEM);
         itemModels.itemModelOutput.accept(QuietusItems.BLUE_BERRIES.get(), ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/consumables/blue_berries")));
+        itemModels.itemModelOutput.accept(QuietusItems.VOID_ORRERY.get(), ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/tools/void_orrery")));
 
     //handheld
         itemModels.itemModelOutput.accept(QuietusItems.AMETHYST_STAFF.get(),ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID,"item/combat/magic_weapon/amethyst_staff")));
