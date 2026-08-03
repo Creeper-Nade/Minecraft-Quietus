@@ -3,6 +3,7 @@
   "message.quietus.gamerules_conflict_reminder": "Please deactivate either one from each pair",
   "message.quietus.killed_fragment": "Absorbed %s's lost fragment, items and experience retrieved",
   "message.quietus.full_inventory": "Your inventory is full",
+  "tooltip.quietus.waxed": "Waxed",
 
   "skill.skillNotFound": "Unknown skill: %s",
 

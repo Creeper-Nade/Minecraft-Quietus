@@ -235,6 +235,11 @@ public class QuietusCommonEvents {
     public static void onItemToolTip(ItemTooltipEvent event) {
         ItemStack itemstack = event.getItemStack();
 
+        if (itemstack.has(QuietusComponents.WAXED.get())) {
+            event.getToolTip().add(Component.translatable("tooltip.quietus.waxed")
+                    .withStyle(ChatFormatting.GOLD));
+        }
+
         WeaponStatTooltips.updateMeleeStats(itemstack, event.getEntity(), event.getToolTip());
         if (WeaponStatTooltips.isProjectileWeapon(itemstack)
                 && !itemstack.has(QuietusComponents.ITEM_LEGEND.get())) {
