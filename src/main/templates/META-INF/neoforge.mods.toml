@@ -86,9 +86,16 @@ config="${mod_id}.mixins.json"
     side="BOTH"
 
 [[dependencies.${mod_id}]]
+    modId="geckolib"
+    type="required"
+    versionRange="${geckolib_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
     modId="curios"
     type="required"
-    versionRange="[15.0.0,)"
+    versionRange="${curios_version_range}"
     ordering="AFTER"
     side="BOTH"
 
