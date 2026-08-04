@@ -1,0 +1,6 @@
+{
+  "parent": "quietus:item/combat/tribow",
+  "textures": {
+    "layer0": "quietus:item/combat/tribow_pulling_0"
+  }
+}

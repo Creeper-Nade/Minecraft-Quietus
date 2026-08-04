@@ -1,5 +1,6 @@
 package com.quietus.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.quietus.util.RangedAmmoCurios;
 import com.quietus.util.QuietusGameRules;
 import net.minecraft.server.level.ServerLevel;
@@ -15,6 +16,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
 public class PlayerMixin {
+    @ModifyReturnValue(method = "baseDamageScaleFactor", at = @At("RETURN"))
+    private float quietus$rebalanceMeleeDamageCurve(float vanillaScale) {
+        Player player = (Player) (Object) this;
+        if (!QuietusGameRules.useRevampedInvulnerabilityFrames(player.level())) {
+            return vanillaScale;
+        }
+
+        // Vanilla uses 0.20 + 0.80 * charge^2. With per-attack immunity,
+        // every rapid swing can deal that 20% minimum, allowing spam to
+        // overtake charged attacks. Preserve the same quadratic shape and
+        // full-charge damage while reducing the minimum to 5%:
+        // 0.05 + 0.95 * charge^2 = 1.1875 * vanillaScale - 0.1875.
+        return 1.1875F * vanillaScale - 0.1875F;
+    }
+
     @Inject(
             method = "getProjectile",
             at = @At(

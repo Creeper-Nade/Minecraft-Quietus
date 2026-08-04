@@ -1,0 +1,13 @@
+{
+  "values": {
+    "quietus:mold": {
+      "chance": 0.65
+    },
+    "quietus:mold_bowl": {
+      "chance": 0.85
+    },
+    "quietus:mold_bucket": {
+      "chance": 1.0
+    }
+  }
+}

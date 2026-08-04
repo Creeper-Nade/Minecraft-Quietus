@@ -1,7 +1,7 @@
 {
     "parent": "minecraft:item/generated",
     "textures": {
-        "layer0": "quietus:item/combat/triplebow"
+        "layer0": "quietus:item/combat/tribow"
     },
     "display": {
         "thirdperson_righthand": {

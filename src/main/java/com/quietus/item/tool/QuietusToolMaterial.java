@@ -11,6 +11,7 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.component.Weapon;
@@ -25,6 +26,12 @@ public record QuietusToolMaterial(
     public static final QuietusToolMaterial EXPOSED_COPPER = new QuietusToolMaterial(BlockTags.INCORRECT_FOR_STONE_TOOL, 191, 4.5F, 1.0F, 8, Tags.Items.INGOTS_COPPER);
     public static final QuietusToolMaterial WEATHERED_COPPER = new QuietusToolMaterial(BlockTags.INCORRECT_FOR_STONE_TOOL, 191, 4.0F, 0.5F, 11, Tags.Items.INGOTS_COPPER);
     public static final QuietusToolMaterial OXIDIZED_COPPER = new QuietusToolMaterial(BlockTags.INCORRECT_FOR_STONE_TOOL, 191, 3.5F, 0.0F, 14, Tags.Items.INGOTS_COPPER);
+
+    /** Bridges Quietus weathering stats into vanilla's component-driven spear builder. */
+    public ToolMaterial asVanillaMaterial() {
+        return new ToolMaterial(this.incorrectBlocksForDrops, this.durability, this.speed,
+                this.attackDamageBonus, this.enchantmentValue, this.repairItems);
+    }
 
     private Item.Properties applyCommonProperties(Item.Properties properties) {
         return properties.durability(this.durability).repairable(this.repairItems).enchantable(this.enchantmentValue);

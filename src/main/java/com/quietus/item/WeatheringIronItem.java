@@ -8,7 +8,8 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 public class WeatheringIronItem extends Item implements WeatheringIronItems {
 
-    public static final float OXIDATION_CHANCE = (float)96/(float)854;
+    // Exactly 1.5 times the normal copper oxidation chance (64 / 1125).
+    public static final float OXIDATION_CHANCE = (float)96/(float)1125;
     public static final float OXIDATION_CHANCE_WARM = OXIDATION_CHANCE * 0.0f; // iron does not oxidize in atmosphere abscence of water.
 
     public static float getOxidationChance(boolean isWarm) {

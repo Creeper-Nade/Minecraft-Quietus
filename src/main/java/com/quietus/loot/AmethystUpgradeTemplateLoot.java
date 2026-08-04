@@ -22,7 +22,8 @@ public final class AmethystUpgradeTemplateLoot {
             minecraft("chests/abandoned_mineshaft"), Config.LOOT.mineshaftMinecartChance::get,
             minecraft("chests/simple_dungeon"), Config.LOOT.monsterRoomChestChance::get,
             minecraft("chests/stronghold_library"), Config.LOOT.strongholdLibraryChance::get,
-            minecraft("chests/stronghold_corridor"), Config.LOOT.strongholdCorridorChance::get
+            minecraft("chests/stronghold_corridor"), Config.LOOT.strongholdCorridorChance::get,
+            minecraft("chests/ancient_city"), Config.LOOT.ancientCityChance::get
     );
 
     private AmethystUpgradeTemplateLoot() {
