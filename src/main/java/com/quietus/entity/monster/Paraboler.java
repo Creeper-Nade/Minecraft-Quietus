@@ -133,7 +133,7 @@ public class Paraboler extends ThemedSkeleton {
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
         super.populateDefaultEquipmentSlots(random, difficulty);
-        this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(QuietusItems.TRIPLEBOW.get()));
+        this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(QuietusItems.TRIBOW.get()));
     }
 
     @Nullable

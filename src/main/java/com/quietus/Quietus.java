@@ -46,6 +46,7 @@ import com.quietus.effects.QuietusMobEffects;
 import com.quietus.item.QuietusComponents;
 import com.quietus.item.QuietusItems;
 import com.quietus.loot.AmethystUpgradeTemplateLoot;
+import com.quietus.loot.TribowStructureLoot;
 import com.quietus.potion.QuietusPotions;
 import com.quietus.server.PlayerData;
 import com.quietus.server.QuietusReloadableResources;
@@ -72,7 +73,7 @@ public class Quietus
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.quietus")) //The language key for the title of your CreativeModeTab
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> QuietusItems.HARDENED_FUR.get().getDefaultInstance())
+            .icon(() -> QuietusItems.VOID_ORRERY.get().getDefaultInstance())
             .displayItems((parameters, output) -> QuietusItems.addQuietusCreativeTabItems(output))
             .build());
 
@@ -116,6 +117,7 @@ public class Quietus
         // register resource loading listeners
         NeoForge.EVENT_BUS.addListener(QuietusReloadableResources::onAddingServerResourceReloadListeners);
         NeoForge.EVENT_BUS.addListener(AmethystUpgradeTemplateLoot::onLootTableLoad);
+        NeoForge.EVENT_BUS.addListener(TribowStructureLoot::onLootTableLoad);
         QuietusEntityDataSerializers.register(modEventBus);
         QuietusParticles.register(modEventBus);
 

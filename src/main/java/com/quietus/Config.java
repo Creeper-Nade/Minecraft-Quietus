@@ -71,15 +71,21 @@ public class Config
         public final ModConfigSpec.DoubleValue monsterRoomChestChance;
         public final ModConfigSpec.DoubleValue strongholdLibraryChance;
         public final ModConfigSpec.DoubleValue strongholdCorridorChance;
+        public final ModConfigSpec.DoubleValue ancientCityChance;
+        public final ModConfigSpec.DoubleValue tribowTrialChamberVaultChance;
+        public final ModConfigSpec.DoubleValue tribowOminousTrialChamberVaultChance;
+        public final ModConfigSpec.DoubleValue tribowNetherFortressChance;
+        public final ModConfigSpec.DoubleValue enchantedTribowNetherFortressChance;
 
         private Loot(ModConfigSpec.Builder builder) {
             builder.push("loot");
             builder.comment(
-                    "Chance for an Amethyst Upgrade Smithing Template to be added to each generated reward.",
+                    "Chances for Quietus items to be added to generated structure rewards.",
                     "Values range from 0.0 (disabled) to 1.0 (guaranteed).",
                     "Run /reload after changing these values so the loot tables are rebuilt."
             );
 
+            builder.comment("Amethyst Upgrade Smithing Template chances.");
             trialChamberVaultChance = chance(builder, "trialChamberVaultChance", 0.14,
                     "Normal Trial Chamber vault reward chance.");
             ominousTrialChamberVaultChance = chance(builder, "ominousTrialChamberVaultChance", 0.25,
@@ -92,6 +98,18 @@ public class Config
                     "Stronghold library chest chance.");
             strongholdCorridorChance = chance(builder, "strongholdCorridorChance", 0.1,
                     "Stronghold corridor chest chance.");
+            ancientCityChance = chance(builder, "ancientCityChance", 0.165,
+                    "Ancient City chest chance.");
+
+            builder.comment("Tribow chances.");
+            tribowTrialChamberVaultChance = chance(builder, "tribowTrialChamberVaultChance", 0.05,
+                    "Enchanted Tribow chance in a normal Trial Chamber vault reward.");
+            tribowOminousTrialChamberVaultChance = chance(builder, "tribowOminousTrialChamberVaultChance", 0.10,
+                    "Enchanted Tribow chance in an ominous Trial Chamber vault reward.");
+            tribowNetherFortressChance = chance(builder, "tribowNetherFortressChance", 0.10,
+                    "Normal Tribow chance in a Nether Fortress chest.");
+            enchantedTribowNetherFortressChance = chance(builder, "enchantedTribowNetherFortressChance", 0.05,
+                    "Damaged enchanted Tribow chance in a Nether Fortress chest.");
 
             builder.pop();
         }

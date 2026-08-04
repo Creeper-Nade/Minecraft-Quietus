@@ -37,8 +37,6 @@ public class QuietusModelProvider extends ModelProvider {
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels)
     {
        //flat items
-        //RegisterBasicModel(itemModels,QuietusItems.HARDENED_FUR.get(),"item/ingredients/");
-        itemModels.itemModelOutput.accept(QuietusItems.HARDENED_FUR.get(),ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID,"item/ingredients/hardened_fur")));
         itemModels.itemModelOutput.accept(QuietusItems.AMETHYST_RESONATOR.get(), ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/ingredients/amethyst_resonator")));
         itemModels.itemModelOutput.accept(QuietusItems.AMETHYST_UPGRADE_SMITHING_TEMPLATE.get(), ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/ingredients/amethyst_upgrade_smithing_template")));
         itemModels.itemModelOutput.accept(QuietusItems.IRON_ROD.get(), ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/ingredients/iron_rod")));
@@ -103,11 +101,16 @@ public class QuietusModelProvider extends ModelProvider {
         itemModels.generateFlatItem(QuietusItems.WEATHERED_COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(QuietusItems.OXIDIZED_COPPER_SWORD.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
 
-        //bows
-        RegisterBow(itemModels,QuietusItems.TRIPLEBOW.get(),"item/combat/");
+        // Spears use separate inventory and in-hand models, matching vanilla's display-context dispatch.
+        itemModels.generateSpear(QuietusItems.EXPOSED_COPPER_SPEAR.get());
+        itemModels.generateSpear(QuietusItems.WEATHERED_COPPER_SPEAR.get());
+        itemModels.generateSpear(QuietusItems.OXIDIZED_COPPER_SPEAR.get());
 
-        //itemModels.createFlatItemModel(QuietusItems.TRIPLEBOW.get(), ModelTemplates.BOW);
-        //itemModels.generateBow(QuietusItems.TRIPLEBOW.get());
+        //bows
+        RegisterBow(itemModels,QuietusItems.TRIBOW.get(),"item/combat/");
+
+        //itemModels.createFlatItemModel(QuietusItems.TRIBOW.get(), ModelTemplates.BOW);
+        //itemModels.generateBow(QuietusItems.TRIBOW.get());
 
         itemModels.createFlatItemModel(QuietusItems.INFINIBOW.get(), ModelTemplates.BOW);
         itemModels.generateBow(QuietusItems.INFINIBOW.get());

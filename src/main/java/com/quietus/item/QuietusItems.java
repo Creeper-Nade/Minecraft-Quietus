@@ -3,8 +3,6 @@ package com.quietus.item;
 import com.quietus.entity.projectiles.QuietusProjectiles;
 import com.quietus.item.tool.*;
 import com.quietus.magic.MagicChantingPattern;
-import com.quietus.util.QuietusAttributes;
-
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
@@ -19,11 +17,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
-import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -47,21 +42,14 @@ public class QuietusItems {
         QuietusConsumables.init();
     }
 
-    /**
-     * Attribute Modifiers Identifier
-     */
+    /** Attribute modifier identifiers shared by Quietus item properties. */
     public static final Identifier BASE_MAX_MANA_ID = Identifier.fromNamespaceAndPath(MODID, "base_max_mana");
     public static final Identifier BASE_MANA_REGEN_BONUS_ID = Identifier.fromNamespaceAndPath(MODID, "base_mana_regen_bonus");
-
 
     // Create a Deferred Register to hold Items which will all be registered under the "quietus" namespace
     public static final DeferredRegister.Items REGISTRAR = DeferredRegister.createItems(MODID);
     
     //#region MISCELLANEOUS
-    public static final DeferredItem<Item> HARDENED_FUR = REGISTRAR.registerItem("hardened_fur",Item::new,()->new Item.Properties().attributes(
-        ItemAttributeModifiers.builder()
-            .add(QuietusAttributes.MAX_MANA.getDelegate(), new AttributeModifier(BASE_MANA_REGEN_BONUS_ID, 5, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND).build()
-    ));
     public static final DeferredItem<Item> AMETHYST_RESONATOR = REGISTRAR.registerItem("amethyst_resonator", Item::new);
     public static final DeferredItem<AmethystUpgradeSmithingTemplateItem> AMETHYST_UPGRADE_SMITHING_TEMPLATE =
             REGISTRAR.registerItem(
@@ -84,8 +72,8 @@ public class QuietusItems {
     public static final DeferredItem<Item> MOLD_BUCKET = REGISTRAR.registerItem("mold_bucket", Item::new, () ->new Item.Properties().craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.MOLD_BUCKET, QuietusConsumables.MOLD_BUCKET).stacksTo(1));
     public static final DeferredItem<Item> MOLD_BOWL = REGISTRAR.registerItem("mold_bowl", Item::new, () ->new Item.Properties().craftRemainder(Items.BOWL).usingConvertsTo(Items.BOWL).food(QuietusFoods.MOLD_BOWL, QuietusConsumables.MOLD_BOWL).stacksTo(16));
     public static final DeferredItem<Item> MOLD_BOTTLE = REGISTRAR.registerItem("mold_bottle", Item::new, () ->new Item.Properties().craftRemainder(Items.GLASS_BOTTLE).usingConvertsTo(Items.GLASS_BOTTLE).food(QuietusFoods.MOLD_BOTTLE, QuietusConsumables.MOLD_BOTTLE).stacksTo(16));
-    public static final DeferredItem<Item> YOGHURT_BUCKET = REGISTRAR.registerItem("yoghurt_bucket", properties -> new Item(new QuietusItemProperties().canDecay(192, MOLD_BUCKET).craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.YOGHURT_BUCKET, QuietusConsumables.YOGHURT_BUCKET).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "yoghurt_bucket")))));
-    public static final DeferredItem<Item> CHEESE_BUCKET = REGISTRAR.registerItem("cheese_bucket", properties -> new Item(new QuietusItemProperties().canDecay(192, MOLD_BUCKET).craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.CHEESE_BUCKET, QuietusConsumables.CHEESE_BUCKET).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "cheese_bucket")))));
+    public static final DeferredItem<Item> YOGHURT_BUCKET = REGISTRAR.registerItem("yoghurt_bucket", properties -> new Item(new QuietusItemProperties().canDecay(192, MOLD_BUCKET).craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.YOGHURT_BUCKET, QuietusConsumables.YOGHURT_BUCKET).stacksTo(1).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "yoghurt_bucket")))));
+    public static final DeferredItem<Item> CHEESE_BUCKET = REGISTRAR.registerItem("cheese_bucket", properties -> new Item(new QuietusItemProperties().canDecay(192, MOLD_BUCKET).craftRemainder(Items.BUCKET).usingConvertsTo(Items.BUCKET).food(QuietusFoods.CHEESE_BUCKET, QuietusConsumables.CHEESE_BUCKET).stacksTo(1).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "cheese_bucket")))));
     //#endregion
 
     //#region EQUIPMENTS
@@ -143,7 +131,7 @@ public class QuietusItems {
     //#endregion
 
     //#region WEAPONS & TOOLS
-        public static final DeferredItem<Item> TRIPLEBOW = REGISTRAR.registerItem("triplebow", AmmoProjectileWeaponItem::new, () ->new QuietusItemProperties()
+        public static final DeferredItem<Item> TRIBOW = REGISTRAR.registerItem("tribow", AmmoProjectileWeaponItem::new, () ->new QuietusItemProperties()
             .weaponProperty( 
                 3,
                 (xRot,index,random)-> xRot + (index-0.5f)*8.0f*(random.nextFloat()-0.5f), 
@@ -308,6 +296,23 @@ public class QuietusItems {
         public static final DeferredItem<Item> OXIDIZED_COPPER_AXE = REGISTRAR.registerItem("oxidized_copper_axe", properties -> new CopperAxeItem(WeatheringCopperItems.WeatherState.OXIDIZED, new QuietusItemProperties().axe(QuietusToolMaterial.OXIDIZED_COPPER, 6.5f, -3.2f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "oxidized_copper_axe")))));
         public static final DeferredItem<Item> OXIDIZED_COPPER_HOE = REGISTRAR.registerItem("oxidized_copper_hoe", properties -> new CopperHoeItem(WeatheringCopperItems.WeatherState.OXIDIZED, new QuietusItemProperties().hoe(QuietusToolMaterial.OXIDIZED_COPPER, 0.0f, -1.5f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "oxidized_copper_hoe")))));
 
+        public static final DeferredItem<Item> EXPOSED_COPPER_SPEAR = registerCopperSpear(
+                "exposed_copper_spear", WeatheringCopperItems.WeatherState.EXPOSED, QuietusToolMaterial.EXPOSED_COPPER);
+        public static final DeferredItem<Item> WEATHERED_COPPER_SPEAR = registerCopperSpear(
+                "weathered_copper_spear", WeatheringCopperItems.WeatherState.WEATHERED, QuietusToolMaterial.WEATHERED_COPPER);
+        public static final DeferredItem<Item> OXIDIZED_COPPER_SPEAR = registerCopperSpear(
+                "oxidized_copper_spear", WeatheringCopperItems.WeatherState.OXIDIZED, QuietusToolMaterial.OXIDIZED_COPPER);
+
+        private static DeferredItem<Item> registerCopperSpear(
+                String name, WeatheringCopperItems.WeatherState weatherState, QuietusToolMaterial material) {
+            return REGISTRAR.registerItem(name, properties -> new WeatheringCopperItem(
+                    weatherState,
+                    new Item.Properties()
+                            .spear(material.asVanillaMaterial(), 0.85F, 0.82F, 0.65F,
+                                    4.0F, 12.0F, 8.25F, 5.1F, 12.5F, 4.6F)
+                            .setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))));
+        }
+
     //#endregion
 
     /**
@@ -316,14 +321,18 @@ public class QuietusItems {
      */
     public static void addQuietusCreativeTabItems(CreativeModeTab.Output output) {
         // Ingredients and food
-        output.accept(HARDENED_FUR.get());
         output.accept(AMETHYST_RESONATOR.get());
         output.accept(AMETHYST_UPGRADE_SMITHING_TEMPLATE.get());
         output.accept(IRON_ROD.get());
         output.accept(BLUE_BERRIES.get());
+        output.accept(MOLD.get());
+        output.accept(MOLD_BOWL.get());
+        output.accept(MOLD_BUCKET.get());
+        output.accept(YOGHURT_BUCKET.get());
+        output.accept(CHEESE_BUCKET.get());
 
         // Weapons and utilities
-        output.accept(TRIPLEBOW.get());
+        output.accept(TRIBOW.get());
         output.accept(AMETHYST_STAFF.get());
         output.accept(CHAIN_GRAPPLING_HOOK.get());
         output.accept(VOID_ORRERY.get());
@@ -361,17 +370,38 @@ public class QuietusItems {
         output.accept(OXIDIZED_IRON_CHESTPLATE.get());
         output.accept(OXIDIZED_IRON_LEGGINGS.get());
         output.accept(OXIDIZED_IRON_BOOTS.get());
+
+        // Weathered copper tools
+        output.accept(EXPOSED_COPPER_SWORD.get());
+        output.accept(EXPOSED_COPPER_SHOVEL.get());
+        output.accept(EXPOSED_COPPER_PICKAXE.get());
+        output.accept(EXPOSED_COPPER_AXE.get());
+        output.accept(EXPOSED_COPPER_HOE.get());
+        output.accept(WEATHERED_COPPER_SWORD.get());
+        output.accept(WEATHERED_COPPER_SHOVEL.get());
+        output.accept(WEATHERED_COPPER_PICKAXE.get());
+        output.accept(WEATHERED_COPPER_AXE.get());
+        output.accept(WEATHERED_COPPER_HOE.get());
+        output.accept(OXIDIZED_COPPER_SWORD.get());
+        output.accept(OXIDIZED_COPPER_SHOVEL.get());
+        output.accept(OXIDIZED_COPPER_PICKAXE.get());
+        output.accept(OXIDIZED_COPPER_AXE.get());
+        output.accept(OXIDIZED_COPPER_HOE.get());
+        output.accept(EXPOSED_COPPER_SPEAR.get());
+        output.accept(WEATHERED_COPPER_SPEAR.get());
+        output.accept(OXIDIZED_COPPER_SPEAR.get());
     }
 
     public static void addCreativeTabItems(BuildCreativeModeTabContentsEvent event, ResourceKey<CreativeModeTab> tabKey) {
-        if (tabKey == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(EXAMPLE_BLOCK_ITEM);
-        }
         if (tabKey == CreativeModeTabs.FOOD_AND_DRINKS) {
             event.accept(BLUE_BERRIES);
+            event.accept(MOLD);
+            event.accept(MOLD_BOWL);
+            event.accept(MOLD_BUCKET);
+            event.accept(YOGHURT_BUCKET);
+            event.accept(CHEESE_BUCKET);
         }
         if (tabKey == CreativeModeTabs.INGREDIENTS){
-            event.accept(HARDENED_FUR);
             event.accept(AMETHYST_RESONATOR);
             event.accept(AMETHYST_UPGRADE_SMITHING_TEMPLATE);
             event.accept(IRON_ROD);
@@ -379,6 +409,18 @@ public class QuietusItems {
         if (tabKey == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(CHAIN_GRAPPLING_HOOK);
             event.accept(VOID_ORRERY);
+            event.accept(EXPOSED_COPPER_SHOVEL);
+            event.accept(EXPOSED_COPPER_PICKAXE);
+            event.accept(EXPOSED_COPPER_AXE);
+            event.accept(EXPOSED_COPPER_HOE);
+            event.accept(WEATHERED_COPPER_SHOVEL);
+            event.accept(WEATHERED_COPPER_PICKAXE);
+            event.accept(WEATHERED_COPPER_AXE);
+            event.accept(WEATHERED_COPPER_HOE);
+            event.accept(OXIDIZED_COPPER_SHOVEL);
+            event.accept(OXIDIZED_COPPER_PICKAXE);
+            event.accept(OXIDIZED_COPPER_AXE);
+            event.accept(OXIDIZED_COPPER_HOE);
         }
         if (tabKey == CreativeModeTabs.COMBAT) {
             event.accept(AMETHYST_STAFF);
@@ -386,6 +428,39 @@ public class QuietusItems {
             event.accept(AMETHYST_CHESTPLATE);
             event.accept(AMETHYST_LEGGINGS);
             event.accept(AMETHYST_BOOTS);
+            event.accept(EXPOSED_COPPER_SWORD);
+            event.accept(EXPOSED_COPPER_AXE);
+            event.accept(WEATHERED_COPPER_SWORD);
+            event.accept(WEATHERED_COPPER_AXE);
+            event.accept(OXIDIZED_COPPER_SWORD);
+            event.accept(OXIDIZED_COPPER_AXE);
+            event.accept(EXPOSED_COPPER_SPEAR);
+            event.accept(WEATHERED_COPPER_SPEAR);
+            event.accept(OXIDIZED_COPPER_SPEAR);
+            event.accept(EXPOSED_COPPER_HELMET);
+            event.accept(EXPOSED_COPPER_CHESTPLATE);
+            event.accept(EXPOSED_COPPER_LEGGINGS);
+            event.accept(EXPOSED_COPPER_BOOTS);
+            event.accept(WEATHERED_COPPER_HELMET);
+            event.accept(WEATHERED_COPPER_CHESTPLATE);
+            event.accept(WEATHERED_COPPER_LEGGINGS);
+            event.accept(WEATHERED_COPPER_BOOTS);
+            event.accept(OXIDIZED_COPPER_HELMET);
+            event.accept(OXIDIZED_COPPER_CHESTPLATE);
+            event.accept(OXIDIZED_COPPER_LEGGINGS);
+            event.accept(OXIDIZED_COPPER_BOOTS);
+            event.accept(EXPOSED_IRON_HELMET);
+            event.accept(EXPOSED_IRON_CHESTPLATE);
+            event.accept(EXPOSED_IRON_LEGGINGS);
+            event.accept(EXPOSED_IRON_BOOTS);
+            event.accept(WEATHERED_IRON_HELMET);
+            event.accept(WEATHERED_IRON_CHESTPLATE);
+            event.accept(WEATHERED_IRON_LEGGINGS);
+            event.accept(WEATHERED_IRON_BOOTS);
+            event.accept(OXIDIZED_IRON_HELMET);
+            event.accept(OXIDIZED_IRON_CHESTPLATE);
+            event.accept(OXIDIZED_IRON_LEGGINGS);
+            event.accept(OXIDIZED_IRON_BOOTS);
         }
     }
 
@@ -420,6 +495,9 @@ public class QuietusItems {
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_PICKAXE.get(), OXIDIZED_COPPER_PICKAXE.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_AXE.get(), OXIDIZED_COPPER_AXE.get());
         WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_HOE.get(), OXIDIZED_COPPER_HOE.get());
+        WeatheringCopperItems.registerWeathering(Items.COPPER_SPEAR, EXPOSED_COPPER_SPEAR.get());
+        WeatheringCopperItems.registerWeathering(EXPOSED_COPPER_SPEAR.get(), WEATHERED_COPPER_SPEAR.get());
+        WeatheringCopperItems.registerWeathering(WEATHERED_COPPER_SPEAR.get(), OXIDIZED_COPPER_SPEAR.get());
         // Register iron items in the OXIDATION_MAP of WeatheringIronItems
         // iron armor
         WeatheringIronItems.registerWeathering(Items.IRON_BOOTS, EXPOSED_IRON_BOOTS.get());
@@ -448,6 +526,7 @@ public class QuietusItems {
         WeatheringItem.registerExtraWeatheringItem(Items.COPPER_PICKAXE, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
         WeatheringItem.registerExtraWeatheringItem(Items.COPPER_AXE, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
         WeatheringItem.registerExtraWeatheringItem(Items.COPPER_HOE, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
+        WeatheringItem.registerExtraWeatheringItem(Items.COPPER_SPEAR, new int[]{0}, WeatheringCopperItem.OXIDATION_CHANCE * 0.625f, WeatheringCopperItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_copper_armor_item);
         Class<?> class_weathering_iron_armor_item = WeatheringIronItems.WeatherState.class;
         WeatheringItem.registerExtraWeatheringItem(Items.IRON_BOOTS, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, WeatheringIronItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_iron_armor_item);
         WeatheringItem.registerExtraWeatheringItem(Items.IRON_LEGGINGS, new int[]{0}, WeatheringIronItem.OXIDATION_CHANCE * 0.625f, WeatheringIronItem.OXIDATION_CHANCE_WARM * 0.625f, class_weathering_iron_armor_item);

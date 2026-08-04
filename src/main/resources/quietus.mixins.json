@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AbstractFurnaceBlockEntityMixin",
+    "ComposterBlockMixin",
+    "ComposterInputContainerMixin",
     "EntityMobTeamMixin",
     "GuiMixin",
     "HumanoidModelMixin",

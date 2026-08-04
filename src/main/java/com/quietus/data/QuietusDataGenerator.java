@@ -27,6 +27,7 @@ public class QuietusDataGenerator {
         generator.addProvider(true, new QuietusEnchantmentTagProvider(packOutput,lookupProvider));
         generator.addProvider(true, new QuietusDamageTypeTagProvider(packOutput, lookupProvider));
         generator.addProvider(true, new QuietusDatapackProvider(packOutput, lookupProvider));
+        generator.addProvider(true, new QuietusDataMapProvider(packOutput, lookupProvider));
         generator.addProvider(true, new QuietusModelProvider(packOutput));
        //event.createProvider(QuietusModelProvider::new);
 
@@ -44,6 +45,7 @@ public class QuietusDataGenerator {
         generator.addProvider(true, new QuietusEnchantmentTagProvider(packOutput,lookupProvider));
         generator.addProvider(true, new QuietusDamageTypeTagProvider(packOutput, lookupProvider));
         generator.addProvider(true, new QuietusDatapackProvider(packOutput, lookupProvider));
+        generator.addProvider(true, new QuietusDataMapProvider(packOutput, lookupProvider));
         generator.addProvider(true, new QuietusModelProvider(packOutput));
 
     }

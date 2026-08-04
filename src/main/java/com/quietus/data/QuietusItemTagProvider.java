@@ -115,9 +115,14 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
                 .add(QuietusItems.AMETHYST_CHESTPLATE.get());
 
         this.tag(ItemTags.BOW_ENCHANTABLE)
-                .add(QuietusItems.TRIPLEBOW.get())
+                .add(QuietusItems.TRIBOW.get())
                 .add(QuietusItems.INSTABOW.get())
                 .add(QuietusItems.INFINIBOW.get());
+
+        this.tag(ItemTags.SPEARS)
+                .add(QuietusItems.EXPOSED_COPPER_SPEAR.get())
+                .add(QuietusItems.WEATHERED_COPPER_SPEAR.get())
+                .add(QuietusItems.OXIDIZED_COPPER_SPEAR.get());
 
         this.tag(QuietusTags.Items.MAGIC_WEAPON)
                 .add(QuietusItems.AMETHYST_STAFF.get());
