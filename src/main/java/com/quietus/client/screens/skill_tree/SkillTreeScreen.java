@@ -115,15 +115,11 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
         @Override
         public void onClick(MouseButtonEvent event, boolean doubleClick) {
-            SkillTreeScreen.TabsSelectionGridLayout createdLayout =  new SkillTreeScreen.TabsSelectionGridLayout(0, 0, WINDOW_INSIDE_WIDTH, TABS_SELECTION_COLUMNS, (int)Math.floor(WINDOW_INSIDE_HEIGHT / TABS_SELECTION_DESIRED_ROWS_PER_PAGE), WINDOW_INSIDE_HEIGHT);
-            for (Entry<Identifier,SkillTreeTab> entry : SkillTreeScreen.this.tabs.entrySet()) {
-                SkillTreeTab tab = entry.getValue();
-                createdLayout.addChild(tab.createTabSelectionElement(0, 0, 2, 2));
-                  /* parameters in createdTabSelectionElement here doesn't matter, 
-                   * as VerticalEvenGridLayout will automatically fill its children width and height. */
+            if (SkillTreeScreen.this.tabsGridLayout == null) {
+                SkillTreeScreen.this.openTabsSelectionGrid();
+            } else {
+                SkillTreeScreen.this.closeTabsSelectionGrid();
             }
-            SkillTreeScreen.this.tabsGridLayout = createdLayout;
-            SkillTreeScreen.this.setSelectedNode(null);
         }
         @Override
         protected void updateWidgetNarration(NarrationElementOutput arg0) {
@@ -148,7 +144,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         super(TITLE);
 
         this.skillTree = skillTree;
-        this.addRenderableWidget(this.tabsGridButton);
     }
 
     /* @Override
@@ -270,7 +265,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             : Math.max(this.gridDynamicTicks - 1, 0);
 
         this.tabDynamicOffset = (int)Math.round(calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicks, this.tabsGridLayout == null));
-        this.gridCenterOffset = (int)Math.round(calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicks, this.tabsGridLayout == null));
+        this.gridCenterOffset = (int)Math.round(calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 30.0d, this.gridDynamicTicks, this.tabsGridLayout == null));
 
         // float - for smoother offset animation
         this.infoDynamicTicksF = this.selectedNode == null ?
@@ -289,7 +284,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             : Math.max(this.gridDynamicTicks + 1 - delta, 0);
 
         this.tabDynamicOffsetF = (float)calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
-        this.gridCenterOffsetF = (float)calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
+        this.gridCenterOffsetF = (float)calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 30.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
 
         /* Offset calculation */
         this.offsetX = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.windowDynamicWidth) / 2 + this.windowDynamicOffset + this.gridCenterOffset;
@@ -302,7 +297,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
 
         /* Tabs selection button and layout */
-        this.tabsGridButton.active = (this.tabsGridLayout == null);
         this.tabsGridButton.setPosition(this.offsetX-SkillTreeTab.TAB_DISPLAY_WIDTH+3+4, this.offsetY+12+SkillTreeTab.TAB_DISPLAY_HEIGHT*MAX_TABS_PER_PAGE+2);
         if (this.tabsGridLayout != null) {
             this.tabsGridLayout.setInitialPosition(this.offsetXTree, this.offsetYTree);
@@ -347,11 +341,11 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
         this.renderTick(delta);
 
-        /* // Render tabsGridButton
+        // Render tabsGridButton
         gui.pose().pushMatrix();
-        gui.pose().translate(this.offsetXFTree - this.offsetX + this.tabDynamicOffsetF, 0.0f);
+        gui.pose().translate(this.offsetXFTree - this.offsetX/*  + this.tabDynamicOffsetF */, 0.0f);
         this.tabsGridButton.extractRenderState(gui, mouseX, mouseY, delta);
-        gui.pose().popMatrix(); */
+        gui.pose().popMatrix();
 
         // Render tab buttons with scissor from top-left of top tab to bottom-right of bottom tab
         int numTabs = 0;
@@ -380,8 +374,8 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.renderTreeWindow(gui, mouseX, mouseY, delta, 0, this.offsetY);
         gui.pose().popMatrix();
 
-        // Render selected tab again on top of main window if grid is not open
-        if (this.tabsGridLayout == null && this.selectedTab != null) {
+        // Render selected tab again after the animation finishes, on top of main window if grid is not open
+        if (this.tabsGridLayout == null && this.selectedTab != null && this.tabDynamicOffset == 0) {
             gui.nextStratum();
             gui.pose().pushMatrix();
             gui.pose().translate(this.offsetXFTree - this.offsetX + this.tabDynamicOffsetF, 0.0f);
@@ -430,6 +424,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         double mouseX = event.x();
         double mouseY = event.y();
+
+        if (this.tabsGridButton.mouseClicked(event, doubleClick)) {
+            return true;
+        }
 
         if (this.selectedWidgetInfo != null && this.selectedWidgetInfo.isMouseOverWindow(this.offsetXInfo, this.offsetYInfo, mouseX, mouseY)) {
             this.focusedDraggable = this.selectedWidgetInfo;
@@ -633,13 +631,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     }
 
-    protected void openTabsSelectionLayout() {
+    protected void openTabsSelectionGrid() {
         SkillTreeScreen.TabsSelectionGridLayout createdLayout =  new SkillTreeScreen.TabsSelectionGridLayout(0, 0, WINDOW_INSIDE_WIDTH, TABS_SELECTION_COLUMNS, (int)Math.floor(WINDOW_INSIDE_HEIGHT / TABS_SELECTION_DESIRED_ROWS_PER_PAGE), WINDOW_INSIDE_HEIGHT);
         for (Entry<Identifier,SkillTreeTab> entry : SkillTreeScreen.this.tabs.entrySet()) {
             SkillTreeTab tab = entry.getValue();
             createdLayout.addChild(tab.createTabSelectionElement(0, 0, 2, 2));
-                /* parameters in createdTabSelectionElement here doesn't matter, 
-                 * as TabsSelectionGridLayout will automatically fill its children width and height. */
+              /* parameters in createdTabSelectionElement here don't matter, 
+               * as TabsSelectionGridLayout will automatically fill its children width and height. */
         }
         this.tabsGridLayout = createdLayout;
         this.setSelectedNode(null);
