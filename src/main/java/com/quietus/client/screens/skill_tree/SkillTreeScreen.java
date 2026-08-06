@@ -78,14 +78,24 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final int INFO_DYNAMIC_OFFSET_FROM_CENTER = - (GAP_WINDOW_INFO + SkillTreeInfoScreen.WIDTH)/2;
     private static final int DYNAMIC_POSITIONING_TICKS = 40;
     
+    private static final double TAB_DYNAMIC_HIDE_OFFSET = SkillTreeTab.TAB_DISPLAY_WIDTH - 3;
+    private static final double GRID_CENTER_OFFSET = - (SkillTreeTab.TAB_DISPLAY_WIDTH - 3) / 2.0;
+
     private int infoDynamicTicks = DYNAMIC_POSITIONING_TICKS;
+    private int gridDynamicTicks = DYNAMIC_POSITIONING_TICKS;
     private int windowDynamicWidth = WINDOW_WIDTH;
     private int windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH;
     private int windowDynamicOffset = 0;
+    private int tabDynamicOffset = 0;
+    private int gridCenterOffset = 0;
+
     private float infoDynamicTicksF = DYNAMIC_POSITIONING_TICKS;
+    private float gridDynamicTicksF = DYNAMIC_POSITIONING_TICKS;
     private float infoWindowDynamicWidthF = WINDOW_WIDTH;
     private float infoWindowInsideDynamicWidthF = WINDOW_INSIDE_WIDTH;
     private float infoDynamicOffsetF = 0.0f;
+    private float tabDynamicOffsetF = 0.0f;
+    private float gridCenterOffsetF = 0.0f;
 
     private int offsetX, offsetY, offsetXTree, offsetYTree, offsetXInfo, offsetYInfo = 0;
     private float offsetXFTree, offsetXFInfo = 0.0f;
@@ -255,6 +265,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round(calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicks, this.selectedNode == null));
         this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round(calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicks, this.selectedNode == null));
         
+        this.gridDynamicTicks = this.tabsGridLayout == null ?
+            Math.min(this.gridDynamicTicks + 1, DYNAMIC_POSITIONING_TICKS)
+            : Math.max(this.gridDynamicTicks - 1, 0);
+
+        this.tabDynamicOffset = (int)Math.round(calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicks, this.tabsGridLayout == null));
+        this.gridCenterOffset = (int)Math.round(calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicks, this.tabsGridLayout == null));
+
         // float - for smoother offset animation
         this.infoDynamicTicksF = this.selectedNode == null ?
             Math.min(this.infoDynamicTicks-1+delta, DYNAMIC_POSITIONING_TICKS)
@@ -267,17 +284,25 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.infoWindowDynamicWidthF = WINDOW_WIDTH + (float)calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicksF, this.selectedNode == null);
         this.infoWindowInsideDynamicWidthF = WINDOW_INSIDE_WIDTH + (float)calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicksF, this.selectedNode == null);
 
+        this.gridDynamicTicksF = this.tabsGridLayout == null ?
+            Math.min(this.gridDynamicTicks - 1 + delta, DYNAMIC_POSITIONING_TICKS)
+            : Math.max(this.gridDynamicTicks + 1 - delta, 0);
+
+        this.tabDynamicOffsetF = (float)calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
+        this.gridCenterOffsetF = (float)calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
+
         /* Offset calculation */
-        this.offsetX = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.windowDynamicWidth) / 2 + this.windowDynamicOffset;
+        this.offsetX = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.windowDynamicWidth) / 2 + this.windowDynamicOffset + this.gridCenterOffset;
         this.offsetY = (this.height - WINDOW_HEIGHT) / 2;
         this.offsetXTree = this.offsetX + WINDOW_INSIDE_X;
         this.offsetYTree = this.offsetY + WINDOW_INSIDE_TOP_Y;
-        this.offsetXInfo = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.windowDynamicWidth) / 2 + this.windowDynamicWidth + GAP_WINDOW_INFO + this.windowDynamicOffset;
-        this.offsetXFTree = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidthF) / 2 + this.infoDynamicOffsetF;
-        this.offsetXFInfo = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidthF) / 2 + this.infoWindowDynamicWidthF + GAP_WINDOW_INFO + this.infoDynamicOffsetF;
+        this.offsetXInfo = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.windowDynamicWidth) / 2 + this.windowDynamicWidth + GAP_WINDOW_INFO + this.windowDynamicOffset + this.gridCenterOffset;
+        this.offsetXFTree = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidthF) / 2 + this.infoDynamicOffsetF + this.gridCenterOffsetF;
+        this.offsetXFInfo = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.infoWindowDynamicWidthF) / 2 + this.infoWindowDynamicWidthF + GAP_WINDOW_INFO + this.infoDynamicOffsetF + this.gridCenterOffsetF;
 
 
         /* Tabs selection button and layout */
+        this.tabsGridButton.active = (this.tabsGridLayout == null);
         this.tabsGridButton.setPosition(this.offsetX-SkillTreeTab.TAB_DISPLAY_WIDTH+3+4, this.offsetY+12+SkillTreeTab.TAB_DISPLAY_HEIGHT*MAX_TABS_PER_PAGE+2);
         if (this.tabsGridLayout != null) {
             this.tabsGridLayout.setInitialPosition(this.offsetXTree, this.offsetYTree);
@@ -291,7 +316,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         for (int i = 0; it.hasNext(); i++) { 
             SkillTreeTab tab = it.next();
             tab.visible = false;
-            tab.active = this.selectedTab == null ? true : !this.selectedTab.getCategory().equals(tab.getCategory());
+            tab.active = (this.tabsGridLayout != null) ? false : (this.selectedTab == null ? true : !this.selectedTab.getCategory().equals(tab.getCategory()));
             tab.setPosition(this.offsetX-SkillTreeTab.TAB_DISPLAY_WIDTH+3, this.offsetY+12+SkillTreeTab.TAB_DISPLAY_HEIGHT*i);
         }
         Iterator<SkillTreeTab> it2 = tabs.values().iterator();
@@ -322,22 +347,51 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
         this.renderTick(delta);
 
+        /* // Render tabsGridButton
+        gui.pose().pushMatrix();
+        gui.pose().translate(this.offsetXFTree - this.offsetX + this.tabDynamicOffsetF, 0.0f);
+        this.tabsGridButton.extractRenderState(gui, mouseX, mouseY, delta);
+        gui.pose().popMatrix(); */
+
+        // Render tab buttons with scissor from top-left of top tab to bottom-right of bottom tab
+        int numTabs = 0;
+        for (SkillTreeTab tab : this.tabs.values()) {
+            if (tab.visible) numTabs++;
+        }
+        if (numTabs > 0) {
+            int scissorMinX = (int)Math.round(this.offsetXFTree - SkillTreeTab.TAB_DISPLAY_WIDTH + 3);
+            int scissorMinY = this.offsetY + 12;
+            int scissorMaxX = (int)Math.round(this.offsetXFTree + 3);
+            int scissorMaxY = this.offsetY + 12 + SkillTreeTab.TAB_DISPLAY_HEIGHT * numTabs;
+
+            gui.enableScissor(scissorMinX, scissorMinY, scissorMaxX, scissorMaxY);
+            gui.pose().pushMatrix();
+            gui.pose().translate(this.offsetXFTree - this.offsetX + this.tabDynamicOffsetF, 0.0f);
+            this.tabs.values().forEach(tab -> tab.extractRenderState(gui, mouseX, mouseY, delta));
+            gui.pose().popMatrix();
+            gui.disableScissor();
+        }
+
+        gui.nextStratum();
+
+        // Render main tree window on top of unselected tabs
         gui.pose().pushMatrix();
         gui.pose().translate(this.offsetXFTree, 0.0f);
         this.renderTreeWindow(gui, mouseX, mouseY, delta, 0, this.offsetY);
         gui.pose().popMatrix();
 
-        gui.nextStratum();
+        // Render selected tab again on top of main window if grid is not open
+        if (this.tabsGridLayout == null && this.selectedTab != null) {
+            gui.nextStratum();
+            gui.pose().pushMatrix();
+            gui.pose().translate(this.offsetXFTree - this.offsetX + this.tabDynamicOffsetF, 0.0f);
+            this.selectedTab.extractRenderState(gui, mouseX, mouseY, delta);
+            gui.pose().popMatrix();
+        }
 
-        gui.pose().pushMatrix();
-        gui.pose().translate(this.offsetXFTree - this.offsetX, 0.0f);
-        this.tabsGridButton.extractRenderState(gui, mouseX, mouseY, delta);
-        this.tabs.values().forEach(tab -> tab.extractRenderState(gui, mouseX, mouseY, delta));
-        gui.pose().popMatrix();
-
-        gui.nextStratum();
-
+        // Render info window if a node is selected
         if (this.selectedNode != null) {
+            gui.nextStratum();
             gui.pose().pushMatrix();
             gui.pose().translate(this.offsetXFInfo, 0.0f);
             this.renderInfoWindow(gui, mouseX, mouseY, delta, 0, this.offsetYInfo);
