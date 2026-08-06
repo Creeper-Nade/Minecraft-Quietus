@@ -11,26 +11,33 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.platform.cursor.CursorType;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import com.quietus.client.multiplayer.ClientSkillTree;
+import com.quietus.client.util.GuiGraphicsExtractorUtil;
 import com.quietus.skilltree.SkillCategory;
 import com.quietus.skilltree.SkillTreeNode;
 import com.quietus.skilltree.TreePosition;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.ARGB;
 
 public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, SkillTreeScrollable {
 
     protected static final int TAB_DISPLAY_WIDTH = 38;
     protected static final int TAB_DISPLAY_HEIGHT = 28;
+    protected static final int TAB_ICON_WIDTH = 18;
+    protected static final int TAB_ICON_HEIGHT = 18;
     private static final Identifier TAB_DISPLAY_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/tab.png");
     private static final Identifier TAB_DISPLAY_SELECTED_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/tab_selected.png");
     private static final Identifier TAB_DISPLAY_HOVERED_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/tab_hovered.png");
@@ -41,13 +48,14 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     private static final int SCROLL_EXTRA_MARGIN_Y = 20;
     
     private final Minecraft minecraft;
+    private final Font font;
     private ClientSkillTree skillTree;
     private final SkillTreeScreen screen;
     private final SkillCategory category;
     private final SkillCategory.DisplayInfo display;
     private final Identifier icon;
 
-    private final Map<SkillTreeNode,SkillTreeWidget> widgets = new LinkedHashMap();
+    private final Map<SkillTreeNode,SkillTreeWidget> widgets = new LinkedHashMap<>();
     protected double scrollX;
     protected double scrollY;
     private int minX = Integer.MAX_VALUE;
@@ -59,10 +67,11 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
 
     private TreePosition positioning;
 
-    public SkillTreeTab(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int x, int y, SkillCategory category, SkillCategory.DisplayInfo display, TreePosition positioning, double scrollX, double scrollY) {
+    public SkillTreeTab(Minecraft minecraft, Font font, ClientSkillTree clientSkillTree, SkillTreeScreen screen, int x, int y, SkillCategory category, SkillCategory.DisplayInfo display, TreePosition positioning, double scrollX, double scrollY) {
         super(x, y, TAB_DISPLAY_WIDTH, TAB_DISPLAY_HEIGHT, display.name());
 
         this.minecraft = minecraft;
+        this.font = font;
         this.skillTree = clientSkillTree;
         this.screen = screen;
 
@@ -87,9 +96,9 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     }
 
     @Nullable
-    public static SkillTreeTab create(Minecraft minecraft, ClientSkillTree clientSkillTree, SkillTreeScreen screen, SkillCategory category, TreePosition positioning) {
+    public static SkillTreeTab create(Minecraft minecraft, Font font, ClientSkillTree clientSkillTree, SkillTreeScreen screen, SkillCategory category, TreePosition positioning) {
         Optional<SkillCategory.DisplayInfo> display = category.display();
-        return display.map(displayInfo -> new SkillTreeTab(minecraft, clientSkillTree, screen, 0, 0, category, displayInfo, positioning, 0.0d, 0.0d)).orElse(null);
+        return display.map(displayInfo -> new SkillTreeTab(minecraft, font, clientSkillTree, screen, 0, 0, category, displayInfo, positioning, 0.0d, 0.0d)).orElse(null);
     }
     
     protected void applyScrollData(TabScrollData data) {
@@ -294,7 +303,7 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
 
     @Override
     public void onClick(MouseButtonEvent event, boolean doubleClick) {
-        this.screen.setSelectedTab(this);
+        this.screen.setSelectedTab(this.getId());
     }
 
     @Override
@@ -310,6 +319,93 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         return false;
     }
 
+    protected TabSelectionElement createTabSelectionElement(int x, int y, int width, int height) {
+        return this.new TabSelectionElement(x, y, width, height);
+    }
+
+    protected class TabSelectionElement extends AbstractWidget {
+        private static final Identifier TAB_ELEMENT_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/tab_selection");
+        private static final int TOP_PADDING = 4;
+        private static final int ICON_TEXT_PADDING = 2;
+        private static final int TEXT_LINE_SPACING = 2;
+        private static final int TEXT_HORIZONTAL_PADDING = 3;
+
+        protected boolean clicked = false; // used for determining a full click (mouse on top, mouse down followed by mouse up)
+
+        TabSelectionElement(int x, int y, int width, int height) {
+            super(x, y, width, height, SkillTreeTab.this.display.name());
+
+            this.clicked = false;
+        }
+
+        @Override
+        protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouesX, int mouseY, float delta) {
+            Component text = SkillTreeTab.this.display.name();
+
+            int textMaxWidth = Math.max(5,this.width - TEXT_HORIZONTAL_PADDING*2);
+
+            int textHeight = GuiGraphicsExtractorUtil.getWordWrapHeight(SkillTreeTab.this.font, text, textMaxWidth, TEXT_LINE_SPACING);
+            int iconAndTextHeight = SkillTreeTab.TAB_ICON_HEIGHT + ICON_TEXT_PADDING + textHeight;
+            
+            int x = this.getX();
+            int y = this.getY();
+            int iconX = this.getX() + (int)Math.floor(this.width/2d - SkillTreeTab.TAB_ICON_WIDTH/2d);
+            int iconY = Math.max(this.getY() + TOP_PADDING, this.getY() + (int)Math.floor(this.height/2d - iconAndTextHeight/2d));
+            int textCenterX = this.getX() + (int)Math.floor(this.width/2d);
+            int textY = iconY + SkillTreeTab.TAB_ICON_HEIGHT + ICON_TEXT_PADDING;
+
+            // fill
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, TAB_ELEMENT_SPRITE_LOCATION, x, y, this.width, this.height);
+            // icon
+            gui.blit(RenderPipelines.GUI_TEXTURED, SkillTreeTab.this.icon, iconX, iconY, 0.0f, 0.0f, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT);
+            // text
+            GuiGraphicsExtractorUtil.drawCenteredWordWrap(gui, font, text, textCenterX, textY, textMaxWidth, TEXT_LINE_SPACING, ARGB.opaque(SkillTreeTab.this.display.themeColour()));
+        }
+
+        @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            if (!this.isActive()) {
+                return false;
+            } else {
+                if (this.isValidClickButton(event.buttonInfo())) {
+                    boolean isMouseOver = this.isMouseOver(event.x(), event.y());
+                    if (isMouseOver) {
+                        this.onClick(event, doubleClick);
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        @Override
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
+            this.clicked = true;
+        }
+
+        @Override
+        public void onRelease(MouseButtonEvent event) {
+            if (this.clicked && this.isMouseOver(event.x(), event.y())) {
+                SkillTreeTab.this.screen.setSelectedTabAndTop(SkillTreeTab.this.getId());
+                SkillTreeTab.this.screen.closeTabsSelectionGrid();
+                this.playDownSound(Minecraft.getInstance().getSoundManager());
+            }
+            this.clicked = false;
+        }
+
+        @Override
+        public void playDownSound(SoundManager soundManager) {
+            soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput arg0) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'updateWidgetNarration'");
+        }
+    }
+
     public SkillTreeWidget getWidget(SkillTreeNode node) {
         return this.widgets.get(node);
     }
@@ -323,6 +419,9 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
 
     public SkillCategory getCategory() {
         return this.category;
+    }
+    public Identifier getId() {
+        return this.category.getId();
     }
 
     public SkillTreeScreen getScreen() {
