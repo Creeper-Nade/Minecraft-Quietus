@@ -180,6 +180,7 @@
 
 
   "gui.skill_tree": "Skill Tree",
+  "gui.skill_tree.button.moreTabs": "More skill trees...",
   "gui.skill_tree.description.prerequisites.net": "Prerequisites: ",
   "gui.skill_tree.description.prerequisites.allOf": "All of: ",
   "gui.skill_tree.description.prerequisites.anyOf": "At least one of: ",

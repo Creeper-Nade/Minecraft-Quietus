@@ -135,24 +135,30 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     }
 
     private void calcLinesHeights(Font font, Component heading, Component description) {
-        this.headingLines = font.split(heading, HEADING_TEXT_MAX_WIDTH).size();
-        this.descriptionLines = font.split(description, DESCRIPTION_TEXT_MAX_WIDTH).size();
+        int headingViewportHeight = MAX_SCROLL_HEADING_LINES * this.font.lineHeight + (MAX_SCROLL_HEADING_LINES-1) * TEXT_LINE_SPACING;
 
-        this.totalHeadingParHeight = this.headingLines * font.lineHeight + (headingLines-1) * TEXT_LINE_SPACING;
-        this.totalDescriptionParHeight = this.descriptionLines * font.lineHeight + (descriptionLines-1) * TEXT_LINE_SPACING;
+        //this.headingLines = font.split(heading, HEADING_TEXT_MAX_WIDTH).size();
+        //this.descriptionLines = font.split(description, DESCRIPTION_TEXT_MAX_WIDTH).size();
 
-        this.isScrollHeading = (this.totalHeadingParHeight > MAX_SCROLL_HEADING_LINES * this.font.lineHeight + (MAX_SCROLL_HEADING_LINES-1) * TEXT_LINE_SPACING);
+        this.totalHeadingParHeight = GuiGraphicsExtractorUtil.getWordWrapHeight(font, heading, HEADING_TEXT_MAX_WIDTH, TEXT_LINE_SPACING);
+        //this.totalHeadingParHeight = this.headingLines * font.lineHeight + (headingLines-1) * TEXT_LINE_SPACING;
+        this.totalDescriptionParHeight = GuiGraphicsExtractorUtil.getWordWrapHeight(font, description, DESCRIPTION_TEXT_MAX_WIDTH, TEXT_LINE_SPACING);
+        //this.totalDescriptionParHeight = this.descriptionLines * font.lineHeight + (descriptionLines-1) * TEXT_LINE_SPACING;
+
+        this.isScrollHeading = (this.totalHeadingParHeight > headingViewportHeight);
         if (this.isScrollHeading) {
-            this.headingLines = font.split(heading, HEADING_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING).size();
-            this.totalHeadingParHeight = this.headingLines * font.lineHeight + (this.headingLines-1) * TEXT_LINE_SPACING;
-            this.headingParHeight = Math.min(this.totalHeadingParHeight, MAX_SCROLL_HEADING_LINES * this.font.lineHeight + (MAX_SCROLL_HEADING_LINES-1) * TEXT_LINE_SPACING);
+            //this.headingLines = font.split(heading, HEADING_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING).size();
+            this.totalHeadingParHeight = GuiGraphicsExtractorUtil.getWordWrapHeight(font, heading, HEADING_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING);
+            //this.totalHeadingParHeight = this.headingLines * font.lineHeight + (this.headingLines-1) * TEXT_LINE_SPACING;
+            this.headingParHeight = Math.min(this.totalHeadingParHeight, headingViewportHeight);
         } else {
             this.headingParHeight = this.totalHeadingParHeight;
         }
-        this.isScrollDescription = this.totalDescriptionParHeight > MAX_HEIGHT - headingParHeight - (V_MARGIN*2+CONTENTS_CONTAINER_PADDING*2+CONTENTS_RESOURCE_V_MARGIN*2) - (V_MARGIN + SECTION_V_MARGIN + SkillTreeWidget.ICON_HEIGHT + CONTENTS_CONTAINER_PADDING + SECTION_V_MARGIN);
+        this.isScrollDescription = this.totalDescriptionParHeight > MAX_HEIGHT - this.headingParHeight - (V_MARGIN*2+CONTENTS_CONTAINER_PADDING*2+CONTENTS_RESOURCE_V_MARGIN*2) - (V_MARGIN + SECTION_V_MARGIN + SkillTreeWidget.ICON_HEIGHT + CONTENTS_CONTAINER_PADDING + SECTION_V_MARGIN);
         if (this.isScrollDescription) {
-            this.descriptionLines = font.split(description, DESCRIPTION_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING).size();
-            this.totalDescriptionParHeight = this.descriptionLines * font.lineHeight + (this.descriptionLines-1) * TEXT_LINE_SPACING;
+            //this.descriptionLines = font.split(description, DESCRIPTION_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING).size();
+            this.totalDescriptionParHeight = GuiGraphicsExtractorUtil.getWordWrapHeight(font, description, DESCRIPTION_TEXT_MAX_WIDTH - SCROLL_BAR_PADDING, TEXT_LINE_SPACING);
+            //this.totalDescriptionParHeight = this.descriptionLines * font.lineHeight + (this.descriptionLines-1) * TEXT_LINE_SPACING;
             this.descriptionParHeight = Math.min(this.totalDescriptionParHeight, MAX_HEIGHT - headingParHeight - (V_MARGIN*2+CONTENTS_CONTAINER_PADDING*2+CONTENTS_RESOURCE_V_MARGIN*2) - (V_MARGIN + SECTION_V_MARGIN + SkillTreeWidget.ICON_HEIGHT + CONTENTS_CONTAINER_PADDING + SECTION_V_MARGIN));
         } else {
             this.descriptionParHeight = this.totalDescriptionParHeight;
