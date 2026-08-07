@@ -98,7 +98,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         Component prerequisitesDescription = makePrerequisitesDescription(widget.getNode().getSkillPoint(), screen.getSkillTree());
         if (prerequisitesDescription != null) {
-            description = MutableComponent.create(description.getContents()).append("\n\n").append(prerequisitesDescription);
+            description = description.copy().append("\n\n").append(prerequisitesDescription);
         }
 
         SkillTreeInfoScreen out = new SkillTreeInfoScreen(font, heading, description, widget, screen);
@@ -115,13 +115,20 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
             MutableComponent out = MutableComponent.create(new TranslatableContents(Prerequisites.Requirements.KEY_DESCRIPTION_TEXT_NET, (String)null, TranslatableContents.NO_ARGS)).withStyle(PREREQUISITES_STYLE);
             Prerequisites.RequirementCondition cond = nodePrerequisites.requirements().makeNestedNode();
-            if (cond instanceof Prerequisites.AndCondition and) {
-                for (Prerequisites.RequirementCondition child : and.children()) {
-                    out.append(Component.literal("\n")).append(child.makeDescriptionText(1, nodePrerequisites, skillPoint.display().map(SkillPoint.DisplayInfo::prerequisites), tree, completionStatus, PREREQUISITES_STYLE));
+            if (cond != null) {
+                if (cond instanceof Prerequisites.AndCondition and) {
+                    for (Prerequisites.RequirementCondition child : and.children()) {
+                        Component childText = child.makeDescriptionText(1, nodePrerequisites, skillPoint.display().map(SkillPoint.DisplayInfo::prerequisites), tree, completionStatus, PREREQUISITES_STYLE);
+                        if (childText != null) {
+                            out.append(Component.literal("\n")).append(childText);
+                        }
+                    }
+                } else {
+                    Component prereqDescriptionText = cond.makeDescriptionText(1, nodePrerequisites, skillPoint.display().map(SkillPoint.DisplayInfo::prerequisites), tree, completionStatus, PREREQUISITES_STYLE);
+                    if (prereqDescriptionText != null) {
+                        out.append(Component.literal("\n")).append(prereqDescriptionText);
+                    }
                 }
-            } else {
-                Component prereqDescriptionText = cond.makeDescriptionText(1, nodePrerequisites, skillPoint.display().map(SkillPoint.DisplayInfo::prerequisites), tree, completionStatus, PREREQUISITES_STYLE);
-                out.append(Component.literal("\n")).append(prereqDescriptionText);
             }
             return out;
         }

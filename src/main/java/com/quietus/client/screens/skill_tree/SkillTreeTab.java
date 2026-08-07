@@ -56,8 +56,8 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     private final Identifier icon;
 
     private final Map<SkillTreeNode,SkillTreeWidget> widgets = new LinkedHashMap<>();
-    protected double scrollX;
-    protected double scrollY;
+    protected double treeScrollX;
+    protected double treeScrollY;
     private int minX = Integer.MAX_VALUE;
     private int minY = Integer.MAX_VALUE;
     private int maxX = Integer.MIN_VALUE;
@@ -81,8 +81,8 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
             display.icon().get().id() :
             category.getId().withPath((id) -> "textures/gui/icons/skill_tree/tab/" + id + ".png");
 
-        this.scrollX = scrollX;
-        this.scrollY = scrollY;
+        this.treeScrollX = scrollX;
+        this.treeScrollY = scrollY;
 
         this.positioning = positioning;
 
@@ -102,12 +102,12 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     }
     
     protected void applyScrollData(TabScrollData data) {
-        this.scrollX = data.scrollX();
-        this.scrollY = data.scrollY();
-        this.clampScroll(0.0d, 0.0d);
+        this.treeScrollX = data.scrollX();
+        this.treeScrollY = data.scrollY();
+        this.clampTreeScroll(0.0d, 0.0d);
     }
     protected TabScrollData makeScrollData() {
-        return new TabScrollData(this.scrollX, this.scrollY);
+        return new TabScrollData(this.treeScrollX, this.treeScrollY);
     }
 
     public void addWidget(SkillTreeNode node) {
@@ -125,9 +125,9 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     }
 
     protected void renderTick(int offsetX, int offsetY, float delta) {
-        this.clampScroll(0.0d, 0.0d);
-        this.relX = offsetX + (int)this.scrollX;
-        this.relY = offsetY + (int)this.scrollY;
+        this.clampTreeScroll(0.0d, 0.0d);
+        this.relX = offsetX + (int)this.treeScrollX;
+        this.relY = offsetY + (int)this.treeScrollY;
 
         this.widgets.values().forEach(widget -> {
             widget.updatePositionOffset(this.relX, this.relY);
@@ -169,9 +169,9 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         }
     }
 
-    public void drawWidgetsAndEdges(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
+    public void drawTreeWidgetsAndEdges(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
         
-        this.drawEdges(gui, this.relX, this.relY);
+        this.drawTreeEdges(gui, this.relX, this.relY);
 
         for (SkillTreeWidget widget : this.widgets.values()) {
             widget.extractRenderState(gui, mouseX, mouseY, delta);
@@ -186,11 +186,11 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         if (overClickable) gui.requestCursor(CursorTypes.POINTING_HAND);
     }
 
-    public void drawBackground(GuiGraphicsExtractor gui, int offsetX, int offsetY, int width, int height, int mouseX, int mouseY, float delta) {
+    public void drawTreeBackground(GuiGraphicsExtractor gui, int offsetX, int offsetY, int width, int height, int mouseX, int mouseY, float delta) {
         gui.fill(offsetX, offsetY, offsetX+width, offsetY+height, 0x80FFFFFF); // TODO: temporary background, needs to be properly textured per tab
     }
 
-    private void drawEdges(GuiGraphicsExtractor guiGraphicsExtractor, int offsetX, int offsetY) {
+    private void drawTreeEdges(GuiGraphicsExtractor guiGraphicsExtractor, int offsetX, int offsetY) {
         guiGraphicsExtractor.pose().pushMatrix();
         guiGraphicsExtractor.pose().translate((float)offsetX, (float)offsetY);
         final int black = 0xFF000000;
@@ -276,28 +276,29 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
 
     @Override
     public void drag(double dragX, double dragY) {
-        this.clampScroll(dragX, dragY);
+        this.clampTreeScroll(dragX, dragY);
     }
     @Override 
     public void scroll(double scrollX, double scrollY) {
-        this.clampScroll(scrollX*16, scrollY*16);
+        this.clampTreeScroll(scrollX*16, scrollY*16);
     }
 
-    private void clampScroll(double changeX, double changeY) {
+    private void clampTreeScroll(double changeX, double changeY) {
         int innerWidth = this.screen.dynamicInsideWidth();
         int innerHeight = SkillTreeScreen.WINDOW_INSIDE_HEIGHT;
         int contentWidth = this.maxX - this.minX;
         int contentHeight = this.maxY - this.minY;
+
         if (contentWidth > innerWidth) {
-            this.scrollX = Math.clamp(this.scrollX + changeX, (double) innerWidth - this.maxX, -this.minX);
+            this.treeScrollX = Math.clamp(this.treeScrollX + changeX, (double) innerWidth - this.maxX, -this.minX);
         } else {
-            this.scrollX = (innerWidth - (this.maxX + this.minX)) / 2.0;
+            this.treeScrollX = (innerWidth - (this.maxX + this.minX)) / 2.0;
         }
 
         if (contentHeight > innerHeight) {
-            this.scrollY = Math.clamp(this.scrollY + changeY, (double) innerHeight - this.maxY, -this.minY);
+            this.treeScrollY = Math.clamp(this.treeScrollY + changeY, (double) innerHeight - this.maxY, -this.minY);
         } else {
-            this.scrollY = (innerHeight - (this.maxY + this.minY)) / 2.0;
+            this.treeScrollY = (innerHeight - (this.maxY + this.minY)) / 2.0;
         }
     }
 
@@ -360,6 +361,11 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
             gui.blit(RenderPipelines.GUI_TEXTURED, SkillTreeTab.this.icon, iconX, iconY, 0.0f, 0.0f, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT);
             // text
             GuiGraphicsExtractorUtil.drawCenteredWordWrap(gui, font, text, textCenterX, textY, textMaxWidth, TEXT_LINE_SPACING, ARGB.opaque(SkillTreeTab.this.display.themeColour()));
+
+            // cursor
+            if (this.isHovered() && this.isActive()) {
+                gui.requestCursor(CursorTypes.POINTING_HAND);
+            }
         }
 
         @Override
@@ -402,7 +408,6 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         @Override
         protected void updateWidgetNarration(NarrationElementOutput arg0) {
             // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'updateWidgetNarration'");
         }
     }
 

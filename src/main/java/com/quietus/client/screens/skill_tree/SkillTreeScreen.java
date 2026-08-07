@@ -34,6 +34,7 @@ import com.quietus.skilltree.TreePosition;
 import com.ibm.icu.impl.locale.KeyTypeData.ValueType;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.cursor.CursorType;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import com.mojang.logging.LogUtils;
 import com.quietus.skilltree.SkillCategory;
 
@@ -328,7 +329,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             this.selectedWidgetInfo.renderTick(this.offsetXInfo, this.offsetYInfo, delta);
 
             if (this.selectedTab != null && this.selectedTab.getPositioning().getVertices().containsKey(this.selectedNode)) { // only make dynamic info window y when there is positioning for the selected node from selected tab
-                this.offsetYInfo = offsetY + this.selectedTab.getPositioning().getVertices().get(this.selectedNode).y() + WINDOW_INSIDE_TOP_Y + (int)this.selectedTab.scrollY;
+                this.offsetYInfo = offsetY + this.selectedTab.getPositioning().getVertices().get(this.selectedNode).y() + WINDOW_INSIDE_TOP_Y + (int)this.selectedTab.treeScrollY;
                 this.offsetYInfo += Math.min(0, (offsetY + WINDOW_HEIGHT) - (this.offsetYInfo - selectedWidgetInfo.getTopHeight() + selectedWidgetInfo.getHeight())); // clamps the bottom if InfoScreen has lower bottom
                 this.offsetYInfo += Math.max(0, offsetY - (this.offsetYInfo - selectedWidgetInfo.getTopHeight())); // clamps the top if InfoScreen has higher top
             }
@@ -400,12 +401,15 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             this.tabsGridLayout.visitWidgets(element -> element.extractRenderState(gui, mouseX, mouseY, delta));
             gui.disableScissor();
             gui.pose().translate(+this.offsetX, 0.0f);
+            if (this.tabsGridLayout.equals(this.focusedDraggable) && this.isDragging() && this.tabsGridLayout.isScrolling()) {
+                gui.requestCursor(CursorTypes.RESIZE_NS);
+            }
         } else { // skill tree
             if (this.selectedTab != null) {
-                this.selectedTab.drawBackground(gui, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.windowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT, mouseX, mouseY, delta);
+                this.selectedTab.drawTreeBackground(gui, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.windowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT, mouseX, mouseY, delta);
                 gui.enableScissor(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT);
                 gui.pose().translate(-this.offsetX, 0.0f);
-                this.selectedTab.drawWidgetsAndEdges(gui, mouseX, mouseY, delta);
+                this.selectedTab.drawTreeWidgetsAndEdges(gui, mouseX, mouseY, delta);
                 gui.disableScissor();
                 gui.pose().translate(+this.offsetX, 0.0f);
             }
@@ -604,7 +608,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
                     }
                 });
             }
-            if (viewportHeight < this.height) {
+            if (this.isScrolling()) {
                 this.scrollY += scrollY*5;
                 this.scrollY = Math.clamp(this.scrollY, -this.height + this.viewportHeight, 0);
             } 
@@ -621,12 +625,16 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
                     }
                 });
             }
-            if (viewportHeight < this.height) {
+            if (this.isScrolling()) {
                 this.scrollY += dragY;
                 this.scrollY = Math.clamp(this.scrollY, -this.height + this.viewportHeight, 0);
             }
             this.setY((int)Math.round(this.initialY + this.scrollY));
             this.arrangeElements();
+        }
+
+        public boolean isScrolling() {
+            return this.viewportHeight < this.height;
         }
 
     }
