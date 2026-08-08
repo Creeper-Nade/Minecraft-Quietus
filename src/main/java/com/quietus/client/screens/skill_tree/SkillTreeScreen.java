@@ -100,6 +100,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final double TAB_DYNAMIC_HIDE_OFFSET = SkillTreeTab.TAB_DISPLAY_WIDTH - 3;
     private static final double GRID_CENTER_OFFSET = - (SkillTreeTab.TAB_DISPLAY_WIDTH - 3) / 2.0;
 
+    private static final int GLIMMER_CYCLE_TICKS = 60;
+    private static final int GLIMMER_WAVE_HALF_HEIGHT = 18;
+    private int glimmerWaveCenterY = 0;
+
     private int infoAnimTicks = DYNAMIC_POSITIONING_TICKS;
     private int gridAnimTicks = DYNAMIC_POSITIONING_TICKS;
     private int windowDynamicWidth = WINDOW_WIDTH;
@@ -371,6 +375,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
         this.loreColourTransitionTicks += 1;
         this.loreOpacityTransitionTicks += 1;
+
+        /* Glimmer wave calculation */
+        float glimmerProgress = ((this.minecraft.player.tickCount + delta) % GLIMMER_CYCLE_TICKS) / (float) GLIMMER_CYCLE_TICKS;
+        this.glimmerWaveCenterY = this.offsetY + (int) (glimmerProgress * (WINDOW_HEIGHT + GLIMMER_WAVE_HALF_HEIGHT * 2)) - GLIMMER_WAVE_HALF_HEIGHT;
     }
 
     @Override
@@ -492,55 +500,90 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
         // coloured lore
         if (ARGB.alpha(this.loreColour) > 0) {
-            lorecharRandom = RandomSource.create(uuid.getMostSignificantBits() ^ uuid.getLeastSignificantBits());
+            // Base 1-pass lore glow
+            this.renderLoreGlow(gui, offsetX, offsetY, this.loreColour, uuid);
+
+            // Base non-glowing sprite & character layer
             gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_LORE_GRAYSCALE_SPRITE_LOCATION, offsetX, offsetY, this.windowDynamicWidth, WINDOW_HEIGHT, this.loreColour);
-            gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_LORE_GRAYSCALE_GLOW_SPRITE_LOCATION, offsetX, offsetY, this.windowDynamicWidth, WINDOW_HEIGHT, this.loreColour);
-            for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // the left column of characters
-                int letterIndex = lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT-1);
+            lorecharRandom = RandomSource.create(uuid.getMostSignificantBits() ^ uuid.getLeastSignificantBits());
+            for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // left column
+                int letterIndex = lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT - 1);
+                int charY = offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT + WINDOW_LORECHAR_GAP);
                 gui.blit(
-                  RenderPipelines.GUI_TEXTURED, 
-                  Quietus.IMCHAR_GUI_GRAYSCLALE_GLOW_LOCATION, 
-                  offsetX + WINDOW_LORECHAR_X, 
-                  offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
-                  letterIndex*Quietus.IMCHAR_SPRITE_WIDTH, 
-                  0.0f, 
-                  Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
-                  this.loreColour
-                );
-                gui.blit(
-                  RenderPipelines.GUI_TEXTURED, 
-                  Quietus.IMCHAR_GUI_GRAYSCLALE_LOCATION, 
-                  offsetX + WINDOW_LORECHAR_X, 
-                  offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
-                  letterIndex*Quietus.IMCHAR_SPRITE_WIDTH, 
-                  0.0f, 
-                  Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
-                  this.loreColour
+                    RenderPipelines.GUI_TEXTURED, 
+                    Quietus.IMCHAR_GUI_GRAYSCLALE_LOCATION, 
+                    offsetX + WINDOW_LORECHAR_X, 
+                    charY, 
+                    letterIndex * Quietus.IMCHAR_SPRITE_WIDTH, 
+                    0.0f, 
+                    Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+                    this.loreColour
                 );
             }
-            for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // the right column of characters
-                int letterIndex = lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT-1);
+            for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // right column
+                int letterIndex = lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT - 1);
+                int charY = offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT + WINDOW_LORECHAR_GAP);
                 gui.blit(
-                  RenderPipelines.GUI_TEXTURED, 
-                  Quietus.IMCHAR_GUI_GRAYSCLALE_GLOW_LOCATION, 
-                  offsetX + this.windowDynamicWidth - WINDOW_LORECHAR_X - Quietus.IMCHAR_SPRITE_WIDTH, 
-                  offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
-                  letterIndex*Quietus.IMCHAR_SPRITE_WIDTH, 
-                  0.0f, 
-                  Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
-                  this.loreColour
-                );
-                gui.blit(
-                  RenderPipelines.GUI_TEXTURED, 
-                  Quietus.IMCHAR_GUI_GRAYSCLALE_LOCATION, 
-                  offsetX + this.windowDynamicWidth - WINDOW_LORECHAR_X - Quietus.IMCHAR_SPRITE_WIDTH, 
-                  offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
-                  letterIndex*Quietus.IMCHAR_SPRITE_WIDTH, 
-                  0.0f, 
-                  Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
-                  this.loreColour
+                    RenderPipelines.GUI_TEXTURED, 
+                    Quietus.IMCHAR_GUI_GRAYSCLALE_LOCATION, 
+                    offsetX + this.windowDynamicWidth - WINDOW_LORECHAR_X - Quietus.IMCHAR_SPRITE_WIDTH, 
+                    charY, 
+                    letterIndex * Quietus.IMCHAR_SPRITE_WIDTH, 
+                    0.0f, 
+                    Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+                    this.loreColour
                 );
             }
+
+            // Gradual scissored multi-pass glimmer wave stack
+            int glimmerSteps = 4;
+            for (int step = 1; step <= glimmerSteps; step++) {
+                float factor = 1.0f - (float) (step - 1) / glimmerSteps; // 1.0 down to 0.25
+                int halfHeight = Math.max(1, Math.round(GLIMMER_WAVE_HALF_HEIGHT * factor));
+                int scissorTop = Math.max(offsetY, this.glimmerWaveCenterY - halfHeight);
+                int scissorBottom = Math.min(offsetY + WINDOW_HEIGHT, this.glimmerWaveCenterY + halfHeight);
+
+                if (scissorBottom > scissorTop) {
+                    gui.enableScissor(offsetX, scissorTop, offsetX + this.windowDynamicWidth, scissorBottom);
+                    this.renderLoreGlow(gui, offsetX, offsetY, this.loreColour, uuid);
+                    gui.disableScissor();
+                }
+            }
+        }
+    }
+
+    private void renderLoreGlow(GuiGraphicsExtractor gui, int offsetX, int offsetY, int color, UUID uuid) {
+        gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_LORE_GRAYSCALE_GLOW_SPRITE_LOCATION, offsetX, offsetY, this.windowDynamicWidth, WINDOW_HEIGHT, color);
+
+        RandomSource lorecharRandom = RandomSource.create(uuid.getMostSignificantBits() ^ uuid.getLeastSignificantBits());
+        for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // left column
+            int letterIndex = lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT - 1);
+            int charY = offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT + WINDOW_LORECHAR_GAP);
+            gui.blit(
+                RenderPipelines.GUI_TEXTURED, 
+                Quietus.IMCHAR_GUI_GRAYSCLALE_GLOW_LOCATION, 
+                offsetX + WINDOW_LORECHAR_X, 
+                charY, 
+                letterIndex * Quietus.IMCHAR_SPRITE_WIDTH, 
+                0.0f, 
+                Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+                color
+            );
+        }
+
+        for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // right column
+            int letterIndex = lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT - 1);
+            int charY = offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT + WINDOW_LORECHAR_GAP);
+            gui.blit(
+                RenderPipelines.GUI_TEXTURED, 
+                Quietus.IMCHAR_GUI_GRAYSCLALE_GLOW_LOCATION, 
+                offsetX + this.windowDynamicWidth - WINDOW_LORECHAR_X - Quietus.IMCHAR_SPRITE_WIDTH, 
+                charY, 
+                letterIndex * Quietus.IMCHAR_SPRITE_WIDTH, 
+                0.0f, 
+                Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+                color
+            );
         }
     }
 
