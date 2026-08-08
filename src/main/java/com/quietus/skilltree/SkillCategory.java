@@ -27,6 +27,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.StreamEncoder;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.resources.Identifier;
 
 
@@ -115,14 +116,16 @@ public class SkillCategory {
         Optional<ClientAsset.ResourceTexture> icon,
         Component name,
         Component description,
-        Prerequisites.DisplayInfo prerequisites
+        Prerequisites.DisplayInfo prerequisites,
+        int themeColour
     ) {
         public static final Codec<DisplayInfo> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
                 ClientAsset.ResourceTexture.CODEC.optionalFieldOf("icon").forGetter(DisplayInfo::icon),
                 ComponentSerialization.CODEC.fieldOf("name").forGetter(DisplayInfo::name),
                 ComponentSerialization.CODEC.fieldOf("description").forGetter(DisplayInfo::description),
-                Prerequisites.DisplayInfo.CODEC.fieldOf("prerequisites").forGetter(DisplayInfo::prerequisites)
+                Prerequisites.DisplayInfo.CODEC.fieldOf("prerequisites").forGetter(DisplayInfo::prerequisites),
+                ExtraCodecs.RGB_COLOR_CODEC.fieldOf("themeColour").forGetter(DisplayInfo::themeColour)
             ).apply(instance, DisplayInfo::new)
         );
 
@@ -138,6 +141,7 @@ public class SkillCategory {
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buffer, this.name);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buffer, this.description);
             Prerequisites.DisplayInfo.STREAM_CODEC.encode(buffer, this.prerequisites);
+            buffer.writeInt(this.themeColour);
         }
         private static DisplayInfo deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
             int i = buffer.readInt();
@@ -145,7 +149,8 @@ public class SkillCategory {
             Component name = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Component description = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Prerequisites.DisplayInfo prerequisitesDisplayInfo = Prerequisites.DisplayInfo.STREAM_CODEC.decode(buffer);
-            return new DisplayInfo(icon, name, description, prerequisitesDisplayInfo);
+            int themeColour = buffer.readInt();
+            return new DisplayInfo(icon, name, description, prerequisitesDisplayInfo, themeColour);
         }
     }
 
@@ -204,6 +209,9 @@ public class SkillCategory {
         return positioning.layout(nodes);
     }
 
+    public boolean hasNode(Identifier location) {
+        return this.nodes.containsKey(location);
+    }
     public @Nullable SkillTreeNode getNode(Identifier location) {
         return this.nodes.get(location);
     }
@@ -246,18 +254,20 @@ public class SkillCategory {
         return this.display;
     }
 
+    public Identifier getId() {
+        return this.id;
+    }
+
     @Override
     public int hashCode() {
-        return this.id.hashCode();
+        return Objects.hashCode(this.id);
     }
     @Override
     public boolean equals(Object other) {
         if (this == other) {
             return true;
         } else if (other instanceof SkillCategory otherCategory) {
-            if (this.id == otherCategory.id) {
-                return true;
-            }
+            return Objects.equals(this.id, otherCategory.id);
         }
         return false;
     }

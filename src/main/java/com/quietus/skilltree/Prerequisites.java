@@ -398,42 +398,44 @@ public record Prerequisites(
             Optional<Identifier> par = Optional.ofNullable(prerequisites.parents.get(this.key));
             SkillTreeNode parNode = par.isPresent() ? skillTree.getNode(par.get()) : null;
             
-            Component advComp = Optional.ofNullable(parNode)
+            Component parComp = Optional.ofNullable(parNode)
                 .map(n -> n.getSkillPoint().display()) 
                 .flatMap(display -> display)
                 .map(info -> info.header())
                 .orElseGet(() -> parNode != null 
                     ? SkillPoint.DisplayInfo.FUNC_DEFAULT_HEADING.apply(parNode.getId().toLanguageKey())
                     : null);
-            Component parComp = prereqDisplay.isPresent() ? prereqDisplay.get().advancements.get(this.key) : null;
+            Component advComp = prereqDisplay.isPresent() ? prereqDisplay.get().advancements.get(this.key) : null;
 
-            MutableComponent advLine = null;
-            if (advComp != null) {
+            MutableComponent parentNodeLine = null;
+            if (parComp != null || prerequisites.parents.containsKey(this.key)) {
                 Component symb = completion.parents.containsKey(this.key) ?
                     SkillTreeInfoScreen.statusSymbol(completion.parents.get(this.key)) 
                     : SkillTreeInfoScreen.statusSymbol(false);
-                advLine = Component.empty().append(symb).append(Component.literal(" ")).append(advComp);
+                Component text = parComp != null ? parComp : Component.empty();
+                parentNodeLine = Component.empty().append(symb).append(Component.literal(" ")).append(text);
             }
-            MutableComponent parLine = null;
-            if (parComp != null) {
+            MutableComponent advancementLine = null;
+            if (advComp != null || prerequisites.advancements.containsKey(this.key)) {
                 Component symb = completion.advancements.containsKey(this.key) ?
                     SkillTreeInfoScreen.statusSymbol(completion.advancements.get(this.key)) 
                     : SkillTreeInfoScreen.statusSymbol(false);
-                parLine = Component.empty().append(symb).append(Component.literal(" ")).append(parComp);
+                Component text = advComp != null ? advComp : Component.empty();
+                advancementLine = Component.empty().append(symb).append(Component.literal(" ")).append(text);
             }
 
-            if (advLine != null && parLine != null) {
+            if (parentNodeLine != null && advancementLine != null) {
                 return Component.literal(indent_space).withStyle(textStyle)
-                    .append(advLine)
+                    .append(parentNodeLine)
                     .append(Component.literal("\n"))
                     .append(Component.literal(indent_space))
-                    .append(parLine);
-            } else if (advLine != null) {
+                    .append(advancementLine);
+            } else if (parentNodeLine != null) {
                 return Component.literal(indent_space).withStyle(textStyle)
-                    .append(advLine);
-            } else if (parLine != null) {
+                    .append(parentNodeLine);
+            } else if (advancementLine != null) {
                 return Component.literal(indent_space).withStyle(textStyle)
-                    .append(parLine);
+                    .append(advancementLine);
             } else {
                 return null;
             }
@@ -455,7 +457,10 @@ public record Prerequisites(
                 .append(status).append(Component.literal(" "))
                 .append(Component.translatable(Requirements.KEY_DESCRIPTION_TEXT_ALLOF));
             for (RequirementCondition child : this.children) {
-                out.append(Component.literal("\n")).append(child.makeDescriptionText(indent+1, prerequisites, prereqDisplay, skillTree, completion, textStyle));
+                Component childText = child.makeDescriptionText(indent+1, prerequisites, prereqDisplay, skillTree, completion, textStyle);
+                if (childText != null) {
+                    out.append(Component.literal("\n")).append(childText);
+                }
             }
             return out;
         }
@@ -477,10 +482,14 @@ public record Prerequisites(
                 .append(status).append(Component.literal(" "))
                 .append(Component.translatable(Requirements.KEY_DESCRIPTION_TEXT_ANYOF));
             for (RequirementCondition child : this.children) {
-                out.append(Component.literal("\n")).append(child.makeDescriptionText(indent+1, prerequisites, prereqDisplay, skillTree, completion, textStyle));
+                Component childText = child.makeDescriptionText(indent+1, prerequisites, prereqDisplay, skillTree, completion, textStyle);
+                if (childText != null) {
+                    out.append(Component.literal("\n")).append(childText);
+                }
             }
             return out;
         }
+        
         
     }
 
