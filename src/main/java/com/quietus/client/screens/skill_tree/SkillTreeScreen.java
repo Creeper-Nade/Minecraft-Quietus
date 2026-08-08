@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
+import com.quietus.Quietus;
 import com.quietus.client.QuietusKeyBindings;
 import com.quietus.client.handler.ClientSkillTreePayloadHandler;
 import com.quietus.client.multiplayer.ClientSkillTree;
@@ -52,21 +54,36 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 
 public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final Identifier WINDOW_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/window");
+    private static final Identifier WINDOW_LORE_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/window_lore");
+    private static final Identifier WINDOW_LORE_GRAYSCALE_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/window_lore_grayscale");
+    private static final Identifier WINDOW_LORE_GRAYSCALE_GLOW_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/window_lore_grayscale_glow");
+    private static final Identifier WINDOW_LORECHAR_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/imchar_skilltree.png");
+
+    private static final int WINDOW_LORE_COLOUR = 0xFF343434;
 
     public static final int WINDOW_WIDTH = 248;
     public static final int WINDOW_HEIGHT = 186;
     public static final int WINDOW_WIDTH_INFO_CHANGE = -84;
+    private static final int WINDOW_TITLE_X = 18;
+    private static final int WINDOW_TITLE_Y = 6;
     private static final int WINDOW_INSIDE_X = 9;
     private static final int WINDOW_INSIDE_Y = 9;
     private static final int WINDOW_INSIDE_TOP_Y = 18;
     protected static final int WINDOW_INSIDE_WIDTH = WINDOW_WIDTH-WINDOW_INSIDE_X*2;
     protected static final int WINDOW_INSIDE_HEIGHT = WINDOW_HEIGHT-WINDOW_INSIDE_Y-WINDOW_INSIDE_TOP_Y;
+    private static final int WINDOW_LORECHAR_X = 3; // x from sides of the screen that lore characters should not render in
+    private static final int WINDOW_LORECHAR_TOP_Y = 23; // y from top of the screen that lore characters should not render in
+    private static final int WINDOW_LORECHAR_BOTTOM_Y = 13; // y from bottom of the screen that lore characters should not render in
+    private static final int WINDOW_LORECHAR_GAP = 1;
+    private static final int WINDOW_LORECHAR_VERTICAL_AMOUNT = Math.floorDiv((WINDOW_HEIGHT - WINDOW_LORECHAR_TOP_Y - WINDOW_LORECHAR_BOTTOM_Y), (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP)); // amount of lore chars that will be rendered, given the bounds
     private static final int GAP_WINDOW_INFO = 7;
     
     protected static final int WIDGET_MARGIN_WIDTH = 6;
@@ -78,12 +95,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     
     private static final int INFO_DYNAMIC_OFFSET_FROM_CENTER = - (GAP_WINDOW_INFO + SkillTreeInfoScreen.WIDTH)/2;
     private static final int DYNAMIC_POSITIONING_TICKS = 40;
+    private static final int DYNAMIC_LORE_COLOUR_TICKS = 20;
     
     private static final double TAB_DYNAMIC_HIDE_OFFSET = SkillTreeTab.TAB_DISPLAY_WIDTH - 3;
     private static final double GRID_CENTER_OFFSET = - (SkillTreeTab.TAB_DISPLAY_WIDTH - 3) / 2.0;
 
-    private int infoDynamicTicks = DYNAMIC_POSITIONING_TICKS;
-    private int gridDynamicTicks = DYNAMIC_POSITIONING_TICKS;
+    private int infoAnimTicks = DYNAMIC_POSITIONING_TICKS;
+    private int gridAnimTicks = DYNAMIC_POSITIONING_TICKS;
     private int windowDynamicWidth = WINDOW_WIDTH;
     private int windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH;
     private int windowDynamicOffset = 0;
@@ -97,6 +115,14 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private float infoDynamicOffsetF = 0.0f;
     private float tabDynamicOffsetF = 0.0f;
     private float gridCenterOffsetF = 0.0f;
+
+    private int loreColour = 0x00FFFFFF;
+    private int loreColourTransitionTicks = DYNAMIC_LORE_COLOUR_TICKS;
+    private int loreOpacityTransitionTicks = DYNAMIC_LORE_COLOUR_TICKS;
+    private int lastLoreColour = 0xFFFFFFFF;
+    private float lastLoreOpacity = 0.0f;
+    private int targetLoreColour = 0xFFFFFFFF;
+    private float targetLoreOpacity = 0.0f;
 
     private int offsetX, offsetY, offsetXTree, offsetYTree, offsetXInfo, offsetYInfo = 0;
     private float offsetXFTree, offsetXFInfo = 0.0f;
@@ -194,7 +220,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         });
         if (!this.tabs.isEmpty()) {
             if (this.selectedTab == null) {
-                this.selectedTab = this.tabs.values().iterator().next();
+                this.setInitialSelectedTab(this.tabs.values().iterator().next());
             } else { // already has selected tab
                 SkillTreeTab rebuiltSelectedTab = this.tabs.get(this.selectedTab.getCategory().getId());
                 if (rebuiltSelectedTab == null) {
@@ -249,29 +275,29 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     private void renderTick(float delta) {
         /* Animations */
+        this.infoAnimTicks = this.selectedNode == null ?
+            Math.min(this.infoAnimTicks+1, DYNAMIC_POSITIONING_TICKS)
+            : Math.max(this.infoAnimTicks-1, 0);
         // int
-        this.infoDynamicTicks = this.selectedNode == null ?
-            Math.min(this.infoDynamicTicks+1, DYNAMIC_POSITIONING_TICKS)
-            : Math.max(this.infoDynamicTicks-1, 0);
-        this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
-        this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round((1.0d - (double)this.infoDynamicTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
+        this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round((1.0d - (double)this.infoAnimTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
+        this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round((1.0d - (double)this.infoAnimTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
         
-        this.windowDynamicOffset = (int)Math.round(calcReciprocal((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.infoDynamicTicks, this.selectedNode == null));
+        this.windowDynamicOffset = (int)Math.round(calcReciprocal((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.infoAnimTicks, this.selectedNode == null));
 
-        this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round(calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicks, this.selectedNode == null));
-        this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round(calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicks, this.selectedNode == null));
+        this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round(calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoAnimTicks, this.selectedNode == null));
+        this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round(calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoAnimTicks, this.selectedNode == null));
         
-        this.gridDynamicTicks = this.tabsGridLayout == null ?
-            Math.min(this.gridDynamicTicks + 1, DYNAMIC_POSITIONING_TICKS)
-            : Math.max(this.gridDynamicTicks - 1, 0);
+        this.gridAnimTicks = this.tabsGridLayout == null ?
+            Math.min(this.gridAnimTicks + 1, DYNAMIC_POSITIONING_TICKS)
+            : Math.max(this.gridAnimTicks - 1, 0);
 
-        this.tabDynamicOffset = (int)Math.round(calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicks, this.tabsGridLayout == null));
-        this.gridCenterOffset = (int)Math.round(calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 30.0d, this.gridDynamicTicks, this.tabsGridLayout == null));
+        this.tabDynamicOffset = (int)Math.round(calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridAnimTicks, this.tabsGridLayout == null));
+        this.gridCenterOffset = (int)Math.round(calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 30.0d, this.gridAnimTicks, this.tabsGridLayout == null));
 
         // float - for smoother offset animation
         this.infoDynamicTicksF = this.selectedNode == null ?
-            Math.min(this.infoDynamicTicks-1+delta, DYNAMIC_POSITIONING_TICKS)
-            : Math.max(this.infoDynamicTicks+1-delta, 0);
+            Math.min(this.infoAnimTicks-1+delta, DYNAMIC_POSITIONING_TICKS)
+            : Math.max(this.infoAnimTicks+1-delta, 0);
         this.infoWindowDynamicWidthF = WINDOW_WIDTH + (float)((1.0d - this.infoDynamicTicksF / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
         this.infoWindowInsideDynamicWidthF = WINDOW_INSIDE_WIDTH + (float)((1.0d - this.infoDynamicTicksF / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
         
@@ -281,8 +307,8 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.infoWindowInsideDynamicWidthF = WINDOW_INSIDE_WIDTH + (float)calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicksF, this.selectedNode == null);
 
         this.gridDynamicTicksF = this.tabsGridLayout == null ?
-            Math.min(this.gridDynamicTicks - 1 + delta, DYNAMIC_POSITIONING_TICKS)
-            : Math.max(this.gridDynamicTicks + 1 - delta, 0);
+            Math.min(this.gridAnimTicks - 1 + delta, DYNAMIC_POSITIONING_TICKS)
+            : Math.max(this.gridAnimTicks + 1 - delta, 0);
 
         this.tabDynamicOffsetF = (float)calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
         this.gridCenterOffsetF = (float)calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 30.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
@@ -334,6 +360,17 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
                 this.offsetYInfo += Math.max(0, offsetY - (this.offsetYInfo - selectedWidgetInfo.getTopHeight())); // clamps the top if InfoScreen has higher top
             }
         }
+
+        /* Lore colour */
+        float linearColourT = Math.max(0.0f, Math.min(1.0f, (float) this.loreColourTransitionTicks / DYNAMIC_LORE_COLOUR_TICKS));
+        float smoothColourT = linearColourT * linearColourT * (3.0f - 2.0f*linearColourT);
+        this.loreColour = ARGB.linearLerp(smoothColourT, this.lastLoreColour, this.targetLoreColour);
+        float linearOpacityT = Math.max(0.0f, Math.min(1.0f, (float) this.loreOpacityTransitionTicks / DYNAMIC_LORE_COLOUR_TICKS));
+        float smoothOpacityT = linearOpacityT * linearOpacityT * (3.0f - 2.0f*linearOpacityT);
+        this.loreColour = ARGB.color((float)Mth.lerp(smoothOpacityT, this.lastLoreOpacity, this.targetLoreOpacity), this.loreColour);
+
+        this.loreColourTransitionTicks += 1;
+        this.loreOpacityTransitionTicks += 1;
     }
 
     @Override
@@ -395,6 +432,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     }
 
     private void renderTreeWindow(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta, int offsetX, int offsetY) {
+        /* render the tab's skill tree or tabs selection grid */
         if (this.tabsGridLayout != null) { // tabs selection grid
             gui.enableScissor(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT);
             gui.pose().translate(-this.offsetX, 0.0f);
@@ -414,7 +452,96 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
                 gui.pose().translate(+this.offsetX, 0.0f);
             }
         }
+
+        /* render the window frame */
+        // base frame
         gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_SPRITE_LOCATION, offsetX, offsetY, this.windowDynamicWidth, WINDOW_HEIGHT);
+        // title 
+        if (this.selectedTab != null && this.tabsGridLayout == null) {
+            gui.text(this.font, this.selectedTab.getName(), offsetX + WINDOW_TITLE_X, offsetY + WINDOW_TITLE_Y, this.loreColour);
+        }
+        RandomSource lorecharRandom;
+        // base lore
+        UUID uuid = this.minecraft.player.getUUID();
+        lorecharRandom = RandomSource.create(uuid.getMostSignificantBits() ^ uuid.getLeastSignificantBits());
+        gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_LORE_GRAYSCALE_SPRITE_LOCATION, offsetX, offsetY, this.windowDynamicWidth, WINDOW_HEIGHT, WINDOW_LORE_COLOUR);
+        gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_LORE_GRAYSCALE_SPRITE_LOCATION, offsetX, offsetY, this.windowDynamicWidth, WINDOW_HEIGHT, this.loreColour);
+        for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // the left column of characters
+            gui.blit(
+              RenderPipelines.GUI_TEXTURED, 
+              Quietus.IMCHAR_GUI_GRAYSCLALE_LOCATION, 
+              offsetX + WINDOW_LORECHAR_X, 
+              offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
+              lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT-1)*Quietus.IMCHAR_SPRITE_WIDTH, 
+              0.0f, 
+              Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+              WINDOW_LORE_COLOUR
+            );
+        }
+        for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // the right column of characters
+            gui.blit(
+              RenderPipelines.GUI_TEXTURED, 
+              Quietus.IMCHAR_GUI_GRAYSCLALE_LOCATION, 
+              offsetX + this.windowDynamicWidth - WINDOW_LORECHAR_X - Quietus.IMCHAR_SPRITE_WIDTH, 
+              offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
+              lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT-1)*Quietus.IMCHAR_SPRITE_WIDTH, 
+              0.0f, 
+              Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+              WINDOW_LORE_COLOUR
+            );
+        }
+        // coloured lore
+        if (ARGB.alpha(this.loreColour) > 0) {
+            lorecharRandom = RandomSource.create(uuid.getMostSignificantBits() ^ uuid.getLeastSignificantBits());
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_LORE_GRAYSCALE_SPRITE_LOCATION, offsetX, offsetY, this.windowDynamicWidth, WINDOW_HEIGHT, this.loreColour);
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, WINDOW_LORE_GRAYSCALE_GLOW_SPRITE_LOCATION, offsetX, offsetY, this.windowDynamicWidth, WINDOW_HEIGHT, this.loreColour);
+            for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // the left column of characters
+                int letterIndex = lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT-1);
+                gui.blit(
+                  RenderPipelines.GUI_TEXTURED, 
+                  Quietus.IMCHAR_GUI_GRAYSCLALE_GLOW_LOCATION, 
+                  offsetX + WINDOW_LORECHAR_X, 
+                  offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
+                  letterIndex*Quietus.IMCHAR_SPRITE_WIDTH, 
+                  0.0f, 
+                  Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+                  this.loreColour
+                );
+                gui.blit(
+                  RenderPipelines.GUI_TEXTURED, 
+                  Quietus.IMCHAR_GUI_GRAYSCLALE_LOCATION, 
+                  offsetX + WINDOW_LORECHAR_X, 
+                  offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
+                  letterIndex*Quietus.IMCHAR_SPRITE_WIDTH, 
+                  0.0f, 
+                  Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+                  this.loreColour
+                );
+            }
+            for (int i = 0; i < WINDOW_LORECHAR_VERTICAL_AMOUNT; i++) { // the right column of characters
+                int letterIndex = lorecharRandom.nextInt(0, Quietus.IMCHAR_AMOUNT-1);
+                gui.blit(
+                  RenderPipelines.GUI_TEXTURED, 
+                  Quietus.IMCHAR_GUI_GRAYSCLALE_GLOW_LOCATION, 
+                  offsetX + this.windowDynamicWidth - WINDOW_LORECHAR_X - Quietus.IMCHAR_SPRITE_WIDTH, 
+                  offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
+                  letterIndex*Quietus.IMCHAR_SPRITE_WIDTH, 
+                  0.0f, 
+                  Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+                  this.loreColour
+                );
+                gui.blit(
+                  RenderPipelines.GUI_TEXTURED, 
+                  Quietus.IMCHAR_GUI_GRAYSCLALE_LOCATION, 
+                  offsetX + this.windowDynamicWidth - WINDOW_LORECHAR_X - Quietus.IMCHAR_SPRITE_WIDTH, 
+                  offsetY + WINDOW_LORECHAR_TOP_Y + i * (Quietus.IMCHAR_HEIGHT+WINDOW_LORECHAR_GAP), 
+                  letterIndex*Quietus.IMCHAR_SPRITE_WIDTH, 
+                  0.0f, 
+                  Quietus.IMCHAR_SPRITE_WIDTH, Quietus.IMCHAR_SPRITE_HEIGHT, Quietus.IMCHAR_RESOURCE_WIDTH, Quietus.IMCHAR_RESOURCE_HEIGHT, 
+                  this.loreColour
+                );
+            }
+        }
     }
 
     private void renderInfoWindow(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta, int offsetX, int offsetY) {
@@ -649,6 +776,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
         this.tabsGridLayout = createdLayout;
         this.setSelectedNode(null);
+        this.changeLoreOpacity(0.0f);
+    }
+    protected void closeTabsSelectionGrid() {
+        this.setSelectedTab(this.selectedTab.getId());
     }
 
     protected void addWidgetScreen(SkillTreeWidget widget, SkillTreeWidgetScreen screen) {
@@ -693,30 +824,52 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
 
         /* reorder tabs with given order (unmentioned tabs are placed at the end) */
-        Map<Identifier, SkillTreeTab> tempMap = new LinkedHashMap<>();
+        Map<Identifier, SkillTreeTab> reorderedMap = new LinkedHashMap<>();
         for (Identifier key : ClientSkillTreePayloadHandler.getTabsOrder()) {
             if (this.tabs.containsKey(key)) {
-                tempMap.put(key, this.tabs.get(key));
+                reorderedMap.put(key, this.tabs.get(key));
             }
         }
-        if (tempMap.size() < this.tabs.size()) {
+        if (reorderedMap.size() < this.tabs.size()) {
             for (Map.Entry<Identifier, SkillTreeTab> entry : this.tabs.entrySet()) {
-                if (!tempMap.containsKey(entry.getKey())) {
-                    tempMap.put(entry.getKey(), entry.getValue());
+                if (!reorderedMap.containsKey(entry.getKey())) {
+                    reorderedMap.put(entry.getKey(), entry.getValue());
                 }
             }
         }
         this.tabs.clear();
-        this.tabs.putAll(tempMap);
+        this.tabs.putAll(reorderedMap);
 
         /* set selected tab */
-        if (ClientSkillTreePayloadHandler.getTabSelected() != null)
-            this.selectedTab = this.tabs.get(ClientSkillTreePayloadHandler.getTabSelected());
+        SkillTreeTab newSelected;
+        if (ClientSkillTreePayloadHandler.getTabSelected() != null) {
+            newSelected = this.tabs.get(ClientSkillTreePayloadHandler.getTabSelected());
+        } else {
+            newSelected = reorderedMap.entrySet().iterator().next().getValue();
+        }
+        this.setInitialSelectedTab(newSelected);
     }
 
+    protected void setInitialSelectedTab(@Nullable SkillTreeTab tab) {
+        if (tab != null) {
+            this.lastLoreColour = tab.getThemeColour();
+            this.targetLoreColour = tab.getThemeColour();
+            this.lastLoreOpacity = 0.0f;
+            this.targetLoreOpacity = 1.0f;
+            this.loreOpacityTransitionTicks = 0;
+        }
+        this.selectedTab = tab;
+    }
     protected void setSelectedTab(@Nullable Identifier tabId) {
         this.tabsGridLayout = null;
-        this.selectedTab = this.tabs.get(tabId);
+        SkillTreeTab tab = this.tabs.get(tabId);
+        if (tab != null) {
+            this.changeLoreColour(tab.getThemeColour());
+            this.changeLoreOpacity(1.0f);
+        } else {
+            this.changeLoreOpacity(0.0f);
+        }
+        this.selectedTab = tab;
     }
     protected void setSelectedTabAndTop(@Nullable Identifier tabId) {
         MapUtil.moveEntryToFirst(this.tabs, tabId);
@@ -725,8 +878,17 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     public @Nullable SkillTreeTab getSelectedTab() {
         return this.selectedTab;
     }
-    protected void closeTabsSelectionGrid() {
-        this.tabsGridLayout = null;
+    
+
+    private void changeLoreColour(int colour) {
+        this.loreColourTransitionTicks = 0;
+        this.lastLoreColour = this.targetLoreColour;
+        this.targetLoreColour = colour;
+    }
+    private void changeLoreOpacity(float opacity) {
+        this.loreOpacityTransitionTicks = 0;
+        this.lastLoreOpacity = this.targetLoreOpacity;
+        this.targetLoreOpacity = opacity;
     }
 
     /* SkillCategory.Listener method */

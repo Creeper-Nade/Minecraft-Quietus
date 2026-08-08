@@ -26,6 +26,7 @@ import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
@@ -61,6 +62,26 @@ public class Quietus
 {
     // Define mod id
     public static final String MODID = "quietus";
+
+    // Imchar
+    public static final int IMCHAR_WIDTH = 3;
+    public static final int IMCHAR_HEIGHT = 4;
+    public static final int IMCHAR_SPRITE_WIDTH = 5;
+    public static final int IMCHAR_SPRITE_HEIGHT = 6;
+    public static final int IMCHAR_RESOURCE_WIDTH = 145;
+    public static final int IMCHAR_RESOURCE_HEIGHT = 6;
+    public static final int IMCHAR_AMOUNT = 29; // there are currently 29 imchar characters
+    public static final Identifier IMCHAR_GUI_GRAYSCLALE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/imchar/grayscale.png");
+    public static final Identifier IMCHAR_GUI_GRAYSCLALE_GLOW_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/imchar/grayscale_glow.png");
+    public static final int IMCHAR_SMALL_WIDTH = 3;
+    public static final int IMCHAR_SMALL_HEIGHT = 3;
+    public static final int IMCHAR_SMALL_SPRITE_WIDTH = 5;
+    public static final int IMCHAR_SMALL_SPRITE_HEIGHT = 5;
+    public static final int IMCHAR_SMALL_RESOURCE_WIDTH = 145;
+    public static final int IMCHAR_SMALL_RESOURCE_HEIGHT = 5;
+    public static final int IMCHAR_SMALL_AMOUNT = 29; // there are currently 29 imchar characters
+    public static final Identifier IMCHAR_SMALL_GUI_GRAYSCLALE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/imchar/small_grayscale.png");
+    public static final Identifier IMCHAR_SMALL_GUI_GRAYSCLALE_GLOW_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/imchar/small_grayscale_glow.png");
 
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();

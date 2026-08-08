@@ -162,11 +162,7 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         } else {
             gui.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_SELECTED_LOCATION, x, y, 0.0f, 0.0f, 38, 28, 38, 28);
         }
-        if (this.minecraft.getResourceManager().getResource(this.icon).isPresent()) {
-            gui.blit(RenderPipelines.GUI_TEXTURED, this.icon, x+5, y+5, 0.0f, 0.0f, 18, 18, 18, 18);
-        } else {
-            gui.blit(RenderPipelines.GUI_TEXTURED, DEFAULT_ICON, x+5, y+5, 0.0f, 0.0f, 18, 18, 18, 18);
-        }
+        gui.blit(RenderPipelines.GUI_TEXTURED, this.getIconLocation(), x+5, y+5, 0.0f, 0.0f, 18, 18, 18, 18);
     }
 
     public void drawTreeWidgetsAndEdges(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
@@ -358,12 +354,12 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
             // fill
             gui.blitSprite(RenderPipelines.GUI_TEXTURED, TAB_ELEMENT_SPRITE_LOCATION, x, y, this.width, this.height);
             // icon
-            gui.blit(RenderPipelines.GUI_TEXTURED, SkillTreeTab.this.icon, iconX, iconY, 0.0f, 0.0f, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT);
+            gui.blit(RenderPipelines.GUI_TEXTURED, SkillTreeTab.this.getIconLocation(), iconX, iconY, 0.0f, 0.0f, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT);
             // text
-            GuiGraphicsExtractorUtil.drawCenteredWordWrap(gui, font, text, textCenterX, textY, textMaxWidth, TEXT_LINE_SPACING, ARGB.opaque(SkillTreeTab.this.display.themeColour()));
+            GuiGraphicsExtractorUtil.drawCenteredWordWrap(gui, font, text, textCenterX, textY, textMaxWidth, TEXT_LINE_SPACING, ARGB.opaque(SkillTreeTab.this.getThemeColour()));
 
             // cursor
-            if (this.isHovered() && this.isActive()) {
+            if (this.isHovered() && this.isActive() && !SkillTreeTab.this.screen.isDragging()) {
                 gui.requestCursor(CursorTypes.POINTING_HAND);
             }
         }
@@ -402,7 +398,7 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
 
         @Override
         public void playDownSound(SoundManager soundManager) {
-            soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            //soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
 
         @Override
@@ -427,6 +423,17 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     }
     public Identifier getId() {
         return this.category.getId();
+    }
+    public Component getName() {
+        return this.display.name();
+    }
+    public Identifier getIconLocation() {
+        return this.minecraft.getResourceManager().getResource(this.icon).isPresent() ?
+          this.icon :
+          DEFAULT_ICON;
+    }
+    public int getThemeColour() {
+        return this.display.themeColour();
     }
 
     public SkillTreeScreen getScreen() {
