@@ -38,6 +38,8 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     protected static final int TAB_DISPLAY_HEIGHT = 28;
     protected static final int TAB_ICON_WIDTH = 18;
     protected static final int TAB_ICON_HEIGHT = 18;
+    private static final int TAB_BACKGROUND_TILE_WIDTH = 32;
+    private static final int TAB_BACKGROUND_TILE_HEIGHT = 32;
     private static final Identifier TAB_DISPLAY_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/tab.png");
     private static final Identifier TAB_DISPLAY_SELECTED_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/tab_selected.png");
     private static final Identifier TAB_DISPLAY_HOVERED_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/tab_hovered.png");
@@ -183,7 +185,26 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     }
 
     public void drawTreeBackground(GuiGraphicsExtractor gui, int offsetX, int offsetY, int width, int height, int mouseX, int mouseY, float delta) {
-        gui.fill(offsetX, offsetY, offsetX+width, offsetY+height, 0x80FFFFFF); // TODO: temporary background, needs to be properly textured per tab
+        gui.enableScissor(offsetX, offsetY, offsetX + width, offsetY + height);
+        if (this.display.background().isPresent()) {
+            Identifier bgLocation = this.display.background().get();
+            int tileOffsetX = Math.floorMod((int) Math.floor(this.treeScrollX), TAB_BACKGROUND_TILE_WIDTH);
+            int tileOffsetY = Math.floorMod((int) Math.floor(this.treeScrollY), TAB_BACKGROUND_TILE_HEIGHT);
+
+            int startX = offsetX + tileOffsetX - TAB_BACKGROUND_TILE_WIDTH;
+            int startY = offsetY + tileOffsetY - TAB_BACKGROUND_TILE_HEIGHT;
+            int endX = offsetX + width;
+            int endY = offsetY + height;
+
+            for (int px = startX; px < endX; px += TAB_BACKGROUND_TILE_WIDTH) {
+                for (int py = startY; py < endY; py += TAB_BACKGROUND_TILE_HEIGHT) {
+                    gui.blit(RenderPipelines.GUI_TEXTURED, bgLocation, px, py, 0.0f, 0.0f, TAB_BACKGROUND_TILE_WIDTH, TAB_BACKGROUND_TILE_HEIGHT, TAB_BACKGROUND_TILE_WIDTH, TAB_BACKGROUND_TILE_HEIGHT);
+                }
+            }
+        } else {
+            gui.fill(offsetX, offsetY, offsetX + width, offsetY + height, SkillTreeScreen.WINDOW_BACKGROUND_COLOUR);
+        }
+        gui.disableScissor();
     }
 
     private void drawTreeEdges(GuiGraphicsExtractor guiGraphicsExtractor, int offsetX, int offsetY) {

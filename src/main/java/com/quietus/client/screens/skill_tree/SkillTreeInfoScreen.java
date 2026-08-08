@@ -22,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 
 import static com.quietus.Quietus.MODID;
 
@@ -368,7 +369,8 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         @Override
         protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
-            this.state.draw(gui, this.getX(), this.getY(), this.isHovered() && this.isActive(), this.progress.times(), this.progress.maxAmount(), this.font);
+            int themeColour = ARGB.opaque(this.screen.widget.getTab().getThemeColour());
+            this.state.draw(gui, this.getX(), this.getY(), this.isHovered() && this.isActive(), this.progress.times(), this.progress.maxAmount(), this.font, themeColour);
         }
 
         public void updateState(SkillPointProgress.ClientData progress, boolean unlocked) {
@@ -442,15 +444,15 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             }
         }
 
-        private void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font) {
+        private void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font, int themeColour) {
             Identifier loc = (isHovered && this.hasHover) ? this.spriteLocation.withPath(this.spriteLocation.getPath() + "_hovered") : this.spriteLocation;
             if (this.doDrawLines && currentProgress > 0) {
                 int innerWidth = UpgradeButton.WIDTH - 2 * UpgradeButton.INSIDE_X;
                 int innerHeight = UpgradeButton.HEIGHT - 2 * UpgradeButton.INSIDE_Y;
 
-                // Draw progress fill
+                // Draw progress fill tinted with tab theme colour
                 int fillWidth = (int) Math.round((double) innerWidth * currentProgress / maxProgress);
-                GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, UpgradeButton.FILL_LOCATION, offsetX + UpgradeButton.INSIDE_X, offsetY + UpgradeButton.INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight);
+                GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, UpgradeButton.FILL_LOCATION, offsetX + UpgradeButton.INSIDE_X, offsetY + UpgradeButton.INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight, themeColour);
 
                 // Draw vertical dividers
                 for (int i = 1; i < maxProgress; i++) {

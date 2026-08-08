@@ -59,7 +59,8 @@ ROOT
     ├── prerequisites <- Compound
     │   └── advancements <- Compound (optional)
     │       └── <criterion_key> <- Compound or String (JSON Text Component)
-    └── themeColour: Color (TAG_Int / TAG_String / TAG_List of TAG_Floats)
+    ├── themeColour: Color (TAG_Int / TAG_String / TAG_List of TAG_Floats)
+    └── background <- String (Resource Location) (optional)
 ```
 
 ### Fields
@@ -77,6 +78,7 @@ ROOT
   - **`prerequisites`**: (TAG_Compound) Display metadata for prerequisite criteria.
     - **`advancements`**: (TAG_Compound) *(Optional)* Maps prerequisite criterion keys to human-readable JSON Text Components shown in UI tooltips.
   - **`themeColour`**: (Color: TAG_Int / TAG_String / TAG_List of TAG_Floats) RGB color for the tab theme. Accepts a hex string (e.g., `"#FF5555"`), an integer color value (e.g., `16733525`), or an RGB float array (e.g., `[1.0, 0.33, 0.33]`).
+  - **`background`**: (TAG_String) *(Optional)* Resource location pointing to a 32x32 background tile texture (e.g., `"quietus:textures/gui/skill_tree/backgrounds/occult.png"`). If omitted, renders pure black background.
 
 ---
 

@@ -23,6 +23,8 @@ import com.quietus.util.layouts.VerticalEvenGridLayout;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.sounds.SoundManager;
+
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
@@ -67,6 +69,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final Identifier WINDOW_LORE_GRAYSCALE_GLOW_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/window_lore_grayscale_glow");
     private static final Identifier WINDOW_LORECHAR_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/imchar_skilltree.png");
 
+    protected static final int WINDOW_BACKGROUND_COLOUR = 0xFF242424;
     private static final int WINDOW_LORE_COLOUR = 0xFF343434;
 
     public static final int WINDOW_WIDTH = 248;
@@ -153,6 +156,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             }
         }
         @Override
+        public void playDownSound(SoundManager soundManager) {
+            //soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
+        @Override
         protected void updateWidgetNarration(NarrationElementOutput arg0) {
             // TODO Auto-generated method stub
         }
@@ -212,6 +219,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     }
 
     public void makeTabs() {
+        if (!this.tabs.isEmpty()) {
+            this.saveData();
+        }
         this.tabs.clear();
         ClientSkillTreePayloadHandler.getCategories().forEach((id, category) -> {
             TreePosition positioning = new TreePosition(SkillTreeWidget.ICON_WIDTH, SkillTreeWidget.ICON_WIDTH, WIDGET_MARGIN_WIDTH, WIDGET_MARGIN_HEIGHT, category.seed());
@@ -223,9 +233,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             category.setListener(this); // adds widgets to the tab via SkillCategory's listener
         });
         if (!this.tabs.isEmpty()) {
-            if (this.selectedTab == null) {
-                this.setInitialSelectedTab(this.tabs.values().iterator().next());
-            } else { // already has selected tab
+            if (this.selectedTab != null) { // already has selected tab
                 SkillTreeTab rebuiltSelectedTab = this.tabs.get(this.selectedTab.getCategory().getId());
                 if (rebuiltSelectedTab == null) {
                     LOGGER.info("The client has skill category {} selected but it exists no more!", this.selectedTab.getCategory().getId().toString());
@@ -443,10 +451,11 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         /* render the tab's skill tree or tabs selection grid */
         if (this.tabsGridLayout != null) { // tabs selection grid
             gui.enableScissor(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT);
+            gui.fill(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT, ARGB.color(0.8f, WINDOW_BACKGROUND_COLOUR));
             gui.pose().translate(-this.offsetX, 0.0f);
             this.tabsGridLayout.visitWidgets(element -> element.extractRenderState(gui, mouseX, mouseY, delta));
-            gui.disableScissor();
             gui.pose().translate(+this.offsetX, 0.0f);
+            gui.disableScissor();
             if (this.tabsGridLayout.equals(this.focusedDraggable) && this.isDragging() && this.tabsGridLayout.isScrolling()) {
                 gui.requestCursor(CursorTypes.RESIZE_NS);
             }
@@ -854,7 +863,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
         ClientSkillTreePayloadHandler.putTabsOrderAndSelected(
             this.tabs.entrySet().stream().map(entry -> entry.getKey()).collect(Collectors.toList()), 
-            this.selectedTab.getCategory().getId()
+            this.selectedTab != null ? this.selectedTab.getCategory().getId() : null
         );
     }
     protected void applyData() {
@@ -884,13 +893,18 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.tabs.putAll(reorderedMap);
 
         /* set selected tab */
-        SkillTreeTab newSelected;
-        if (ClientSkillTreePayloadHandler.getTabSelected() != null) {
-            newSelected = this.tabs.get(ClientSkillTreePayloadHandler.getTabSelected());
+        if (this.selectedTab != null && this.tabs.containsKey(this.selectedTab.getCategory().getId())) {
+            this.selectedTab = this.tabs.get(this.selectedTab.getCategory().getId());
         } else {
-            newSelected = reorderedMap.entrySet().iterator().next().getValue();
+            SkillTreeTab newSelected = null;
+            if (ClientSkillTreePayloadHandler.getTabSelected() != null) {
+                newSelected = this.tabs.get(ClientSkillTreePayloadHandler.getTabSelected());
+            }
+            if (newSelected == null && !this.tabs.isEmpty()) {
+                newSelected = reorderedMap.entrySet().iterator().next().getValue();
+            }
+            this.setInitialSelectedTab(newSelected);
         }
-        this.setInitialSelectedTab(newSelected);
     }
 
     protected void setInitialSelectedTab(@Nullable SkillTreeTab tab) {

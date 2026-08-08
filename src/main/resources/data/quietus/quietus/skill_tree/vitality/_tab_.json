@@ -16,6 +16,7 @@
         "prerequisites": {
 
         },
-        "themeColour": [0.0117647, 0.5686275, 0.0196078]
+        "themeColour": [0.0117647, 0.5686275, 0.0196078],
+        "background": "quietus:textures/gui/skill_tree/backgrounds/vitality.png"
     }
 }
