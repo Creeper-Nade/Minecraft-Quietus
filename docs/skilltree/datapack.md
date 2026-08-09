@@ -1,6 +1,8 @@
 # Skill Tree Data Pack Format
 
-Skill tree data packs allow creators to create custom skill trees.
+Skill trees, in categories and their nodes, as well as their displayed names, descriptions and icons, are configured using data files.
+
+Quietus will always read every datapack for valid skill trees, those which are loaded into the world, as the skill trees for every player.
 
 ---
 
@@ -24,7 +26,7 @@ data/
 ```
 
 ### Identifier Resolutions
-- **Category ID**: Formed by the category folder path relative to `quietus/skill_tree/`, i.e. the name of the folder is taken as path.  
+- **Category ID**: Formed by the category folder path relative to `quietus/skill_tree/`, i.e. the name of the folder is taken as path. 
   *Example:* `data/myskilltree/quietus/skill_tree/combat/_tab_.json` &rarr; `myskilltree:combat`
 - **Node ID**: Formed by the category folder path and the node file name (without `.json`).  
   *Example:* `data/quietus/quietus/skill_tree/combat/heavy_strike.json` &rarr; `quietus:combat/heavy_strike`
@@ -77,8 +79,8 @@ ROOT
   - **`description`**: (TAG_Compound or TAG_String) JSON Text Component for the category tab description.
   - **`prerequisites`**: (TAG_Compound) Display metadata for prerequisite criteria.
     - **`advancements`**: (TAG_Compound) *(Optional)* Maps prerequisite criterion keys to human-readable JSON Text Components shown in UI tooltips.
-  - **`themeColour`**: (Color: TAG_Int / TAG_String / TAG_List of TAG_Floats) RGB color for the tab theme. Accepts a hex string (e.g., `"#FF5555"`), an integer color value (e.g., `16733525`), or an RGB float array (e.g., `[1.0, 0.33, 0.33]`).
-  - **`background`**: (TAG_String) *(Optional)* Resource location pointing to a 32x32 background tile texture (e.g., `"quietus:textures/gui/skill_tree/backgrounds/occult.png"`). If omitted, renders pure black background.
+  - **`themeColour`**: (Color: TAG_Int / TAG_String / TAG_List of TAG_Floats) RGB color for the theme of the tab. Colours various parts of the skill tree GUI using the given colour, when this tab is selected. Accepts a hex string (e.g., `"#FF5555"`), an integer color value (e.g., `16733525`), or an RGB float array (e.g., `[1.0, 0.33, 0.33]`).
+  - **`background`**: (TAG_String) *(Optional)* Resource location pointing to a 32x32 background tile texture (e.g., `"quietus:textures/gui/skill_tree/backgrounds/occult.png"`). If omitted, renders an opaque dark background.
 
 ---
 

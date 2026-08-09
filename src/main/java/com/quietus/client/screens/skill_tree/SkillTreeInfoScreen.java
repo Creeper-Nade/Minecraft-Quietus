@@ -386,7 +386,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         @Override
         public void onClick(MouseButtonEvent event, boolean doubleClick) {
-            if (this.state == UpgradeButtonState.UNLOCK || this.state == UpgradeButtonState.UPGRADE) {
+            if (this.state == UpgradeButtonState.OBTAIN || this.state == UpgradeButtonState.UPGRADE) {
                 this.screen.sendRequestforUpgrade();
             }
         }
@@ -399,9 +399,9 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     }
 
     private enum UpgradeButtonState {
-        UNLOCK(
+        OBTAIN(
             Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/unlock"), 
-            "gui.skill_tree.upgrade_button.unlock",
+            "gui.skill_tree.upgrade_button.obtain",
             true, 
             false
         ),
@@ -438,13 +438,13 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         private static UpgradeButtonState get(boolean hasProgress, boolean isUnlocked) {
             if (isUnlocked) {
-                return hasProgress ? UPGRADE : UNLOCK;
+                return hasProgress ? UPGRADE : OBTAIN;
             } else {
                 return hasProgress ? LOCKED_UPGRADE : LOCKED;
             }
         }
 
-        private void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font, int themeColour) {
+        private void draw(GuiGraphicsExtractor gui, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font, int themeColour) {
             Identifier loc = (isHovered && this.hasHover) ? this.spriteLocation.withPath(this.spriteLocation.getPath() + "_hovered") : this.spriteLocation;
             if (this.doDrawLines && currentProgress > 0) {
                 int innerWidth = UpgradeButton.WIDTH - 2 * UpgradeButton.INSIDE_X;
@@ -452,17 +452,17 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
                 // Draw progress fill tinted with tab theme colour
                 int fillWidth = (int) Math.round((double) innerWidth * currentProgress / maxProgress);
-                GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, UpgradeButton.FILL_LOCATION, offsetX + UpgradeButton.INSIDE_X, offsetY + UpgradeButton.INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight, themeColour);
+                gui.blit(RenderPipelines.GUI_TEXTURED, UpgradeButton.FILL_LOCATION, offsetX + UpgradeButton.INSIDE_X, offsetY + UpgradeButton.INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight, themeColour);
 
                 // Draw vertical dividers
                 for (int i = 1; i < maxProgress; i++) {
                     int lineX = offsetX + UpgradeButton.INSIDE_X + (int) Math.round((double) i * innerWidth / maxProgress);
-                    GuiGraphicsExtractor.verticalLine(lineX, offsetY + UpgradeButton.INSIDE_Y, offsetY + UpgradeButton.HEIGHT - UpgradeButton.INSIDE_Y - 1, 0xFF000000);
+                    gui.verticalLine(lineX, offsetY + UpgradeButton.INSIDE_Y, offsetY + UpgradeButton.HEIGHT - UpgradeButton.INSIDE_Y - 1, 0xFF000000);
                 }
             }
-            GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, loc, offsetX, offsetY, UpgradeButton.WIDTH, UpgradeButton.HEIGHT);
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, loc, offsetX, offsetY, UpgradeButton.WIDTH, UpgradeButton.HEIGHT);
             ChatFormatting textFormat = this.hasHover ? ChatFormatting.WHITE : ChatFormatting.GRAY; 
-            GuiGraphicsExtractor.centeredText(font, (Component)Component.translatable(this.text, currentProgress, maxProgress).withStyle(textFormat), offsetX + UpgradeButton.WIDTH/2, offsetY + UpgradeButton.HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
+            gui.centeredText(font, (Component)Component.translatable(this.text, currentProgress, maxProgress).withStyle(textFormat), offsetX + UpgradeButton.WIDTH/2, offsetY + UpgradeButton.HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
         }
     }
 
