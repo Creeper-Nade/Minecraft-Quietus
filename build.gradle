@@ -155,7 +155,7 @@ dependencies {
     // GeckoLib and Curios are required at runtime. Bundle them as nested mod jars so
     // users only need to install Quietus. The ranges let NeoForge select one compatible
     // copy when another installed mod bundles either dependency as well.
-    jarJar(implementation("com.geckolib:geckolib-neoforge-${geckolibMinecraftVersion}")) {
+    jarJar(implementation("com.geckolib:geckolib-neoforge-${geckolibMinecraftVersion}:${geckolibVersion}")) {
         version {
             strictly geckolib_version_range
             prefer geckolibVersion
