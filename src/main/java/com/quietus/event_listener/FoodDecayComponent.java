@@ -66,31 +66,31 @@ public class FoodDecayComponent {
 
         
         // 蛋糕
-        event.modify(Items.CAKE, builder ->
+        event.modify(Items.CAKE, (builder, context, item) ->
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(256).convertsInto(QuietusItems.MOLD).build())
         );
         
         // stew
-        event.modify(Items.MUSHROOM_STEW, builder ->  // 蘑菇炖菜
+        event.modify(Items.MUSHROOM_STEW, (builder, context, item) ->  // 蘑菇炖菜
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(192).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
-        event.modify(Items.BEETROOT_SOUP, builder ->  // 甜菜汤
+        event.modify(Items.BEETROOT_SOUP, (builder, context, item) ->  // 甜菜汤
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(128).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
-        event.modify(Items.RABBIT_STEW, builder ->    // 兔肉煲
+        event.modify(Items.RABBIT_STEW, (builder, context, item) ->    // 兔肉煲
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(192).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
-        event.modify(Items.SUSPICIOUS_STEW, builder ->    // suspicious stew
+        event.modify(Items.SUSPICIOUS_STEW, (builder, context, item) ->    // suspicious stew
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(256).convertsInto(QuietusItems.MOLD_BOWL).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
 
-        event.modify(Items.HONEY_BOTTLE, builder ->    // honey bottle
+        event.modify(Items.HONEY_BOTTLE, (builder, context, item) ->    // honey bottle
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(Integer.MAX_VALUE).convertsInto(QuietusItems.MOLD_BOTTLE).build()).set(DataComponents.MAX_STACK_SIZE, 16)
         );
 
         // milk bucket has more than one decaying result. This is changed in WeatheringHandler via DecayEvent. 
         // default mold bucket. 50% to be otherwise.
-        event.modify(Items.MILK_BUCKET, builder ->  
+        event.modify(Items.MILK_BUCKET, (builder, context, item) ->  
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(128).convertsInto(QuietusItems.MOLD_BUCKET).build())
         );
         
@@ -117,13 +117,13 @@ public class FoodDecayComponent {
     }
 
     private static void modifyToDecayableMeat(ModifyDefaultComponentsEvent event, Item item, int maxDecay) {
-        event.modify(item, builder ->
+        event.modify(item, (builder, context, currentItem) ->
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(maxDecay).convertsInto(BuiltInRegistries.ITEM.wrapAsHolder(Items.ROTTEN_FLESH)).build())
         );
     }
 
     private static void modifyToDecayablePlant(ModifyDefaultComponentsEvent event, Item item, int maxDecay) {
-        event.modify(item, builder ->
+        event.modify(item, (builder, context, currentItem) ->
             builder.set(QuietusComponents.CAN_DECAY.get(), CanDecay.builder().maxDecay(maxDecay).convertsInto(QuietusItems.MOLD).build())
         );
     }

@@ -16,6 +16,7 @@
         "prerequisites": {
 
         },
-        "themeColour": [0.654902, 0.0, 0.7411765]
+        "themeColour": [0.654902, 0.0, 0.7411765],
+        "background": "quietus:textures/gui/skill_tree/backgrounds/occult.png"
     }
 }

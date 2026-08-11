@@ -181,10 +181,12 @@
 
   "gui.skill_tree": "Skill Tree",
   "gui.skill_tree.button.moreTabs": "More skill trees...",
+  "gui.skill_tree.description.progress.unobtained": "Unlocked (%s/%s)",
+  "gui.skill_tree.description.progress.obtained": "Obtained (%s/%s)",
   "gui.skill_tree.description.prerequisites.net": "Prerequisites: ",
   "gui.skill_tree.description.prerequisites.allOf": "All of: ",
   "gui.skill_tree.description.prerequisites.anyOf": "At least one of: ",
-  "gui.skill_tree.upgrade_button.unlock" : "Unlock (%s/%s)",
+  "gui.skill_tree.upgrade_button.obtain" : "Obtain (%s/%s)",
   "gui.skill_tree.upgrade_button.upgrade" : "Upgrade (%s/%s)",
   "gui.skill_tree.upgrade_button.locked" : "Locked",
   "gui.skill_tree.upgrade_button.locked_upgrade" : "Locked (%s/%s)",
