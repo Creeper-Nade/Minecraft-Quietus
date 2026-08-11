@@ -70,8 +70,8 @@ public class SkillTreeWidget extends AbstractWidget {
 
     private static final int TICKS_HEADER_FADEIN = 7;
     private static final int TICKS_CONTENTS_WAIT = 12;
-    private static final int TICKS_CONTENTS_FADEIN = 28;
-    private static final int TICKS_CONTENTS_LINE_FADEIN = 15;
+    private static final int TICKS_CONTENTS_FADEIN = 25;
+    private static final int TICKS_CONTENTS_LINE_FADEIN = 14;
     private static final int TICKS_TOTAL = + TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT + TICKS_CONTENTS_FADEIN + TICKS_CONTENTS_LINE_FADEIN;
 
     private int tooltipTicks;

@@ -296,14 +296,22 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     }
 
     public @Nullable void drawWidgetsTooltips(GuiGraphicsExtractor gui, int mouseX, int mouseY, SkillTreeNode selectedNode) {
+        SkillTreeWidget hoveredWidget = null;
         for (SkillTreeWidget widget : this.widgets.values()) {
             if (widget.getNode().equals(selectedNode)) {
                 widget.extractSelectedHighlight(gui);
                 continue;
             }
-            if (widget.getTooltipTicks() > 0 || widget.isMouseOver(mouseX, mouseY)) {
-                widget.extractHoverTooltip(gui);
+            if (widget.isMouseOver(mouseX, mouseY)) {
+                hoveredWidget = widget;
+            } else {
+                if (widget.getTooltipTicks() > 0) {
+                    widget.extractHoverTooltip(gui);
+                }
             }
+        }
+        if (hoveredWidget != null) {
+            hoveredWidget.extractHoverTooltip(gui);
         }
     }
 
