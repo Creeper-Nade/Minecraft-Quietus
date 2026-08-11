@@ -115,7 +115,7 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     public void addWidget(SkillTreeNode node) {
         if (node.getSkillPoint().display().isPresent()) {
             TreePosition.Vertex vertexPos = this.positioning.getVertices().get(node);
-            this.widgets.put(node, new SkillTreeWidget(this, this.minecraft, this.skillTree, node, vertexPos, node.getSkillPoint().display().get()));
+            this.widgets.put(node, new SkillTreeWidget(this, this.minecraft, this.font, this.skillTree, node, vertexPos, node.getSkillPoint().display().get()));
             for (SkillTreeWidget widget : this.widgets.values()) {
                 widget.attachToParent();
             }
@@ -145,6 +145,10 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
             } else {
                 widget.active = true;
                 widget.visible = true;
+            }
+
+            if (widget.getTooltipTicks() > 0 || widget.isHovered()) { // widget's tooltip tick for tooltip animations
+                widget.tooltipRenderTick();
             }
         });
     }
@@ -291,6 +295,18 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         guiGraphicsExtractor.pose().popMatrix();
     }
 
+    public @Nullable void drawWidgetsTooltips(GuiGraphicsExtractor gui, int mouseX, int mouseY, SkillTreeNode selectedNode) {
+        for (SkillTreeWidget widget : this.widgets.values()) {
+            if (widget.getNode().equals(selectedNode)) {
+                widget.extractSelectedHighlight(gui);
+                continue;
+            }
+            if (widget.getTooltipTicks() > 0 || widget.isMouseOver(mouseX, mouseY)) {
+                widget.extractHoverTooltip(gui);
+            }
+        }
+    }
+
     @Override
     public void drag(double dragX, double dragY) {
         this.clampTreeScroll(dragX, dragY);
@@ -435,6 +451,14 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         for (SkillTreeNode node : this.widgets.keySet()) {
             if (node.getId().equals(id))
                 return this.getWidget(node);
+        }
+        return null;
+    }
+    public @Nullable SkillTreeWidget getHoveredWidget(int mouseX, int mouseY) {
+        for (SkillTreeWidget widget : this.widgets.values()) {
+            if (widget.isMouseOver(mouseX, mouseY)) {
+                return widget;
+            }
         }
         return null;
     }

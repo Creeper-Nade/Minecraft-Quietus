@@ -27,8 +27,8 @@ import net.minecraft.util.ARGB;
 import static com.quietus.Quietus.MODID;
 
 public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrollable {
-    private static final Identifier CONTENTS_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
-    private static final Identifier HEADER_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/container_header");
+    private static final Identifier CONTENTS_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/info_screen/container_contents");
+    private static final Identifier HEADER_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/info_screen/container_header");
     private static final ChatFormatting[] PREREQUISITES_STYLE = {ChatFormatting.GRAY};
     public static final ChatFormatting[] PREREQUISITES_CHECK_STYLE = {ChatFormatting.GREEN};
     public static final ChatFormatting[] PREREQUISITES_CROSS_STYLE = {ChatFormatting.RED};
@@ -89,11 +89,10 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         Component heading = null;
         Component description = null;
 
-        if (widget.getDisplay().isPresent()) {
-            SkillPoint.DisplayInfo display = widget.getDisplay().get();
-            heading = display.header();
-            description = display.description();
-        }
+        SkillPoint.DisplayInfo display = widget.getDisplay();
+        heading = display.header();
+        description = display.description();
+
         heading = Objects.requireNonNullElse(heading, SkillPoint.DisplayInfo.FUNC_DEFAULT_HEADING.apply(widget.getLanguageKey())); // default uses language key
         description = Objects.requireNonNullElse(description, SkillPoint.DisplayInfo.FUNC_DEFAULT_DESCRIPTION.apply(widget.getLanguageKey())); // default uses language key
 

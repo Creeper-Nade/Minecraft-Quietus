@@ -204,9 +204,9 @@ public class QuietusIModBusEvent {
      * Change all potion bottle types' max stack size to 16.
      */
     public static void modifyComponents(ModifyDefaultComponentsEvent event) {
-        event.modify(Items.POTION, builder -> builder.set(DataComponents.MAX_STACK_SIZE, 16));
-        event.modify(Items.SPLASH_POTION, builder -> builder.set(DataComponents.MAX_STACK_SIZE, 16));
-        event.modify(Items.LINGERING_POTION, builder -> builder.set(DataComponents.MAX_STACK_SIZE, 16));
+        event.modify(Items.POTION, (builder, context, item) -> builder.set(DataComponents.MAX_STACK_SIZE, 16));
+        event.modify(Items.SPLASH_POTION, (builder, context, item) -> builder.set(DataComponents.MAX_STACK_SIZE, 16));
+        event.modify(Items.LINGERING_POTION, (builder, context, item) -> builder.set(DataComponents.MAX_STACK_SIZE, 16));
     }
     
 
