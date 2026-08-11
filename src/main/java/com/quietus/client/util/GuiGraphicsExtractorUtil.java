@@ -1,5 +1,7 @@
 package com.quietus.client.util;
 
+import java.util.List;
+
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.FormattedText;
@@ -13,5 +15,27 @@ public class GuiGraphicsExtractorUtil {
             y += font.lineHeight;
             y += lineSpacing;
         }
+    }
+    public static void drawCenteredWordWrap(GuiGraphicsExtractor gui, Font font, FormattedText text, int centerX, int y, int maxWidth, int lineSpacing, int color) {
+        for (FormattedCharSequence formattedcharsequence : font.split(text, maxWidth)) {
+            gui.centeredText(font, formattedcharsequence, centerX, y, color);
+            y += font.lineHeight;
+            y += lineSpacing;
+        }
+    }
+    public static int getWordWrapHeight(Font font, FormattedText text, int maxWidth, int lineSpacing) {
+        List<FormattedCharSequence> lines = font.split(text, maxWidth);
+        if (lines.isEmpty()) return 0;
+        return lines.size() * font.lineHeight + (lines.size() - 1) * lineSpacing;
+    }
+    public static int getWordWrapWidth(Font font, FormattedText text, int maxWidth) {
+        int maxLineWidth = 0;
+        for (FormattedCharSequence line : font.split(text, maxWidth)) {
+            int lineWidth = font.width(line);
+            if (lineWidth > maxLineWidth) {
+                maxLineWidth = lineWidth;
+            }
+        }
+        return maxLineWidth;
     }
 }

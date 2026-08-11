@@ -88,7 +88,8 @@ public class ClientSkillTree {
             (Identifier, progress) -> {
                 SkillTreeNode node = null;
                 for (SkillCategory category : packet.skillTree().values()) {
-                    node = category.getNode(Identifier);
+                    if (category.hasNode(Identifier))
+                        node = category.getNode(Identifier);
                 }
                 if (node == null) {
                     LOGGER.info("Ignoring skill tree progress {} received from server - this skill tree node does not exist?", Identifier.toString());
