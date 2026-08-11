@@ -22,12 +22,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 
 import static com.quietus.Quietus.MODID;
 
 public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrollable {
-    private static final Identifier CONTENTS_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/container_contents");
-    private static final Identifier HEADER_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/container_header");
+    private static final Identifier CONTENTS_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/info_screen/container_contents");
+    private static final Identifier HEADER_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/info_screen/container_header");
     private static final ChatFormatting[] PREREQUISITES_STYLE = {ChatFormatting.GRAY};
     public static final ChatFormatting[] PREREQUISITES_CHECK_STYLE = {ChatFormatting.GREEN};
     public static final ChatFormatting[] PREREQUISITES_CROSS_STYLE = {ChatFormatting.RED};
@@ -88,11 +89,10 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         Component heading = null;
         Component description = null;
 
-        if (widget.getDisplay().isPresent()) {
-            SkillPoint.DisplayInfo display = widget.getDisplay().get();
-            heading = display.header();
-            description = display.description();
-        }
+        SkillPoint.DisplayInfo display = widget.getDisplay();
+        heading = display.header();
+        description = display.description();
+
         heading = Objects.requireNonNullElse(heading, SkillPoint.DisplayInfo.FUNC_DEFAULT_HEADING.apply(widget.getLanguageKey())); // default uses language key
         description = Objects.requireNonNullElse(description, SkillPoint.DisplayInfo.FUNC_DEFAULT_DESCRIPTION.apply(widget.getLanguageKey())); // default uses language key
 
@@ -368,7 +368,8 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         @Override
         protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
-            this.state.draw(gui, this.getX(), this.getY(), this.isHovered() && this.isActive(), this.progress.times(), this.progress.maxAmount(), this.font);
+            int themeColour = ARGB.opaque(this.screen.widget.getTab().getThemeColour());
+            this.state.draw(gui, this.getX(), this.getY(), this.isHovered() && this.isActive(), this.progress.times(), this.progress.maxAmount(), this.font, themeColour);
         }
 
         public void updateState(SkillPointProgress.ClientData progress, boolean unlocked) {
@@ -384,7 +385,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         @Override
         public void onClick(MouseButtonEvent event, boolean doubleClick) {
-            if (this.state == UpgradeButtonState.UNLOCK || this.state == UpgradeButtonState.UPGRADE) {
+            if (this.state == UpgradeButtonState.OBTAIN || this.state == UpgradeButtonState.UPGRADE) {
                 this.screen.sendRequestforUpgrade();
             }
         }
@@ -397,9 +398,9 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     }
 
     private enum UpgradeButtonState {
-        UNLOCK(
+        OBTAIN(
             Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/unlock"), 
-            "gui.skill_tree.upgrade_button.unlock",
+            "gui.skill_tree.upgrade_button.obtain",
             true, 
             false
         ),
@@ -436,31 +437,31 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
         private static UpgradeButtonState get(boolean hasProgress, boolean isUnlocked) {
             if (isUnlocked) {
-                return hasProgress ? UPGRADE : UNLOCK;
+                return hasProgress ? UPGRADE : OBTAIN;
             } else {
                 return hasProgress ? LOCKED_UPGRADE : LOCKED;
             }
         }
 
-        private void draw(GuiGraphicsExtractor GuiGraphicsExtractor, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font) {
+        private void draw(GuiGraphicsExtractor gui, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font, int themeColour) {
             Identifier loc = (isHovered && this.hasHover) ? this.spriteLocation.withPath(this.spriteLocation.getPath() + "_hovered") : this.spriteLocation;
             if (this.doDrawLines && currentProgress > 0) {
                 int innerWidth = UpgradeButton.WIDTH - 2 * UpgradeButton.INSIDE_X;
                 int innerHeight = UpgradeButton.HEIGHT - 2 * UpgradeButton.INSIDE_Y;
 
-                // Draw progress fill
+                // Draw progress fill tinted with tab theme colour
                 int fillWidth = (int) Math.round((double) innerWidth * currentProgress / maxProgress);
-                GuiGraphicsExtractor.blit(RenderPipelines.GUI_TEXTURED, UpgradeButton.FILL_LOCATION, offsetX + UpgradeButton.INSIDE_X, offsetY + UpgradeButton.INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight);
+                gui.blit(RenderPipelines.GUI_TEXTURED, UpgradeButton.FILL_LOCATION, offsetX + UpgradeButton.INSIDE_X, offsetY + UpgradeButton.INSIDE_Y, 0.0f, 0.0f, fillWidth, innerHeight, fillWidth, innerHeight, themeColour);
 
                 // Draw vertical dividers
                 for (int i = 1; i < maxProgress; i++) {
                     int lineX = offsetX + UpgradeButton.INSIDE_X + (int) Math.round((double) i * innerWidth / maxProgress);
-                    GuiGraphicsExtractor.verticalLine(lineX, offsetY + UpgradeButton.INSIDE_Y, offsetY + UpgradeButton.HEIGHT - UpgradeButton.INSIDE_Y - 1, 0xFF000000);
+                    gui.verticalLine(lineX, offsetY + UpgradeButton.INSIDE_Y, offsetY + UpgradeButton.HEIGHT - UpgradeButton.INSIDE_Y - 1, 0xFF000000);
                 }
             }
-            GuiGraphicsExtractor.blitSprite(RenderPipelines.GUI_TEXTURED, loc, offsetX, offsetY, UpgradeButton.WIDTH, UpgradeButton.HEIGHT);
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, loc, offsetX, offsetY, UpgradeButton.WIDTH, UpgradeButton.HEIGHT);
             ChatFormatting textFormat = this.hasHover ? ChatFormatting.WHITE : ChatFormatting.GRAY; 
-            GuiGraphicsExtractor.centeredText(font, (Component)Component.translatable(this.text, currentProgress, maxProgress).withStyle(textFormat), offsetX + UpgradeButton.WIDTH/2, offsetY + UpgradeButton.HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
+            gui.centeredText(font, (Component)Component.translatable(this.text, currentProgress, maxProgress).withStyle(textFormat), offsetX + UpgradeButton.WIDTH/2, offsetY + UpgradeButton.HEIGHT/2 - font.lineHeight/2, 0xFFFFFFFF);
         }
     }
 

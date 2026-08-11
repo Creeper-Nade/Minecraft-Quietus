@@ -27,7 +27,7 @@ public class QuietusReloadableResources {
     public static void onAddingServerResourceReloadListeners(AddServerReloadListenersEvent event) {
         open(); 
         
-        skillTreeManager = new ServerSkillTreeManager(event.getRegistryAccess(), SkillCategory.CODEC, SkillPoint.CODEC);
+        skillTreeManager = new ServerSkillTreeManager(event.getServerResources().getRegistryLookup(), SkillCategory.CODEC, SkillPoint.CODEC);
         event.addListener(Identifier.fromNamespaceAndPath(MODID, "skill_tree"), skillTreeManager::reload);
 
         SkillTreeGUIPayloadHandler.setManager(skillTreeManager);

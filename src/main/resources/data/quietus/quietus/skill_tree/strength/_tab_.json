@@ -16,6 +16,7 @@
         "prerequisites": {
 
         },
-        "themeColour": [0.7215686, 0.3647059, 0.0705882]
+        "themeColour": [0.7215686, 0.3647059, 0.0705882],
+        "background": "quietus:textures/gui/skill_tree/backgrounds/strength.png"
     }
 }

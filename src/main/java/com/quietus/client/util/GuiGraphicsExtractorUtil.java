@@ -28,4 +28,14 @@ public class GuiGraphicsExtractorUtil {
         if (lines.isEmpty()) return 0;
         return lines.size() * font.lineHeight + (lines.size() - 1) * lineSpacing;
     }
+    public static int getWordWrapWidth(Font font, FormattedText text, int maxWidth) {
+        int maxLineWidth = 0;
+        for (FormattedCharSequence line : font.split(text, maxWidth)) {
+            int lineWidth = font.width(line);
+            if (lineWidth > maxLineWidth) {
+                maxLineWidth = lineWidth;
+            }
+        }
+        return maxLineWidth;
+    }
 }

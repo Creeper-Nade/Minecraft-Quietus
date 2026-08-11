@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.quietus.util.MathUtil;
 import com.quietus.util.MapUtil;
 import com.quietus.util.ServerPacketDistributor;
 import com.quietus.util.layouts.VerticalEvenGridLayout;
@@ -23,6 +24,8 @@ import com.quietus.util.layouts.VerticalEvenGridLayout;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.sounds.SoundManager;
+
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
@@ -67,6 +70,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final Identifier WINDOW_LORE_GRAYSCALE_GLOW_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/window_lore_grayscale_glow");
     private static final Identifier WINDOW_LORECHAR_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/imchar_skilltree.png");
 
+    protected static final int WINDOW_BACKGROUND_COLOUR = 0xFF242424;
     private static final int WINDOW_LORE_COLOUR = 0xFF343434;
 
     public static final int WINDOW_WIDTH = 248;
@@ -74,9 +78,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     public static final int WINDOW_WIDTH_INFO_CHANGE = -84;
     private static final int WINDOW_TITLE_X = 18;
     private static final int WINDOW_TITLE_Y = 6;
-    private static final int WINDOW_INSIDE_X = 9;
+    protected static final int WINDOW_INSIDE_X = 9;
     private static final int WINDOW_INSIDE_Y = 9;
-    private static final int WINDOW_INSIDE_TOP_Y = 18;
+    protected static final int WINDOW_INSIDE_TOP_Y = 18;
     protected static final int WINDOW_INSIDE_WIDTH = WINDOW_WIDTH-WINDOW_INSIDE_X*2;
     protected static final int WINDOW_INSIDE_HEIGHT = WINDOW_HEIGHT-WINDOW_INSIDE_Y-WINDOW_INSIDE_TOP_Y;
     private static final int WINDOW_LORECHAR_X = 3; // x from sides of the screen that lore characters should not render in
@@ -128,7 +132,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private int targetLoreColour = 0xFFFFFFFF;
     private float targetLoreOpacity = 0.0f;
 
-    private int offsetX, offsetY, offsetXTree, offsetYTree, offsetXInfo, offsetYInfo = 0;
+    protected int offsetX, offsetY, offsetXTree, offsetYTree, offsetXInfo, offsetYInfo = 0;
     private float offsetXFTree, offsetXFInfo = 0.0f;
     
 
@@ -151,6 +155,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             } else {
                 SkillTreeScreen.this.closeTabsSelectionGrid();
             }
+        }
+        @Override
+        public void playDownSound(SoundManager soundManager) {
+            //soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
         @Override
         protected void updateWidgetNarration(NarrationElementOutput arg0) {
@@ -212,6 +220,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     }
 
     public void makeTabs() {
+        if (!this.tabs.isEmpty()) {
+            this.saveData();
+        }
         this.tabs.clear();
         ClientSkillTreePayloadHandler.getCategories().forEach((id, category) -> {
             TreePosition positioning = new TreePosition(SkillTreeWidget.ICON_WIDTH, SkillTreeWidget.ICON_WIDTH, WIDGET_MARGIN_WIDTH, WIDGET_MARGIN_HEIGHT, category.seed());
@@ -223,9 +234,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             category.setListener(this); // adds widgets to the tab via SkillCategory's listener
         });
         if (!this.tabs.isEmpty()) {
-            if (this.selectedTab == null) {
-                this.setInitialSelectedTab(this.tabs.values().iterator().next());
-            } else { // already has selected tab
+            if (this.selectedTab != null) { // already has selected tab
                 SkillTreeTab rebuiltSelectedTab = this.tabs.get(this.selectedTab.getCategory().getId());
                 if (rebuiltSelectedTab == null) {
                     LOGGER.info("The client has skill category {} selected but it exists no more!", this.selectedTab.getCategory().getId().toString());
@@ -286,17 +295,17 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round((1.0d - (double)this.infoAnimTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
         this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round((1.0d - (double)this.infoAnimTicks / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
         
-        this.windowDynamicOffset = (int)Math.round(calcReciprocal((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.infoAnimTicks, this.selectedNode == null));
+        this.windowDynamicOffset = (int)Math.round(MathUtil.calcReciprocal((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.infoAnimTicks, this.selectedNode == null));
 
-        this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round(calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoAnimTicks, this.selectedNode == null));
-        this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round(calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoAnimTicks, this.selectedNode == null));
+        this.windowDynamicWidth = WINDOW_WIDTH + (int)Math.round(MathUtil.calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoAnimTicks, this.selectedNode == null));
+        this.windowInsideDynamicWidth = WINDOW_INSIDE_WIDTH + (int)Math.round(MathUtil.calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoAnimTicks, this.selectedNode == null));
         
         this.gridAnimTicks = this.tabsGridLayout == null ?
             Math.min(this.gridAnimTicks + 1, DYNAMIC_POSITIONING_TICKS)
             : Math.max(this.gridAnimTicks - 1, 0);
 
-        this.tabDynamicOffset = (int)Math.round(calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridAnimTicks, this.tabsGridLayout == null));
-        this.gridCenterOffset = (int)Math.round(calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 30.0d, this.gridAnimTicks, this.tabsGridLayout == null));
+        this.tabDynamicOffset = (int)Math.round(MathUtil.calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridAnimTicks, this.tabsGridLayout == null));
+        this.gridCenterOffset = (int)Math.round(MathUtil.calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 30.0d, this.gridAnimTicks, this.tabsGridLayout == null));
 
         // float - for smoother offset animation
         this.infoDynamicTicksF = this.selectedNode == null ?
@@ -305,17 +314,17 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.infoWindowDynamicWidthF = WINDOW_WIDTH + (float)((1.0d - this.infoDynamicTicksF / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
         this.infoWindowInsideDynamicWidthF = WINDOW_INSIDE_WIDTH + (float)((1.0d - this.infoDynamicTicksF / (double)DYNAMIC_POSITIONING_TICKS) * WINDOW_WIDTH_INFO_CHANGE);
         
-        this.infoDynamicOffsetF = (float)calcReciprocal((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.infoDynamicTicksF, this.selectedNode == null);
+        this.infoDynamicOffsetF = (float)MathUtil.calcReciprocal((double)INFO_DYNAMIC_OFFSET_FROM_CENTER,(double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.infoDynamicTicksF, this.selectedNode == null);
 
-        this.infoWindowDynamicWidthF = WINDOW_WIDTH + (float)calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicksF, this.selectedNode == null);
-        this.infoWindowInsideDynamicWidthF = WINDOW_INSIDE_WIDTH + (float)calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicksF, this.selectedNode == null);
+        this.infoWindowDynamicWidthF = WINDOW_WIDTH + (float)MathUtil.calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicksF, this.selectedNode == null);
+        this.infoWindowInsideDynamicWidthF = WINDOW_INSIDE_WIDTH + (float)MathUtil.calcReciprocal((double)WINDOW_WIDTH_INFO_CHANGE,(double)DYNAMIC_POSITIONING_TICKS, 40.0d, this.infoDynamicTicksF, this.selectedNode == null);
 
         this.gridDynamicTicksF = this.tabsGridLayout == null ?
             Math.min(this.gridAnimTicks - 1 + delta, DYNAMIC_POSITIONING_TICKS)
             : Math.max(this.gridAnimTicks + 1 - delta, 0);
 
-        this.tabDynamicOffsetF = (float)calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
-        this.gridCenterOffsetF = (float)calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 30.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
+        this.tabDynamicOffsetF = (float)MathUtil.calcReciprocal(TAB_DYNAMIC_HIDE_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 100.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
+        this.gridCenterOffsetF = (float)MathUtil.calcReciprocal(GRID_CENTER_OFFSET, (double)DYNAMIC_POSITIONING_TICKS, 30.0d, this.gridDynamicTicksF, this.tabsGridLayout == null);
 
         /* Offset calculation */
         this.offsetX = (this.width + SkillTreeTab.TAB_DISPLAY_WIDTH - this.windowDynamicWidth) / 2 + this.windowDynamicOffset + this.gridCenterOffset;
@@ -366,11 +375,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
 
         /* Lore colour */
-        float linearColourT = Math.max(0.0f, Math.min(1.0f, (float) this.loreColourTransitionTicks / DYNAMIC_LORE_COLOUR_TICKS));
-        float smoothColourT = linearColourT * linearColourT * (3.0f - 2.0f*linearColourT);
+        float smoothColourT = MathUtil.cubicLerp(0.0f, 0.0f, DYNAMIC_LORE_COLOUR_TICKS, 1.0f, (float) this.loreColourTransitionTicks);
         this.loreColour = ARGB.linearLerp(smoothColourT, this.lastLoreColour, this.targetLoreColour);
-        float linearOpacityT = Math.max(0.0f, Math.min(1.0f, (float) this.loreOpacityTransitionTicks / DYNAMIC_LORE_COLOUR_TICKS));
-        float smoothOpacityT = linearOpacityT * linearOpacityT * (3.0f - 2.0f*linearOpacityT);
+        float smoothOpacityT = MathUtil.cubicLerp(0.0f, 0.0f, DYNAMIC_LORE_COLOUR_TICKS, 1.0f, (float) this.loreOpacityTransitionTicks);
         this.loreColour = ARGB.color((float)Mth.lerp(smoothOpacityT, this.lastLoreOpacity, this.targetLoreOpacity), this.loreColour);
 
         this.loreColourTransitionTicks += 1;
@@ -437,23 +444,33 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             this.renderInfoWindow(gui, mouseX, mouseY, delta, 0, this.offsetYInfo);
             gui.pose().popMatrix();
         }
+
+        // render custom hover tooltips
+        if (this.selectedTab != null) {
+            gui.nextStratum();
+            gui.pose().pushMatrix();
+            gui.pose().translate(this.offsetXFTree - this.offsetX, 0.0f);
+            this.selectedTab.drawWidgetsTooltips(gui, mouseX, mouseY, this.selectedNode);
+            gui.pose().popMatrix();
+        }
     }
 
     private void renderTreeWindow(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta, int offsetX, int offsetY) {
         /* render the tab's skill tree or tabs selection grid */
         if (this.tabsGridLayout != null) { // tabs selection grid
-            gui.enableScissor(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT);
+            gui.enableScissor(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth + 1, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT);
+            gui.fill(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth + 1, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT, ARGB.color(0.8f, WINDOW_BACKGROUND_COLOUR));
             gui.pose().translate(-this.offsetX, 0.0f);
             this.tabsGridLayout.visitWidgets(element -> element.extractRenderState(gui, mouseX, mouseY, delta));
-            gui.disableScissor();
             gui.pose().translate(+this.offsetX, 0.0f);
+            gui.disableScissor();
             if (this.tabsGridLayout.equals(this.focusedDraggable) && this.isDragging() && this.tabsGridLayout.isScrolling()) {
                 gui.requestCursor(CursorTypes.RESIZE_NS);
             }
         } else { // skill tree
             if (this.selectedTab != null) {
-                this.selectedTab.drawTreeBackground(gui, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.windowInsideDynamicWidth, WINDOW_INSIDE_HEIGHT, mouseX, mouseY, delta);
-                gui.enableScissor(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT);
+                this.selectedTab.drawTreeBackground(gui, offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, this.windowInsideDynamicWidth + 1, WINDOW_INSIDE_HEIGHT, mouseX, mouseY, delta);
+                gui.enableScissor(offsetX + WINDOW_INSIDE_X, offsetY + WINDOW_INSIDE_TOP_Y, offsetX + WINDOW_INSIDE_X + this.windowInsideDynamicWidth + 1, offsetY + WINDOW_INSIDE_TOP_Y + WINDOW_INSIDE_HEIGHT);
                 gui.pose().translate(-this.offsetX, 0.0f);
                 this.selectedTab.drawTreeWidgetsAndEdges(gui, mouseX, mouseY, delta);
                 gui.disableScissor();
@@ -698,36 +715,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
-    /**
-     * 
-     * @param yIntercept
-     * @param xIntercept
-     * @param smoothnessMult the greater, the more linear is the animation. 
-     *          When smoothnessMult appraoches infinity, the segment would
-     *          be linear.
-     * @param x
-     * @param pn
-     * @return
-     */
-    private double calcReciprocal(double yIntercept, double xIntercept, double smoothnessMult, double x, boolean pn) {
-        double pn_mult = pn ? 1.0d : -1.0d; // positive or negative for √(sigma)
-        double yIntercept_abs = Math.abs(yIntercept);
-        float sigma = (float) (
-            Math.pow(xIntercept,2)*Math.pow(yIntercept,2) 
-            + 4*xIntercept*smoothnessMult*yIntercept_abs
-        );
-        float a = (float) (
-            xIntercept/2 
-            + pn_mult * (Math.sqrt(sigma)) / ((-2)*yIntercept_abs)
-        );
-        float b = (float) (
-            yIntercept_abs/2 
-            + pn_mult * (Math.sqrt(sigma)) / ((-2)*xIntercept)
-        );
-        return
-            Math.signum(yIntercept) 
-            * (smoothnessMult / (x - a) + b);
-    }
+
 
     // stop game pausing (including in singleplayer) when opening skill tree GUI
     @Override
@@ -854,7 +842,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
         ClientSkillTreePayloadHandler.putTabsOrderAndSelected(
             this.tabs.entrySet().stream().map(entry -> entry.getKey()).collect(Collectors.toList()), 
-            this.selectedTab.getCategory().getId()
+            this.selectedTab != null ? this.selectedTab.getCategory().getId() : null
         );
     }
     protected void applyData() {
@@ -884,13 +872,18 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.tabs.putAll(reorderedMap);
 
         /* set selected tab */
-        SkillTreeTab newSelected;
-        if (ClientSkillTreePayloadHandler.getTabSelected() != null) {
-            newSelected = this.tabs.get(ClientSkillTreePayloadHandler.getTabSelected());
+        if (this.selectedTab != null && this.tabs.containsKey(this.selectedTab.getCategory().getId())) {
+            this.selectedTab = this.tabs.get(this.selectedTab.getCategory().getId());
         } else {
-            newSelected = reorderedMap.entrySet().iterator().next().getValue();
+            SkillTreeTab newSelected = null;
+            if (ClientSkillTreePayloadHandler.getTabSelected() != null) {
+                newSelected = this.tabs.get(ClientSkillTreePayloadHandler.getTabSelected());
+            }
+            if (newSelected == null && !this.tabs.isEmpty()) {
+                newSelected = reorderedMap.entrySet().iterator().next().getValue();
+            }
+            this.setInitialSelectedTab(newSelected);
         }
-        this.setInitialSelectedTab(newSelected);
     }
 
     protected void setInitialSelectedTab(@Nullable SkillTreeTab tab) {

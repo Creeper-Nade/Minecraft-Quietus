@@ -117,7 +117,8 @@ public class SkillCategory {
         Component name,
         Component description,
         Prerequisites.DisplayInfo prerequisites,
-        int themeColour
+        int themeColour,
+        Optional<Identifier> background
     ) {
         public static final Codec<DisplayInfo> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
@@ -125,7 +126,8 @@ public class SkillCategory {
                 ComponentSerialization.CODEC.fieldOf("name").forGetter(DisplayInfo::name),
                 ComponentSerialization.CODEC.fieldOf("description").forGetter(DisplayInfo::description),
                 Prerequisites.DisplayInfo.CODEC.fieldOf("prerequisites").forGetter(DisplayInfo::prerequisites),
-                ExtraCodecs.RGB_COLOR_CODEC.fieldOf("themeColour").forGetter(DisplayInfo::themeColour)
+                ExtraCodecs.RGB_COLOR_CODEC.fieldOf("themeColour").forGetter(DisplayInfo::themeColour),
+                Identifier.CODEC.optionalFieldOf("background").forGetter(DisplayInfo::background)
             ).apply(instance, DisplayInfo::new)
         );
 
@@ -136,12 +138,16 @@ public class SkillCategory {
             if (this.icon.isPresent()) {
                 i |= 1;
             }
+            if (this.background.isPresent()) {
+                i |= 2;
+            }
             buffer.writeInt(i);
             this.icon.map(ClientAsset::id).ifPresent(buffer::writeIdentifier);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buffer, this.name);
             ComponentSerialization.TRUSTED_STREAM_CODEC.encode(buffer, this.description);
             Prerequisites.DisplayInfo.STREAM_CODEC.encode(buffer, this.prerequisites);
             buffer.writeInt(this.themeColour);
+            this.background.ifPresent(buffer::writeIdentifier);
         }
         private static DisplayInfo deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
             int i = buffer.readInt();
@@ -150,7 +156,8 @@ public class SkillCategory {
             Component description = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buffer);
             Prerequisites.DisplayInfo prerequisitesDisplayInfo = Prerequisites.DisplayInfo.STREAM_CODEC.decode(buffer);
             int themeColour = buffer.readInt();
-            return new DisplayInfo(icon, name, description, prerequisitesDisplayInfo, themeColour);
+            Optional<Identifier> background = (i&2)!=0 ? Optional.of(buffer.readIdentifier()) : Optional.empty();
+            return new DisplayInfo(icon, name, description, prerequisitesDisplayInfo, themeColour, background);
         }
     }
 

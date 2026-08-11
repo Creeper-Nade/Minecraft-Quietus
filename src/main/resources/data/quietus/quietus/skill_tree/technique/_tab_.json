@@ -16,6 +16,7 @@
         "prerequisites": {
 
         },
-        "themeColour": [0.0862745, 0.3490196, 0.7215686]
+        "themeColour": [0.0862745, 0.3490196, 0.7215686],
+        "background": "quietus:textures/gui/skill_tree/backgrounds/technique.png"
     }
 }
