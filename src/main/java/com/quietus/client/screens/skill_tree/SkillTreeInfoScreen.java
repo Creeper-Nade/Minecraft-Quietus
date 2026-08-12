@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import com.quietus.client.multiplayer.ClientSkillTree;
+import com.quietus.client.multiplayer.ClientSkillTreeListener;
 import com.quietus.client.util.GuiGraphicsExtractorUtil;
 import com.quietus.skilltree.Prerequisites;
 import com.quietus.skilltree.SkillPoint;
@@ -26,7 +27,7 @@ import net.minecraft.util.ARGB;
 
 import static com.quietus.Quietus.MODID;
 
-public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrollable {
+public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrollable, ClientSkillTreeListener {
     private static final Identifier CONTENTS_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/info_screen/container_contents");
     private static final Identifier HEADER_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/info_screen/container_header");
     private static final ChatFormatting[] PREREQUISITES_STYLE = {ChatFormatting.GRAY};
@@ -50,7 +51,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
     private final Font font;
     private final Component heading;
-    private final Component description;
+    private Component description;
     private final SkillTreeWidget widget;
     private final SkillTreeScreen screen;
     private final UpgradeButton button;
@@ -102,7 +103,17 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         }
 
         SkillTreeInfoScreen out = new SkillTreeInfoScreen(font, heading, description, widget, screen);
+        screen.getSkillTree().addListener(widget.getNode(), out);
         return out;
+    }
+
+    public void discard() {
+        this.screen.getSkillTree().removeListener(this.widget.getNode(), this);
+    }
+
+    @Override
+    public void onClientSkillTreeUpdate(int amount, int maxAmount, int progressAmount) {
+        this.update(this.screen.getSkillTree());
     }
 
     private static Component makePrerequisitesDescription(SkillPoint skillPoint, ClientSkillTree tree) {
@@ -175,11 +186,25 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     }
 
     public void update(ClientSkillTree tree) {
-        Prerequisites widgetPrerequisite = this.widget.getNode().getSkillPoint().unlock().prerequisites();
         this.button.updateState(
             tree.getOrStartProgress(this.widget.getNode()), 
-            widgetPrerequisite.requirements().test(Prerequisites.CompletionStatus.make(widgetPrerequisite, tree.getCompletedAdvancements(), tree.getCompletedParents()))
+            this.widget.isUnlocked()
         );
+        this.refreshDescription(tree);
+    }
+
+    public void refreshDescription(ClientSkillTree tree) {
+        Component baseDescription = Objects.requireNonNullElse(
+            this.widget.getDisplay().description(), 
+            SkillPoint.DisplayInfo.FUNC_DEFAULT_DESCRIPTION.apply(this.widget.getLanguageKey())
+        );
+        Component prerequisitesDescription = makePrerequisitesDescription(this.widget.getNode().getSkillPoint(), tree);
+        if (prerequisitesDescription != null) {
+            this.description = baseDescription.copy().append("\n\n").append(prerequisitesDescription);
+        } else {
+            this.description = baseDescription;
+        }
+        this.calcLinesHeights(this.font, this.heading, this.description);
     }
 
     public void renderTick(int offsetX, int offsetY, float delta) {
@@ -232,7 +257,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         }
         
         // icon 
-        this.widget.drawAbsolute(gui, offsetX, offsetY);
+        this.widget.drawAbsolute(gui, offsetX, offsetY, true);
 
         /* Cursor */
         if (this.button.isHovered() && this.button.isActive()) {

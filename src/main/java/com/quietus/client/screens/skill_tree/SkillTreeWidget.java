@@ -4,11 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.quietus.client.multiplayer.ClientSkillTree;
+import com.quietus.client.multiplayer.ClientSkillTreeListener;
 import com.quietus.client.util.GuiGraphicsExtractorUtil;
-import com.quietus.skilltree.SkillPoint;
-import com.quietus.skilltree.SkillPointProgress;
-import com.quietus.skilltree.SkillTreeNode;
-import com.quietus.skilltree.TreePosition;
+import com.quietus.skilltree.*;
 
 import com.quietus.util.MathUtil;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -27,7 +25,7 @@ import net.minecraft.util.FormattedCharSequence;
 
 import static com.quietus.Quietus.MODID;
 
-public class SkillTreeWidget extends AbstractWidget {
+public class SkillTreeWidget extends AbstractWidget implements ClientSkillTreeListener {
 
     /* Width and height responsible for calculation of hover and clicking */
     protected static final int HEIGHT = 26;
@@ -56,6 +54,7 @@ public class SkillTreeWidget extends AbstractWidget {
     private static final int HEADER_TEXT_MAX_WIDTH = HEADER_CONTAINER_MAX_WIDTH - ICON_CONTAINER_WIDTH - Math.abs(TOOLTIP_CONTAINER_X_OFFSET) - HEADER_ICON_TEXT_CONTAINER_H_MARGIN - HEADER_CONTAINER_H_MARGIN;
     private static final int CONTENTS_CONTAINER_Y_OVERLAP_OFFSET = -3;
     private static final Identifier CONTENTS_CONTAINER_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/hover/container_contents");
+    private static final Identifier CONTENTS_CONTAINER_2_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/hover/container_contents_flipped");
     private static final int CONTENTS_CONTAINER_RESOURCE_WIDTH = 57;
     private static final int CONTENTS_CONTAINER_RESOURCE_HEIGHT = 20;
     private static final int CONTENTS_CONTAINER_TOP_MARGIN = 10;
@@ -92,6 +91,8 @@ public class SkillTreeWidget extends AbstractWidget {
 
     private final SkillPointType widgettype;
 
+    private boolean unlocked = false;
+
     public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, Font font, ClientSkillTree clientSkillTree, SkillTreeNode node, TreePosition.Vertex vertexPos, SkillPoint.DisplayInfo display) {
         super(vertexPos.x(), vertexPos.y(), WIDTH, HEIGHT, display.header());
 
@@ -111,6 +112,27 @@ public class SkillTreeWidget extends AbstractWidget {
         this.widgettype = display.type();
 
         this.tooltipTicks = 0;
+
+        this.updateUnlocked(this.skillTree);
+        this.skillTree.addListener(this.node, this);
+    }
+
+    public void updateUnlocked(ClientSkillTree tree) {
+        Prerequisites prereq = this.getNode().getSkillPoint().unlock().prerequisites();
+        this.unlocked = prereq.requirements().test(Prerequisites.CompletionStatus.make(prereq, tree.getCompletedAdvancements(), tree.getCompletedParents()));
+    }
+
+    public void updateUnlocked() {
+        this.updateUnlocked(this.skillTree);
+    }
+
+    public boolean isUnlocked() {
+        return this.unlocked;
+    }
+
+    @Override
+    public void onClientSkillTreeUpdate(int amount, int maxAmount, int progressAmount) {
+        this.updateUnlocked(this.skillTree);
     }
 
     protected void tooltipRenderTick() {
@@ -123,7 +145,7 @@ public class SkillTreeWidget extends AbstractWidget {
 
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
-        this.drawAbsolute(gui, this.getX(), this.getY());
+        this.drawAbsolute(gui, this.getX(), this.getY(), this.unlocked);
     }
 
     public void updatePositionOffset(int offsetX, int offsetY) {
@@ -135,13 +157,22 @@ public class SkillTreeWidget extends AbstractWidget {
         int y = this.getY();
 
         gui.blitSprite(RenderPipelines.GUI_TEXTURED, ICON_CONTAINER_SPRITE_LOCATION, x + (ICON_WIDTH-ICON_CONTAINER_WIDTH)/2, y + (ICON_HEIGHT-ICON_CONTAINER_HEIGHT)/2, ICON_CONTAINER_WIDTH, ICON_CONTAINER_HEIGHT);
-        this.drawAbsolute(gui, x, y);
+        this.drawAbsolute(gui, x, y, this.unlocked);
     }
 
-    public void extractHoverTooltip(GuiGraphicsExtractor gui) {
+    public void extractHoverTooltip(GuiGraphicsExtractor gui, ClientSkillTree tree) {
         SkillPointProgress.ClientData data = this.skillTree.getOrStartProgress(this.node);
         Component progressComponent;
-        if (data.isProgressing()) {
+
+        if (tree != null) {
+            this.updateUnlocked(tree);
+        }
+        if (!this.unlocked) {
+            progressComponent = Component.literal("[")
+                .append(Component.translatable("gui.skill_tree.description.progress.locked", data.times(), data.maxAmount()))
+                .append("]")
+                .withColor(this.getTab().getThemeColour());
+        } else if (data.isProgressing()) {
             progressComponent = Component.literal("[")
                 .append(Component.translatable("gui.skill_tree.description.progress.obtained", data.times(), data.maxAmount()))
                 .append("]")
@@ -156,22 +187,19 @@ public class SkillTreeWidget extends AbstractWidget {
         int x = this.getX();
         int y = this.getY();
 
-        int containerX = x + TOOLTIP_CONTAINER_X_OFFSET;
-        int containersWidth = Math.max(HEADER_CONTAINER_MIN_WIDTH, GuiGraphicsExtractorUtil.getWordWrapWidth(this.font, this.display.header(), HEADER_TEXT_MAX_WIDTH) + ICON_CONTAINER_WIDTH + Math.abs(TOOLTIP_CONTAINER_X_OFFSET) + HEADER_ICON_TEXT_CONTAINER_H_MARGIN + HEADER_CONTAINER_H_MARGIN*2);
+        SkillTreeScreen screen = this.getTab().getScreen();
+        int iconScreenX = x + (int)Math.round(screen.offsetXFTree - screen.offsetX);
+        int iconScreenY = y;
 
-        int headerContainerY = y + HEADER_CONTAINER_Y_OFFSET;
-        int headerTextX = containerX + ICON_CONTAINER_WIDTH + Math.abs(TOOLTIP_CONTAINER_X_OFFSET) + HEADER_ICON_TEXT_CONTAINER_H_MARGIN + HEADER_CONTAINER_H_MARGIN;
-        int headerTextY = headerContainerY + HEADER_CONTAINER_TOP_MARGIN;
+        int windowMinX = screen.offsetX + SkillTreeScreen.WINDOW_INSIDE_X;
+        int windowMaxX = windowMinX + screen.dynamicInsideWidth();
+        int windowMinY = screen.offsetY + SkillTreeScreen.WINDOW_INSIDE_TOP_Y;
+        int windowMaxY = windowMinY + SkillTreeScreen.WINDOW_INSIDE_HEIGHT;
+
+        int containersWidth = Math.max(HEADER_CONTAINER_MIN_WIDTH, GuiGraphicsExtractorUtil.getWordWrapWidth(this.font, this.display.header(), HEADER_TEXT_MAX_WIDTH) + ICON_CONTAINER_WIDTH + Math.abs(TOOLTIP_CONTAINER_X_OFFSET) + HEADER_ICON_TEXT_CONTAINER_H_MARGIN + HEADER_CONTAINER_H_MARGIN*2);
         int headerTextHeight = GuiGraphicsExtractorUtil.getWordWrapHeight(this.font, this.display.header(), HEADER_TEXT_MAX_WIDTH, TEXT_LINE_SPACING);
         int headerContainerHeight = HEADER_CONTAINER_TOP_MARGIN + HEADER_CONTAINER_BOTTOM_MARGIN + headerTextHeight;
-
-        int contentsContainerY = headerContainerY + headerContainerHeight + CONTENTS_CONTAINER_Y_OVERLAP_OFFSET;
-        int contentsTextX = containerX + CONTENTS_CONTAINER_H_MARGIN;
-        int contentsTextY = contentsContainerY + CONTENTS_CONTAINER_TOP_MARGIN;
         int descriptionTextMaxWidth = containersWidth - CONTENTS_CONTAINER_H_MARGIN*2;
-
-        int shadowX = containerX - CONTAINERS_SHADOW_THICKNESS;
-        int shadowY = headerContainerY - CONTAINERS_SHADOW_THICKNESS;
 
         Component displayDesc = this.display.description();
         if (displayDesc != null && !displayDesc.getString().isEmpty()) {
@@ -193,17 +221,54 @@ public class SkillTreeWidget extends AbstractWidget {
         int contentsTextHeight = GuiGraphicsExtractorUtil.getWordWrapHeight(this.font, description, descriptionTextMaxWidth, TEXT_LINE_SPACING);
         int contentsContainerSupposedHeight = contentsTextHeight + CONTENTS_CONTAINER_TOP_MARGIN + CONTENTS_CONTAINER_BOTTOM_MARGIN;
         int contentsContainerHeight = (int)Math.ceil(MathUtil.cubicLerp(TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT, 1, TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT + TICKS_CONTENTS_FADEIN, contentsContainerSupposedHeight, this.tooltipTicks));
+        int totalTooltipSupposedHeight = headerContainerHeight + contentsContainerSupposedHeight + CONTENTS_CONTAINER_Y_OVERLAP_OFFSET;
 
+        boolean renderRight = (iconScreenX + containersWidth <= windowMaxX) || (iconScreenX - windowMinX < windowMaxX - iconScreenX);
+        boolean renderBelow = (iconScreenY + ICON_HEIGHT + totalTooltipSupposedHeight <= windowMaxY) || (iconScreenY - windowMinY < windowMaxY - iconScreenY);
+
+        int containerX = renderRight
+                ? x + TOOLTIP_CONTAINER_X_OFFSET
+                : x + ICON_WIDTH - TOOLTIP_CONTAINER_X_OFFSET - containersWidth;
+
+        int headerTextX = renderRight
+                ? containerX + ICON_CONTAINER_WIDTH + Math.abs(TOOLTIP_CONTAINER_X_OFFSET) + HEADER_ICON_TEXT_CONTAINER_H_MARGIN
+                : containerX + HEADER_CONTAINER_H_MARGIN;
+
+        int headerContainerY;
+        int contentsContainerY;
+        int contentsTextY;
+        Identifier contentsContainerSprite;
+        int contentsTextMargin;
+        int shadowY;
+
+        if (renderBelow) {
+            headerContainerY = y + HEADER_CONTAINER_Y_OFFSET;
+            contentsContainerY = headerContainerY + headerContainerHeight + CONTENTS_CONTAINER_Y_OVERLAP_OFFSET;
+            contentsContainerSprite = CONTENTS_CONTAINER_SPRITE_LOCATION;
+            contentsTextMargin = CONTENTS_CONTAINER_TOP_MARGIN;
+            contentsTextY = contentsContainerY + contentsTextMargin;
+            shadowY = headerContainerY - CONTAINERS_SHADOW_THICKNESS;
+        } else {
+            headerContainerY = y + ICON_HEIGHT - HEADER_CONTAINER_Y_OFFSET - headerContainerHeight;
+            contentsContainerY = headerContainerY - contentsContainerHeight - CONTENTS_CONTAINER_Y_OVERLAP_OFFSET;
+            contentsContainerSprite = CONTENTS_CONTAINER_2_SPRITE_LOCATION;
+            contentsTextMargin = CONTENTS_CONTAINER_BOTTOM_MARGIN;
+            contentsTextY = headerContainerY - contentsContainerSupposedHeight - CONTENTS_CONTAINER_Y_OVERLAP_OFFSET + contentsTextMargin;
+            shadowY = contentsContainerY - CONTAINERS_SHADOW_THICKNESS;
+        }
+
+        int headerTextY = headerContainerY + HEADER_CONTAINER_TOP_MARGIN;
+        int contentsTextX = containerX + CONTENTS_CONTAINER_H_MARGIN;
+        int shadowX = containerX - CONTAINERS_SHADOW_THICKNESS;
 
         int headerWhiteMask = ARGB.color(Math.clamp((float) this.tooltipTicks / TICKS_HEADER_FADEIN, 0.0f, 1.0f), 0xFFFFFFFF);
 
         // shadow
-        SkillTreeScreen screen = this.getTab().getScreen();
         gui.enableScissor(
-            screen.offsetX + SkillTreeScreen.WINDOW_INSIDE_X,
-            screen.offsetY + SkillTreeScreen.WINDOW_INSIDE_TOP_Y,
-            screen.offsetX + SkillTreeScreen.WINDOW_INSIDE_X + screen.dynamicInsideWidth() + 1,
-            screen.offsetY + SkillTreeScreen.WINDOW_INSIDE_TOP_Y + SkillTreeScreen.WINDOW_INSIDE_HEIGHT
+            windowMinX,
+            windowMinY,
+            windowMaxX + 1,
+            windowMaxY
         );
         gui.blitSprite(RenderPipelines.GUI_TEXTURED, CONTAINERS_SHADOW_SPRITE_LOCATION, shadowX, shadowY, containersWidth + CONTAINERS_SHADOW_THICKNESS*2, headerContainerHeight + contentsContainerHeight + CONTAINERS_SHADOW_THICKNESS*2, headerWhiteMask);
         gui.disableScissor();
@@ -211,24 +276,24 @@ public class SkillTreeWidget extends AbstractWidget {
         // contents
         int contentsStartTick = TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT;
         if (this.tooltipTicks > contentsStartTick) {
-            gui.blitSprite(RenderPipelines.GUI_TEXTURED, CONTENTS_CONTAINER_SPRITE_LOCATION, containerX, contentsContainerY, containersWidth, contentsContainerHeight);
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, contentsContainerSprite, containerX, contentsContainerY, containersWidth, contentsContainerHeight);
 
             gui.enableScissor(containerX, contentsContainerY, containerX + containersWidth, contentsContainerY + contentsContainerHeight);
 
             List<FormattedCharSequence> descLines = this.font.split(description, descriptionTextMaxWidth);
-            int numLines = descLines.size();
             int lineY = contentsTextY;
 
-            for (int i = 0; i < numLines; i++) {
+            for (int i = 0; i < descLines.size(); i++) {
                 FormattedCharSequence lineSeq = descLines.get(i);
-                /*float lineStartTick = contentsStartTick + (numLines > 1 ? i * (float)(TICKS_CONTENTS_FADEIN - TICKS_CONTENTS_LINE_FADEIN) / (numLines - 1) : 0.0f);*/
-                float lineStartTick = (int)MathUtil.inverseCubicLerp(TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT, 1, TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT + TICKS_CONTENTS_FADEIN, contentsContainerSupposedHeight, (i+1) * this.font.lineHeight + CONTENTS_CONTAINER_TOP_MARGIN); // starts when the container fully covers the space of this line of text
+                float lineStartTick = renderBelow ? // starts when the container fully covers the space of this line of text
+                    (int)MathUtil.inverseCubicLerp(TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT, 1, TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT + TICKS_CONTENTS_FADEIN, contentsContainerSupposedHeight, (i+1) * this.font.lineHeight + contentsTextMargin)
+                    : (int)MathUtil.inverseCubicLerp(TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT, contentsContainerSupposedHeight, TICKS_HEADER_FADEIN + TICKS_CONTENTS_WAIT + TICKS_CONTENTS_FADEIN, 1, (i+1) * this.font.lineHeight + contentsTextMargin);
                 float lineProgress = Math.clamp((float)(this.tooltipTicks - lineStartTick) / TICKS_CONTENTS_LINE_FADEIN, 0.0f, 1.0f);
                 float smoothLineT = (float) MathUtil.cubicLerp(0.0f, 0.0f, 1.0f, 1.0f, lineProgress);
 
                 if (smoothLineT > 0.0f) {
                     int lineMask = ARGB.color(smoothLineT, 0xFFFFFFFF);
-                    int animY = lineY - (int)Math.round((1.0f - smoothLineT) * 3.0f);
+                    int animY = renderBelow ? lineY - (int)Math.round((1.0f - smoothLineT) * 3.0f) : lineY + (int)Math.round((1.0f - smoothLineT) * 3.0f);
                     gui.text(this.font, lineSeq, contentsTextX, animY, lineMask, true);
                 }
 
@@ -246,15 +311,20 @@ public class SkillTreeWidget extends AbstractWidget {
         if (this.isHovered) {
             gui.blitSprite(RenderPipelines.GUI_TEXTURED, ICON_CONTAINER_SPRITE_LOCATION, x + (ICON_WIDTH-ICON_CONTAINER_WIDTH)/2, y + (ICON_HEIGHT-ICON_CONTAINER_HEIGHT)/2, ICON_CONTAINER_WIDTH, ICON_CONTAINER_HEIGHT);
         }
-        this.drawAbsolute(gui, x, y);
+        this.drawAbsolute(gui, x, y, this.unlocked);
     }
 
     public void drawAbsolute(GuiGraphicsExtractor gui, int x, int y) {
-        gui.blit(RenderPipelines.GUI_TEXTURED, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+        this.drawAbsolute(gui, x, y, this.unlocked);
+    }
+
+    public void drawAbsolute(GuiGraphicsExtractor gui, int x, int y, boolean unlocked) {
+        int mask = unlocked ? 0xFFFFFFFF : 0xFF909090;
+        gui.blit(RenderPipelines.GUI_TEXTURED, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT, mask);
         if (this.minecraft.getResourceManager().getResource(this.icon).isPresent()) {
-            gui.blit(RenderPipelines.GUI_TEXTURED, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+            gui.blit(RenderPipelines.GUI_TEXTURED, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT, mask);
         } else {
-            gui.blit(RenderPipelines.GUI_TEXTURED, DEFAULT_ICON, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT);
+            gui.blit(RenderPipelines.GUI_TEXTURED, DEFAULT_ICON, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT, mask);
         }
     }
 

@@ -1,8 +1,10 @@
 package com.quietus.client.multiplayer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -32,19 +34,38 @@ public class ClientSkillTree {
     private final Map<SkillTreeNode,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
     private final Set<Identifier> completedAdvancements = new HashSet<>();
 
-    private final Map<SkillTreeNode,ClientSkillTreeListener> listeners = new HashMap<>();
+    private final Map<SkillTreeNode,Set<ClientSkillTreeListener>> listeners = new HashMap<>();
 
     public ClientSkillTree(Minecraft minecraft) {
         this.minecraft = minecraft;
     }
 
     public void addListener(SkillTreeNode node, ClientSkillTreeListener listener) {
-        this.listeners.put(node, listener);
+        this.listeners.computeIfAbsent(node, k -> new HashSet<>()).add(listener);
         SkillPointProgress.ClientData progress = this.getOrStartProgress(node);
         listener.onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
     }
+    public void removeListener(SkillTreeNode node, ClientSkillTreeListener listener) {
+        Set<ClientSkillTreeListener> set = this.listeners.get(node);
+        if (set != null) {
+            set.remove(listener);
+            if (set.isEmpty()) {
+                this.listeners.remove(node);
+            }
+        }
+    }
     public void removeListener(SkillTreeNode node) {
         this.listeners.remove(node);
+    }
+
+    public void notifyAllListeners() {
+        for (Map.Entry<SkillTreeNode, Set<ClientSkillTreeListener>> entry : this.listeners.entrySet()) {
+            SkillTreeNode node = entry.getKey();
+            SkillPointProgress.ClientData progress = this.getOrStartProgress(node);
+            for (ClientSkillTreeListener listener : new ArrayList<>(entry.getValue())) {
+                listener.onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
+            }
+        }
     }
 
     private SkillPointProgress.ClientData startProgress(SkillTreeNode node) {
@@ -95,12 +116,10 @@ public class ClientSkillTree {
                     LOGGER.info("Ignoring skill tree progress {} received from server - this skill tree node does not exist?", Identifier.toString());
                 } else {
                     this.progresses.put(node, progress);
-                    if (this.listeners.containsKey(node)) {
-                        this.listeners.get(node).onClientSkillTreeUpdate(progress.times(), progress.maxAmount(), progress.progressAmount());
-                    }
                 }
             }
         );
+        this.notifyAllListeners();
     }
 
     public void syncAdvancements(Set<Identifier> added, Set<Identifier> removed, boolean clear) {
@@ -109,6 +128,7 @@ public class ClientSkillTree {
         }
         this.completedAdvancements.removeAll(removed);
         this.completedAdvancements.addAll(added);
+        this.notifyAllListeners();
     }
 
     public Set<Identifier> getCompletedAdvancements() {

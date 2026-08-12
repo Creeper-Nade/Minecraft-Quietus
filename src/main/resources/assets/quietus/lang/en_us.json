@@ -183,6 +183,7 @@
   "gui.skill_tree.button.moreTabs": "More skill trees...",
   "gui.skill_tree.description.progress.unobtained": "Unlocked (%s/%s)",
   "gui.skill_tree.description.progress.obtained": "Obtained (%s/%s)",
+  "gui.skill_tree.description.progress.locked": "Locked",
   "gui.skill_tree.description.prerequisites.net": "Prerequisites: ",
   "gui.skill_tree.description.prerequisites.allOf": "All of: ",
   "gui.skill_tree.description.prerequisites.anyOf": "At least one of: ",

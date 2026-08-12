@@ -133,7 +133,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private float targetLoreOpacity = 0.0f;
 
     protected int offsetX, offsetY, offsetXTree, offsetYTree, offsetXInfo, offsetYInfo = 0;
-    private float offsetXFTree, offsetXFInfo = 0.0f;
+    protected float offsetXFTree, offsetXFInfo = 0.0f;
     
 
     private static final Component TITLE = Component.translatable("gui.skill_tree");
@@ -192,6 +192,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     @Override
     public void onClose() {
         this.saveData();
+        if (this.selectedWidgetInfo != null) {
+            this.selectedWidgetInfo.discard();
+            this.selectedWidgetInfo = null;
+        }
         super.onClose();
     }
 
@@ -211,6 +215,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             }
             return true;
         } else if (event.key() == GLFW.GLFW_KEY_ESCAPE && this.selectedWidgetInfo != null) {
+            this.selectedWidgetInfo.discard();
             this.selectedNode = null;
             this.selectedWidgetInfo = null;
             return true;
@@ -244,7 +249,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
                 }
             }
             if (this.selectedNode == null) {
-                this.selectedWidgetInfo = null; // just in case
+                if (this.selectedWidgetInfo != null) {
+                    this.selectedWidgetInfo.discard();
+                    this.selectedWidgetInfo = null; // just in case
+                }
             } else {
                 SkillTreeTab rebuiltSelectedNodeTab = this.tabs.get(this.selectedNode.getCategoryId());
                 if (rebuiltSelectedNodeTab == null) {
@@ -255,6 +263,9 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
                     if (rebuiltSelectedWidget == null) {
                         LOGGER.info("The client has skill node {} selected but the category {} to which it belongs does not have such node!", this.selectedNode.getId().toString(), this.selectedNode.getCategoryId().toString());
                     } else {
+                        if (this.selectedWidgetInfo != null) {
+                            this.selectedWidgetInfo.discard();
+                        }
                         this.selectedWidgetInfo = SkillTreeInfoScreen.create(rebuiltSelectedWidget, this.font, this);
                     }
                 }
@@ -450,7 +461,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             gui.nextStratum();
             gui.pose().pushMatrix();
             gui.pose().translate(this.offsetXFTree - this.offsetX, 0.0f);
-            this.selectedTab.drawWidgetsTooltips(gui, mouseX, mouseY, this.selectedNode);
+            this.selectedTab.drawWidgetsTooltips(gui, mouseX, mouseY, this.selectedNode, this.skillTree);
             gui.pose().popMatrix();
         }
     }
@@ -821,8 +832,11 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     }
 
     protected void setSelectedNode(@Nullable SkillTreeNode node) {
+        if (this.selectedWidgetInfo != null) {
+            this.selectedWidgetInfo.discard();
+            this.selectedWidgetInfo = null;
+        }
         this.selectedNode = null;
-        this.selectedWidgetInfo = null;
         if (node != null && this.tabs.containsKey(node.getCategoryId())) {
             this.selectedNode = node;
             SkillTreeWidget widget = this.tabs.get(node.getCategoryId()).getWidget(node);
