@@ -177,10 +177,11 @@
   "item.quietus.tribow": "Tribow",
 
   "skill.quietus.example_skill": "Do Be Do Be Do Be Do",
-
+  "gui.inventory.button.openSkillTree": "Open skill tree",
 
   "gui.skill_tree": "Skill Tree",
   "gui.skill_tree.button.moreTabs": "More skill trees...",
+  "gui.skill_tree.button.inventory": "Open inventory",
   "gui.skill_tree.description.progress.unobtained": "Unlocked (%s/%s)",
   "gui.skill_tree.description.progress.obtained": "Obtained (%s/%s)",
   "gui.skill_tree.description.progress.locked": "Locked",

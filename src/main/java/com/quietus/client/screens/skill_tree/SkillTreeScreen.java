@@ -2,15 +2,12 @@ package com.quietus.client.screens.skill_tree;
 
 import static com.quietus.Quietus.MODID;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -21,11 +18,16 @@ import com.quietus.util.MapUtil;
 import com.quietus.util.ServerPacketDistributor;
 import com.quietus.util.layouts.VerticalEvenGridLayout;
 
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
@@ -36,21 +38,15 @@ import com.quietus.client.multiplayer.ClientSkillTree;
 import com.quietus.client.screens.skill_tree.SkillTreeTab.TabSelectionElement;
 import com.quietus.skilltree.SkillTreeNode;
 import com.quietus.skilltree.TreePosition;
-import com.ibm.icu.impl.locale.KeyTypeData.ValueType;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.cursor.CursorType;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import com.mojang.logging.LogUtils;
 import com.quietus.skilltree.SkillCategory;
 
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.layouts.AbstractLayout;
-import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
-import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -105,7 +101,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final double GRID_CENTER_OFFSET = - (SkillTreeTab.TAB_DISPLAY_WIDTH - 3) / 2.0;
 
     private static final int GLIMMER_CYCLE_TICKS = 60;
-    private static final int GLIMMER_WAVE_HALF_HEIGHT = 18;
+    protected static final int GLIMMER_WAVE_HALF_HEIGHT = 18;
     private int glimmerWaveCenterY = 0;
 
     private int infoAnimTicks = DYNAMIC_POSITIONING_TICKS;
@@ -139,13 +135,20 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private static final Component TITLE = Component.translatable("gui.skill_tree");
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     private SkillTreeScreen.TabsSelectionGridLayout tabsGridLayout = null;
+    private static final WidgetSprites TABS_GRID_BUTTON_SPRITES = new WidgetSprites(
+        Identifier.fromNamespaceAndPath(MODID, "skill_tree/more_tabs_button"),
+        Identifier.fromNamespaceAndPath(MODID, "skill_tree/more_tabs_button_hovered")
+    );
     private final AbstractWidget tabsGridButton = new AbstractWidget(0, 0, 23, 23, Component.translatable("gui.skill_tree.button.moreTabs")) {
+        {
+            setTooltip(Tooltip.create(Component.translatable("gui.skill_tree.button.moreTabs")));
+        }
+
         @Override
         protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
-            if (this.isHovered()) {
-                gui.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/more_tabs_button_hovered.png"), this.getX(), this.getY(), 0.0f, 0.0f, 23, 23, 23, 23);
-            } else {
-                gui.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/more_tabs_button.png"), this.getX(), this.getY(), 0.0f, 0.0f, 23, 23, 23, 23);
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, TABS_GRID_BUTTON_SPRITES.get(this.isActive(), this.isHovered()), this.getX(), this.getY(), 23, 23);
+            if (this.isHovered) {
+                gui.requestCursor(CursorTypes.POINTING_HAND);
             }
         }
         @Override
@@ -165,6 +168,42 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             // TODO Auto-generated method stub
         }
         
+    };
+    private static final WidgetSprites INVENTORY_BUTTON_SPRITES = new WidgetSprites(
+        Identifier.fromNamespaceAndPath(MODID, "skill_tree/inventory_button"),
+        Identifier.fromNamespaceAndPath(MODID, "skill_tree/inventory_button_hovered")
+    );
+    private final AbstractWidget inventoryButton = new AbstractWidget(0, 0, 23, 23, Component.translatable("gui.skill_tree.button.inventory")) {
+        {
+            setTooltip(Tooltip.create(Component.translatable("gui.skill_tree.button.inventory")));
+        }
+
+        @Override
+        protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, INVENTORY_BUTTON_SPRITES.get(this.isActive(), this.isHovered()), this.getX(), this.getY(), 23, 23);
+            gui.item(new ItemStack(Items.CHEST), this.getX()+4, this.getY()+4);
+            if (this.isHovered) {
+                gui.requestCursor(CursorTypes.POINTING_HAND);
+            }
+        }
+        @Override
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
+            SkillTreeScreen.this.close();
+            if (SkillTreeScreen.this.minecraft.gameMode.isServerControlledInventory()) {
+                SkillTreeScreen.this.minecraft.player.sendOpenInventory();
+            } else {
+                SkillTreeScreen.this.minecraft.setScreen(new InventoryScreen(SkillTreeScreen.this.minecraft.player));
+            }
+        }
+        @Override
+        public void playDownSound(SoundManager soundManager) {
+            soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput arg0) {
+            // TODO Auto-generated method stub
+        }
+
     };
 
     private final ClientSkillTree skillTree;
@@ -191,12 +230,16 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
     @Override
     public void onClose() {
+        this.close();
+        super.onClose();
+    }
+
+    public void close() {
         this.saveData();
         if (this.selectedWidgetInfo != null) {
             this.selectedWidgetInfo.discard();
             this.selectedWidgetInfo = null;
         }
-        super.onClose();
     }
 
     @Override
@@ -207,7 +250,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             this.onClose();
             return true;
         } else if (this.minecraft.options.keyInventory.matches(event)) {
-            this.onClose();
+            this.close();
             if (this.minecraft.gameMode.isServerControlledInventory()) {
                 this.minecraft.player.sendOpenInventory();
             } else {
@@ -355,6 +398,8 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
             this.tabsGridLayout.setWidth(this.windowInsideDynamicWidth);
             this.tabsGridLayout.arrangeElements();
         }
+        /* Invetory button */
+        this.inventoryButton.setPosition(this.width/2 + 104, this.height/2 + 94);
 
         /* Tabs tick */
         Iterator<SkillTreeTab> it = tabs.values().iterator();
@@ -399,17 +444,25 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         this.glimmerWaveCenterY = this.offsetY + (int) (glimmerProgress * (WINDOW_HEIGHT + GLIMMER_WAVE_HALF_HEIGHT * 2)) - GLIMMER_WAVE_HALF_HEIGHT;
     }
 
+
+
+    @Override
+    public void extractBackground(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
+        this.extractTransparentBackground(gui);
+    }
+
     @Override
     public void extractRenderState(@Nonnull GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
         super.extractRenderState(gui, mouseX, mouseY, delta);
 
         this.renderTick(delta);
 
-        // Render tabsGridButton
+        // Render SkillTreeScreen's buttons
         gui.pose().pushMatrix();
         gui.pose().translate(this.offsetXFTree - this.offsetX/*  + this.tabDynamicOffsetF */, 0.0f);
         this.tabsGridButton.extractRenderState(gui, mouseX, mouseY, delta);
         gui.pose().popMatrix();
+        this.inventoryButton.extractRenderState(gui, mouseX, mouseY, delta);
 
         // Render tab buttons with scissor from top-left of top tab to bottom-right of bottom tab
         int numTabs = 0;
@@ -457,7 +510,7 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         }
 
         // render custom hover tooltips
-        if (this.selectedTab != null) {
+        if (this.selectedTab != null && this.tabsGridLayout == null) {
             gui.nextStratum();
             gui.pose().pushMatrix();
             gui.pose().translate(this.offsetXFTree - this.offsetX, 0.0f);
@@ -628,6 +681,10 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
         double mouseY = event.y();
 
         if (this.tabsGridButton.mouseClicked(event, doubleClick)) {
+            return true;
+        }
+
+        if (this.inventoryButton.mouseClicked(event,doubleClick)) {
             return true;
         }
 
@@ -967,9 +1024,13 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     protected int yOffset() {
         return this.offsetY;
     }
+    protected int glimmerWaveCenterY() {
+        return this.glimmerWaveCenterY;
+    }
 
     protected ClientSkillTree getSkillTree() {
         return this.skillTree;
     }
+
 
 }

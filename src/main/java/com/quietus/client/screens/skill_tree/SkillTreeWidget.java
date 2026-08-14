@@ -42,6 +42,7 @@ public class SkillTreeWidget extends AbstractWidget implements ClientSkillTreeLi
     private static final int TOOLTIP_CONTAINER_X_OFFSET = -7;
     private static final Identifier HEADER_CONTAINER_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/hover/container_header");
     private static final Identifier HEADER_CONTAINER_GRAYSCALE_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/hover/container_header_grayscale");
+    private static final Identifier HEADER_CONTAINER_GRAYSCALE_GLOW_SPRITE_LOCATION = Identifier.fromNamespaceAndPath(MODID, "skill_tree/hover/container_header_grayscale_glow");
     private static final int HEADER_CONTAINER_RESOURCE_WIDTH = 57;
     private static final int HEADER_CONTAINER_RESOURCE_HEIGHT = 20;
     private static final int HEADER_CONTAINER_MIN_WIDTH = 128;
@@ -92,6 +93,7 @@ public class SkillTreeWidget extends AbstractWidget implements ClientSkillTreeLi
     private final SkillPointType widgettype;
 
     private boolean unlocked = false;
+    private boolean obtained = false;
 
     public SkillTreeWidget(SkillTreeTab tab, Minecraft minecraft, Font font, ClientSkillTree clientSkillTree, SkillTreeNode node, TreePosition.Vertex vertexPos, SkillPoint.DisplayInfo display) {
         super(vertexPos.x(), vertexPos.y(), WIDTH, HEIGHT, display.header());
@@ -113,26 +115,19 @@ public class SkillTreeWidget extends AbstractWidget implements ClientSkillTreeLi
 
         this.tooltipTicks = 0;
 
-        this.updateUnlocked(this.skillTree);
+        this.updateStatus(this.skillTree);
         this.skillTree.addListener(this.node, this);
     }
 
-    public void updateUnlocked(ClientSkillTree tree) {
+    public void updateStatus(ClientSkillTree tree) {
         Prerequisites prereq = this.getNode().getSkillPoint().unlock().prerequisites();
         this.unlocked = prereq.requirements().test(Prerequisites.CompletionStatus.make(prereq, tree.getCompletedAdvancements(), tree.getCompletedParents()));
-    }
-
-    public void updateUnlocked() {
-        this.updateUnlocked(this.skillTree);
-    }
-
-    public boolean isUnlocked() {
-        return this.unlocked;
+        this.obtained = tree.getOrStartProgress(this.node).isProgressing();
     }
 
     @Override
     public void onClientSkillTreeUpdate(int amount, int maxAmount, int progressAmount) {
-        this.updateUnlocked(this.skillTree);
+        this.updateStatus(this.skillTree);
     }
 
     protected void tooltipRenderTick() {
@@ -160,13 +155,10 @@ public class SkillTreeWidget extends AbstractWidget implements ClientSkillTreeLi
         this.drawAbsolute(gui, x, y, this.unlocked);
     }
 
-    public void extractHoverTooltip(GuiGraphicsExtractor gui, ClientSkillTree tree) {
+    public void extractHoverTooltip(GuiGraphicsExtractor gui) {
         SkillPointProgress.ClientData data = this.skillTree.getOrStartProgress(this.node);
         Component progressComponent;
 
-        if (tree != null) {
-            this.updateUnlocked(tree);
-        }
         if (!this.unlocked) {
             progressComponent = Component.literal("[")
                 .append(Component.translatable("gui.skill_tree.description.progress.locked", data.times(), data.maxAmount()))
@@ -305,7 +297,25 @@ public class SkillTreeWidget extends AbstractWidget implements ClientSkillTreeLi
 
         // header: fades in (increasing opacity)
         gui.blitSprite(RenderPipelines.GUI_TEXTURED, HEADER_CONTAINER_SPRITE_LOCATION, containerX, headerContainerY, containersWidth, headerContainerHeight, headerWhiteMask);
-        gui.blitSprite(RenderPipelines.GUI_TEXTURED, HEADER_CONTAINER_GRAYSCALE_SPRITE_LOCATION, containerX, headerContainerY, containersWidth, headerContainerHeight, ARGB.multiply(headerWhiteMask, this.getTab().getThemeColour()));
+        if (this.unlocked) {
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, HEADER_CONTAINER_GRAYSCALE_GLOW_SPRITE_LOCATION, containerX, headerContainerY, containersWidth, headerContainerHeight, ARGB.multiply(headerWhiteMask, this.getTab().getThemeColour()));
+            int glimmerWaveCenterY = screen.glimmerWaveCenterY();
+            int glimmerSteps = 4;
+            for (int step = 1; step <= glimmerSteps; step++) {
+                float factor = 1.0f - (float) (step - 1) / glimmerSteps;
+                int halfHeight = Math.max(1, Math.round(SkillTreeScreen.GLIMMER_WAVE_HALF_HEIGHT * factor));
+                int scissorTop = Math.max(headerContainerY, glimmerWaveCenterY - halfHeight);
+                int scissorBottom = Math.min(headerContainerY + headerContainerHeight, glimmerWaveCenterY + halfHeight);
+
+                if (scissorBottom > scissorTop) {
+                    gui.enableScissor(containerX, scissorTop, containerX + containersWidth, scissorBottom);
+                    gui.blitSprite(RenderPipelines.GUI_TEXTURED, HEADER_CONTAINER_GRAYSCALE_GLOW_SPRITE_LOCATION, containerX, headerContainerY, containersWidth, headerContainerHeight, ARGB.multiply(headerWhiteMask, this.getTab().getThemeColour()));
+                    gui.disableScissor();
+                }
+            }
+            gui.blitSprite(RenderPipelines.GUI_TEXTURED, HEADER_CONTAINER_GRAYSCALE_SPRITE_LOCATION, containerX, headerContainerY, containersWidth, headerContainerHeight, ARGB.multiply(headerWhiteMask, this.getTab().getThemeColour()));
+        }
+
         GuiGraphicsExtractorUtil.drawWordWrap(gui, this.font, this.display.header(), headerTextX, headerTextY, HEADER_TEXT_MAX_WIDTH, TEXT_LINE_SPACING, headerWhiteMask, true);
 
         if (this.isHovered) {
@@ -320,7 +330,7 @@ public class SkillTreeWidget extends AbstractWidget implements ClientSkillTreeLi
 
     public void drawAbsolute(GuiGraphicsExtractor gui, int x, int y, boolean unlocked) {
         int mask = unlocked ? 0xFFFFFFFF : 0xFF909090;
-        gui.blit(RenderPipelines.GUI_TEXTURED, this.widgettype.getLocation(false), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT, mask);
+        gui.blit(RenderPipelines.GUI_TEXTURED, this.widgettype.getLocation(this.obtained), x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT, mask);
         if (this.minecraft.getResourceManager().getResource(this.icon).isPresent()) {
             gui.blit(RenderPipelines.GUI_TEXTURED, this.icon, x, y, 0.0f, 0.0f, ICON_WIDTH, ICON_HEIGHT, ICON_WIDTH, ICON_HEIGHT, mask);
         } else {
@@ -366,6 +376,10 @@ public class SkillTreeWidget extends AbstractWidget implements ClientSkillTreeLi
         }
     }
 
+    public boolean isUnlocked() {
+        return this.unlocked;
+    }
+
     public String getLanguageKey() {
         return this.languangeKey;
     }
@@ -403,7 +417,6 @@ public class SkillTreeWidget extends AbstractWidget implements ClientSkillTreeLi
     @Override
     protected void updateWidgetNarration(NarrationElementOutput arg0) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateWidgetNarration'");
     }
 
 }

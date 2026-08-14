@@ -1,9 +1,14 @@
 package com.quietus.util;
 
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.quietus.Quietus;
 import com.quietus.client.packet.DoDecayPacket;
@@ -17,12 +22,19 @@ import com.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
 import com.quietus.client.packet.SkillTreeUpdatePacket;
 import com.quietus.client.packet.WeatherItemContainerPacket;
 import com.quietus.core.mana.ManaComponent;
+import com.quietus.server.PlayerSkillTree;
 import com.quietus.server.QuietusReloadableResources;
+import com.quietus.skilltree.Prerequisites;
 import com.quietus.skilltree.SkillCategory;
+import com.quietus.skilltree.SkillPoint;
 import com.quietus.skilltree.SkillPointProgress;
+import com.quietus.skilltree.SkillTreeNode;
 
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.PlayerAdvancements;
+import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -61,21 +73,107 @@ public class PlayerClientPacketDistributor {
         PacketDistributor.sendToPlayer(serverPlayer,new GrapplingActiveHookPacket(active,id));
     }
 
-    /* Skill tree */
+    /**
+     * Make a client-bound skill tree packet for player
+     * skill tree GUI. This skill tree filters out all
+     * skill tree nodes that should not be visible
+     * to the player, including: nodes without
+     * DisplayInfo, nodes having unmet layout
+     * prerequisites, and all the children and indirect
+     * children of mentioned nodes.
+     * @param player
+     * @return
+     */
     public static SkillTreeUpdatePacket makeClientboundSkillTreePack(ServerPlayer player) {
-        Map<Identifier,SkillCategory> categories =
+        Map<Identifier, SkillCategory> originalCategories =
             Objects.nonNull(QuietusReloadableResources.getSkillCategories()) ?
                 QuietusReloadableResources.getSkillCategories() :
                 Map.of();
-        Map<Identifier,SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
-        if (Objects.nonNull(Quietus.playerData.getSkillTree(player.getUUID()))) {
-            Quietus.playerData.getSkillTree(player.getUUID()).asData().forEach(
-                (Identifier, progress) -> {
-                    progresses.put(Identifier, progress.asClientData());
+
+        Set<Identifier> completedParents = new HashSet<>();
+        PlayerSkillTree playerSkillTree = Objects.nonNull(Quietus.playerData) ? Quietus.playerData.getSkillTree(player.getUUID()) : null;
+        if (Objects.nonNull(playerSkillTree)) {
+            playerSkillTree.getProgresses().forEach((node, progress) -> {
+                if (progress.isProgressing()) {
+                    completedParents.add(node.getId());
                 }
-            );
+            });
         }
-        return new SkillTreeUpdatePacket(categories,progresses);
+
+        PlayerAdvancements playerAdvancements = player.getAdvancements();
+        ServerAdvancementManager advancementTree = player.level().getServer().getAdvancements();
+
+        Set<SkillTreeNode> filteredOut = new HashSet<>();
+        Queue<SkillTreeNode> queue = new ArrayDeque<>();
+
+        for (SkillCategory category : originalCategories.values()) { // filtering out nodes with no display or not met layout prerequisites
+            for (SkillTreeNode node : category.getNodesMap().values()) {
+                SkillPoint skillPoint = node.getSkillPoint();
+                if (skillPoint.display().isEmpty() || !isLayoutPrerequisitesMet(skillPoint.layout().prerequisites(), playerAdvancements, advancementTree, completedParents)) {
+                    if (filteredOut.add(node)) {
+                        queue.add(node);
+                    }
+                }
+            }
+        }
+
+        while (!queue.isEmpty()) { // loop and filtering out the children of filtered out nodes until reaching leaf nodes
+            SkillTreeNode current = queue.poll();
+            for (SkillTreeNode child : current.children()) {
+                if (filteredOut.add(child)) {
+                    queue.add(child);
+                }
+            }
+        }
+
+        Set<Identifier> filteredOutIds = filteredOut.stream()
+            .map(SkillTreeNode::getId)
+            .collect(Collectors.toSet());
+
+        Map<Identifier, SkillCategory> filteredCategories = new LinkedHashMap<>();
+        originalCategories.forEach((catId, category) -> {
+            Map<Identifier, SkillPoint> filteredNodesMap = new HashMap<>();
+            category.getNodesMap().forEach((nodeId, node) -> {
+                if (!filteredOutIds.contains(nodeId)) {
+                    filteredNodesMap.put(nodeId, node.getSkillPoint());
+                }
+            });
+            SkillCategory newCategory = new SkillCategory(
+                category.getId(),
+                category.maxWidth(),
+                category.seed(),
+                category.prerequisites(),
+                category.display()
+            );
+            newCategory.addAll(filteredNodesMap);
+            filteredCategories.put(catId, newCategory);
+        });
+
+        Map<Identifier, SkillPointProgress.ClientData> progresses = new LinkedHashMap<>();
+        if (Objects.nonNull(playerSkillTree)) {
+            playerSkillTree.asData().forEach((nodeId, progress) -> {
+                if (!filteredOutIds.contains(nodeId)) {
+                    progresses.put(nodeId, progress.asClientData());
+                }
+            });
+        }
+
+        return new SkillTreeUpdatePacket(filteredCategories, progresses);
+    }
+
+    private static boolean isLayoutPrerequisitesMet(Prerequisites prereq, PlayerAdvancements playerAdvancements, ServerAdvancementManager advancementTree, Set<Identifier> completedParents) {
+        if (prereq.requirements().isEmpty()) {
+            return true;
+        }
+        Set<Identifier> completedAdvancements = new HashSet<>();
+        for (Identifier advId : prereq.advancements().values()) {
+            AdvancementHolder holder = advancementTree.get(advId);
+            if (Objects.nonNull(holder) && playerAdvancements.getOrStartProgress(holder).isDone()) {
+                completedAdvancements.add(advId);
+            }
+        }
+        Prerequisites.CompletionStatus status = Prerequisites.CompletionStatus.make(prereq, completedAdvancements, completedParents);
+        return prereq.requirements().test(status);
     }
     public static void sendSkillTreePackToPlayer(ServerPlayer serverPlayer) {
         PacketDistributor.sendToPlayer(serverPlayer, makeClientboundSkillTreePack(serverPlayer));

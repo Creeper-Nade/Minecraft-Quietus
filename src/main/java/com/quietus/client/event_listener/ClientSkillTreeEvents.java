@@ -2,7 +2,6 @@ package com.quietus.client.event_listener;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
@@ -13,7 +12,7 @@ import static com.quietus.Quietus.MODID;
 
 
 @EventBusSubscriber(modid = MODID, value = Dist.CLIENT)
-public class ClientSkillTreeEvent {
+public class ClientSkillTreeEvents {
 
     @SubscribeEvent
     public static void onClientJoin(ClientPlayerNetworkEvent.LoggingIn event) {

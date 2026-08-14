@@ -16,6 +16,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -424,37 +425,49 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
 
     private enum UpgradeButtonState {
         OBTAIN(
-            Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/unlock"), 
+            new WidgetSprites(
+                Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/unlock"),
+                Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/unlock_hovered")
+            ), 
             "gui.skill_tree.upgrade_button.obtain",
             true, 
             false
         ),
         UPGRADE(
-            Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/upgrade"), 
+            new WidgetSprites(
+                Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/upgrade"),
+                Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/upgrade_hovered")
+            ), 
             "gui.skill_tree.upgrade_button.upgrade",
             true, 
             true
         ),
         LOCKED(
-            Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked"), 
+            new WidgetSprites(
+                Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked"),
+                Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked")
+            ), 
             "gui.skill_tree.upgrade_button.locked",
             false, 
             false
         ),
         LOCKED_UPGRADE(
-            Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked_upgrade"), 
+            new WidgetSprites(
+                Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked_upgrade"),
+                Identifier.fromNamespaceAndPath(MODID, "skill_tree/upgrade_button/locked_upgrade")
+            ), 
             "gui.skill_tree.upgrade_button.locked_upgrade",
             false, 
             true
         );
 
-        private final Identifier spriteLocation;
+        private final WidgetSprites sprites;
         private final String text;
         private final boolean hasHover;
         private final boolean doDrawLines;
 
-        UpgradeButtonState(Identifier sprite, String text, boolean hasHover, boolean doDrawLines) {
-            this.spriteLocation = sprite;
+        UpgradeButtonState(WidgetSprites sprites, String text, boolean hasHover, boolean doDrawLines) {
+            this.sprites = sprites;
             this.text = text;
             this.hasHover = hasHover;
             this.doDrawLines = doDrawLines;
@@ -469,7 +482,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         }
 
         private void draw(GuiGraphicsExtractor gui, int offsetX, int offsetY, boolean isHovered, int currentProgress, int maxProgress, Font font, int themeColour) {
-            Identifier loc = (isHovered && this.hasHover) ? this.spriteLocation.withPath(this.spriteLocation.getPath() + "_hovered") : this.spriteLocation;
+            Identifier loc = this.sprites.get(true, isHovered && this.hasHover);
             if (this.doDrawLines && currentProgress > 0) {
                 int innerWidth = UpgradeButton.WIDTH - 2 * UpgradeButton.INSIDE_X;
                 int innerHeight = UpgradeButton.HEIGHT - 2 * UpgradeButton.INSIDE_Y;

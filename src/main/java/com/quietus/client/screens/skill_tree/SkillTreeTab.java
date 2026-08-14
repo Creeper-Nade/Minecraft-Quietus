@@ -21,6 +21,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -40,9 +41,12 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
     protected static final int TAB_ICON_HEIGHT = 18;
     private static final int TAB_BACKGROUND_TILE_WIDTH = 32;
     private static final int TAB_BACKGROUND_TILE_HEIGHT = 32;
-    private static final Identifier TAB_DISPLAY_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/tab.png");
-    private static final Identifier TAB_DISPLAY_SELECTED_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/tab_selected.png");
-    private static final Identifier TAB_DISPLAY_HOVERED_LOCATION = Identifier.fromNamespaceAndPath(MODID, "textures/gui/skill_tree/tab_hovered.png");
+    private static final WidgetSprites TAB_SPRITES = new WidgetSprites(
+        Identifier.fromNamespaceAndPath(MODID, "skill_tree/tab"),
+        Identifier.fromNamespaceAndPath(MODID, "skill_tree/tab_selected"),
+        Identifier.fromNamespaceAndPath(MODID, "skill_tree/tab_hovered"),
+        Identifier.fromNamespaceAndPath(MODID, "skill_tree/tab_selected")
+    );
     private static final Identifier DEFAULT_ICON = Identifier.fromNamespaceAndPath(MODID, "textures/gui/icons/skill_tree/tab/none.png");
 
     private static final boolean[] DOTTED_LINE_PATTERN = {true, true, false};
@@ -158,17 +162,11 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         int x = this.getX();
         int y = this.getY();
         
-        if (this.isActive()) {
-            if (this.isHovered()) {
-                gui.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_HOVERED_LOCATION, x, y, 0.0f, 0.0f, 38, 28, 38, 28);
-                gui.requestCursor(CursorTypes.POINTING_HAND);
-            } else {
-                gui.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_LOCATION, x, y, 0.0f, 0.0f, 38, 28, 38, 28);
-            }
-        } else {
-            gui.blit(RenderPipelines.GUI_TEXTURED, TAB_DISPLAY_SELECTED_LOCATION, x, y, 0.0f, 0.0f, 38, 28, 38, 28);
+        gui.blitSprite(RenderPipelines.GUI_TEXTURED, TAB_SPRITES.get(this.isActive(), this.isHovered()), x, y, 38, 28);
+        if (this.isActive() && this.isHovered()) {
+            gui.requestCursor(CursorTypes.POINTING_HAND);
         }
-        gui.blit(RenderPipelines.GUI_TEXTURED, this.getIconLocation(), x+5, y+5, 0.0f, 0.0f, 18, 18, 18, 18);
+        gui.blit(RenderPipelines.GUI_TEXTURED, this.getIconLocation(), x + 5, y + 5, 0.0f, 0.0f, 18, 18, 18, 18);
     }
 
     public void drawTreeWidgetsAndEdges(GuiGraphicsExtractor gui, int mouseX, int mouseY, float delta) {
@@ -308,12 +306,12 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
                 hoveredWidget = widget;
             } else {
                 if (widget.getTooltipTicks() > 0) {
-                    widget.extractHoverTooltip(gui, tree);
+                    widget.extractHoverTooltip(gui);
                 }
             }
         }
         if (hoveredWidget != null) {
-            hoveredWidget.extractHoverTooltip(gui, tree);
+            hoveredWidget.extractHoverTooltip(gui);
         }
     }
 
@@ -400,6 +398,10 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
 
             // fill
             gui.blitSprite(RenderPipelines.GUI_TEXTURED, TAB_ELEMENT_SPRITE_LOCATION, x, y, this.width, this.height);
+            /* white fill if hovered */
+            if (this.isHovered) {
+                gui.fill(iconX, iconY, iconX + TAB_ICON_WIDTH, iconY + TAB_ICON_HEIGHT, 0x40FFFFFF);
+            }
             // icon
             gui.blit(RenderPipelines.GUI_TEXTURED, SkillTreeTab.this.getIconLocation(), iconX, iconY, 0.0f, 0.0f, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT, SkillTreeTab.TAB_ICON_WIDTH, SkillTreeTab.TAB_ICON_HEIGHT);
             // text

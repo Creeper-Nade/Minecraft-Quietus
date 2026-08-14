@@ -223,10 +223,10 @@ public class SkillCategory {
         return this.nodes.get(location);
     }
 
-    protected Map<Identifier, SkillTreeNode> getNodesMap() {
+    public Map<Identifier, SkillTreeNode> getNodesMap() {
         return this.nodes;
     }
-    protected Set<SkillTreeNode> getRoots() {
+    public Set<SkillTreeNode> getRoots() {
         return this.roots;
     }
 

@@ -5,7 +5,7 @@
     "layout": {
         "prerequisites": {
             "parents": {
-                "p1": "quietus:example_tab/example_root"
+                "p1": "quietus:example_tab/example"
             },
             "requirements": [
                 ["p1"]
