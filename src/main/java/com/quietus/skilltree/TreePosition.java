@@ -235,12 +235,13 @@ public class TreePosition {
     }
 
     private void barycenterSort(List<Node> layer, List<Node> relativeLayer, boolean parents) {
+        Set<Node> relativeSet = new HashSet<>(relativeLayer);
         for (Node node : layer) {
             double sum = 0;
             int count = 0;
             Collection<Node> relatives = parents ? node.parents : node.children;
             for (Node relative : relatives) {
-                if (relativeLayer.contains(relative)) {
+                if (relativeSet.contains(relative)) {
                     sum += relative.tempIndex;
                     count++;
                 }
@@ -266,7 +267,7 @@ public class TreePosition {
             int bestPos = node.tempIndex;
             int minCrossings = Integer.MAX_VALUE;
 
-            int currentPos = layer.indexOf(node);
+            int currentPos = node.tempIndex;
             layer.remove(currentPos);
 
             for (int i = 0; i <= layer.size(); i++) {
@@ -296,15 +297,16 @@ public class TreePosition {
     }
 
     private int countCrossingsBetween(List<Node> upper, List<Node> lower) {
+        Set<Node> lowerSet = new HashSet<>(lower);
         int crossings = 0;
         for (int i = 0; i < upper.size(); i++) {
             Node u1 = upper.get(i);
             for (int j = i + 1; j < upper.size(); j++) {
                 Node u2 = upper.get(j);
                 for (Node v1 : u1.children) {
-                    if (!lower.contains(v1)) continue;
+                    if (!lowerSet.contains(v1)) continue;
                     for (Node v2 : u2.children) {
-                        if (!lower.contains(v2)) continue;
+                        if (!lowerSet.contains(v2)) continue;
                         if (v1.tempIndex > v2.tempIndex) crossings++;
                     }
                 }
@@ -321,25 +323,127 @@ public class TreePosition {
     }
 
     private void makeCoordinates(List<List<Node>> layers) {
-        int maxNodesInLayer = layers.stream().mapToInt(List::size).max().orElse(0);
-        int maxWidth = maxNodesInLayer * (this.nodePaddingWidth + this.nodeMarginWidth) - this.nodeMarginWidth;
+        int nodeStep = this.nodePaddingWidth + this.nodeMarginWidth;
+
+        // Initial placement: evenly space each layer
+        for (List<Node> layer : layers) {
+            for (int j = 0; j < layer.size(); j++) {
+                layer.get(j).x = j * nodeStep;
+            }
+        }
+
+        // Iterative barycenter refinement: bottom-up then top-down
+        for (int iter = 0; iter < 8; iter++) {
+            // Bottom-up: align parents to children barycenter
+            for (int i = layers.size() - 2; i >= 0; i--) {
+                List<Node> layer = layers.get(i);
+                for (Node node : layer) {
+                    if (!node.children.isEmpty()) {
+                        double sum = 0;
+                        for (Node child : node.children) {
+                            sum += child.x;
+                        }
+                        node.x = (int) Math.round(sum / node.children.size());
+                    }
+                }
+                enforceMinimumSpacing(layer, nodeStep);
+            }
+            // Top-down: align nodes toward parent barycenter (benefits leaves and intermediaries)
+            for (int i = 1; i < layers.size(); i++) {
+                List<Node> layer = layers.get(i);
+                for (Node node : layer) {
+                    if (!node.parents.isEmpty()) {
+                        double parentAvg = 0;
+                        for (Node parent : node.parents) {
+                            parentAvg += parent.x;
+                        }
+                        parentAvg /= node.parents.size();
+
+                        if (node.children.isEmpty()) {
+                            // Leaf: align fully to parent barycenter
+                            node.x = (int) Math.round(parentAvg);
+                        } else {
+                            // Intermediate: weighted average favoring children alignment
+                            double childAvg = 0;
+                            for (Node child : node.children) {
+                                childAvg += child.x;
+                            }
+                            childAvg /= node.children.size();
+                            node.x = (int) Math.round(childAvg * 0.7 + parentAvg * 0.3);
+                        }
+                    }
+                }
+                enforceMinimumSpacing(layer, nodeStep);
+            }
+        }
+
+        // Normalize: shift so minimum X is 0, and assign Y coordinates
+        int minX = Integer.MAX_VALUE;
+        for (List<Node> layer : layers) {
+            for (Node node : layer) {
+                minX = Math.min(minX, node.x);
+            }
+        }
 
         for (int i = 0; i < layers.size(); i++) {
             List<Node> layer = layers.get(i);
-            int layerWidth = layer.size() * (this.nodePaddingWidth + this.nodeMarginWidth) - this.nodeMarginWidth;
-            int startX = (maxWidth - layerWidth) / 2;
-
-            for (int j = 0; j < layer.size(); j++) {
-                Node node = layer.get(j);
-                int x = startX + j * (this.nodePaddingWidth + this.nodeMarginWidth);
-                int y = i * (this.nodePaddingHeight + this.nodeMarginHeight);
-                node.x = x;
+            int y = i * (this.nodePaddingHeight + this.nodeMarginHeight);
+            for (Node node : layer) {
+                node.x -= minX;
                 node.y = y;
                 if (node.node.isPresent()) {
-                    this.vertices.put(node.node.get(), new Vertex(x, y));
+                    this.vertices.put(node.node.get(), new Vertex(node.x, node.y));
                 }
             }
         }
+    }
+
+    /**
+     * Enforces minimum horizontal spacing between adjacent nodes in a layer.
+     * Uses extra spacing between nodes whose edges risk crossing each other's vertical segments.
+     */
+    private void enforceMinimumSpacing(List<Node> layer, int nodeStep) {
+        if (layer.size() <= 1) return;
+        int halfPadding = this.nodePaddingWidth / 2;
+
+        for (int j = 1; j < layer.size(); j++) {
+            Node prev = layer.get(j - 1);
+            Node curr = layer.get(j);
+            int minSpace = nodeStep;
+
+            // Increase spacing if edges from one node span past the other,
+            // which would cause unrelated vertical edge segments to cross horizontal segments
+            if (hasEdgeCrossingRisk(prev, curr, halfPadding)) {
+                minSpace = nodeStep + this.nodeMarginWidth;
+            }
+
+            if (curr.x < prev.x + minSpace) {
+                curr.x = prev.x + minSpace;
+            }
+        }
+    }
+
+    /**
+     * Checks if two adjacent nodes have edges (to children or parents) that span
+     * past each other's X position, which would cause visual edge crossing.
+     */
+    private boolean hasEdgeCrossingRisk(Node left, Node right, int halfPadding) {
+        int rightCX = right.x + halfPadding;
+        int leftCX = left.x + halfPadding;
+
+        for (Node child : left.children) {
+            if (child.x + halfPadding > rightCX) return true;
+        }
+        for (Node parent : left.parents) {
+            if (parent.x + halfPadding > rightCX) return true;
+        }
+        for (Node child : right.children) {
+            if (child.x + halfPadding < leftCX) return true;
+        }
+        for (Node parent : right.parents) {
+            if (parent.x + halfPadding < leftCX) return true;
+        }
+        return false;
     }
 
     private void makeEdges(List<List<Node>> layers) {
