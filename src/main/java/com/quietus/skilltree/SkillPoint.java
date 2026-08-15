@@ -13,7 +13,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.advancements.Advancement;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -24,23 +23,28 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+
 public record SkillPoint(
     int maxAmount,
+    int progress,
     LayoutInfo layout,
     UnlockInfo unlock,
-    List<Reward> rewards,
+    Rewards rewards,
     Optional<DisplayInfo> display
 ) {
-    /*private SkillPoint(int maxAmount, UnlockInfo unlock, List<Reward> rewards, Optional<DisplayInfo> display) {
-        this(maxAmount, 1, unlock, rewards, display);
+    /*private SkillPoint(int maxAmount, int progress, UnlockInfo unlock, RewardsInfo rewards, Optional<DisplayInfo> display) {
+        this(maxAmount, progress, layout, unlock, rewards, display);
     }*/
 
     public static final Codec<SkillPoint> CODEC = RecordCodecBuilder.<SkillPoint>create(
         instance -> instance.group(
             Codec.INT.optionalFieldOf("max_amount", 1).forGetter(SkillPoint::maxAmount),
+            Codec.INT.optionalFieldOf("progress", 1).forGetter(SkillPoint::progress),
             LayoutInfo.CODEC.fieldOf("layout").forGetter(SkillPoint::layout),
-            UnlockInfo.CODEC.fieldOf("unlock").forGetter(SkillPoint::unlock),
-            Reward.CODEC.listOf().fieldOf("rewards").forGetter(SkillPoint::rewards),
+            UnlockInfo.CODEC.optionalFieldOf("unlock", UnlockInfo.EMPTY).forGetter(SkillPoint::unlock),
+            Rewards.CODEC.optionalFieldOf("rewards", Rewards.EMPTY).forGetter(SkillPoint::rewards),
             DisplayInfo.CODEC.optionalFieldOf("display").forGetter(SkillPoint::display)
         ).apply(instance, SkillPoint::new)
     )
@@ -50,9 +54,7 @@ public record SkillPoint(
 
 
     public void apply(Player player) {
-        for (Reward action : this.rewards) {
-            action.apply(player);
-        }
+        this.rewards.apply(player);
     }
 
     private static DataResult<SkillPoint> validate(SkillPoint skillPoint) {
@@ -78,35 +80,78 @@ public record SkillPoint(
         }
         buffer.writeInt(i);
         buffer.writeInt(this.maxAmount);
+        buffer.writeInt(this.progress);
         LayoutInfo.STREAM_CODEC.encode(buffer, this.layout);
         UnlockInfo.STREAM_CODEC.encode(buffer, this.unlock);
-        buffer.writeCollection(this.rewards, Reward.STREAM_CODEC::encode);
+        Rewards.STREAM_CODEC.encode(buffer, this.rewards);
         this.display.ifPresent((display) -> DisplayInfo.STREAM_CODEC.encode(buffer, display));
     }
     private static SkillPoint deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
         int i = buffer.readInt();
         int maxAmount = buffer.readInt();
+        int progress = buffer.readInt();
         LayoutInfo layout = LayoutInfo.STREAM_CODEC.decode(buffer);
         UnlockInfo unlock = UnlockInfo.STREAM_CODEC.decode(buffer);
-        List<Reward> rewards = buffer.readCollection(ArrayList::new, Reward.STREAM_CODEC::decode);
+        Rewards rewards = Rewards.STREAM_CODEC.decode(buffer);
         Optional<DisplayInfo> display = ((i & 1) != 0) ? Optional.of(DisplayInfo.STREAM_CODEC.decode(buffer)) : Optional.empty();
-        return new SkillPoint(maxAmount, layout, unlock, rewards, display);
+        return new SkillPoint(maxAmount, progress, layout, unlock, rewards, display);
+    }
+
+    public record Rewards(
+        List<Reward> skills,
+        Optional<Identifier> function
+    ) {
+        public static final Rewards EMPTY = new Rewards(List.of(), Optional.empty());
+
+        public static final Codec<Rewards> CODEC = RecordCodecBuilder.create(
+            instance -> instance.group(
+                Reward.CODEC.listOf().optionalFieldOf("skills", List.of()).forGetter(Rewards::skills),
+                Identifier.CODEC.optionalFieldOf("function").forGetter(Rewards::function)
+            ).apply(instance, Rewards::new)
+        );
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, Rewards> STREAM_CODEC = StreamCodec.ofMember(
+            Rewards::serializeToNetwork, Rewards::deserializeFromNetwork
+        );
+
+        private void serializeToNetwork(RegistryFriendlyByteBuf buffer) {
+            buffer.writeCollection(this.skills, Reward.STREAM_CODEC::encode);
+            buffer.writeOptional(this.function, FriendlyByteBuf::writeIdentifier);
+        }
+
+        private static Rewards deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
+            List<Reward> skills = buffer.readCollection(ArrayList::new, Reward.STREAM_CODEC::decode);
+            Optional<Identifier> function = buffer.readOptional(FriendlyByteBuf::readIdentifier);
+            return new Rewards(skills, function);
+        }
+
+        public void apply(Player player) {
+            for (Reward action : this.skills) {
+                action.apply(player);
+            }
+            if (this.function.isPresent() && player instanceof ServerPlayer serverPlayer) {
+                MinecraftServer server = serverPlayer.level().getServer();
+                if (server != null) {
+                    server.getFunctions().get(this.function.get()).ifPresent(commandFunction -> {
+                        server.getFunctions().execute(commandFunction, serverPlayer.createCommandSourceStack().withSuppressedOutput());
+                    });
+                }
+            }
+        }
     }
 
     public record UnlockInfo(
-        int progress,
         Prerequisites prerequisites
     ) {
+        public static final UnlockInfo EMPTY = new UnlockInfo(Prerequisites.EMPTY);
 
         public static final Codec<UnlockInfo> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                Codec.INT.fieldOf("progress").forGetter(UnlockInfo::progress),
-                Prerequisites.CODEC.optionalFieldOf("prerequisites",Prerequisites.EMPTY).forGetter(UnlockInfo::prerequisites)
+                Prerequisites.CODEC.optionalFieldOf("prerequisites", Prerequisites.EMPTY).forGetter(UnlockInfo::prerequisites)
             ).apply(instance, UnlockInfo::new)
         );
 
-        public static final StreamCodec<RegistryFriendlyByteBuf,UnlockInfo> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, UnlockInfo::progress,
+        public static final StreamCodec<RegistryFriendlyByteBuf, UnlockInfo> STREAM_CODEC = StreamCodec.composite(
             Prerequisites.STREAM_CODEC, UnlockInfo::prerequisites,
             UnlockInfo::new
         );
@@ -119,7 +164,7 @@ public record SkillPoint(
         public static final Codec<LayoutInfo> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
                 Codec.BOOL.optionalFieldOf("top",false).forGetter(LayoutInfo::top),
-                Prerequisites.CODEC.optionalFieldOf("prerequisites",Prerequisites.EMPTY).forGetter(LayoutInfo::prerequisites)
+                Prerequisites.CODEC.optionalFieldOf("prerequisites", Prerequisites.EMPTY).forGetter(LayoutInfo::prerequisites)
             ).apply(instance, LayoutInfo::new)
         );
 
@@ -143,7 +188,7 @@ public record SkillPoint(
                 ClientAsset.ResourceTexture.CODEC.optionalFieldOf("icon").forGetter(DisplayInfo::icon),
                 ComponentSerialization.CODEC.fieldOf("header").forGetter(DisplayInfo::header),
                 ComponentSerialization.CODEC.fieldOf("description").forGetter(DisplayInfo::description),
-                Prerequisites.DisplayInfo.CODEC.fieldOf("prerequisites").forGetter(DisplayInfo::prerequisites)
+                Prerequisites.DisplayInfo.CODEC.optionalFieldOf("prerequisites", Prerequisites.DisplayInfo.EMPTY).forGetter(DisplayInfo::prerequisites)
             ).apply(instance, DisplayInfo::new)
         );
 

@@ -175,7 +175,7 @@ public record Prerequisites(
 
         /**
          * Testing for completion of this prerequisite
-         * @param predicate a string predicate to decide whether the said string is finished.
+         * @param completion a completion status. See {@link CompletionStatus}
          * @return true if passed (including when there are no requirements), false if any failed.
          */
         public boolean test(CompletionStatus completion) {
@@ -497,6 +497,8 @@ public record Prerequisites(
     public record DisplayInfo(
         Map<String, Component> advancements
     ) {
+        public static final Prerequisites.DisplayInfo EMPTY = new Prerequisites.DisplayInfo(Map.of());
+
         private static final Codec<Map<String, Component>> CRITERIA_DISPLAY_MAP_CODEC = Codec.unboundedMap(Codec.STRING, ComponentSerialization.CODEC);
         public static final Codec<Prerequisites.DisplayInfo> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(

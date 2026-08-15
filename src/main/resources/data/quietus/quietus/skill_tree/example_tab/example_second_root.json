@@ -1,6 +1,7 @@
 {
 
     "max_amount": 5,
+    "progress": 1,
 
     "layout": {
         "top": true,
@@ -15,18 +16,19 @@
     },
 
     "unlock": {
-        "progress": 1,
         "prerequisites": {
         }
     },
 
-    "rewards": [
-        {
-            "skill": "quietus:example_skill",
-            "amount": 1,
-            "source": "quietus:skill_tree"
-        }
-    ],
+    "rewards": {
+        "skills": [
+            {
+                "skill": "quietus:example_skill",
+                "amount": 1,
+                "source": "quietus:skill_tree"
+            }
+        ]
+    },
 
     "display": {
         "header": {

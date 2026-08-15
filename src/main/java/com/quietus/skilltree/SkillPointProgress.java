@@ -68,7 +68,7 @@ public class SkillPointProgress implements Comparable<SkillPointProgress> {
         this.times.addAll(times);
     }
     public SkillPointProgress(List<Instant> times, SkillPoint skill) {
-        this(times, skill.maxAmount(), skill.unlock().progress());
+        this(times, skill.maxAmount(), skill.progress());
     }
     public SkillPointProgress(List<Instant> times, int maxAmount, int progressAmount) {
         this.times.addAll(times);

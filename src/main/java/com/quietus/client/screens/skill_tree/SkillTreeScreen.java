@@ -391,7 +391,12 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
 
 
         /* Tabs selection button and layout */
-        this.tabsGridButton.setPosition(this.offsetX-SkillTreeTab.TAB_DISPLAY_WIDTH+3+4, this.offsetY+12+SkillTreeTab.TAB_DISPLAY_HEIGHT*MAX_TABS_PER_PAGE+2);
+        if (this.tabs.size() > MAX_TABS_PER_PAGE) {
+            this.tabsGridButton.setPosition(this.offsetX-SkillTreeTab.TAB_DISPLAY_WIDTH+3+4, this.offsetY+12+SkillTreeTab.TAB_DISPLAY_HEIGHT*MAX_TABS_PER_PAGE+2);
+            this.tabsGridButton.visible = true;
+        } else {
+            this.tabsGridButton.visible = false;
+        }
         if (this.tabsGridLayout != null) {
             this.tabsGridLayout.setInitialPosition(this.offsetXTree, this.offsetYTree);
             this.tabsGridLayout.setViewportHeight(WINDOW_INSIDE_HEIGHT);

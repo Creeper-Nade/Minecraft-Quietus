@@ -15,12 +15,13 @@ import static com.quietus.Quietus.MODID;
 public class QuietusSkills {
 
     public static final DeferredRegister<Skill> REGISTRAR = DeferredRegister.create(QuietusRegistries.SKILL_REGISTRY, MODID);
-
-    public static final Supplier<Skill> NONE = REGISTRAR.register("none", () -> new Skill(ResourceKey.create(QuietusRegistries.SKILL_REGISTRY_KEY, Identifier.fromNamespaceAndPath(MODID, "none")), 1));
     
     public static final Supplier<Skill> EXAMPLE_SKILL = registerSkill("example_skill", 5);
     public static final Supplier<Skill> EXAMPLE_SKILL_TWO = registerSkill("example_skill_2", 3);
 
+    private static Supplier<Skill> registerSkill(String name) {
+        return REGISTRAR.register(name, () -> new Skill(ResourceKey.create(QuietusRegistries.SKILL_REGISTRY_KEY, Identifier.fromNamespaceAndPath(MODID, name))));
+    }
     private static Supplier<Skill> registerSkill(String name, int maxLevel) {
         return REGISTRAR.register(name, () -> new Skill(ResourceKey.create(QuietusRegistries.SKILL_REGISTRY_KEY, Identifier.fromNamespaceAndPath(MODID, name)), maxLevel));
     }

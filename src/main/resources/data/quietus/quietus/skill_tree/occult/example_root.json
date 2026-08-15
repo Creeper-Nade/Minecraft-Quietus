@@ -1,6 +1,6 @@
 {
 
-    "max_amount": 10,
+    "max_amount": 1,
 
     "layout": {
         "top": true,
@@ -10,18 +10,19 @@
     },
 
     "unlock": {
-        "progress": 5,
         "prerequisites": {
         }
     },
 
-    "rewards": [
-        {
-            "skill": "quietus:example_skill",
-            "amount": 1,
-            "source": "quietus:skill_tree"
-        }
-    ],
+    "rewards": {
+        "skills": [
+            {
+                "skill": "quietus:example_skill",
+                "amount": 1,
+                "source": "quietus:skill_tree"
+            }
+        ]
+    },
 
     "display": {
         "header": {
@@ -29,13 +30,6 @@
         },
         "description": {
             "translate": "skillTree.quietus.example_tab/example_root.description"
-        },
-        "prerequisites": {
-            "advancements": {
-                "[advancement name here]": {
-                    "translate": "skillTree.quietus.node.example_root.criteria1"
-                }
-            }
         }
     }
 }

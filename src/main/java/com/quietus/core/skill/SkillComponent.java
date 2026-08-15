@@ -13,7 +13,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
 public class SkillComponent implements ValueIOSerializable {
-    public static final String TAG_LIST_SKILLS = "skills";
 
     private final Map<Skill,Map<String,Integer>> skillMap = new HashMap<>();
 
@@ -26,6 +25,11 @@ public class SkillComponent implements ValueIOSerializable {
         return this.skillMap.containsKey(skill) ?
             this.skillMap.get(skill).getOrDefault(source, 0)
             : 0;
+    }
+    public Map<String,Integer> getSourceLevels(Skill skill) {
+        return this.skillMap.containsKey(skill) ?
+            Map.copyOf(this.skillMap.get(skill))
+            : Map.of();
     }
     public int getTotalLevel(Skill skill) {
         if (this.skillMap.containsKey(skill)) {
@@ -41,19 +45,12 @@ public class SkillComponent implements ValueIOSerializable {
         int level = this.getLevel(skill, source);
         level += amount;
         level = Math.clamp(level, 0, skill.maxLevel());
-        if (this.hasSkill(skill)) {
-            this.skillMap.get(skill).put(source, level);
-        } else {
-            this.skillMap.put(skill, Map.of(source, level));
-        }
+        this.skillMap.computeIfAbsent(skill, k -> new HashMap<>()).put(source, level);
     }
 
     public void setLevel(Skill skill, int value, String source) {
-        if (this.hasSkill(skill)) {
-            this.skillMap.get(skill).put(source, value);
-        } else {
-            this.skillMap.put(skill, Map.of(source, value));
-        }
+        int level = Math.clamp(value, 0, skill.maxLevel());
+        this.skillMap.computeIfAbsent(skill, k -> new HashMap<>()).put(source, level);
     }
 
     @Override

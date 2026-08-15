@@ -2,6 +2,7 @@ package com.quietus.server.commands;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -20,6 +21,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceKeyArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
@@ -145,7 +147,23 @@ public class SkillCommands {
 
         if (action == Action.GET) {
           final int get_result = action.perform(first_player, skill, player_amount, source);
-          sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", first_player.getName(), get_result, Component.translatable(skill.getDescriptionId())), true);
+          if (source == null) {
+            Map<String,Integer> sourceLevels = SkillUtil.getSkillSourceLevels(first_player, skill);
+            MutableComponent sourcesComponent = Component.empty();
+            boolean first = true;
+            for (Map.Entry<String,Integer> entry : sourceLevels.entrySet()) {
+              if (!first) {
+                sourcesComponent.append(", ");
+              }
+              sourcesComponent.append(Component.translatable(action.getKey()+".total.source_entry", entry.getValue(), entry.getKey()));
+              first = false;
+            }
+            final Component finalSources = sourcesComponent;
+            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".total.success", first_player.getName(), get_result, Component.translatable(skill.getDescriptionId()), finalSources), true);
+          } else {
+            final String getSource = source;
+            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", first_player.getName(), get_result, Component.translatable(skill.getDescriptionId()), getSource), true);
+          }
           return get_result;
         }
         int skill_level_prev = 0;
@@ -184,10 +202,11 @@ public class SkillCommands {
                 );
             }
         } else {
+            final String actionSource = source;
             if (player_amount == 1) {
-                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", result_value, Component.translatable(skill.getDescriptionId()), first_player.getName()), true);
+                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", result_value, Component.translatable(skill.getDescriptionId()), first_player.getName(), actionSource), true);
             } else {
-                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".multiple.success", amount, Component.translatable(skill.getDescriptionId()), final_count), true);
+                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".multiple.success", amount, Component.translatable(skill.getDescriptionId()), final_count, actionSource), true);
             }
         }
         if (action == Action.GET) return result_value;

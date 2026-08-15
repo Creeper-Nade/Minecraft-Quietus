@@ -18,6 +18,9 @@ public class Skill {
         this.descriptionId = descriptionIdDependant.get(id);
         this.maxLevel = maxLevel;
     }
+    public Skill(ResourceKey<Skill> id) {
+        this(id, Integer.MAX_VALUE);
+    }
 
     public int maxLevel() {
         return this.maxLevel;

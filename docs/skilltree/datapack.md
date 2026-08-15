@@ -96,6 +96,7 @@ Defines an individual skill point node within a skill category.
 ```
 ROOT
 ├── max_amount <- Int (optional)
+├── progress <- Int (optional)
 ├── layout <- Compound
 │   ├── top <- Byte / TAG_Boolean (optional)
 │   └── prerequisites <- Compound (optional)
@@ -106,8 +107,7 @@ ROOT
 │       └── requirements <- List of Lists of Strings (optional)
 │           └── TAG_List of TAG_Strings
 │               └── TAG_String
-├── unlock <- Compound
-│   ├── progress <- Int
+├── unlock <- Compound (optional)
 │   └── prerequisites <- Compound (optional)
 │       ├── advancements <- Compound (optional)
 │       │   └── <criterion_key> <- String (Resource Location)
@@ -116,11 +116,13 @@ ROOT
 │       └── requirements <- List of Lists of Strings (optional)
 │           └── TAG_List of TAG_Strings
 │               └── TAG_String
-├── rewards <- List of Compounds
-│   └── TAG_Compound
-│       ├── skill <- String (Resource Location)
-│       ├── amount <- Int (optional)
-│       └── source <- String (optional)
+├── rewards <- Compound (optional)
+│   ├── skills <- List of Compounds (optional)
+│   │   └── TAG_Compound
+│   │       ├── skill <- String (Resource Location)
+│   │       ├── amount <- Int (optional)
+│   │       └── source <- String (optional)
+│   └── function <- String (Resource Location) (optional)
 └── display <- Compound (optional)
     ├── type <- String (optional)
     ├── icon <- String (Resource Location) (optional)
@@ -134,22 +136,24 @@ ROOT
 ### Fields
 
 - **`max_amount`**: (TAG_Int) *(Optional, default: `1`)* Maximum number of times this skill node can be upgraded/unlocked by a player.
+- **`progress`**: (TAG_Int) *(Optional, default: `1`)* Required progress/points to unlock or level up this skill node.
 - **`layout`**: (TAG_Compound) Layout graph structure configuration.
   - **`top`**: (TAG_Byte / TAG_Boolean) *(Optional, default: `false`)* If `true`, this node is treated as a top root node in tree layout positioning algorithms.
   - **`prerequisites`**: (TAG_Compound) *(Optional)* Prerequisites for when to display this node in player's GUI. If not specified, this node is always visible. \*
     - **`advancements`**: (TAG_Compound) *(Optional)* Maps arbitrary criterion string keys to Advancement Resource Locations.
     - **`parents`**: (TAG_Compound) *(Optional)* Maps arbitrary criterion string keys to parent Skill Node Resource Locations.
     - **`requirements`**: (TAG_List of TAG_Lists of TAG_Strings) *(Optional)* Boolean requirement matrix in Conjunctive Normal Form (CNF).
-- **`unlock`**: (TAG_Compound) Unlock logic and requirements.
-  - **`progress`**: (TAG_Int) Required progress/points to unlock or level up this skill node.
+- **`unlock`**: (TAG_Compound) *(Optional)* Unlock requirements.
   - **`prerequisites`**: (TAG_Compound) *(Optional)* Requirements that must be fulfilled before the player can unlock or upgrade this skill node.
     - **`advancements`**: (TAG_Compound) *(Optional)* Maps arbitrary criterion string keys to Advancement Resource Locations.
     - **`parents`**: (TAG_Compound) *(Optional)* Maps arbitrary criterion string keys to parent Skill Node Resource Locations.
     - **`requirements`**: (TAG_List of TAG_Lists of TAG_Strings) *(Optional)* Boolean requirement matrix in Conjunctive Normal Form (CNF).
-- **`rewards`**: (TAG_List of TAG_Compounds) List of skill rewards granted to the player upon unlocking or upgrading this node.
-  - **`skill`**: (TAG_String) Resource Location of the target skill to award (e.g., `"quietus:strength"`).
-  - **`amount`**: (TAG_Int) *(Optional, default: `0`)* Amount of skill levels or experience points granted per upgrade.
-  - **`source`**: (TAG_String) *(Optional, default: `"none"`)* Identifier/source attribution tag for awarding the skill.
+- **`rewards`**: (TAG_Compound) *(Optional)* Rewards granted to the player upon unlocking or upgrading this node.
+  - **`skills`**: (TAG_List of TAG_Compounds) *(Optional)* List of skill rewards granted to the player upon unlocking or upgrading this node.
+    - **`skill`**: (TAG_String) Resource Location of the target skill to award (e.g., `"quietus:strength"`).
+    - **`amount`**: (TAG_Int) *(Optional, default: `0`)* Amount of skill levels or experience points granted per upgrade.
+    - **`source`**: (TAG_String) *(Optional, default: `"none"`)* Identifier/source attribution tag for awarding the skill.
+  - **`function`**: (TAG_String) *(Optional)* Resource Location of a datapack function executed when unlocking or upgrading this node (e.g., `"namespace:function_name"`).
 - **`display`**: (TAG_Compound) *(Optional)* Graphical display configuration for the skill widget on the skill tree screen.
   - **`type`**: (TAG_String) *(Optional, default: `"square_node"`)* Shape variant of the node icon frame (e.g., `"square_node"`).
   - **`icon`**: (TAG_String) *(Optional)* Resource location pointing to the icon texture.
@@ -216,6 +220,7 @@ prerequisites <- Compound
 ```json
 {
   "max_amount": 5,
+  "progress": 1,
   "layout": {
     "top": false,
     "prerequisites": {
@@ -228,7 +233,6 @@ prerequisites <- Compound
     }
   },
   "unlock": {
-    "progress": 1,
     "prerequisites": {
       "parents": {
         "p1": "quietus:example_tab/example_root"
@@ -242,13 +246,15 @@ prerequisites <- Compound
       ]
     }
   },
-  "rewards": [
-    {
-      "skill": "quietus:example_skill",
-      "amount": 1,
-      "source": "quietus:skill_tree"
-    }
-  ],
+  "rewards": {
+    "skills": [
+      {
+        "skill": "quietus:example_skill",
+        "amount": 1,
+        "source": "quietus:skill_tree"
+      }
+    ]
+  },
   "display": {
     "type": "square_node",
     "icon": "quietus:textures/gui/icons/skill_tree/nodes/example.png",

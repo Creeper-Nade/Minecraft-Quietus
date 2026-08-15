@@ -19,6 +19,10 @@ public class SkillUtil {
         return getSkills(player).getTotalLevel(skill);
     }
 
+    public static java.util.Map<String,Integer> getSkillSourceLevels(Player player, Skill skill) {
+        return getSkills(player).getSourceLevels(skill);
+    }
+
     public static void addSkillLevel(Player player, Skill skill, int amount, String source) {
         getSkills(player).addLevel(skill, amount, source);
     }
