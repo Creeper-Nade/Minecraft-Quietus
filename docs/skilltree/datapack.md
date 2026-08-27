@@ -1,8 +1,8 @@
 # Skill Tree Data Pack Format
 
-Skill trees, in categories and their nodes, as well as their displayed names, descriptions and icons, are configured using data files.
+Skill trees, in categories and their nodes, as well as their displayed names, descriptions and icons resources locations, are configured using data files.
 
-Quietus will always read every datapack for valid skill trees, those which are loaded into the world, as the skill trees for every player.
+For each world, Quietus reads every datapack for valid skill trees, those which are loaded into the same world, as the skill trees for every player.
 
 ---
 
@@ -36,7 +36,7 @@ data/
 ## Tab Metadata (`SkillCategory`)
 
 File location: `data/<namespace>/quietus/skill_tree/<category_path>/_tab_.json`  
-Resource Location: `<namespace>:<category_path>`
+The Id of each tab will be saved accordingly as: `<namespace>:<category_path>`
 
 Defines tab-level properties such as display information, layout algorithm settings, and category prerequisites.
 
@@ -69,7 +69,7 @@ ROOT
 
 - **`max_nodes_per_layer`**: (TAG_Int) *(Optional, default: `16`)* The maximum number of nodes allowed per layer in automatic node positioning calculations.
 - **`seed`**: (TAG_Long) *(Optional, default: `20260210`)* Random seed used by layout positioning algorithms. In particular, it dictates the order of which the skill tree nodes are chosen to be assigned layers and the order of the skill tree nodes within the same layer.
-- **`prerequisites`**: (TAG_Compound) *(Optional)* Prerequisites required to view and unlock the entire category tab. If not specified, defaults to always unlocked and visible.
+- **`prerequisites`**: (TAG_Compound) *(Optional)* Prerequisites required to view and unlock the entire category tab. If not specified, defaults to always met.
   - **`advancements`**: (TAG_Compound) *(Optional)* Maps arbitrary criterion string keys to Advancement Resource Locations (e.g., `"minecraft:story/mine_stone"`).
   - **`parents`**: (TAG_Compound) *(Optional)* Maps arbitrary criterion string keys to parent Skill Category Resource Locations.
   - **`requirements`**: (TAG_List of TAG_Lists of TAG_Strings) *(Optional)* Boolean requirement matrix in Conjunctive Normal Form (CNF). If omitted, defaults to requiring all listed criteria (`allOf`).
@@ -87,7 +87,7 @@ ROOT
 ## Skill Node Data (`SkillPoint`)
 
 File location: `data/<namespace>/quietus/skill_tree/<category_path>/<node_name>.json`  
-Resource Location: `<namespace>:<category_path>/<node_name>`
+The Id of each tab will be saved accordingly as: `<namespace>:<category_path>/<node_name>`
 
 Defines an individual skill point node within a skill category.
 
@@ -163,7 +163,7 @@ ROOT
     - **`advancements`**: (TAG_Compound) *(Optional)* JSON Text Component instructions for completing the corresponding advancement listed as criterion in `unlock.prerequisites.advancements`. If not specified, an empty line (blank description text beside the status symbol) is rendered for that criterion in the GUI. \*\*
 
 \* Whether the node is displayed is achieved through whether the node will be sent amongst other nodes from the server to a client for display and player interactions in their skill tree GUI. When these prerequisites are not met for a client, the children of this node will not be sent to the said client as well. 
-\*\* While other prerequisite criteria, i.e. parent skill tree nodes, are displayed in the info screen of this node by directly taking their display names, advancements as criteria however are displayed taking the text specified in this field, word by word. For an example, adding the vanilla advancement `minecraft:adventure/kill_a_mob` (Monster Hunter) as a criterion of a node, and write `"Defeat a monster"` in this field with the same key, will result as the player's GUI rendering `"Defeat a monster"` in place where the criterion would be, and the checkbox at the start of the line indicating whether this player completed `minecraft:adventure/kill_a_mob`.
+\*\* While other prerequisite criteria, i.e. parent skill tree nodes, are displayed in the info screen of this node by directly taking their display names, advancements as criteria however are displayed taking the text specified in this field, word by word. For an example, adding the vanilla advancement `minecraft:adventure/kill_a_mob` (Monster Hunter) as a criterion of a node, and write `"Defeat a monster"` in this field on the same key, the player's GUI will render `"Defeat a monster"` in place where the criterion would be, and the checkbox at the start of the line indicating whether this player completed `minecraft:adventure/kill_a_mob`.
 
 ---
 

@@ -1,5 +1,6 @@
 package com.quietus.data;
 
+import com.quietus.tags.QuietusTags;
 import com.quietus.util.damage.QuietusDamageType;
 
 import net.minecraft.core.HolderLookup;
@@ -16,13 +17,16 @@ public class QuietusDamageTypeTagProvider extends DamageTypeTagsProvider {
         super(output, lookupProvider);
     }
     @Override
-    protected void addTags(HolderLookup.Provider p_270108_) {
+    protected void addTags(HolderLookup.Provider provider) {
         this.tag(DamageTypeTags.BYPASSES_COOLDOWN)
                 .add(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE_BYPASS_INVINCIBLE_FRAME);
         this.tag(DamageTypeTags.PANIC_CAUSES)
                 .add(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE)
                 .add(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE_BYPASS_INVINCIBLE_FRAME);
         this.tag(DamageTypeTags.ALWAYS_KILLS_ARMOR_STANDS)
+                .add(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE)
+                .add(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE_BYPASS_INVINCIBLE_FRAME);
+        this.tag(QuietusTags.DamageTypes.BUFFABLE_MAGIC)
                 .add(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE)
                 .add(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE_BYPASS_INVINCIBLE_FRAME);
     }

@@ -174,7 +174,6 @@ public abstract class QuietusProjectile extends Projectile {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         if (!level().isClientSide() && result.getEntity() != this.getOwner() &&!(result.getEntity() instanceof Projectile) && this.getOwner() instanceof LivingEntity livingOwner) {
-            //DamageSource damagesource = this.damageSources().mobProjectile(this, livingOwner);
             DamageSource damagesource = getDamageSource(this.getOwner());
 
             boolean crit = this.isCritical();

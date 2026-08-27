@@ -11,27 +11,51 @@ public class SkillUtil {
         return player.getData(QuietusAttachments.SKILL_ATTACHMENT);
     }
 
-    public static int getSkillLevel(Player player, Skill skill, String source) {
+    public static Number getSkillLevel(Player player, Skill skill, String source) {
         return getSkills(player).getLevel(skill, source);
     }
+
+    public static int getIntSkillLevel(Player player, Skill skill, String source) {
+        return getSkills(player).getIntLevel(skill, source);
+    }
+
+    public static float getFloatSkillLevel(Player player, Skill skill, String source) {
+        return getSkills(player).getFloatLevel(skill, source);
+    }
+
+    public static double getDoubleSkillLevel(Player player, Skill skill, String source) {
+        return getSkills(player).getDoubleLevel(skill, source);
+    }
     
-    public static int getTotalSkillLevel(Player player, Skill skill) {
+    public static Number getTotalSkillLevel(Player player, Skill skill) {
         return getSkills(player).getTotalLevel(skill);
     }
 
-    public static java.util.Map<String,Integer> getSkillSourceLevels(Player player, Skill skill) {
+    public static int getIntTotalSkillLevel(Player player, Skill skill) {
+        return getSkills(player).getTotalLevel(skill).intValue();
+    }
+
+    public static float getFloatTotalSkillLevel(Player player, Skill skill) {
+        return getSkills(player).getTotalLevel(skill).floatValue();
+    }
+
+    public static double getDoubleTotalSkillLevel(Player player, Skill skill) {
+        return getSkills(player).getTotalLevel(skill).doubleValue();
+    }
+
+    public static java.util.Map<String, Number> getSkillSourceLevels(Player player, Skill skill) {
         return getSkills(player).getSourceLevels(skill);
     }
 
-    public static void addSkillLevel(Player player, Skill skill, int amount, String source) {
+    public static void addSkillLevel(Player player, Skill skill, Number amount, String source) {
         getSkills(player).addLevel(skill, amount, source);
     }
     
-    public static void setSkillLevel(Player player, Skill skill, int value, String source) {
+    public static void setSkillLevel(Player player, Skill skill, Number value, String source) {
         getSkills(player).setLevel(skill, value, source);
     }
 
-    public static int getMaxSkillLevel(Skill skill) {
+    public static Number getMaxSkillLevel(Skill skill) {
         return skill.maxLevel();
     }
 }

@@ -82,17 +82,9 @@ public class AmethystShardProjectile extends QuietusProjectile {
     protected DamageSource getDamageSource(Entity owner)
     {
         return new DamageSource(
-                // The damage type holder to use. Query from the registry. This is the only required parameter.
                 this.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(QuietusDamageType.MAGIC_PROJECTILE_DAMAGE),
-                // The direct entity. For example, if a skeleton shot you, the skeleton would be the causing entity
-                // (= the parameter above), and the arrow would be the direct entity (= this parameter). Similar to
-                // the causing entity, this isn't always applicable and therefore nullable. Optional, defaults to null.
                 this,
-                // The entity causing the damage. This isn't always applicable (e.g. when falling out of the world)
-                // and may therefore be null. Optional, defaults to null.
                 owner,
-                // The damage source position. This is rarely used, one example would be intentional game design
-                // (= nether beds exploding). Nullable and optional, defaulting to null.
                 null
         );
         /*

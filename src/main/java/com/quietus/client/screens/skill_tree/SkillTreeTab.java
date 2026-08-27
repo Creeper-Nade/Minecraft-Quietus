@@ -296,7 +296,7 @@ public class SkillTreeTab extends AbstractWidget implements SkillTreeDraggable, 
         guiGraphicsExtractor.pose().popMatrix();
     }
 
-    public @Nullable void drawWidgetsTooltips(GuiGraphicsExtractor gui, int mouseX, int mouseY, SkillTreeNode selectedNode, ClientSkillTree tree) {
+    public void drawWidgetsTooltips(GuiGraphicsExtractor gui, int mouseX, int mouseY, SkillTreeNode selectedNode, ClientSkillTree tree) {
         SkillTreeWidget hoveredWidget = null;
         for (SkillTreeWidget widget : this.widgets.values()) {
             if (widget.getNode().equals(selectedNode)) {
