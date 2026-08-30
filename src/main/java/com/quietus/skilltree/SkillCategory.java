@@ -126,7 +126,7 @@ public class SkillCategory {
                 ComponentSerialization.CODEC.fieldOf("name").forGetter(DisplayInfo::name),
                 ComponentSerialization.CODEC.fieldOf("description").forGetter(DisplayInfo::description),
                 Prerequisites.DisplayInfo.CODEC.fieldOf("prerequisites").forGetter(DisplayInfo::prerequisites),
-                ExtraCodecs.RGB_COLOR_CODEC.fieldOf("themeColour").forGetter(DisplayInfo::themeColour),
+                ExtraCodecs.RGB_COLOR_CODEC.fieldOf("theme_colour").forGetter(DisplayInfo::themeColour),
                 Identifier.CODEC.optionalFieldOf("background").forGetter(DisplayInfo::background)
             ).apply(instance, DisplayInfo::new)
         );
@@ -223,10 +223,10 @@ public class SkillCategory {
         return this.nodes.get(location);
     }
 
-    protected Map<Identifier, SkillTreeNode> getNodesMap() {
+    public Map<Identifier, SkillTreeNode> getNodesMap() {
         return this.nodes;
     }
-    protected Set<SkillTreeNode> getRoots() {
+    public Set<SkillTreeNode> getRoots() {
         return this.roots;
     }
 

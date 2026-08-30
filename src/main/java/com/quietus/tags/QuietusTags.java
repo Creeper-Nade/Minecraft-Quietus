@@ -5,6 +5,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -62,5 +63,13 @@ public class QuietusTags {
         public static final TagKey<Enchantment> ATTUNEMENT_ACUPUNCTURE_EXCLUSIVE =
                 TagKey.create(Registries.ENCHANTMENT,
                         Identifier.fromNamespaceAndPath(MODID, "attunement_acupuncture_exclusive"));
+    }
+
+    public static class DamageTypes {
+        public static final TagKey<DamageType> BUFFABLE_MAGIC = createTag("buffable_magic");
+
+        private static TagKey<DamageType> createTag(String name) {
+            return TagKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(MODID, name));
+        }
     }
 }

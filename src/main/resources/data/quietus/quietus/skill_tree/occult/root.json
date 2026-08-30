@@ -1,0 +1,50 @@
+{
+
+  "max_amount": 3,
+  "progress": 1,
+
+  "layout": {
+    "top": true,
+    "prerequisites": {
+
+    }
+  },
+
+  "unlock": {
+    "prerequisites": {
+      "advancements": {
+        "obtain_magic_item": "quietus:obtain_magic_item"
+      },
+      "requirements": [
+        ["obtain_magic_item"]
+      ]
+    }
+  },
+
+  "rewards": {
+    "on_upgrade": {
+      "skills": [
+        {
+          "skill": "quietus:magic_damage_mult_bonus",
+          "amount": 0.02
+        }
+      ]
+    }
+  },
+
+  "display": {
+    "header": {
+      "translate": "skillTree.quietus.occult/root.header"
+    },
+    "description": {
+      "translate": "skillTree.quietus.occult/root.description"
+    },
+    "prerequisites": {
+      "advancements": {
+        "obtain_magic_item": {
+          "translate": "skillTree.quietus.occult/root.criterion.obtain_magic_item"
+        }
+      }
+    }
+  }
+}

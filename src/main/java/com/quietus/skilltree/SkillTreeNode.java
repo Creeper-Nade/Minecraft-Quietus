@@ -74,6 +74,9 @@ public class SkillTreeNode {
     public Collection<SkillTreeNode> orParents() {
         return this.orParents;
     }
+    public Set<SkillTreeNode> children() {
+        return this.children;
+    }
 
     public int getTreeX() {
         return this.treeX;

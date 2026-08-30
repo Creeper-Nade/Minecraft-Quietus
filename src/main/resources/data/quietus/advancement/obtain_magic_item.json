@@ -1,0 +1,19 @@
+{
+  "criteria": {
+    "amethyst_staff": {
+      "conditions": {
+        "items": [
+          {
+            "items": "quietus:amethyst_staff"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "amethyst_staff"
+    ]
+  ]
+}
