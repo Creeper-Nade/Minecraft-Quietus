@@ -209,8 +209,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     private final ClientSkillTree skillTree;
     private final LinkedHashMap<Identifier,SkillTreeTab> tabs = new LinkedHashMap<>();
     
-    private final Map<SkillTreeWidget,SkillTreeWidgetScreen> widgetScreens = new LinkedHashMap<>();
-    
     private SkillTreeDraggable focusedDraggable = null;
     private SkillTreeScrollable focusedScrollable = null;
     private SkillTreeTab selectedTab = null;
@@ -884,13 +882,6 @@ public class SkillTreeScreen extends Screen implements SkillCategory.Listener {
     }
     protected void closeTabsSelectionGrid() {
         this.setSelectedTab(this.selectedTab.getId());
-    }
-
-    protected void addWidgetScreen(SkillTreeWidget widget, SkillTreeWidgetScreen screen) {
-        this.widgetScreens.put(widget, screen);
-    }
-    protected void removeWidgetScreen(SkillTreeWidget widget) {
-        this.widgetScreens.remove(widget);
     }
 
     protected void setSelectedNode(@Nullable SkillTreeNode node) {
