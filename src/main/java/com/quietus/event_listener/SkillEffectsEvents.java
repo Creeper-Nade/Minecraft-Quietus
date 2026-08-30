@@ -1,5 +1,7 @@
 package com.quietus.event_listener;
 
+import java.util.Objects;
+
 import com.quietus.Quietus;
 import com.quietus.skill.QuietusSkills;
 import com.quietus.tags.QuietusTags;
@@ -20,6 +22,9 @@ public class SkillEffectsEvents {
     public static void applyDamageBonuses(LivingIncomingDamageEvent event) {
         float damage = event.getAmount();
         float bonus = 0.0f;
+        if (Objects.isNull(event.getSource().getEntity())) {
+            return;
+        }
         if (event.getSource().getEntity() instanceof Player sourcePlayer) {
             if (event.getSource().is(QuietusTags.DamageTypes.BUFFABLE_MAGIC)) {
                 double magicMultBonus = (double)SkillUtil.getTotalSkillLevel(sourcePlayer, QuietusSkills.MAGIC_DAMAGE_MULT_BONUS.get());

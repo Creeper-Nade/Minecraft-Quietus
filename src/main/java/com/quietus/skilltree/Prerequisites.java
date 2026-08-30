@@ -33,10 +33,6 @@ public record Prerequisites(
     Map<String, Identifier> parents,
     Requirements requirements
 ) {
-    // /* Constructor for stream codec, which does not send advancements across network to client */
-    // private Prerequisites(Map<String, Identifier> parents, Requirements requirements) {
-    //     this(null, parents, requirements);
-    // }
     
     public static final Prerequisites EMPTY = new Prerequisites(Map.of(), Map.of(), Requirements.EMPTY);
 

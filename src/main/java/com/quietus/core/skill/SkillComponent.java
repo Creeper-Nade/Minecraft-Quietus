@@ -47,7 +47,16 @@ public class SkillComponent implements ValueIOSerializable {
 
     public Number getTotalLevel(Skill skill) {
         if (!this.skillToSourceAmountMap.containsKey(skill)) {
-            return 0;
+            switch (skill.getType()) {
+                case Skill.Type.INT:
+                    return 0;
+                case Skill.Type.DOUBLE:
+                    return 0.0d;
+                case Skill.Type.FLOAT:
+                    return 0.0f;
+                default:
+                    return 0;
+            }
         }
         double sum = 0.0;
         for (Number num : this.skillToSourceAmountMap.get(skill).values()) {
