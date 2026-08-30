@@ -13,17 +13,23 @@ public class Skill {
     }
 
     protected final ResourceKey<Skill> id;
-    protected final String descriptionId;
+    protected final String idDisplay;
+    private final String displayTemplate;
     protected static DependantName<Skill,String> descriptionIdDependant = id -> Util.makeDescriptionId("skill", id.identifier());
     
     private final Type type;
     private final Number maxLevel;
 
-    public Skill(ResourceKey<Skill> id, Type type, Number maxLevel) {
+    public Skill(ResourceKey<Skill> id, Type type, Number maxLevel, String displayTemplate) {
         this.id = id;
-        this.descriptionId = descriptionIdDependant.get(id);
+        this.idDisplay = descriptionIdDependant.get(id);
         this.type = type;
         this.maxLevel = maxLevel;
+        this.displayTemplate = displayTemplate;
+    }
+
+    public Skill(ResourceKey<Skill> id, Type type, Number maxLevel) {
+        this(id, type, maxLevel, "skill.quietus.default.template");
     }
 
     public Skill(ResourceKey<Skill> id, int maxLevel) {
@@ -38,7 +44,11 @@ public class Skill {
         return this.maxLevel;
     }
 
-    public String getDescriptionId() {
-        return this.descriptionId;
+    public String getIdDisplay() {
+        return this.idDisplay;
+    }
+
+    public String getDisplayTemplate() {
+        return this.displayTemplate;
     }
 }

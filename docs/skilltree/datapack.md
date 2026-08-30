@@ -61,7 +61,7 @@ ROOT
     ├── prerequisites <- Compound
     │   └── advancements <- Compound (optional)
     │       └── <criterion_key> <- Compound or String (JSON Text Component)
-    ├── themeColour: Color (TAG_Int / TAG_String / TAG_List of TAG_Floats)
+    ├── theme_colour: Color (TAG_Int / TAG_String / TAG_List of TAG_Floats)
     └── background <- String (Identifier) (optional)
 ```
 
@@ -79,7 +79,7 @@ ROOT
   - **`description`**: (TAG_Compound or TAG_String) JSON Text Component for the category tab description.
   - **`prerequisites`**: (TAG_Compound) Display metadata for prerequisite criteria.
     - **`advancements`**: (TAG_Compound) *(Optional)* Maps prerequisite criterion keys to human-readable JSON Text Components shown in UI tooltips.
-  - **`themeColour`**: (Color: TAG_Int / TAG_String / TAG_List of TAG_Floats) RGB color for the theme of the tab. Colors various parts of the skill tree GUI using the given color, whenever this tab is selected. Accepts a hex string (e.g., `"#FF5555"`), an integer color value (e.g., `16733525`), or an RGB float array (e.g., `[1.0, 0.33, 0.33]`).
+  - **`theme_colour`**: (Color: TAG_Int / TAG_String / TAG_List of TAG_Floats) RGB color for the theme of the tab. Colors various parts of the skill tree GUI using the given color, whenever this tab is selected. Accepts a hex string (e.g., `"#FF5555"`), an integer color value (e.g., `16733525`), or an RGB float array (e.g., `[1.0, 0.33, 0.33]`).
   - **`background`**: (TAG_String) *(Optional)* Resource location pointing to a 32x32 background tile texture (e.g., `"quietus:textures/gui/skill_tree/backgrounds/occult.png"`). If omitted, renders an opaque dark background.
 
 ---
@@ -117,12 +117,20 @@ ROOT
 │           └── TAG_List of TAG_Strings
 │               └── TAG_String
 ├── rewards <- Compound (optional)
-│   ├── skills <- List of Compounds (optional)
-│   │   └── TAG_Compound
-│   │       ├── skill <- String (Identifier)
-│   │       ├── amount <- Int (optional)
-│   │       └── source <- String (optional)
-│   └── function <- String (Identifier) (optional)
+│   ├── on_completion <- Compound (optional)
+│   │   ├── skills <- List of Compounds (optional)
+│   │   │   └── TAG_Compound
+│   │   │       ├── skill <- String (Identifier)
+│   │   │       ├── amount <- Number (Int / Double / Float) or String (optional)
+│   │   │       └── source <- String (optional)
+│   │   └── function <- String (Identifier) (optional)
+│   └── on_upgrade <- Compound (optional)
+│       ├── skills <- List of Compounds (optional)
+│       │   └── TAG_Compound
+│       │       ├── skill <- String (Identifier)
+│       │       ├── amount <- Number (Int / Double / Float) or String (optional)
+│       │       └── source <- String (optional)
+│       └── function <- String (Identifier) (optional)
 └── display <- Compound (optional)
     ├── type <- String (optional)
     ├── icon <- String (Identifier) (optional)
@@ -149,11 +157,18 @@ ROOT
     - **`parents`**: (TAG_Compound) *(Optional)* Maps arbitrary criterion string keys to parent Skill Node Identifiers.
     - **`requirements`**: (TAG_List of TAG_Lists of TAG_Strings) *(Optional)* Boolean requirement matrix in Conjunctive Normal Form (CNF).
 - **`rewards`**: (TAG_Compound) *(Optional)* Rewards granted to the player upon unlocking or upgrading this node.
-  - **`skills`**: (TAG_List of TAG_Compounds) *(Optional)* List of skill rewards granted to the player upon unlocking or upgrading this node.
-    - **`skill`**: (TAG_String) Identifier of the target skill to award (e.g., `"quietus:strength"`).
-    - **`amount`**: (TAG_Int) *(Optional, default: `0`)* Amount of skill levels or experience points granted per upgrade.
-    - **`source`**: (TAG_String) *(Optional, default: `"none"`)* Identifier/source attribution tag for awarding the skill.
-  - **`function`**: (TAG_String) *(Optional)* Identifier of a datapack function executed when unlocking or upgrading this node (e.g., `"namespace:function_name"`).
+  - **`on_completion`**: (TAG_Compound) *(Optional)* Rewards granted when this node is fully completed (reaches `max_amount`).
+    - **`skills`**: (TAG_List of TAG_Compounds) *(Optional)* List of skill rewards granted upon completion.
+      - **`skill`**: (TAG_String) Identifier of the target skill to award (e.g., `"quietus:strength"`).
+      - **`amount`**: (Number / String) *(Optional, default: `0`)* Amount of skill levels or experience points granted. Supports Integer (e.g., `1`), Double (e.g., `1.0` or `"1.0d"`), and Float (e.g., `"1.0f"`).
+      - **`source`**: (TAG_String) *(Optional, default: Identifier of the node's `SkillCategory`)* Identifier/source attribution tag for awarding the skill.
+    - **`function`**: (TAG_String) *(Optional)* Identifier of a datapack function executed upon completion (e.g., `"namespace:function_name"`).
+  - **`on_upgrade`**: (TAG_Compound) *(Optional)* Rewards granted each time this node is unlocked or upgraded.
+    - **`skills`**: (TAG_List of TAG_Compounds) *(Optional)* List of skill rewards granted upon upgrade.
+      - **`skill`**: (TAG_String) Identifier of the target skill to award (e.g., `"quietus:strength"`).
+      - **`amount`**: (Number / String) *(Optional, default: `0`)* Amount of skill levels or experience points granted per upgrade. Supports Integer (e.g., `1`), Double (e.g., `1.0` or `"1.0d"`), and Float (e.g., `"1.0f"`).
+      - **`source`**: (TAG_String) *(Optional, default: Identifier of the node's `SkillCategory`)* Identifier/source attribution tag for awarding the skill.
+    - **`function`**: (TAG_String) *(Optional)* Identifier of a datapack function executed upon upgrade (e.g., `"namespace:function_name"`).
 - **`display`**: (TAG_Compound) *(Optional)* Graphical display configuration for the skill widget on the skill tree screen.
   - **`type`**: (TAG_String) *(Optional, default: `"square_node"`)* Shape variant of the node icon frame (e.g., `"square_node"`).
   - **`icon`**: (TAG_String) *(Optional)* Resource location pointing to the icon texture.
@@ -210,7 +225,7 @@ prerequisites <- Compound
       "translate": "skillTree.quietus.tab.example.description"
     },
     "prerequisites": {},
-    "themeColour": "#FF5555"
+    "theme_colour": "#FF5555"
   }
 }
 ```
@@ -247,13 +262,15 @@ prerequisites <- Compound
     }
   },
   "rewards": {
-    "skills": [
-      {
-        "skill": "quietus:example_skill",
-        "amount": 1,
-        "source": "quietus:skill_tree"
-      }
-    ]
+    "on_upgrade": {
+      "skills": [
+        {
+          "skill": "quietus:example_skill",
+          "amount": 1,
+          "source": "quietus:skill_tree"
+        }
+      ]
+    }
   },
   "display": {
     "type": "square_node",

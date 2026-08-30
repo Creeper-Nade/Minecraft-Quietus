@@ -15,13 +15,14 @@
     },
 
     "rewards": {
-        "skills": [
-            {
-                "skill": "quietus:example_skill",
-                "amount": 1,
-                "source": "quietus:skill_tree"
-            }
-        ]
+        "on_upgrade": {
+            "skills": [
+                {
+                    "skill": "quietus:magic_damage_mult_bonus",
+                    "amount": "0.04d"
+                }
+            ]
+        }
     },
 
     "display": {

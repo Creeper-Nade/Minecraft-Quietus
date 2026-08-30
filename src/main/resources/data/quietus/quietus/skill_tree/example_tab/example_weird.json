@@ -30,13 +30,15 @@
     },
 
     "rewards": {
-        "skills": [
-            {
-                "skill": "quietus:example_skill",
-                "amount": 1,
-                "source": "quietus:skill_tree"
-            }
-        ]
+        "on_upgrade": {
+            "skills": [
+                {
+                    "skill": "quietus:example_skill",
+                    "amount": 1,
+                    "source": "quietus:skill_tree"
+                }
+            ]
+        }
     },
 
     "display": {

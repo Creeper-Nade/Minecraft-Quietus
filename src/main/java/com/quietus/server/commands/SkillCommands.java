@@ -7,9 +7,6 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import org.slf4j.Logger;
-import com.mojang.logging.LogUtils;
-
 import com.quietus.core.QuietusRegistries;
 import com.quietus.core.skill.Skill;
 import com.quietus.util.SkillUtil;
@@ -85,7 +82,7 @@ public class SkillCommands {
 
         if (parsed.type() != skill.getType()) {
             throw ERROR_WRONG_NUMBER_TYPE.create(
-                Component.translatable("commands.skill.error.wrong_number_type", Component.translatable(skill.getDescriptionId()), skill.getType().name(), parsed.type().name())
+                Component.translatable("commands.skill.error.wrong_number_type", Component.translatable(skill.getIdDisplay()), skill.getType().name(), parsed.type().name())
             );
         }
         return parsed;
@@ -229,10 +226,10 @@ public class SkillCommands {
               first = false;
             }
             final Component finalSources = sourcesComponent;
-            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".total.success", first_player.getName(), get_result, Component.translatable(skill.getDescriptionId()), finalSources), true);
+            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".total.success", first_player.getName(), get_result, Component.translatable(skill.getIdDisplay()), finalSources), true);
           } else {
             final String getSource = source;
-            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", first_player.getName(), get_result, Component.translatable(skill.getDescriptionId()), getSource), true);
+            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", first_player.getName(), get_result, Component.translatable(skill.getIdDisplay()), getSource), true);
           }
           return get_result.intValue();
         }
@@ -263,7 +260,7 @@ public class SkillCommands {
                 throw ERROR_NO_ACTION_PERFORMED.create(
                     Component.translatable(
                         action.getKey() + ".single.failure",
-                        Component.translatable(skill.getDescriptionId()),
+                        Component.translatable(skill.getIdDisplay()),
                         first_player.getName()
                     )
                 );
@@ -271,7 +268,7 @@ public class SkillCommands {
                 throw ERROR_NO_ACTION_PERFORMED.create(
                     Component.translatable(
                         action.getKey() + ".multiple.failure",
-                        Component.translatable(skill.getDescriptionId()),
+                        Component.translatable(skill.getIdDisplay()),
                         player_amount
                     )
                 );
@@ -279,9 +276,9 @@ public class SkillCommands {
         } else {
             final String actionSource = source;
             if (player_amount == 1) {
-                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", result_value, Component.translatable(skill.getDescriptionId()), first_player.getName(), actionSource), true);
+                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", result_value, Component.translatable(skill.getIdDisplay()), first_player.getName(), actionSource), true);
             } else {
-                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".multiple.success", amount, Component.translatable(skill.getDescriptionId()), final_count, actionSource), true);
+                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".multiple.success", amount, Component.translatable(skill.getIdDisplay()), final_count, actionSource), true);
             }
         }
         return count;

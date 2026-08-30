@@ -126,7 +126,7 @@ public class SkillCategory {
                 ComponentSerialization.CODEC.fieldOf("name").forGetter(DisplayInfo::name),
                 ComponentSerialization.CODEC.fieldOf("description").forGetter(DisplayInfo::description),
                 Prerequisites.DisplayInfo.CODEC.fieldOf("prerequisites").forGetter(DisplayInfo::prerequisites),
-                ExtraCodecs.RGB_COLOR_CODEC.fieldOf("themeColour").forGetter(DisplayInfo::themeColour),
+                ExtraCodecs.RGB_COLOR_CODEC.fieldOf("theme_colour").forGetter(DisplayInfo::themeColour),
                 Identifier.CODEC.optionalFieldOf("background").forGetter(DisplayInfo::background)
             ).apply(instance, DisplayInfo::new)
         );

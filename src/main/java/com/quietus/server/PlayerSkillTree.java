@@ -141,15 +141,25 @@ public class PlayerSkillTree {
      * @return <code>true</code> if successfully added. <code>false</code> if unsuccessful, due to the progress already being maxed
      */
     public boolean addOrStartProgress(SkillTreeNode node) {
+        Instant nowInst = Instant.now();
+        String categorySource = node.getCategoryId().toString();
         if (this.progresses.containsKey(node)) {
             SkillPointProgress progress = this.progresses.get(node);
             if (progress.isMaxed()) return false;
-            progress.addObtainedTime(Instant.now());
+            progress.addObtainedTime(nowInst);
+            node.getSkillPoint().applyOnUpgrade(this.player, categorySource);
+            if (progress.isMaxed()) {
+                node.getSkillPoint().applyOnCompletion(this.player, categorySource);
+            }
             return true;
         } else {
             SkillPointProgress newProgress = new SkillPointProgress(List.of(), node.getSkillPoint());
-            newProgress.addObtainedTime(Instant.now());
+            newProgress.addObtainedTime(nowInst);
             this.progresses.put(node, newProgress);
+            node.getSkillPoint().applyOnUpgrade(this.player, categorySource);
+            if (newProgress.isMaxed()) {
+                node.getSkillPoint().applyOnCompletion(this.player, categorySource);
+            }
             return true;
         }
     }

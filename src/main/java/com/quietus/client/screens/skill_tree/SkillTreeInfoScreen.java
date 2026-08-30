@@ -1,5 +1,6 @@
 package com.quietus.client.screens.skill_tree;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -7,7 +8,10 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import com.quietus.client.multiplayer.ClientSkillTree;
 import com.quietus.client.multiplayer.ClientSkillTreeListener;
 import com.quietus.client.util.GuiGraphicsExtractorUtil;
+import com.quietus.core.QuietusRegistries;
+import com.quietus.core.skill.Skill;
 import com.quietus.skilltree.Prerequisites;
+import com.quietus.skilltree.Reward;
 import com.quietus.skilltree.SkillPoint;
 import com.quietus.skilltree.SkillPointProgress;
 import com.quietus.util.ServerPacketDistributor;
@@ -25,6 +29,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.Util;
 
 import static com.quietus.Quietus.MODID;
 
@@ -34,6 +39,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     private static final ChatFormatting[] PREREQUISITES_STYLE = {ChatFormatting.GRAY};
     public static final ChatFormatting[] PREREQUISITES_CHECK_STYLE = {ChatFormatting.GREEN};
     public static final ChatFormatting[] PREREQUISITES_CROSS_STYLE = {ChatFormatting.RED};
+    public static final String INDENT_STRING = "  ";
 
     protected static final int WIDTH = 180;
     protected static final int MAX_HEIGHT = SkillTreeScreen.WINDOW_HEIGHT;
@@ -98,6 +104,11 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
         heading = Objects.requireNonNullElse(heading, SkillPoint.DisplayInfo.FUNC_DEFAULT_HEADING.apply(widget.getLanguageKey())); // default uses language key
         description = Objects.requireNonNullElse(description, SkillPoint.DisplayInfo.FUNC_DEFAULT_DESCRIPTION.apply(widget.getLanguageKey())); // default uses language key
 
+        Component rewardsDescription = makeRewardsDescription(widget.getNode().getSkillPoint(), widget.getTab().getThemeColour());
+        if (rewardsDescription != null) {
+            description = description.copy().append("\n\n").append(rewardsDescription);
+        }
+
         Component prerequisitesDescription = makePrerequisitesDescription(widget.getNode().getSkillPoint(), screen.getSkillTree());
         if (prerequisitesDescription != null) {
             description = description.copy().append("\n\n").append(prerequisitesDescription);
@@ -115,6 +126,56 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
     @Override
     public void onClientSkillTreeUpdate(int amount, int maxAmount, int progressAmount) {
         this.update(this.screen.getSkillTree());
+    }
+
+    private static Component makeRewardsDescription(SkillPoint skillPoint, int themeColour) {
+        List<Reward> onUpgradeSkills = skillPoint.rewards().onUpgrade().skills();
+        List<Reward> onCompletionSkills = skillPoint.rewards().onCompletion().skills();
+
+        if (onUpgradeSkills.isEmpty() && onCompletionSkills.isEmpty()) {
+            return null;
+        }
+
+        MutableComponent out = Component.empty();
+        String indent = "  ";
+
+        boolean hasPrevious = false;
+        if (!onUpgradeSkills.isEmpty()) {
+            out.append(Component.translatable("gui.skill_tree.description.rewards").withColor(themeColour));
+            for (Reward reward : onUpgradeSkills) {
+                Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(reward.skillLocation());
+                Component skillName = (skill != null)
+                    ? Component.translatable(skill.getIdDisplay())
+                    : Component.translatable(Util.makeDescriptionId("skill", reward.skillLocation()));
+                Component skillDisplay = (skill != null)
+                    ? Component.translatable(skill.getDisplayTemplate(), skillName, reward.amount(), reward.percentageAmount())
+                    : Component.translatable("skill.quietus.default.template", skillName, reward.amount(), reward.percentageAmount());
+                MutableComponent line = Component.literal("\n" + indent)
+                    .append(skillDisplay);
+                out.append(line.withColor(themeColour));
+            }
+            hasPrevious = true;
+        }
+
+        if (!onCompletionSkills.isEmpty()) {
+            if (hasPrevious) {
+                out.append(Component.literal("\n"));
+            }
+            out.append(Component.translatable("gui.skill_tree.description.rewards.on_completion").withColor(themeColour));
+            for (Reward reward : onCompletionSkills) {
+                Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(reward.skillLocation());
+                Component skillName = (skill != null)
+                    ? Component.translatable(skill.getIdDisplay())
+                    : Component.translatable(Util.makeDescriptionId("skill", reward.skillLocation()));
+
+                MutableComponent line = Component.literal("\n" + indent)
+                    .append(skillName)
+                    .append(Component.literal(" (" + reward.amount() + ")"));
+                out.append(line.withColor(themeColour));
+            }
+        }
+
+        return out;
     }
 
     private static Component makePrerequisitesDescription(SkillPoint skillPoint, ClientSkillTree tree) {
@@ -199,12 +260,18 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             this.widget.getDisplay().description(), 
             SkillPoint.DisplayInfo.FUNC_DEFAULT_DESCRIPTION.apply(this.widget.getLanguageKey())
         );
+        MutableComponent newDescription = baseDescription.copy();
+
+        Component rewardsDescription = makeRewardsDescription(this.widget.getNode().getSkillPoint(), this.widget.getTab().getThemeColour());
+        if (rewardsDescription != null) {
+            newDescription.append("\n\n").append(rewardsDescription);
+        }
+
         Component prerequisitesDescription = makePrerequisitesDescription(this.widget.getNode().getSkillPoint(), tree);
         if (prerequisitesDescription != null) {
-            this.description = baseDescription.copy().append("\n\n").append(prerequisitesDescription);
-        } else {
-            this.description = baseDescription;
+            newDescription.append("\n\n").append(prerequisitesDescription);
         }
+        this.description = newDescription;
         this.calcLinesHeights(this.font, this.heading, this.description);
     }
 

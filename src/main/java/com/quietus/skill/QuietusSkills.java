@@ -19,7 +19,7 @@ public class QuietusSkills {
     public static final Supplier<Skill> EXAMPLE_SKILL = registerSkill("example_skill", 5);
     public static final Supplier<Skill> EXAMPLE_SKILL_TWO = registerSkill("example_skill_2", 3);
 
-    public static final Supplier<Skill> MAGIC_DAMAGE_MULT_BONUS = registerSkill("magic_damage_mult_bonus", Skill.Type.DOUBLE, Double.MAX_VALUE);
+    public static final Supplier<Skill> MAGIC_DAMAGE_MULT_BONUS = registerSkill("magic_damage_mult_bonus", Skill.Type.DOUBLE, Double.MAX_VALUE, "skill.quietus.default_percentage.template");
 
     private static Supplier<Skill> registerSkill(String name) {
         return REGISTRAR.register(name, () -> new Skill(ResourceKey.create(QuietusRegistries.SKILL_REGISTRY_KEY, Identifier.fromNamespaceAndPath(MODID, name)), Integer.MAX_VALUE));
@@ -27,8 +27,8 @@ public class QuietusSkills {
     private static Supplier<Skill> registerSkill(String name, Number maxLevel) {
         return REGISTRAR.register(name, () -> new Skill(ResourceKey.create(QuietusRegistries.SKILL_REGISTRY_KEY, Identifier.fromNamespaceAndPath(MODID, name)), maxLevel.intValue()));
     }
-    private static Supplier<Skill> registerSkill(String name, Skill.Type type, Number maxLevel) {
-        return REGISTRAR.register(name, () -> new Skill(ResourceKey.create(QuietusRegistries.SKILL_REGISTRY_KEY, Identifier.fromNamespaceAndPath(MODID, name)), type, maxLevel));
+    private static Supplier<Skill> registerSkill(String name, Skill.Type type, Number maxLevel, String displayTemplate) {
+        return REGISTRAR.register(name, () -> new Skill(ResourceKey.create(QuietusRegistries.SKILL_REGISTRY_KEY, Identifier.fromNamespaceAndPath(MODID, name)), type, maxLevel, displayTemplate));
     }
 
     public static void register(IEventBus eventBus) {

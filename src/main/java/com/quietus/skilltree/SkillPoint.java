@@ -13,6 +13,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.commands.CacheableFunction;
+
 import net.minecraft.core.ClientAsset;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -52,9 +54,16 @@ public record SkillPoint(
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SkillPoint> STREAM_CODEC = StreamCodec.ofMember(SkillPoint::serializeToNetwork, SkillPoint::deserializeFromNetwork);
 
+    public void apply(Player player, String defaultSource) {
+        this.rewards.apply(player, defaultSource);
+    }
 
-    public void apply(Player player) {
-        this.rewards.apply(player);
+    public void applyOnUpgrade(Player player, String defaultSource) {
+        this.rewards.applyOnUpgrade(player, defaultSource);
+    }
+
+    public void applyOnCompletion(Player player, String defaultSource) {
+        this.rewards.applyOnCompletion(player, defaultSource);
     }
 
     private static DataResult<SkillPoint> validate(SkillPoint skillPoint) {
@@ -98,41 +107,92 @@ public record SkillPoint(
     }
 
     public record Rewards(
-        List<Reward> skills,
-        Optional<Identifier> function
+        RewardEntry onCompletion,
+        RewardEntry onUpgrade
     ) {
-        public static final Rewards EMPTY = new Rewards(List.of(), Optional.empty());
+        public static final Rewards EMPTY = new Rewards(RewardEntry.EMPTY, RewardEntry.EMPTY);
 
         public static final Codec<Rewards> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                Reward.CODEC.listOf().optionalFieldOf("skills", List.of()).forGetter(Rewards::skills),
-                Identifier.CODEC.optionalFieldOf("function").forGetter(Rewards::function)
-            ).apply(instance, Rewards::new)
+                RewardEntry.CODEC.optionalFieldOf("on_completion").forGetter(r -> r.onCompletion.isEmpty() ? Optional.empty() : Optional.of(r.onCompletion)),
+                RewardEntry.CODEC.optionalFieldOf("on_upgrade").forGetter(r -> r.onUpgrade.isEmpty() ? Optional.empty() : Optional.of(r.onUpgrade)),
+                Reward.CODEC.listOf().optionalFieldOf("skills", List.of()).forGetter(r -> List.of()),
+                CacheableFunction.CODEC.optionalFieldOf("function").forGetter(r -> Optional.empty())
+            ).apply(instance, (optCompletion, optUpgrade, topSkills, topFunction) -> {
+                RewardEntry completion = optCompletion.orElse(RewardEntry.EMPTY);
+                RewardEntry upgrade = optUpgrade.orElse(
+                    (!topSkills.isEmpty() || topFunction.isPresent())
+                        ? new RewardEntry(topSkills, topFunction)
+                        : RewardEntry.EMPTY
+                );
+                return new Rewards(completion, upgrade);
+            })
         );
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, Rewards> STREAM_CODEC = StreamCodec.ofMember(
-            Rewards::serializeToNetwork, Rewards::deserializeFromNetwork
+        public static final StreamCodec<RegistryFriendlyByteBuf, Rewards> STREAM_CODEC = StreamCodec.composite(
+            RewardEntry.STREAM_CODEC, Rewards::onCompletion,
+            RewardEntry.STREAM_CODEC, Rewards::onUpgrade,
+            Rewards::new
         );
+
+        public void apply(Player player, String defaultSource) {
+            this.applyOnUpgrade(player, defaultSource);
+            this.applyOnCompletion(player, defaultSource);
+        }
+
+        public void applyOnUpgrade(Player player, String defaultSource) {
+            this.onUpgrade.apply(player, defaultSource);
+        }
+
+        public void applyOnCompletion(Player player, String defaultSource) {
+            this.onCompletion.apply(player, defaultSource);
+        }
+    }
+
+    public record RewardEntry(
+        List<Reward> skills,
+        Optional<CacheableFunction> function
+    ) {
+        public static final RewardEntry EMPTY = new RewardEntry(List.of(), Optional.empty());
+
+        public static final Codec<RewardEntry> CODEC = RecordCodecBuilder.create(
+            instance -> instance.group(
+                Reward.CODEC.listOf().optionalFieldOf("skills", List.of()).forGetter(RewardEntry::skills),
+                CacheableFunction.CODEC.optionalFieldOf("function").forGetter(RewardEntry::function)
+            ).apply(instance, RewardEntry::new)
+        );
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, RewardEntry> STREAM_CODEC = StreamCodec.ofMember(
+            RewardEntry::serializeToNetwork, RewardEntry::deserializeFromNetwork
+        );
+
+        public boolean isEmpty() {
+            return this.skills.isEmpty() && this.function.isEmpty();
+        }
 
         private void serializeToNetwork(RegistryFriendlyByteBuf buffer) {
             buffer.writeCollection(this.skills, Reward.STREAM_CODEC::encode);
-            buffer.writeOptional(this.function, FriendlyByteBuf::writeIdentifier);
+            buffer.writeOptional(this.function.map(CacheableFunction::getId), FriendlyByteBuf::writeIdentifier);
         }
 
-        private static Rewards deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
+        private static RewardEntry deserializeFromNetwork(RegistryFriendlyByteBuf buffer) {
             List<Reward> skills = buffer.readCollection(ArrayList::new, Reward.STREAM_CODEC::decode);
-            Optional<Identifier> function = buffer.readOptional(FriendlyByteBuf::readIdentifier);
-            return new Rewards(skills, function);
+            Optional<CacheableFunction> function = buffer.readOptional(FriendlyByteBuf::readIdentifier).map(CacheableFunction::new);
+            return new RewardEntry(skills, function);
         }
 
         public void apply(Player player) {
+            this.apply(player, "none");
+        }
+
+        public void apply(Player player, String defaultSource) {
             for (Reward action : this.skills) {
-                action.apply(player);
+                action.apply(player, defaultSource);
             }
             if (this.function.isPresent() && player instanceof ServerPlayer serverPlayer) {
                 MinecraftServer server = serverPlayer.level().getServer();
                 if (server != null) {
-                    server.getFunctions().get(this.function.get()).ifPresent(commandFunction -> {
+                    this.function.get().get(server.getFunctions()).ifPresent(commandFunction -> {
                         server.getFunctions().execute(commandFunction, serverPlayer.createCommandSourceStack().withSuppressedOutput());
                     });
                 }
