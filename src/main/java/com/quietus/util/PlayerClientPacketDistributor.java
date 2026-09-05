@@ -45,7 +45,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class PlayerClientPacketDistributor {
     public static void sendManaPackToPlayer(ServerPlayer serverPlayer, ManaComponent manaComponent) {
-        PacketDistributor.sendToPlayer(serverPlayer, new ManaPacket(manaComponent.getMaxMana(), manaComponent.getMana(),manaComponent.getSpeedChargeStatus()));
+        PacketDistributor.sendToPlayer(serverPlayer, new ManaPacket(manaComponent.getMaxMana(), manaComponent.getMana(),manaComponent.getMovementMult()));
     }
 
     public static void sendManaPackToPlayer(ServerPlayer serverPlayer) {

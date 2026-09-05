@@ -37,7 +37,7 @@ public class ClientPayloadHandler {
 
     private static int MaxMana;
     private static int Mana;
-    private static boolean ManaFastCharging;
+    private static double movementMult;
 
     private static boolean PlayerIsGhost;
     private static boolean IsHardCore;
@@ -63,7 +63,7 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
                     MaxMana = Mpack.MaxMana();
                     Mana = Mpack.Mana();
-                    ManaFastCharging = Mpack.FastCharging();
+                    movementMult = Mpack.movementMult();
                 })
                 .exceptionally(e -> {
                     context.disconnect(Component.translatable("quietus.networking.failed", e.getMessage()));
@@ -177,7 +177,7 @@ public class ClientPayloadHandler {
         });
     }
     public int GetMaxManaFromPack() {return MaxMana;}
-    public boolean GetManaChargeStatus(){return ManaFastCharging;}
+    public double getManaMovementMult(){return movementMult;}
     public int GetManaFromPack() {return Mana;}
     public boolean getGhostState(){return PlayerIsGhost;}
     public boolean getHardcore(){return IsHardCore;}

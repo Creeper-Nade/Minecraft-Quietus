@@ -20,6 +20,22 @@ public class ManaUtil {
     public static int getMaxMana(LivingEntity entity) {
         return get(entity).getMaxMana();
     }
+
+    public static void consumeMana(LivingEntity entity, int amount) {
+        get(entity).consumeMana(amount);
+    }
+
+    public static void addMana(LivingEntity entity, int amount) {
+        get(entity).addMana(amount);
+    }
+
+    public static void setMana(LivingEntity entity, int amount) {
+        get(entity).setMana(amount);
+    }
+
+    public static void setMaxMana(LivingEntity entity, int amount) {
+        get(entity).setMaxMana(amount);
+    }
     
 
 }

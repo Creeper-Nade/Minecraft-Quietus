@@ -16,6 +16,9 @@ public class QuietusSkills {
 
     public static final DeferredRegister<Skill> REGISTRAR = DeferredRegister.create(QuietusRegistries.SKILL_REGISTRY, MODID);
 
+    public static final Supplier<Skill> MANA_REGEN_MULT_BONUS = registerSkill("mana_regen_mult_bonus", Skill.Type.DOUBLE, Double.MAX_VALUE, "skill.quietus.default_percentage.template");
+    public static final Supplier<Skill> MANA_MAX_MULT_BONUS = registerSkill("mana_max_mult_bonus", Skill.Type.DOUBLE, Double.MAX_VALUE, "skill.quietus.default_percentage.template");
+
     public static final Supplier<Skill> MAGIC_DAMAGE_MULT_BONUS = registerSkill("magic_damage_mult_bonus", Skill.Type.DOUBLE, Double.MAX_VALUE, "skill.quietus.default_percentage.template");
 
     private static Supplier<Skill> registerSkill(String name) {

@@ -125,7 +125,7 @@ public final class MagicChantingServer {
             if (ManaUtil.getMana(player) < cost) {
                 return StartResult.REJECTED;
             }
-            ManaUtil.get(player).consumeMana(cost, player);
+            ManaUtil.consumeMana(player, cost);
         }
 
         long seed = player.getRandom().nextLong();

@@ -1,195 +1,170 @@
 package com.quietus.core.mana;
 
-import com.quietus.util.ManaUtil;
 import com.quietus.util.PlayerClientPacketDistributor;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 
-import static com.quietus.util.QuietusAttributes.MANA_REGEN_BONUS;
-import static com.quietus.util.QuietusAttributes.MAX_MANA;
-
 
 public class ManaComponent implements ValueIOSerializable {
+    private static final MovementBonusFunction MOVEMENT_BONUS_FUNC = ((sneaking, stationary) -> {
+        int a = sneaking ? 1 : 0;
+        int b = stationary ? 1 : 0;
+        return (1 + b * 0.8d) * (1 + a * 0.2d);
+    });
+
     private int mana;
     private int maxMana = 20;
-    private boolean is_fast_charging=false;
-    private double manaRate;
-    private int regenBonus = 5;
+    private double movementMult = 1.0;
+    private double accumulatedManaCharge;
+    private int regenBonus = 0;
     private int regenDelay = 0;
+    private boolean dirty = false;
 
-    //private final int[] slotAnimOffsets = new int[40];
-
-    /*
-    // Constructor for Codec
-    public ManaComponent(int currentMana, int maxMana) {
-        mana = Math.min(mana, maxMana);
-        this.maxMana = maxMana;
-    }*/
-
-    // Default constructor
-    /*
-    public ManaComponent() {
-        //LivingEntity livingEntity = QuietusCommonEvents.QuietusServerPlayer;
-        //AttributeMap attribute_map = livingEntity.getAttributes();
-        //this.maxMana= (int)attributes.getValue(MAX_MANA);
-        this.maxMana=0;
-    }*/
     @Override
     public void serialize(ValueOutput output) {
         output.putInt("mana", this.mana);
+        output.putInt("max_mana", this.maxMana);
+        output.putInt("regen_delay", this.regenDelay);
     }
 
     @Override
     public void deserialize(ValueInput input) {
-        this.mana = input.getIntOr("mana",10);
+        this.mana = input.getIntOr("mana", 0);
+        this.maxMana = input.getIntOr("max_mana", 20);
+        this.regenDelay = input.getIntOr("regen_delay", 0);
     }
 
-
-    public void tick(LivingEntity entity) {
-
-        checkManaAttributes(entity);
-        if (!entity.level().isClientSide()) {
-            if (this.regenDelay>0) this.regenDelay--;
-            if (!isFull() && regenDelay<=0 && !entity.isDeadOrDying()) {
-                regenMana(entity);
-                //lastRegenTime = player.tickCount;
-            }
-            else {
-                manaRate=0;
-                if (is_fast_charging) {
-                    is_fast_charging=false;
-                    sendPacket(entity);
-                }
-            }
+    public void tick() {
+        if (this.regenDelay > 0) {
+            this.regenDelay--;
         }
-        if(this.mana > this.maxMana) {
-            this.mana = this.maxMana;
-            sendPacket(entity);
-        }
-        //System.out.println("global"+globalBlinkEndTime);
-    }
 
-    private void checkManaAttributes(LivingEntity entity)
-    {
-        int attribute_max_mana = (int)entity.getAttributes().getValue(MAX_MANA);
-        int attribute_mana_regen_bonus = (int)entity.getAttributes().getValue(MANA_REGEN_BONUS);
-        if(this.maxMana != attribute_max_mana)
-        {
-            this.maxMana = attribute_max_mana;
-            sendPacket(entity);
-        }
-        if(regenBonus != attribute_mana_regen_bonus) {
-            regenBonus = attribute_mana_regen_bonus;
-        }
-            
-    }
-
-    public void regenMana(LivingEntity entity)
-    {
-        this.manaRate += (((double) this.maxMana /3 + 1 + getSneakBonus(entity)+this.regenBonus) * ((this.mana/this.maxMana)*0.8+0.2)*1.15)*2.5;
-        if (this.manaRate >= 40)
-        {
-            int added_mana= (int)Math.floor(this.manaRate/40);
-            this.manaRate -= 40*(added_mana);
-            addMana(added_mana, entity);
+        if (this.regenDelay <= 0 && !this.isFull()) {
+            this.regenMana();
         }
     }
 
-    public double getSneakBonus(LivingEntity entity)
-    {
-        if(entity.isShiftKeyDown()) {
-            if(!is_fast_charging)
-            {
-                is_fast_charging=true;
-                sendPacket(entity);
-            }
-
-            return maxMana / 3;
+    private void regenMana() {
+        if (this.maxMana <= 0) {
+            return;
         }
 
-        else
-        {
-            if(is_fast_charging)
-            {
-                is_fast_charging=false;
-                sendPacket(entity);
-            }
-            return 0;
-        }
-        /* Check for movement
-        if(abs(player.xCloak-player.xCloakO)<0.001)
-        {
-            //System.out.println(maxMana/3);
-            return (double) maxMana /3;
-        }*/
-    }
+        double fillRatio = (double) this.mana / this.maxMana;
+        double fillMult = fillRatio * 0.18 + 0.2;
+        this.accumulatedManaCharge += 2.5 * 1.15 * ((double) this.maxMana / 3.0 + 1.0 + this.regenBonus) * fillMult * this.movementMult;
 
-    public void addMana(int value, LivingEntity entity) {
-        /* CreeperNade:This is Unnecessary there is already a method in ManaHUDOverlay that detects this 👀, and as
-        we said earlier do not directly link ManaComponent to ManaHudOverlay
-        if (entity instanceof Player player) {
-            boolean flagBlink = (blinkTicks > 0);
-            if (entity instanceof Player && flagBlink) ManaHudOverlay.blinkContainers(blinkTicks, player);
-        }*/
-        this.mana += value;
-        if (this.mana < 0) this.mana = 0;
-        sendPacket(entity);
-    }
-
-    public boolean consumeMana(int value, LivingEntity entity) { 
-        if (value > ManaUtil.getMana(entity)) {
-            return false;
-        }
-        else {
-            this.addMana(-value, entity);
-            regenDelay= (int)(0.7*((1- (double) mana /maxMana)*120+45))/3;
-            return true;
+        if (this.accumulatedManaCharge >= 40.0) {
+            int addedMana = (int) Math.floor(this.accumulatedManaCharge / 40.0);
+            this.accumulatedManaCharge -= 40.0 * addedMana;
+            this.addMana(addedMana);
         }
     }
 
+    public void makeDelay() {
+        if (this.maxMana <= 0) {
+            this.regenDelay = 0;
+            return;
+        }
+        this.regenDelay = (int) Math.floor((1.0 / 3.0) * Math.floor(0.7 * (120.0 * (1.0 - (double) this.mana / this.maxMana) + 45.0)));
+    }
+
+    public void updateMovementBonus(boolean sneaking, boolean stationary) {
+        double newMult = MOVEMENT_BONUS_FUNC.apply(sneaking, stationary);
+        if (Double.compare(this.movementMult, newMult) != 0) {
+            this.movementMult = newMult;
+            this.dirty = true;
+        }
+    }
 
     public boolean isFull() {
         return this.mana >= this.maxMana;
     }
-    /*
-    // Codec for serialization
-    public static final Codec<ManaComponent> CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    Codec.INT.fieldOf("mana").forGetter(ManaComponent::getMana),
-                    Codec.INT.fieldOf("max_mana").forGetter(ManaComponent::getMaxMana)
-            ).apply(instance, ManaComponent::new)
-    );
 
-     */
+    public void setMana(int amount) {
+        int newMana = Math.clamp(amount, 0, this.maxMana);
+        if (this.mana != newMana) {
+            this.mana = newMana;
+            this.dirty = true;
+        }
+    }
 
-    // Attachment registration
-    /*
-    public static final AttachmentType<ManaComponent> MANA_ATTACHMENT =
-            AttachmentType.builder(ManaComponent::new)
-                    .build();*/
+    public void consumeMana(int amount) {
+        if (amount <= 0) return;
+        this.mana = Math.max(0, this.mana - amount);
+        this.makeDelay();
+        this.dirty = true;
+    }
 
-    // Getters
+    public void addMana(int amount) {
+        if (amount == 0) return;
+        int newMana = Math.clamp(this.mana + amount, 0, this.maxMana);
+        if (this.mana != newMana) {
+            this.mana = newMana;
+            this.dirty = true;
+        }
+    }
+
+    public void setMaxMana(int amount) {
+        if (this.maxMana != amount) {
+            this.maxMana = amount;
+            if (this.mana > this.maxMana) {
+                this.mana = this.maxMana;
+            }
+            this.dirty = true;
+        }
+    }
+
+    public void setRegenBonus(int bonus) {
+        this.regenBonus = bonus;
+    }
+
+    public boolean isDirty() {
+        return this.dirty;
+    }
+
+    public void markDirty() {
+        this.dirty = true;
+    }
+
+    public void clean() {
+        this.dirty = false;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
+    }
+
     public int getMana() {
         return this.mana;
     }
+
     public int getMaxMana() {
         return this.maxMana;
     }
-    public boolean getSpeedChargeStatus() {
-        return this.is_fast_charging;
+
+    public int getRegenBonus() {
+        return this.regenBonus;
     }
 
-    private void sendPacket(LivingEntity entity)
-    {
-        if (entity instanceof ServerPlayer serverPlayer) {
-            PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer,this);
-        }
+    public int getRegenDelay() {
+        return this.regenDelay;
+    }
+
+    public double getMovementMult() {
+        return this.movementMult;
+    }
+
+    public double getAccumulatedManaCharge() {
+        return this.accumulatedManaCharge;
+    }
+
+    @FunctionalInterface
+    private interface MovementBonusFunction {
+        double apply(boolean sneaking, boolean stationary);
     }
 
 }

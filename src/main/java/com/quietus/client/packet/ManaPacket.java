@@ -8,16 +8,21 @@ import net.minecraft.resources.Identifier;
 
 import static com.quietus.Quietus.MODID;
 
-public record ManaPacket(int MaxMana, int Mana,boolean FastCharging) implements CustomPacketPayload {
+public record ManaPacket(
+    int MaxMana,
+    int Mana,
+    double movementMult
+) implements CustomPacketPayload {
+
     public static final Type<ManaPacket> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MODID,"mana_pack"));
 
     public ManaPacket(final FriendlyByteBuf buf){
-        this(buf.readInt(),buf.readInt(),buf.readBoolean());
+        this(buf.readInt(),buf.readInt(),buf.readDouble());
     }
     public void Encode(FriendlyByteBuf buf){
         buf.writeInt(MaxMana());
         buf.writeInt(Mana());
-        buf.writeBoolean(FastCharging());
+        buf.writeDouble(movementMult());
     }
 
 

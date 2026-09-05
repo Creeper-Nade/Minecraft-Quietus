@@ -14,7 +14,9 @@ import com.quietus.item.equipment.RetaliatesOnDamaged;
 import com.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.quietus.item.tool.GrapplingHookItem;
 import com.quietus.item.tooltip.WeaponStatTooltips;
+import com.quietus.core.mana.ManaComponent;
 import com.quietus.potion.QuietusPotions;
+import com.quietus.skill.QuietusSkills;
 import com.quietus.util.*;
 import com.quietus.tags.QuietusTags;
 import com.mojang.logging.LogUtils;
@@ -39,6 +41,7 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.gamerules.GameRule;
 import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -109,7 +112,7 @@ public class QuietusCommonEvents {
                     // vanilla can apply after-use effects such as cooldown.
                     if (!(itemstack.getItem() instanceof MagicChantingWeaponItem)
                             && itemstack.getItem().getUseDuration(itemstack, player) == 0) {
-                        ManaUtil.get(player).consumeMana(mana_consume, player);
+                        ManaUtil.consumeMana(player, mana_consume);
                     }
                 }
             }
@@ -126,7 +129,7 @@ public class QuietusCommonEvents {
             if (!entity.level().isClientSide()) {
                 int mana_consume = itemstack.get(QuietusComponents.USES_MANA.get()).calculateConsumption(ManaUtil.getMana(entity), ManaUtil.getMaxMana(entity),itemstack,entity.level());
                 if (itemstack.getItem() instanceof BowItem || itemstack.getItem() instanceof AmmoProjectileWeaponItem) {
-                    ManaUtil.get(entity).consumeMana(mana_consume, entity);
+                    ManaUtil.consumeMana(entity, mana_consume);
                 }
             }
         }
@@ -147,7 +150,7 @@ public class QuietusCommonEvents {
                     event.setCanceled(true);
                 }
                 if (event.getDuration() == 1) { // about to finish item
-                    ManaUtil.get(entity).consumeMana(mana_consume, entity);
+                    ManaUtil.consumeMana(entity, mana_consume);
                 }
             } else { // Client side
                 if (entity instanceof Player) {
@@ -181,7 +184,10 @@ public class QuietusCommonEvents {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
             //System.out.println(serverPlayer);
-            PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer);
+            ManaComponent manaComponent = ManaUtil.get(serverPlayer);
+            updateManaStats(serverPlayer, manaComponent);
+            PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer, manaComponent);
+            manaComponent.clean();
             /* Player data */
             if (Objects.nonNull(Quietus.playerData)) {
                 Quietus.playerData.loadPlayer(serverPlayer);
@@ -190,6 +196,16 @@ public class QuietusCommonEvents {
             checkForConflictsAndNotify(serverPlayer);
             /* Send skill tree packet to client */
             PlayerClientPacketDistributor.sendSkillTreePackToPlayer(serverPlayer);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            ManaComponent manaComponent = ManaUtil.get(serverPlayer);
+            updateManaStats(serverPlayer, manaComponent);
+            PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer, manaComponent);
+            manaComponent.clean();
         }
     }
     @SubscribeEvent
@@ -371,20 +387,55 @@ public class QuietusCommonEvents {
         }
     }
 
+    public static void updateManaStats(LivingEntity entity, ManaComponent manaComponent) {
+        if (!entity.getAttributes().hasAttribute(QuietusAttributes.MAX_MANA)
+                || !entity.getAttributes().hasAttribute(QuietusAttributes.MANA_REGEN_BONUS)) {
+            return;
+        }
+
+        int baseMaxMana = (int) entity.getAttributes().getValue(QuietusAttributes.MAX_MANA);
+        int baseRegenBonus = (int) entity.getAttributes().getValue(QuietusAttributes.MANA_REGEN_BONUS);
+
+        int calculatedMaxMana = baseMaxMana;
+        int calculatedRegenBonus = baseRegenBonus;
+
+        // Apply skill bonuses for Players only
+        if (entity instanceof Player player) {
+            double maxMultBonus = SkillUtil.getDoubleTotalSkillLevel(player, QuietusSkills.MANA_MAX_MULT_BONUS.get());
+            double regenMultBonus = SkillUtil.getDoubleTotalSkillLevel(player, QuietusSkills.MANA_REGEN_MULT_BONUS.get());
+
+            calculatedMaxMana = (int) Math.round(baseMaxMana * (1.0 + maxMultBonus));
+            calculatedRegenBonus = (int) Math.round(baseRegenBonus * (1.0 + regenMultBonus));
+        }
+
+        manaComponent.setMaxMana(calculatedMaxMana);
+        manaComponent.setRegenBonus(calculatedRegenBonus);
+    }
+
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
-        if (entity instanceof Player) return;
-        //if (event.getEntity().level().isClientSide()) return;
-        else if (entity instanceof LivingEntity living_entity) {
-            event.getEntity().getData(QuietusAttachments.MANA_ATTACHMENT).tick(living_entity);
+        if (!entity.level().isClientSide() && entity instanceof LivingEntity livingEntity) {
+            ManaComponent manaComponent = ManaUtil.get(livingEntity);
 
+            updateManaStats(livingEntity, manaComponent);
+
+            boolean sneaking = (livingEntity instanceof Player player) && player.isShiftKeyDown();
+            Vec3 velocity = livingEntity.getDeltaMovement();
+            boolean stationary = velocity.horizontalDistanceSqr() < 1e-4 && (livingEntity.onGround() || Math.abs(velocity.y) < 1e-4);
+            manaComponent.updateMovementBonus(sneaking, stationary);
+
+            if (!livingEntity.isDeadOrDying()) {
+                manaComponent.tick();
+            }
+
+            if (manaComponent.isDirty()) {
+                if (livingEntity instanceof ServerPlayer serverPlayer) {
+                    PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer, manaComponent);
+                }
+                manaComponent.clean();
+            }
         }
-        /* if (entity instanceof Arrow arrow && arrow.level() instanceof ServerLevel) {
-            Vec3 pos = arrow.position();
-                //System.out.println(pos.x+ " | "+ pos.y + " | "+pos.z);
-                System.out.println(arrow.getDeltaMovement().y);
-        } */
     }
 /* Have to separate player tick and entity tick or else mana will reset everytime player dies or joins the world
    This is because on the first entity tick, the max mana attribute is not modified, which equals to 20 (the default max mana); when mana exceeds max mana, mana value will be set the same as max mana
@@ -395,8 +446,6 @@ public class QuietusCommonEvents {
     {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.getData(QuietusAttachments.MANA_ATTACHMENT).tick(serverPlayer);
-            //ManaHudOverlay.SetTick(serverPlayer);
             GameRules gameRules = serverPlayer.level().getGameRules();
 
             //Placeholder method for enabling/disabling death screen in relation to the ghost mode, might be changed in the future

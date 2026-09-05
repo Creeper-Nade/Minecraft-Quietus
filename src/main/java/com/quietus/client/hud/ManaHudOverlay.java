@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
@@ -37,9 +36,7 @@ public class ManaHudOverlay {
     private static int lastWaveStartTime = 0;
     private static int[] Jitter_offsets = new int[0] ;
     private static int currentAnimatingSlot = 0;
-    //private static int currentTick;
-    //private static Player Hudplayer;
-    //private static int slots;
+
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
         globalBlinkEndTime=0;
@@ -69,10 +66,10 @@ public class ManaHudOverlay {
         //int currentTick = player.tickCount;
         Display_Mana= ClientPayloadHandler.getInstance().GetManaFromPack();
         Display_MaxMana= ClientPayloadHandler.getInstance().GetMaxManaFromPack();
-        boolean is_speed_charging;
-        is_speed_charging=ClientPayloadHandler.getInstance().GetManaChargeStatus();
+        double movementMult;
+        movementMult=ClientPayloadHandler.getInstance().getManaMovementMult();
 
-        float manaPercent = (Display_Mana * 100f) / Display_MaxMana;
+        float manaPercent = Display_MaxMana > 0 ? (Display_Mana * 100f) / Display_MaxMana : 0f;
         boolean shouldShake = manaPercent < SHAKE_THRESHOLD;
 
         //if(prev_mana==0) prev_mana=Display_Mana;
@@ -93,7 +90,7 @@ public class ManaHudOverlay {
         }
 
 
-        renderSlots(gui, player, yPos,xStart, currentTick,totalSlots,row_space,shouldShake, is_speed_charging);
+        renderSlots(gui, player, yPos,xStart, currentTick,totalSlots,row_space,shouldShake, movementMult);
         //renderFills(gui, screenWidth, yPos, xStart,mana,totalSlots,row_space);
 
     }
@@ -102,7 +99,7 @@ public class ManaHudOverlay {
 
 
 
-    private static void renderSlots(GuiGraphicsExtractor gui, Player player,int yPos, int xStart,int currentTick, int totalSlots, int row_space,boolean shouldShake,boolean is_speed_charging) {
+    private static void renderSlots(GuiGraphicsExtractor gui, Player player,int yPos, int xStart,int currentTick, int totalSlots, int row_space,boolean shouldShake,double movementMult) {
 
         if (Display_Mana<prev_mana || (Display_Mana==Display_MaxMana && prev_mana < Display_Mana)) {
             blinkContainers(2, player);
@@ -119,7 +116,7 @@ public class ManaHudOverlay {
             int x = xStart + col * 8;
             int y = yPos - row * (10-row_space);
             if(shouldShake) y-= Jitter_offsets[slot];
-            if(is_speed_charging && CheckWaveCD(currentTick)) y-= getWaveAnimOffset(slot,currentTick);
+            if(movementMult > 1 && CheckWaveCD(currentTick)) y-= getWaveAnimOffset(slot,currentTick);
 
             
             boolean blink = shouldBlinkContainers(currentTick);
@@ -162,7 +159,7 @@ public class ManaHudOverlay {
         {
             lastUpdateTime=currentTick;
             if(shouldShake) SetJitterPosition(totalSlots);
-            if(is_speed_charging)
+            if(movementMult > 1)
             {
                 if(CheckWaveCD(currentTick))
                 updateWaveAnimation(currentTick, totalSlots);

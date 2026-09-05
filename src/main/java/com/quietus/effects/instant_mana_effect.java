@@ -14,7 +14,7 @@ public class instant_mana_effect extends InstantenousMobEffect {
     @Override
     public boolean applyEffectTick(ServerLevel level, LivingEntity livingEntity, int amplifier)
     {
-        livingEntity.getData(QuietusAttachments.MANA_ATTACHMENT).addMana(12*(1+amplifier),livingEntity);
+        livingEntity.getData(QuietusAttachments.MANA_ATTACHMENT).addMana(12 * (1 + amplifier));
         return super.applyEffectTick(level,livingEntity,amplifier);
     }
 
