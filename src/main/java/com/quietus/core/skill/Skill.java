@@ -2,6 +2,7 @@ package com.quietus.core.skill;
 
 
 import net.minecraft.resources.DependantName;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Util;
 
@@ -44,7 +45,11 @@ public class Skill {
         return this.maxLevel;
     }
 
-    public String getIdDisplay() {
+    public Identifier getId() {
+        return this.id.identifier();
+    }
+
+    public String getDisplayId() {
         return this.idDisplay;
     }
 

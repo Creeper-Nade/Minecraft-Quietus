@@ -124,11 +124,12 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
                 .add(QuietusItems.WEATHERED_COPPER_SPEAR.get())
                 .add(QuietusItems.OXIDIZED_COPPER_SPEAR.get());
 
-        this.tag(QuietusTags.Items.MAGIC_WEAPON)
-                .add(QuietusItems.AMETHYST_STAFF.get());
+        this.tag(QuietusTags.Items.MAGIC_WEAPONS)
+                .add(QuietusItems.AMETHYST_STAFF.get())
+                .add(QuietusItems.WEIRD_AMETHYST_STAFF.get());
 
         this.tag(QuietusTags.Items.PROJECTILE_FIRING_WEAPON)
-                .addTag(QuietusTags.Items.MAGIC_WEAPON);
+                .addTag(QuietusTags.Items.MAGIC_WEAPONS);
 
         this.tag(QuietusTags.Items.GRAPPLING_HOOK)
                 .add(QuietusItems.CHAIN_GRAPPLING_HOOK.get());
@@ -141,6 +142,16 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
                 .addTag(QuietusTags.Items.GRAPPLING_HOOK);
 
         this.tag(QuietusTags.Items.MAGIC_ENCHANTABLE)
-                .addTag(QuietusTags.Items.MAGIC_WEAPON);
+                .addTag(QuietusTags.Items.MAGIC_WEAPONS);
+
+        this.tag(QuietusTags.Items.PROJECTILE_WEAPONS)
+                .add(net.minecraft.world.item.Items.BOW)
+                .add(net.minecraft.world.item.Items.CROSSBOW)
+                .add(QuietusItems.TRIBOW.get())
+                .add(QuietusItems.INFINIBOW.get())
+                .add(QuietusItems.PULLBOW.get())
+                .add(QuietusItems.INSTABOW.get())
+                .add(QuietusItems.AMETHYST_STAFF.get())
+                .add(QuietusItems.WEIRD_AMETHYST_STAFF.get());
     }
 }

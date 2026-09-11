@@ -3,6 +3,7 @@ package com.quietus.util;
 import com.quietus.core.skill.Skill;
 import com.quietus.core.skill.SkillComponent;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 public class SkillUtil {
@@ -49,10 +50,16 @@ public class SkillUtil {
 
     public static void addSkillLevel(Player player, Skill skill, Number amount, String source) {
         getSkills(player).addLevel(skill, amount, source);
+        if (player instanceof ServerPlayer serverPlayer) {
+            PlayerClientPacketDistributor.sendSkillUpdatePacketToPlayer(serverPlayer, skill, getTotalSkillLevel(serverPlayer, skill));
+        }
     }
     
     public static void setSkillLevel(Player player, Skill skill, Number value, String source) {
         getSkills(player).setLevel(skill, value, source);
+        if (player instanceof ServerPlayer serverPlayer) {
+            PlayerClientPacketDistributor.sendSkillUpdatePacketToPlayer(serverPlayer, skill, getTotalSkillLevel(serverPlayer, skill));
+        }
     }
 
     public static Number getMaxSkillLevel(Skill skill) {

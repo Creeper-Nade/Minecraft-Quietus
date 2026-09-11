@@ -183,7 +183,6 @@ public class QuietusCommonEvents {
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
         if (player instanceof ServerPlayer serverPlayer) {
-            //System.out.println(serverPlayer);
             ManaComponent manaComponent = ManaUtil.get(serverPlayer);
             updateManaStats(serverPlayer, manaComponent);
             PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer, manaComponent);
@@ -194,6 +193,8 @@ public class QuietusCommonEvents {
             }
             // Check for gamerule conflicts when a player logs in
             checkForConflictsAndNotify(serverPlayer);
+            /* Send skills packet to client */
+            PlayerClientPacketDistributor.sendSkillPacketToPlayer(serverPlayer, SkillUtil.getSkills(serverPlayer));
             /* Send skill tree packet to client */
             PlayerClientPacketDistributor.sendSkillTreePackToPlayer(serverPlayer);
         }
@@ -257,12 +258,12 @@ public class QuietusCommonEvents {
         }
 
         WeaponStatTooltips.updateMeleeStats(itemstack, event.getEntity(), event.getToolTip());
-        if (WeaponStatTooltips.isProjectileWeapon(itemstack)
-                && !itemstack.has(QuietusComponents.ITEM_LEGEND.get())) {
+        if (WeaponStatTooltips.isProjectileWeapon(itemstack)) {
             WeaponStatTooltips.insertProjectileStatsBeforeDurability(
                     itemstack, event.getEntity(), event.getFlags(), event.getToolTip());
         }
         WeaponStatTooltips.appendDurabilityIfMissing(itemstack, event.getToolTip());
+
         if (itemstack.getItem() instanceof GrapplingHookItem) {
             WeaponStatTooltips.insertTranslatedLinesBeforeFooter(
                     itemstack,
@@ -279,17 +280,17 @@ public class QuietusCommonEvents {
         if (itemstack.has(QuietusComponents.CAN_DECAY.get())) {
             CanDecay decayComponent = itemstack.get(QuietusComponents.CAN_DECAY.get());
             int decay = itemstack.getOrDefault(QuietusComponents.DECAY.get(), 0).intValue();
-            @SuppressWarnings("null") int fraction_hundredth = (int)Math.floor(decayComponent.getDecayFraction(decay) * 100);
+            @SuppressWarnings("null") int fraction = (int)Math.floor(decayComponent.getDecayFraction(decay) * 100);
             if (event.getFlags().isAdvanced()) {
-                if (fraction_hundredth >= 80) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.pristine_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth >= 50) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.fresh_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth >= 20) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.stale_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth < 20) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.spoiled_advanced", fraction_hundredth).withColor(decayComponent.getDisplayColor(decay)));
+                if (fraction >= 80) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.pristine_advanced", fraction).withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction >= 50) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.fresh_advanced", fraction).withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction >= 20) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.stale_advanced", fraction).withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction < 20) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.spoiled_advanced", fraction).withColor(decayComponent.getDisplayColor(decay)));
             } else {
-                if (fraction_hundredth >= 80) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.pristine").withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth >= 50) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.fresh").withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth >= 20 ) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.stale").withColor(decayComponent.getDisplayColor(decay)));
-                else if (fraction_hundredth < 20) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.spoiled").withColor(decayComponent.getDisplayColor(decay)));
+                if (fraction >= 80) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.pristine").withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction >= 50) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.fresh").withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction >= 20 ) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.stale").withColor(decayComponent.getDisplayColor(decay)));
+                else if (fraction < 20) event.getToolTip().add(Component.translatable("tooltip.quietus.freshness.spoiled").withColor(decayComponent.getDisplayColor(decay)));
             }
         }
     }
@@ -329,31 +330,11 @@ public class QuietusCommonEvents {
 
     }
 
-    /* @SubscribeEvent
-    public static void onArmorHurt(ArmorHurtEvent event) {
-
-        LivingEntity entity = event.getEntity();
-        Map<EquipmentSlot, ArmorEntry> armorEntryMap = event.getArmorMap();
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (!armorEntryMap.containsKey(slot)) continue; // skip slots without armor
-            ItemStack itemstack = armorEntryMap.get(slot).armorItemStack;
-            float damage = event.getNewDamage(slot);
-            // Worn armor only
-            if (slot == EquipmentSlot.FEET || slot == EquipmentSlot.LEGS || slot == EquipmentSlot.CHEST || slot == EquipmentSlot.HEAD) {
-                
-                if (itemstack.getItem() instanceof RetaliatesOnDamaged retaliatingItem) {
-                    damage = retaliatingItem.onArmorHurt(damage, armorEntryMap, slot, entity);
-                }
-            }
-
-            event.setNewDamage(slot, damage); // update damage to event
-        }
-    } */
     @SubscribeEvent
     public static void onEntityHurtPost(LivingDamageEvent.Post event) {
         LivingEntity entity = event.getEntity();
         float damage = event.getHealthDamage();
-        if (event.getReduction(DamageContainer.Reduction.ARMOR) > 0.0f && event.getReduction(DamageContainer.Reduction.INVULNERABILITY) == 0.0f) { // armor reducted damage
+        if (event.getReduction(DamageContainer.Reduction.ARMOR) > 0.0f && event.getReduction(DamageContainer.Reduction.INVULNERABILITY) == 0.0f) { // only trigger if this damage is being blocked by the armor (hence being a damage type that does not bypass armor)
             Map<EquipmentSlot, ItemStack> armorMap = new HashMap<>(EquipmentSlot.values().length);
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 if (slot == EquipmentSlot.FEET || slot == EquipmentSlot.LEGS || slot == EquipmentSlot.CHEST || slot == EquipmentSlot.HEAD)

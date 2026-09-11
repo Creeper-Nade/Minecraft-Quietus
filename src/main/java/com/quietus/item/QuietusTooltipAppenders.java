@@ -17,10 +17,10 @@ public final class QuietusTooltipAppenders {
                 || !display.shows(QuietusComponents.ITEM_LEGEND.get())) {
             return;
         }
-        if (stack.is(QuietusItems.AMETHYST_STAFF.get())) {
+        /* if (stack.is(QuietusItems.AMETHYST_STAFF.get())) {
             WeaponStatTooltips.appendProjectileStats(stack, player, flag, builder);
             appendLegend(builder, "tooltip.quietus.amethyst_staff.", 6, 8);
-        } else if (stack.is(QuietusItems.AMETHYST_HELMET.get())
+        } else */ if (stack.is(QuietusItems.AMETHYST_HELMET.get())
                 || stack.is(QuietusItems.AMETHYST_CHESTPLATE.get())
                 || stack.is(QuietusItems.AMETHYST_LEGGINGS.get())
                 || stack.is(QuietusItems.AMETHYST_BOOTS.get())) {

@@ -36,6 +36,6 @@
   "slots": [
     "mainhand"
   ],
-  "supported_items": "#quietus:magic_weapon",
+  "supported_items": "#quietus:magic_weapons",
   "weight": 10
 }

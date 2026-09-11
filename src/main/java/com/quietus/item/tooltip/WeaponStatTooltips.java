@@ -1,14 +1,17 @@
 package com.quietus.item.tooltip;
 
+import com.quietus.client.handler.ClientPayloadHandler;
 import com.quietus.combat.ProjectileVolleyBalance;
-import com.quietus.enchantment.QuietusEnchantmentComponent;
-import com.quietus.item.QuietusComponents;
-import com.quietus.item.component.UsesMana;
 import com.quietus.item.property.QuietusProjectileProperty;
 import com.quietus.item.tool.AmmoProjectileWeaponItem;
 import com.quietus.item.tool.GrapplingHookItem;
 import com.quietus.item.tool.QuietusProjectileWeaponItem;
+import com.quietus.skill.QuietusSkills;
+import com.quietus.tags.QuietusTags;
+import com.quietus.util.SkillUtil;
+
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
@@ -23,6 +26,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -33,12 +37,33 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import net.neoforged.neoforge.common.config.NeoForgeCommonConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 /** Builds combat stat lines from the same item components and enchantment effects used by gameplay. */
 public final class WeaponStatTooltips {
     private WeaponStatTooltips() {
+    }
+
+    public static class Stat {
+        double base;
+        List<Double> modifiers;
+
+        public Stat(double base, List<Double> modifiers) {
+            this.base = base;
+            this.modifiers = modifiers == null ? List.of() : List.copyOf(modifiers);
+        }
+
+        void addModifier(double modifier) {
+            if (modifier >= 0.0001d) {
+                this.modifiers.add(modifier);
+            }
+        }
+
+        public double finalValue() {
+            return calculateFinalValue(base, modifiers);
+        }
     }
 
     /** Replaces vanilla melee stat lines when enchantment effects change their effective values. */
@@ -53,29 +78,56 @@ public final class WeaponStatTooltips {
                 (float) applyAttributeEnchantments(stack, Attributes.ATTACK_DAMAGE, baseDamage), false);
         double enchantedSpeed = applyAttributeEnchantments(stack, Attributes.ATTACK_SPEED, baseSpeed);
 
+        List<Double> damageModifiers = new ArrayList<>();
+        damageModifiers.add(baseDamage - playerDamage);
+        damageModifiers.add((double) (enchantedDamage - baseDamage));
+
+        List<Double> speedModifiers = new ArrayList<>();
+        speedModifiers.add(baseSpeed - playerSpeed);
+        speedModifiers.add(enchantedSpeed - baseSpeed);
+
+        Stat damageStat = new Stat(playerDamage, damageModifiers);
+        Stat speedStat = new Stat(playerSpeed, speedModifiers);
+
         for (int i = 0; i < tooltip.size(); i++) {
             Component line = tooltip.get(i);
-            if (Math.abs(enchantedDamage - baseDamage) >= 0.0001F
-                    && containsTranslation(line, Attributes.ATTACK_DAMAGE.value().getDescriptionId())) {
-                tooltip.set(i, rewriteAttributeValue(
-                        line, baseDamage, enchantedDamage, Attributes.ATTACK_DAMAGE.value().getDescriptionId()));
-            } else if (Math.abs(enchantedSpeed - baseSpeed) >= 0.0001D
-                    && containsTranslation(line, Attributes.ATTACK_SPEED.value().getDescriptionId())) {
-                tooltip.set(i, rewriteAttributeValue(
-                        line, baseSpeed, enchantedSpeed, Attributes.ATTACK_SPEED.value().getDescriptionId()));
+            if (containsTranslation(line, Attributes.ATTACK_DAMAGE.value().getDescriptionId())) {
+                if (hasAdditionalModifiers(damageStat.modifiers)
+                        || Math.abs(damageStat.finalValue() - baseDamage) >= 0.0001D) {
+                    tooltip.set(i, rewriteAttributeValue(
+                            line, damageStat.base, damageStat.modifiers, Attributes.ATTACK_DAMAGE.value().getDescriptionId()));
+                }
+            } else if (containsTranslation(line, Attributes.ATTACK_SPEED.value().getDescriptionId())) {
+                if (hasAdditionalModifiers(speedStat.modifiers)
+                        || Math.abs(speedStat.finalValue() - baseSpeed) >= 0.0001D) {
+                    tooltip.set(i, rewriteAttributeValue(
+                            line, speedStat.base, speedStat.modifiers, Attributes.ATTACK_SPEED.value().getDescriptionId()));
+                }
             }
         }
     }
 
     public static boolean isProjectileWeapon(ItemStack stack) {
-        return stack.getItem() instanceof BowItem
-                || stack.getItem() instanceof CrossbowItem
-                || stack.getItem() instanceof QuietusProjectileWeaponItem
-                    && !(stack.getItem() instanceof GrapplingHookItem);
+        return stack != null && stack.is(QuietusTags.Items.PROJECTILE_WEAPONS);
     }
 
-    public static void appendProjectileStats(ItemStack stack, Player player, TooltipFlag flag,
-                                             Consumer<Component> builder) {
+    public static boolean isProjectileWeapon(Item item) {
+        if (item == null) {
+            return false;
+        }
+        Holder<Item> holder = BuiltInRegistries.ITEM.wrapAsHolder(item);
+        return holder.is(QuietusTags.Items.PROJECTILE_WEAPONS);
+    }
+
+    public static boolean isMagicWeapon(Item item) {
+        if (item == null) {
+            return false;
+        }
+        Holder<Item> holder = BuiltInRegistries.ITEM.wrapAsHolder(item);
+        return holder.is(QuietusTags.Items.MAGIC_WEAPONS);
+    }
+
+    public static void appendProjectileStats(ItemStack stack, Player player, TooltipFlag flag, Consumer<Component> builder) {
         ProjectileStats stats = projectileStats(stack, player);
         if (stats == null) {
             return;
@@ -83,22 +135,13 @@ public final class WeaponStatTooltips {
 
         boolean showCalculation = flag.isAdvanced()
                 && NeoForgeCommonConfig.INSTANCE.attributeAdvancedTooltipDebugInfo.get();
-        double playerDamage = player == null ? 1.0D : player.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
-        double playerSpeed = player == null ? 4.0D : player.getAttributeBaseValue(Attributes.ATTACK_SPEED);
         builder.accept(CommonComponents.EMPTY);
         builder.accept(Component.translatable("tooltip.quietus.weapon.when_fired").withStyle(ChatFormatting.GRAY));
-        builder.accept(statLine(
-                stats.damageKey, playerDamage, stats.baseDamage, stats.damage, showCalculation));
-        builder.accept(statLine("tooltip.quietus.weapon.attack_speed",
-                playerSpeed, stats.baseAttackSpeed, stats.attackSpeed, showCalculation));
-        if (stats.manaCost >= 0 && stats.baseManaCost >= 0) {
-            builder.accept(statLine("tooltip.quietus.weapon.mana_cost",
-                    stats.baseManaCost, stats.baseManaCost, stats.manaCost, showCalculation));
-        }
+        builder.accept(statLine(stats.damageKey(), stats.damage(), showCalculation));
+        builder.accept(statLine("tooltip.quietus.weapon.attack_speed", stats.attackSpeed(), showCalculation));
     }
 
-    public static void insertProjectileStatsBeforeDurability(ItemStack stack, Player player, TooltipFlag flag,
-                                                              List<Component> tooltip) {
+    public static void insertProjectileStatsBeforeDurability(ItemStack stack, Player player, TooltipFlag flag, List<Component> tooltip) {
         List<Component> stats = new java.util.ArrayList<>();
         appendProjectileStats(stack, player, flag, stats::add);
         if (stats.isEmpty()) {
@@ -139,52 +182,97 @@ public final class WeaponStatTooltips {
             int projectiles = weapon.getProjectilesPerShot();
             int chargeTicks = customChargeTicks(stack, weapon);
             double rawDamage;
-            String damageKey;
+            String damageKey = isMagicWeapon(weapon) ? "tooltip.quietus.weapon.magic_damage" : "tooltip.quietus.weapon.arrow_damage";
             if (weapon instanceof AmmoProjectileWeaponItem) {
                 rawDamage = Math.ceil(2.0D * weapon.getShootVelocity());
-                damageKey = "tooltip.quietus.weapon.arrow_damage";
             } else {
                 QuietusProjectileProperty projectile = weapon.getProjectileProperty(0);
                 if (projectile == null || !projectile.isCustom()) {
                     return null;
                 }
                 rawDamage = projectile.damage();
-                damageKey = "tooltip.quietus.weapon.magic_damage";
             }
+
             double volleyScale = ProjectileVolleyBalance.damageScale(projectiles);
-            double baseDamage = rawDamage * volleyScale;
-            double damage = applyDamageEnchantments(stack, (float) rawDamage, true) * volleyScale;
-            int baseManaCost = baseManaCost(stack);
-            return new ProjectileStats(
-                    baseDamage,
-                    damage,
-                    attacksPerSecond(chargeTicks),
-                    attacksPerSecond(chargeTicks),
-                    baseManaCost,
-                    manaCost(stack),
-                    damageKey
-            );
+            float enchantedDamage = applyDamageEnchantments(stack, (float) rawDamage, true);
+
+            List<Double> damageModifiers = new ArrayList<>();
+            double volleyAdjustment = (rawDamage * volleyScale) - rawDamage;
+            if (Math.abs(volleyAdjustment) >= 0.0001D) {
+                damageModifiers.add(volleyAdjustment);
+            }
+            double enchantmentAdjustment = (enchantedDamage * volleyScale) - (rawDamage * volleyScale);
+            if (Math.abs(enchantmentAdjustment) >= 0.0001D) {
+                damageModifiers.add(enchantmentAdjustment);
+            }
+
+            if (player != null) {
+                if (isMagicWeapon(weapon)) {
+                    damageModifiers.add(calculateFinalValue(rawDamage, damageModifiers) * ClientPayloadHandler.getSkillLevel(QuietusSkills.MAGIC_DAMAGE_MULT_BONUS.get().getId()));
+                } else {
+    
+                }
+            }
+
+            double firingSpeed = attacksPerSecond(chargeTicks);
+            List<Double> speedModifiers = new ArrayList<>();
+
+            Stat damageStat = new Stat(rawDamage, damageModifiers);
+            Stat speedStat = new Stat(firingSpeed, speedModifiers);
+
+            return new ProjectileStats(damageStat, speedStat, damageKey);
         }
 
         if (stack.getItem() instanceof BowItem) {
             int projectiles = enchantedProjectileCount(stack, 1);
             double baseDamage = 6.0D;
-            double damage = applyDamageEnchantments(stack, 6.0F, true)
-                    * ProjectileVolleyBalance.damageScale(projectiles);
-            return new ProjectileStats(baseDamage, damage, 1.0D, 1.0D, -1, -1,
-                    "tooltip.quietus.weapon.arrow_damage");
+            double volleyScale = ProjectileVolleyBalance.damageScale(projectiles);
+            float enchantedDamage = applyDamageEnchantments(stack, 6.0F, true);
+
+            List<Double> damageModifiers = new ArrayList<>();
+            double volleyAdjustment = (baseDamage * volleyScale) - baseDamage;
+            if (Math.abs(volleyAdjustment) >= 0.0001D) {
+                damageModifiers.add(volleyAdjustment);
+            }
+            double enchantmentAdjustment = (enchantedDamage * volleyScale) - (baseDamage * volleyScale);
+            if (Math.abs(enchantmentAdjustment) >= 0.0001D) {
+                damageModifiers.add(enchantmentAdjustment);
+            }
+
+            Stat damageStat = new Stat(baseDamage, damageModifiers);
+            Stat speedStat = new Stat(1.0D, List.of());
+            return new ProjectileStats(damageStat, speedStat, "tooltip.quietus.weapon.arrow_damage");
         }
 
         if (stack.getItem() instanceof CrossbowItem) {
             int chargeTicks = player == null ? fallbackCrossbowChargeTicks(stack)
                     : CrossbowItem.getChargeDuration(stack, player);
             int projectiles = enchantedProjectileCount(stack, 1);
-            double baseAttackSpeed = attacksPerSecond(25);
             double baseDamage = 7.0D;
-            double damage = applyDamageEnchantments(stack, 7.0F, true)
-                    * ProjectileVolleyBalance.damageScale(projectiles);
-            return new ProjectileStats(baseDamage, damage, baseAttackSpeed, attacksPerSecond(chargeTicks), -1, -1,
-                    "tooltip.quietus.weapon.arrow_damage");
+            double volleyScale = ProjectileVolleyBalance.damageScale(projectiles);
+            float enchantedDamage = applyDamageEnchantments(stack, 7.0F, true);
+
+            List<Double> damageModifiers = new ArrayList<>();
+            double volleyAdjustment = (baseDamage * volleyScale) - baseDamage;
+            if (Math.abs(volleyAdjustment) >= 0.0001D) {
+                damageModifiers.add(volleyAdjustment);
+            }
+            double enchantmentAdjustment = (enchantedDamage * volleyScale) - (baseDamage * volleyScale);
+            if (Math.abs(enchantmentAdjustment) >= 0.0001D) {
+                damageModifiers.add(enchantmentAdjustment);
+            }
+
+            double baseAttackSpeed = attacksPerSecond(25);
+            double chargedAttackSpeed = attacksPerSecond(chargeTicks);
+            List<Double> speedModifiers = new ArrayList<>();
+            double quickChargeAdjustment = chargedAttackSpeed - baseAttackSpeed;
+            if (Math.abs(quickChargeAdjustment) >= 0.0001D) {
+                speedModifiers.add(quickChargeAdjustment);
+            }
+
+            Stat damageStat = new Stat(baseDamage, damageModifiers);
+            Stat speedStat = new Stat(baseAttackSpeed, speedModifiers);
+            return new ProjectileStats(damageStat, speedStat, "tooltip.quietus.weapon.arrow_damage");
         }
         return null;
     }
@@ -257,40 +345,43 @@ public final class WeaponStatTooltips {
         };
     }
 
-    private static int manaCost(ItemStack stack) {
-        UsesMana usesMana = stack.get(QuietusComponents.USES_MANA.get());
-        if (usesMana == null || usesMana.operation() != UsesMana.Operation.ADD_VALUE) {
-            return -1;
-        }
-        float[] reduction = {0.0F};
-        EnchantmentHelper.runIterationOnItem(stack, (enchantment, level) -> {
-            for (ConditionalEffect<EnchantmentValueEffect> effect
-                    : enchantment.value().getEffects(QuietusEnchantmentComponent.MANA_COST_REDUCTION.get())) {
-                if (effect.requirements().isEmpty()) {
-                    reduction[0] = effect.effect().process(level, tooltipRandom(), reduction[0]);
-                }
+    public static double calculateFinalValue(double base, List<Double> modifiers) {
+        double total = base;
+        if (modifiers != null) {
+            for (double mod : modifiers) {
+                total += mod;
             }
-        });
-        return Math.max(usesMana.minAmount(), Math.round(usesMana.amount() * (1.0F - reduction[0])));
+        }
+        return total;
     }
 
-    private static int baseManaCost(ItemStack stack) {
-        UsesMana usesMana = stack.get(QuietusComponents.USES_MANA.get());
-        return usesMana != null && usesMana.operation() == UsesMana.Operation.ADD_VALUE
-                ? Math.max(usesMana.minAmount(), usesMana.amount())
-                : -1;
+    private static boolean hasAdditionalModifiers(List<Double> modifiers) {
+        if (modifiers == null || modifiers.size() <= 1) {
+            return false;
+        }
+        for (int i = 1; i < modifiers.size(); i++) {
+            if (Math.abs(modifiers.get(i)) >= 0.0001D) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static double attacksPerSecond(int ticks) {
         return ticks <= 0 ? 20.0D : 20.0D / ticks;
     }
 
-    private static Component statLine(String key, double entityBase, double baseValue,
-                                      double finalValue, boolean showCalculation) {
+    private static Component statLine(String key, Stat stat, boolean showCalculation) {
+        return statLine(key, stat.base, stat.modifiers, showCalculation);
+    }
+
+    private static Component statLine(String key, double base, List<Double> modifiers,
+                                      boolean showCalculation) {
+        double finalValue = calculateFinalValue(base, modifiers);
         MutableComponent line = Component.translatable(key, format(finalValue))
                 .withStyle(ChatFormatting.DARK_GREEN);
         if (showCalculation) {
-            line.append(CommonComponents.SPACE).append(calculationBracket(entityBase, baseValue, finalValue));
+            line.append(CommonComponents.SPACE).append(calculationBracket(base, modifiers));
         }
         return line;
     }
@@ -300,14 +391,15 @@ public final class WeaponStatTooltips {
     }
 
     /** Changes only vanilla's final numeric argument, retaining styles, siblings and optional breakdown text. */
-    private static Component rewriteAttributeValue(Component component, double baseValue,
-                                                   double finalValue, String attributeKey) {
+    private static Component rewriteAttributeValue(Component component, double base,
+                                                   List<Double> modifiers, String attributeKey) {
+        double finalValue = calculateFinalValue(base, modifiers);
         MutableComponent rewritten;
         if (component.getContents() instanceof TranslatableContents translatable) {
             Object[] arguments = translatable.getArgs().clone();
             for (int i = 0; i < arguments.length; i++) {
                 if (arguments[i] instanceof Component child) {
-                    arguments[i] = rewriteAttributeValue(child, baseValue, finalValue, attributeKey);
+                    arguments[i] = rewriteAttributeValue(child, base, modifiers, attributeKey);
                 }
             }
             if (translatable.getKey().startsWith("attribute.modifier.equals.")
@@ -316,7 +408,8 @@ public final class WeaponStatTooltips {
                 arguments[0] = Component.literal(format(finalValue));
             } else if (translatable.getKey().equals("neoforge.attribute.debug.base")
                     && arguments.length > 1) {
-                arguments[1] = appendCalculationTerm(arguments[1], finalValue - baseValue);
+                arguments[0] = format(base);
+                arguments[1] = calculationTerms(modifiers);
             }
             rewritten = MutableComponent.create(new TranslatableContents(
                     translatable.getKey(), translatable.getFallback(), arguments));
@@ -325,18 +418,28 @@ public final class WeaponStatTooltips {
         }
         rewritten.setStyle(component.getStyle());
         for (Component sibling : component.getSiblings()) {
-            rewritten.append(rewriteAttributeValue(sibling, baseValue, finalValue, attributeKey));
+            rewritten.append(rewriteAttributeValue(sibling, base, modifiers, attributeKey));
         }
         return rewritten;
     }
 
-    private static Component calculationBracket(double entityBase, double baseValue, double finalValue) {
+    private static Component calculationBracket(double base, List<Double> modifiers) {
         return Component.translatable(
                 "neoforge.attribute.debug.base",
-                format(entityBase),
-                signedCalculationTerm(baseValue - entityBase)
-                        + signedCalculationTerm(finalValue - baseValue)
+                format(base),
+                calculationTerms(modifiers)
         ).withStyle(ChatFormatting.GRAY);
+    }
+
+    private static String calculationTerms(List<Double> modifiers) {
+        if (modifiers == null || modifiers.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (double mod : modifiers) {
+            builder.append(signedCalculationTerm(mod));
+        }
+        return builder.toString();
     }
 
     private static int footerIndex(ItemStack stack, List<Component> tooltip) {
@@ -352,22 +455,13 @@ public final class WeaponStatTooltips {
         return tooltip.size();
     }
 
-    private static Object appendCalculationTerm(Object existing, double adjustment) {
-        if (Math.abs(adjustment) < 0.0001D) {
-            return existing;
-        }
-        String term = signedCalculationTerm(adjustment);
-        if (existing instanceof Component component) {
-            return component.copy().append(term);
-        }
-        return String.valueOf(existing) + term;
-    }
-
     private static String signedCalculationTerm(double adjustment) {
-        if (Math.abs(adjustment) < 0.0001D) {
+        /* if (adjustment == 0d) {
+            return "+ 0";
+        } else if (Math.abs(adjustment) < 0.0001D) {
             return "";
-        }
-        return (adjustment > 0.0D ? " + " : " - ") + format(Math.abs(adjustment));
+        } */
+        return (adjustment >= 0.0D ? " + " : " - ") + format(Math.abs(adjustment));
     }
 
     private static RandomSource tooltipRandom() {
@@ -396,8 +490,10 @@ public final class WeaponStatTooltips {
         return false;
     }
 
-    private record ProjectileStats(double baseDamage, double damage,
-                                   double baseAttackSpeed, double attackSpeed,
-                                   int baseManaCost, int manaCost, String damageKey) {
+    private record ProjectileStats(
+        Stat damage, 
+        Stat attackSpeed, 
+        String damageKey
+    ) {
     }
 }

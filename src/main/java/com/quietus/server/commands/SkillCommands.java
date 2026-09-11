@@ -82,7 +82,7 @@ public class SkillCommands {
 
         if (parsed.type() != skill.getType()) {
             throw ERROR_WRONG_NUMBER_TYPE.create(
-                Component.translatable("commands.skill.error.wrong_number_type", Component.translatable(skill.getIdDisplay()), skill.getType().name(), parsed.type().name())
+                Component.translatable("commands.skill.error.wrong_number_type", Component.translatable(skill.getDisplayId()), skill.getType().name(), parsed.type().name())
             );
         }
         return parsed;
@@ -226,10 +226,10 @@ public class SkillCommands {
               first = false;
             }
             final Component finalSources = sourcesComponent;
-            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".total.success", first_player.getName(), get_result, Component.translatable(skill.getIdDisplay()), finalSources), true);
+            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".total.success", first_player.getName(), get_result, Component.translatable(skill.getDisplayId()), finalSources), true);
           } else {
             final String getSource = source;
-            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", first_player.getName(), get_result, Component.translatable(skill.getIdDisplay()), getSource), true);
+            sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", first_player.getName(), get_result, Component.translatable(skill.getDisplayId()), getSource), true);
           }
           return get_result.intValue();
         }
@@ -260,7 +260,7 @@ public class SkillCommands {
                 throw ERROR_NO_ACTION_PERFORMED.create(
                     Component.translatable(
                         action.getKey() + ".single.failure",
-                        Component.translatable(skill.getIdDisplay()),
+                        Component.translatable(skill.getDisplayId()),
                         first_player.getName()
                     )
                 );
@@ -268,7 +268,7 @@ public class SkillCommands {
                 throw ERROR_NO_ACTION_PERFORMED.create(
                     Component.translatable(
                         action.getKey() + ".multiple.failure",
-                        Component.translatable(skill.getIdDisplay()),
+                        Component.translatable(skill.getDisplayId()),
                         player_amount
                     )
                 );
@@ -276,9 +276,9 @@ public class SkillCommands {
         } else {
             final String actionSource = source;
             if (player_amount == 1) {
-                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", result_value, Component.translatable(skill.getIdDisplay()), first_player.getName(), actionSource), true);
+                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".single.success", result_value, Component.translatable(skill.getDisplayId()), first_player.getName(), actionSource), true);
             } else {
-                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".multiple.success", amount, Component.translatable(skill.getIdDisplay()), final_count, actionSource), true);
+                sourceStack.sendSuccess(() -> Component.translatable(action.getKey()+".multiple.success", amount, Component.translatable(skill.getDisplayId()), final_count, actionSource), true);
             }
         }
         return count;

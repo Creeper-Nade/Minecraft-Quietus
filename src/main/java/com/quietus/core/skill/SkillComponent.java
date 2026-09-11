@@ -20,6 +20,10 @@ public class SkillComponent implements ValueIOSerializable {
         return this.getTotalLevel(skill).doubleValue() > 0;
     }
 
+    public Map<Skill, Map<String, Number>> getMap() {
+        return this.skillToSourceAmountMap;
+    }
+
     public Number getLevel(Skill skill, String source) {
         if (!this.skillToSourceAmountMap.containsKey(skill)) {
             return 0;

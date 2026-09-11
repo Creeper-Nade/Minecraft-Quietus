@@ -145,7 +145,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             for (Reward reward : onUpgradeSkills) {
                 Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(reward.skillLocation());
                 Component skillName = (skill != null)
-                    ? Component.translatable(skill.getIdDisplay())
+                    ? Component.translatable(skill.getDisplayId())
                     : Component.translatable(Util.makeDescriptionId("skill", reward.skillLocation()));
                 Component skillDisplay = (skill != null)
                     ? Component.translatable(skill.getDisplayTemplate(), skillName, reward.amount(), reward.percentageAmount())
@@ -165,7 +165,7 @@ public class SkillTreeInfoScreen implements SkillTreeDraggable, SkillTreeScrolla
             for (Reward reward : onCompletionSkills) {
                 Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(reward.skillLocation());
                 Component skillName = (skill != null)
-                    ? Component.translatable(skill.getIdDisplay())
+                    ? Component.translatable(skill.getDisplayId())
                     : Component.translatable(Util.makeDescriptionId("skill", reward.skillLocation()));
 
                 MutableComponent line = Component.literal("\n" + indent)

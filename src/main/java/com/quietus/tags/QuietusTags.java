@@ -30,9 +30,9 @@ public class QuietusTags {
 
     public static class Items {
         //this tag is for pure mage-class weapon
-        public static final TagKey<Item> MAGIC_WEAPON= createTag("magic_weapon");
+        public static final TagKey<Item> MAGIC_WEAPONS = createTag("magic_weapons");
         //this tag is for all weapon that fires custom projectile, which has crit chance (e.g. sword that fires projectile)
-        public static final TagKey<Item> PROJECTILE_FIRING_WEAPON= createTag("projectile_firing_weapon");
+        public static final TagKey<Item> PROJECTILE_FIRING_WEAPON = createTag("projectile_firing_weapon");
         //this tag is for any item that consumes mana (e.g. healing wand)
         public static final TagKey<Item> MAGIC_ENCHANTABLE = createTag("magic_enchantable");
         // All grappling hook variants belong here so they share enchantment compatibility.
@@ -43,6 +43,8 @@ public class QuietusTags {
         public static final TagKey<Item> AMETHYST_UPGRADE_CHESTPLATE_BASES = createTag("amethyst_upgrade_chestplate_bases");
         public static final TagKey<Item> AMETHYST_UPGRADE_LEGGINGS_BASES = createTag("amethyst_upgrade_leggings_bases");
         public static final TagKey<Item> AMETHYST_UPGRADE_BOOTS_BASES = createTag("amethyst_upgrade_boots_bases");
+        // All projectile weapons (bows, crossbows, and Quietus ranged/magic projectile weapons)
+        public static final TagKey<Item> PROJECTILE_WEAPONS = createTag("projectile_weapons");
 
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(Identifier.fromNamespaceAndPath(MODID, name));

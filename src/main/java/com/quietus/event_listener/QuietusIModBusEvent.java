@@ -18,9 +18,11 @@ import com.quietus.client.packet.GrapplingHookPhysicsPacket;
 import com.quietus.client.packet.ManaPacket;
 import com.quietus.client.packet.MagicCastStartPacket;
 import com.quietus.client.packet.PlayerRevivalCooldownPacket;
+import com.quietus.client.packet.SkillPacket;
 import com.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
 import com.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
 import com.quietus.client.packet.SkillTreeUpdatePacket;
+import com.quietus.client.packet.SkillUpdatePacket;
 import com.quietus.client.packet.WeatherItemContainerPacket;
 import com.quietus.client.packet.DisturbancePacket;
 import com.quietus.item.QuietusTooltipAppenders;
@@ -124,7 +126,7 @@ public class QuietusIModBusEvent {
             ClientPayloadHandler::handleGrappleActivity
         );
         registrar.playToClient(
-                SkillTreeUpdatePacket.TYPE,
+            SkillTreeUpdatePacket.TYPE,
             SkillTreeUpdatePacket.STREAM_CODEC,
             ClientSkillTreePayloadHandler::handleSkillTreeUpdate
         );
@@ -137,6 +139,16 @@ public class QuietusIModBusEvent {
             SkillTreeAdvancementsGrantRevokePacket.TYPE,
             SkillTreeAdvancementsGrantRevokePacket.STREAM_CODEC,
             ClientSkillTreePayloadHandler::handleSkillTreeAdvancementsSync
+        );
+        registrar.playToClient(
+            SkillPacket.TYPE,
+            SkillPacket.STREAM_CODEC,
+            ClientPayloadHandler::handleSkill
+        );
+        registrar.playToClient(
+            SkillUpdatePacket.TYPE,
+            SkillUpdatePacket.STREAM_CODEC,
+            ClientPayloadHandler::handleSkillUpdate
         );
         registrar = registrar.executesOn(HandlerThread.NETWORK);
         registrar.playToServer(

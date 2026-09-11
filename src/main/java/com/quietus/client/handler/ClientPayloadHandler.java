@@ -1,11 +1,15 @@
 package com.quietus.client.handler;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import com.quietus.client.packet.DoDecayPacket;
 import com.quietus.client.packet.GhostStatePacket;
 import com.quietus.client.packet.ManaPacket;
 import com.quietus.client.packet.PlayerRevivalCooldownPacket;
+import com.quietus.client.packet.SkillPacket;
+import com.quietus.client.packet.SkillUpdatePacket;
 import com.quietus.client.packet.WeatherItemContainerPacket;
 import com.quietus.client.packet.DisturbancePacket;
 import com.quietus.core.DeathRevamp.GhostDeath;
@@ -19,6 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -51,6 +56,8 @@ public class ClientPayloadHandler {
     private static int DisturbanceStage;
     private static double DisturbanceVolatility;
 
+    private static Map<Identifier, Double> skills = new HashMap<>();
+
     private static Minecraft minecraft = Minecraft.getInstance();
 
     public static void handleMagicCastStart(final MagicCastStartPacket payload, final IPayloadContext context) {
@@ -71,6 +78,23 @@ public class ClientPayloadHandler {
                 });
     }
 
+    public static void handleSkill(final SkillPacket payload, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            skills.clear();
+            skills.putAll(payload.skills());
+        }).exceptionally(e -> {
+            context.disconnect(Component.translatable("quietus.networking.failed", e.getMessage()));
+                return null;
+        });
+    }
+    public static void handleSkillUpdate(final SkillUpdatePacket payload, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            skills.put(payload.skillId(), payload.value());
+        }).exceptionally(e -> {
+            context.disconnect(Component.translatable("quietus.networking.failed", e.getMessage()));
+                return null;
+        });
+    }
 
     public static void handleGhostState(final GhostStatePacket payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
@@ -179,6 +203,18 @@ public class ClientPayloadHandler {
     public int GetMaxManaFromPack() {return MaxMana;}
     public double getManaMovementMult(){return movementMult;}
     public int GetManaFromPack() {return Mana;}
+
+    public static Map<Identifier, Double> getSkills() {
+        return skills;
+    }
+    public static double getSkillLevel(Identifier skillId) {
+        if (!skills.containsKey(skillId)) {
+            skills.put(skillId, 0.0d);
+
+        }
+        return skills.get(skillId);
+    }
+
     public boolean getGhostState(){return PlayerIsGhost;}
     public boolean getHardcore(){return IsHardCore;}
     public int getMaxReviveCD(){return MaxReviveCD;}

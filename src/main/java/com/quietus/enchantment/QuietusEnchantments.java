@@ -43,7 +43,7 @@ public class QuietusEnchantments {
                 QuietusTags.Enchantments.ATTUNEMENT_ACUPUNCTURE_EXCLUSIVE);
 
         register(context, HEX, Enchantment.enchantment(Enchantment.definition(
-                        items.getOrThrow(QuietusTags.Items.MAGIC_WEAPON),
+                        items.getOrThrow(QuietusTags.Items.MAGIC_WEAPONS),
                         10,
                         5,
                         Enchantment.dynamicCost(1, 10),
@@ -70,7 +70,7 @@ public class QuietusEnchantments {
                 EquipmentSlotGroup.MAINHAND)).exclusiveWith(attunementAcupunctureExclusive));
 
         register(context, ATTUNEMENT, Enchantment.enchantment(Enchantment.definition(
-                items.getOrThrow(QuietusTags.Items.MAGIC_WEAPON),
+                items.getOrThrow(QuietusTags.Items.MAGIC_WEAPONS),
                 5,
                 3,
                 Enchantment.dynamicCost(5, 15),

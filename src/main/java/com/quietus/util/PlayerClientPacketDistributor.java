@@ -17,11 +17,15 @@ import com.quietus.client.packet.GrapplingActiveHookPacket;
 import com.quietus.client.packet.GrapplingHookPhysicsPacket;
 import com.quietus.client.packet.ManaPacket;
 import com.quietus.client.packet.PlayerRevivalCooldownPacket;
+import com.quietus.client.packet.SkillPacket;
 import com.quietus.client.packet.SkillTreeAdvancementsGrantRevokePacket;
 import com.quietus.client.packet.SkillTreeAdvancementsUpdatePacket;
 import com.quietus.client.packet.SkillTreeUpdatePacket;
+import com.quietus.client.packet.SkillUpdatePacket;
 import com.quietus.client.packet.WeatherItemContainerPacket;
 import com.quietus.core.mana.ManaComponent;
+import com.quietus.core.skill.Skill;
+import com.quietus.core.skill.SkillComponent;
 import com.quietus.server.PlayerSkillTree;
 import com.quietus.server.QuietusReloadableResources;
 import com.quietus.skilltree.Prerequisites;
@@ -71,6 +75,17 @@ public class PlayerClientPacketDistributor {
     }
     public static void sendGrappleActivityPackToEntity(ServerPlayer serverPlayer, Boolean active,int id) {
         PacketDistributor.sendToPlayer(serverPlayer,new GrapplingActiveHookPacket(active,id));
+    }
+
+    public static void sendSkillPacketToPlayer(ServerPlayer serverPlayer, SkillComponent skills) {
+        Map<Identifier, Double> packetMap = skills.getMap().entrySet().stream().collect(Collectors.toMap(
+            entry -> (Identifier) entry.getKey().getId(),
+            entry -> (double) skills.getTotalLevel(entry.getKey())
+        ));
+        PacketDistributor.sendToPlayer(serverPlayer, new SkillPacket(packetMap));
+    }
+    public static void sendSkillUpdatePacketToPlayer(ServerPlayer serverPlayer, Skill skill, Number value) {
+        PacketDistributor.sendToPlayer(serverPlayer, new SkillUpdatePacket(skill.getId(), (double) value));
     }
 
     /**
