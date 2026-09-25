@@ -251,5 +251,11 @@
   "skill.quietus.default.template": "+%2$s %1$s",
   "skill.quietus.default_percentage.template": "+%3$s%% %1$s",
 
-  "skill.quietus.magic_damage_mult_bonus": "Magic Damage"
+  "skill.quietus.mana_regen_mult_bonus": "Mana Regeneration Bonus",
+  "skill.quietus.mana_max_mult_bonus": "Max Mana Bonus",
+  "skill.quietus.magic_damage_mult_bonus": "Magic Damage",
+  "skill.quietus.attack_speed_mult_bonus": "Attack Speed",
+  "skill.quietus.debuff_mitigation": "Debuff Mitigation",
+  "skill.quietus.damage_suppression": "Damage Suppression"
+
 }

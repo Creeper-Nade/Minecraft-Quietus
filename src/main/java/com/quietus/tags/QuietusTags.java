@@ -6,6 +6,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -72,6 +73,14 @@ public class QuietusTags {
 
         private static TagKey<DamageType> createTag(String name) {
             return TagKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(MODID, name));
+        }
+    }
+
+    public static class MobEffects {
+        public static final TagKey<MobEffect> DEBUFFS = createTag("debuffs");
+
+        private static TagKey<MobEffect> createTag(String name) {
+            return TagKey.create(Registries.MOB_EFFECT, Identifier.fromNamespaceAndPath(MODID, name));
         }
     }
 }

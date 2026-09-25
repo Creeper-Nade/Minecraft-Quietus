@@ -85,6 +85,12 @@ public final class WeaponStatTooltips {
         List<Double> speedModifiers = new ArrayList<>();
         speedModifiers.add(baseSpeed - playerSpeed);
         speedModifiers.add(enchantedSpeed - baseSpeed);
+        if (player != null) {
+            double attackSpeedSkillBonus = SkillUtil.getDoubleTotalSkillLevel(player, QuietusSkills.ATTACK_SPEED_MULT_BONUS.get());
+            if (attackSpeedSkillBonus > 0.0D) {
+                speedModifiers.add(enchantedSpeed * attackSpeedSkillBonus);
+            }
+        }
 
         Stat damageStat = new Stat(playerDamage, damageModifiers);
         Stat speedStat = new Stat(playerSpeed, speedModifiers);

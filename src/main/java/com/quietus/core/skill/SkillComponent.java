@@ -66,7 +66,8 @@ public class SkillComponent implements ValueIOSerializable {
         for (Number num : this.skillToSourceAmountMap.get(skill).values()) {
             sum += num.doubleValue();
         }
-        return castToType(sum, skill.getType());
+        double clamped = Math.clamp(sum, 0.0, skill.maxLevel().doubleValue());
+        return castToType(clamped, skill.getType());
     }
 
     public void addLevel(Skill skill, Number amount, String source) {
@@ -76,9 +77,21 @@ public class SkillComponent implements ValueIOSerializable {
     }
 
     public void setLevel(Skill skill, Number value, String source) {
-        double clamped = Math.clamp(value.doubleValue(), 0.0, skill.maxLevel().doubleValue());
+        Map<String, Number> levels = this.skillToSourceAmountMap.computeIfAbsent(skill, k -> new HashMap<>());
+        if (value.doubleValue() <= 0d) { // remove the source from mapping if it is set to zero or negative
+            levels.remove(source);
+            return;
+        }
+        double otherSourcesSum = 0.0;
+        for (Map.Entry<String, Number> entry : levels.entrySet()) {
+            if (!entry.getKey().equals(source)) {
+                otherSourcesSum += entry.getValue().doubleValue();
+            }
+        }
+        double maxAllowed = Math.max(0.0, skill.maxLevel().doubleValue() - otherSourcesSum);
+        double clamped = Math.clamp(value.doubleValue(), 0.0, maxAllowed);
         Number typedValue = castToType(clamped, skill.getType());
-        this.skillToSourceAmountMap.computeIfAbsent(skill, k -> new HashMap<>()).put(source, typedValue);
+        levels.put(source, typedValue);
     }
 
     private static Number castToType(double value, Skill.Type type) {
@@ -118,7 +131,6 @@ public class SkillComponent implements ValueIOSerializable {
             Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(Identifier.parse(tag.getStringOr("id", "quietus:none")));
             if (skill == null) continue;
 
-            Map<String, Number> levelsMap = new HashMap<>();
             ValueInput.ValueInputList list2 = tag.childrenListOrEmpty("levels");
             for (ValueInput tag2 : list2) {
                 String source = tag2.getStringOr("source", "none");
@@ -127,9 +139,8 @@ public class SkillComponent implements ValueIOSerializable {
                     case FLOAT -> tag2.getFloatOr("level", 0.0f);
                     case DOUBLE -> tag2.getDoubleOr("level", 0.0);
                 };
-                levelsMap.put(source, level);
+                setLevel(skill, level, source);
             }
-            this.skillToSourceAmountMap.put(skill, levelsMap);
         }
     }
 

@@ -19,6 +19,10 @@ import com.quietus.client.packet.GrapplingActiveHookPacket;
 import com.quietus.client.packet.GrapplingHookPhysicsPacket;
 import com.quietus.client.packet.MagicCastStartPacket;
 import com.quietus.client.hud.MagicClickerHudOverlay;
+import com.quietus.core.QuietusRegistries;
+import com.quietus.core.skill.Skill;
+import com.quietus.core.skill.SkillComponent;
+import com.quietus.util.QuietusAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.component.DataComponents;
@@ -82,6 +86,16 @@ public class ClientPayloadHandler {
         context.enqueueWork(() -> {
             skills.clear();
             skills.putAll(payload.skills());
+            Player player = context.player();
+            if (player != null) {
+                SkillComponent comp = player.getData(QuietusAttachments.SKILL_ATTACHMENT);
+                for (Map.Entry<Identifier, Double> entry : payload.skills().entrySet()) {
+                    Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(entry.getKey());
+                    if (skill != null) {
+                        comp.setLevel(skill, entry.getValue(), "server_sync");
+                    }
+                }
+            }
         }).exceptionally(e -> {
             context.disconnect(Component.translatable("quietus.networking.failed", e.getMessage()));
                 return null;
@@ -90,6 +104,14 @@ public class ClientPayloadHandler {
     public static void handleSkillUpdate(final SkillUpdatePacket payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             skills.put(payload.skillId(), payload.value());
+            Player player = context.player();
+            if (player != null) {
+                SkillComponent comp = player.getData(QuietusAttachments.SKILL_ATTACHMENT);
+                Skill skill = QuietusRegistries.SKILL_REGISTRY.getValue(payload.skillId());
+                if (skill != null) {
+                    comp.setLevel(skill, payload.value(), "server_sync");
+                }
+            }
         }).exceptionally(e -> {
             context.disconnect(Component.translatable("quietus.networking.failed", e.getMessage()));
                 return null;

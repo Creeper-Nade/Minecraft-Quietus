@@ -24,6 +24,7 @@ public class QuietusDataGenerator {
         BlockTagsProvider blockTagsProvider = new QuietusBlockTagProvider(packOutput, lookupProvider);
         generator.addProvider(true, blockTagsProvider);
         generator.addProvider(true, new QuietusItemTagProvider(packOutput, lookupProvider));
+        generator.addProvider(true, new QuietusMobEffectTagProvider(packOutput, lookupProvider));
         generator.addProvider(true, new QuietusEnchantmentTagProvider(packOutput,lookupProvider));
         generator.addProvider(true, new QuietusDamageTypeTagProvider(packOutput, lookupProvider));
         generator.addProvider(true, new QuietusDatapackProvider(packOutput, lookupProvider));
@@ -42,6 +43,7 @@ public class QuietusDataGenerator {
         BlockTagsProvider blockTagsProvider = new QuietusBlockTagProvider(packOutput, lookupProvider);
         generator.addProvider(true, blockTagsProvider);
         generator.addProvider(true, new QuietusItemTagProvider(packOutput, lookupProvider));
+        generator.addProvider(true, new QuietusMobEffectTagProvider(packOutput, lookupProvider));
         generator.addProvider(true, new QuietusEnchantmentTagProvider(packOutput,lookupProvider));
         generator.addProvider(true, new QuietusDamageTypeTagProvider(packOutput, lookupProvider));
         generator.addProvider(true, new QuietusDatapackProvider(packOutput, lookupProvider));

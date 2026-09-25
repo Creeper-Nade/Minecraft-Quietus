@@ -1,5 +1,6 @@
 package com.quietus.util;
 
+import com.quietus.client.handler.ClientPayloadHandler;
 import com.quietus.core.skill.Skill;
 import com.quietus.core.skill.SkillComponent;
 
@@ -13,38 +14,61 @@ public class SkillUtil {
     }
 
     public static Number getSkillLevel(Player player, Skill skill, String source) {
+        if (player == null || skill == null) {
+            return 0;
+        }
         return getSkills(player).getLevel(skill, source);
     }
 
     public static int getIntSkillLevel(Player player, Skill skill, String source) {
-        return getSkills(player).getIntLevel(skill, source);
+        return getSkillLevel(player, skill, source).intValue();
     }
 
     public static float getFloatSkillLevel(Player player, Skill skill, String source) {
-        return getSkills(player).getFloatLevel(skill, source);
+        return getSkillLevel(player, skill, source).floatValue();
     }
 
     public static double getDoubleSkillLevel(Player player, Skill skill, String source) {
-        return getSkills(player).getDoubleLevel(skill, source);
+        return getSkillLevel(player, skill, source).doubleValue();
     }
     
     public static Number getTotalSkillLevel(Player player, Skill skill) {
+        if (player == null || skill == null) {
+            return 0;
+        }
+        if (player.level().isClientSide()) {
+            double lvl = ClientPayloadHandler.getSkillLevel(skill.getId());
+            return switch (skill.getType()) {
+                case INT -> (int) Math.round(lvl);
+                case FLOAT -> (float) lvl;
+                case DOUBLE -> lvl;
+            };
+        }
         return getSkills(player).getTotalLevel(skill);
     }
 
     public static int getIntTotalSkillLevel(Player player, Skill skill) {
-        return getSkills(player).getTotalLevel(skill).intValue();
+        return getTotalSkillLevel(player, skill).intValue();
     }
 
     public static float getFloatTotalSkillLevel(Player player, Skill skill) {
-        return getSkills(player).getTotalLevel(skill).floatValue();
+        return getTotalSkillLevel(player, skill).floatValue();
     }
 
     public static double getDoubleTotalSkillLevel(Player player, Skill skill) {
+        if (player == null || skill == null) {
+            return 0.0d;
+        }
+        if (player.level().isClientSide()) {
+            return ClientPayloadHandler.getSkillLevel(skill.getId());
+        }
         return getSkills(player).getTotalLevel(skill).doubleValue();
     }
 
     public static java.util.Map<String, Number> getSkillSourceLevels(Player player, Skill skill) {
+        if (player == null || skill == null) {
+            return java.util.Map.of();
+        }
         return getSkills(player).getSourceLevels(skill);
     }
 

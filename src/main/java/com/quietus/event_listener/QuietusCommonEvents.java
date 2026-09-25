@@ -207,6 +207,8 @@ public class QuietusCommonEvents {
             updateManaStats(serverPlayer, manaComponent);
             PlayerClientPacketDistributor.sendManaPackToPlayer(serverPlayer, manaComponent);
             manaComponent.clean();
+            /* Send skills packet to client */
+            PlayerClientPacketDistributor.sendSkillPacketToPlayer(serverPlayer, SkillUtil.getSkills(serverPlayer));
         }
     }
     @SubscribeEvent

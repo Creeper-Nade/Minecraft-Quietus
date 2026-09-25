@@ -15,6 +15,7 @@
     "HumanoidModelMixin",
     "HuskJockeyMixin",
     "LivingEntityAttackImmunityMixin",
+    "LivingEntityMixin",
     "MobEquipmentMixin",
     "NaturalSpawnerMixin",
     "PlayerMixin",
@@ -27,7 +28,8 @@
     "ServerPlayerMixin",
     "SkeletonConversionAccessor",
     "SpiderJockeyMixin",
-    "ZombieEquipmentMixin"
+    "ZombieEquipmentMixin",
+    "MobEffectInstanceAccessor"
   ],
   "client": [
     "AbstractContainerScreenAccessor",
