@@ -208,14 +208,6 @@ public class SkillCategory {
         }
     }
 
-    public ConnectivityPosition positionNodes(int nodeWidth, int nodeHeight) {
-        Set<SkillTreeNode> nodes = new HashSet<>();
-        nodes.addAll(this.roots);
-        nodes.addAll(this.dependants);
-        LegacyPosition positioning = new LegacyPosition(nodeWidth, nodeHeight);
-        return positioning.layout(nodes);
-    }
-
     public boolean hasNode(Identifier location) {
         return this.nodes.containsKey(location);
     }
