@@ -63,12 +63,15 @@ public abstract class ServerGamePacketListenerSweepMixin {
         double reach = player.entityInteractionRange();
         double facingX = -Mth.sin(player.getYRot() * Mth.DEG_TO_RAD);
         double facingZ = Mth.cos(player.getYRot() * Mth.DEG_TO_RAD);
+        double forwardOffset = 1.0;
+        double forwardReach = Math.max(0.0, reach - forwardOffset);
         AABB sweepHitBox = player.getBoundingBox()
-                .expandTowards(facingX * reach, 0.0, facingZ * reach)
-                .inflate(1.0, 0.25, 1.0);
+                .move(facingX * forwardOffset, 0.0, facingZ * forwardOffset) // move the hitbox a little so the sweep does not attack entities behind the player
+                .expandTowards(facingX * forwardReach, 0.0, facingZ * forwardReach)
+                .inflate(0.625, 0.25, 0.625);
 
-        // The player stands in for vanilla's directly-hit entity, so the normal
-        // sweep routine excludes the attacker without requiring a primary target.
+        /* The player stands in for vanilla's directly-hit entity, so the normal
+         * sweep routine excludes the attacker without requiring a primary target. */
         invoker.quietus$doSweepAttack(player, baseDamage, damageSource, attackStrengthScale, sweepHitBox);
         player.onAttack();
     }

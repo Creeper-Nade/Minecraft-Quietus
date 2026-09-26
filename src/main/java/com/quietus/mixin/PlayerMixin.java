@@ -1,14 +1,20 @@
 package com.quietus.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.quietus.util.RangedAmmoCurios;
 import com.quietus.util.QuietusGameRules;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.neoforged.neoforge.common.CommonHooks;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,6 +22,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
 public class PlayerMixin {
+    @Unique
+    private static final int QUIETUS$MAX_SWEEP_TARGETS = 3;
+
+    
     @ModifyReturnValue(method = "baseDamageScaleFactor", at = @At("RETURN"))
     private float quietus$rebalanceMeleeDamageCurve(float vanillaScale) {
         Player player = (Player) (Object) this;
@@ -23,11 +33,11 @@ public class PlayerMixin {
             return vanillaScale;
         }
 
-        // Vanilla uses 0.20 + 0.80 * charge^2. With per-attack immunity,
-        // every rapid swing can deal that 20% minimum, allowing spam to
-        // overtake charged attacks. Preserve the same quadratic shape and
-        // full-charge damage while reducing the minimum to 5%:
-        // 0.05 + 0.95 * charge^2 = 1.1875 * vanillaScale - 0.1875.
+        /* Vanilla uses 0.20 + 0.80 * charge^2. With per-attack immunity,
+         * every rapid swing can deal that 20% minimum, allowing spam to
+         * overtake charged attacks. Preserve the same quadratic shape and
+         * full-charge damage while reducing the minimum to 5%:
+         * 0.05 + 0.95 * charge^2 = 1.1875 * vanillaScale - 0.1875. */
         return 1.1875F * vanillaScale - 0.1875F;
     }
 
@@ -80,4 +90,22 @@ public class PlayerMixin {
         }
     }
 
+    @ModifyExpressionValue(
+            method = "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;FLnet/minecraft/world/phys/AABB;)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/Level;getEntitiesOfClass(Ljava/lang/Class;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;"
+            )
+    )
+    private List<LivingEntity> quietus$limitSweepTargets(List<LivingEntity> entities) {
+        if (entities.size() <= QUIETUS$MAX_SWEEP_TARGETS) {
+            return entities;
+        }
+
+        Player player = (Player) (Object) this;
+        List<LivingEntity> sorted = new ArrayList<>(entities);
+        sorted.sort(Comparator.comparingDouble(player::distanceToSqr));
+
+        return sorted.subList(0, QUIETUS$MAX_SWEEP_TARGETS);
+    }
 }
