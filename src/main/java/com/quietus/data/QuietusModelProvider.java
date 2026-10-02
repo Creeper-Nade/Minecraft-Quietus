@@ -121,6 +121,10 @@ public class QuietusModelProvider extends ModelProvider {
         itemModels.createFlatItemModel(QuietusItems.INSTABOW.get(), ModelTemplates.BOW);
         itemModels.generateBow(QuietusItems.INSTABOW.get());
 
+        // ammos
+        itemModels.itemModelOutput.accept(QuietusItems.STALAGMITE_ARROW.get(), 
+        ItemModelUtils.plainModel(Identifier.fromNamespaceAndPath(MODID, "item/combat/ammos/stalagmite_arrow")));
+
 
         //trimmables
 

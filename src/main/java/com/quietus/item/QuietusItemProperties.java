@@ -114,19 +114,22 @@ public class QuietusItemProperties extends Item.Properties {
         return this;
     }
 
-    public HashMap<Integer,QuietusProjectileProperty> projectileProperties = new HashMap<>();
-    public QuietusItemProperties addProjectile(int key, float damage, double critChance, Function<Float,Float> func, float knockback, float gravity, int persistanceTicks, EntityType<? extends Projectile> projectileType) {
+    public HashMap<Integer,QuietusProjectileProperty> projectileProperties = new HashMap<>(); // properties of shot projectiles of a non-ammo-use weapon
+    public QuietusItemProperties addProjectile(int key, float damage, double critChance, Function<Float,Float> critCalc, float knockback, float velocityMult, int persistanceTicks, EntityType<? extends Projectile> projectileType) {
         this.projectileProperties.put(key, QuietusProjectileProperty.builder()
             .damage(damage)
             .critChance(critChance)
-            .critOperation(func)
+            .critOperation(critCalc)
             .knockback(knockback)
-            .gravity(gravity)
+            .velocityMult(velocityMult)
             .persistanceTicks(persistanceTicks)
             .projectileType(projectileType)
             .build()
         );
         return this;
+    }
+    public QuietusItemProperties addProjectile(int key, float damage, double critChance, Function<Float,Float> critCalc, float knockback, int persistanceTicks, EntityType<? extends Projectile> projectileType) {
+        return addProjectile(key, damage, critChance, critCalc, knockback, 1.0F, persistanceTicks, projectileType);
     }
     public QuietusItemProperties addProjectileCritChance(int key, double critChance) {
         this.projectileProperties.put(key, QuietusProjectileProperty.builder()
@@ -136,6 +139,19 @@ public class QuietusItemProperties extends Item.Properties {
         return this;
     }
 
+    public QuietusProjectileProperty projectileProperty; // projectile property of an ammo
+    public QuietusItemProperties ammoProjectile(float damage, double critChance, Function<Float,Float> critCalc, float knockback, float velocityMult, int persistanceTicks, EntityType<? extends Projectile> projectileType) {
+        this.projectileProperty = QuietusProjectileProperty.builder()
+            .damage(damage)
+            .critChance(critChance)
+            .critOperation(critCalc)
+            .knockback(knockback)
+            .velocityMult(velocityMult)
+            .persistanceTicks(persistanceTicks)
+            .projectileType(projectileType)
+            .build();
+        return this;
+    }
     
 
     public QuietusItemProperties manaUse(int value, UsesMana.Operation operation, int minAmount) {

@@ -11,6 +11,7 @@ import com.quietus.combat.ProjectileVolleyBalance;
 import com.quietus.entity.monster.Paraboler;
 import com.quietus.entity.monster.ThemedSkeleton;
 import com.quietus.item.QuietusItemProperties;
+import com.quietus.item.property.QuietusProjectileProperty;
 import com.quietus.util.RangedAmmoCurios;
 
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +26,7 @@ import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -73,11 +75,11 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
                 return InteractionResult.CONSUME; 
             } else {
                 if (player instanceof ServerPlayer) {
-                    List<ItemStack> list = drawAmmo(this.projectilesPerShot, player, itemstack);
-                    if (level instanceof ServerLevel serverlevel && !list.isEmpty()) {
+                    List<ItemStack> drawnAmmo = drawAmmo(this.projectilesPerShot, player, itemstack);
+                    if (level instanceof ServerLevel serverlevel && !drawnAmmo.isEmpty()) {
                         this.shoot(
                             serverlevel, player, player.getUsedItemHand(), itemstack, 
-                            list, 
+                            drawnAmmo, 
                             shootVelocity, 
                             this.shootInaccuracy, 
                             player.getRandom().nextDouble() < projectileCritChance, 
@@ -240,12 +242,20 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
                 float f4 = f2 + f3 * ((i + 1) / 2) * f1;
                 f3 = -f3;
                 int index = i;
+                float velocityMult = 1.0F;
+                if (projectileItem.getItem() instanceof IQuietusAmmoItem quietusAmmoItem) {
+                    QuietusProjectileProperty property = quietusAmmoItem.getProjectileProperty();
+                    if (property != null) {
+                        velocityMult = property.velocityMult();
+                    }
+                }
+                float finalVelocity = velocity * velocityMult;
                 Projectile createdProjectile = this.createProjectile(level, shooter, weapon, projectileItem, isCrit);
                 if (shooter instanceof Paraboler && createdProjectile instanceof AbstractArrow arrow) {
-                    // Vanilla skeletons initialize arrows through ProjectileUtil.getMobArrow(), but this
-                    // custom weapon path normally bypasses it. Normalize the base damage against launch
-                    // speed so the Paraboler's slower arcs do not collapse to near-zero impact damage.
-                    float safeVelocity = Math.max(velocity, 0.25F);
+                    /* Vanilla skeletons initialize arrows through ProjectileUtil.getMobArrow(), but this
+                     * custom weapon path normally bypasses it. Normalize the base damage against launch
+                     * speed so the Paraboler's slower arcs do not collapse to near-zero impact damage. */
+                    float safeVelocity = Math.max(finalVelocity, 0.25F);
                     arrow.setBaseDamageFromMob(
                             ProjectileVolleyBalance.PARABOLER_PRE_VOLLEY_ARROW_DAMAGE / (2.0F * safeVelocity)
                     );
@@ -259,7 +269,7 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
                     projectile,
                     level,
                     projectileItem,
-                    spawnedProjectile -> this.shootProjectile(shooter, spawnedProjectile, index, velocity, inaccuracy, f4, target)
+                    spawnedProjectile -> this.shootProjectile(shooter, spawnedProjectile, index, finalVelocity, inaccuracy, f4, target)
                 );
                 totalDurabilityUse += this.getDurabilityUse(projectileItem);
                 
@@ -288,6 +298,7 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
     /**
      * Static method.
      * Draws amount of ammo supported by weapon from player. 
+     * The player instance draws ammo based on chronologically {@link ProjectileWeaponItem#getSupportedHeldProjectiles()} and {@link ProjectileWeaponItem#getAllSupportedProjectiles()}
      * @param amount amount of ammo needed
      * @param player player drawing from
      * @param weapon the weapon item
@@ -309,15 +320,29 @@ public class AmmoProjectileWeaponItem extends QuietusProjectileWeaponItem {
 
     @Override
     protected Projectile createProjectile(Level level, LivingEntity shooter, ItemStack weapon, ItemStack ammo, boolean isCrit) {
-        ArrowItem arrowitem = ammo.getItem() instanceof ArrowItem arrowitem1 ? arrowitem1 : (ArrowItem)Items.ARROW;
-        AbstractArrow abstractarrow = arrowitem.createArrow(level, ammo, shooter, weapon);
-        if (isCrit) {
-            abstractarrow.setCritArrow(true);
+        if (ammo.getItem() instanceof ArrowItem arrowItem) {
+            AbstractArrow abstractarrow = arrowItem.createArrow(level, ammo, shooter, weapon);
+            if (isCrit) {
+                abstractarrow.setCritArrow(true);
+            }
+            AbstractArrow customizedArrow = customArrow(abstractarrow, ammo, weapon);
+            return shooter instanceof ThemedSkeleton themedSkeleton
+                    ? themedSkeleton.applySkeletonTheme(customizedArrow)
+                    : customizedArrow;
+        } else if (ammo.getItem() instanceof IQuietusAmmoItem quietusAmmoItem) { // is quietus ammo item
+            Projectile projectile = quietusAmmoItem.createProjectile(level, ammo, shooter, weapon);
+            return projectile;
+        } else { // else - default to a normal vanilla Minecraft arrow
+            ArrowItem arrowitem = (ArrowItem)Items.ARROW;
+            AbstractArrow abstractarrow = arrowitem.createArrow(level, ammo, shooter, weapon);
+            if (isCrit) {
+                abstractarrow.setCritArrow(true);
+            }
+            AbstractArrow customizedArrow = customArrow(abstractarrow, ammo, weapon);
+            return shooter instanceof ThemedSkeleton themedSkeleton
+                    ? themedSkeleton.applySkeletonTheme(customizedArrow)
+                    : customizedArrow;
         }
-        AbstractArrow customizedArrow = customArrow(abstractarrow, ammo, weapon);
-        return shooter instanceof ThemedSkeleton themedSkeleton
-                ? themedSkeleton.applySkeletonTheme(customizedArrow)
-                : customizedArrow;
     }
 
     @Override

@@ -199,7 +199,7 @@ public class QuietusItems {
         public static final DeferredItem<MagicChantingWeaponItem> AMETHYST_STAFF =
             REGISTRAR.register("amethyst_staff", () -> new MagicChantingWeaponItem(
                     new QuietusItemProperties()
-                        .addProjectile(0, 6.0f, 0.1d, (damage)->(float)(damage*1.5d), 0.4f, 0.0f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
+                        .addProjectile(0, 6.0f, 0.1d, (damage)->(float)(damage*1.5d), 0.4f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
                         .addSound(QuietusProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
                         .manaUse(5, UsesMana.Operation.ADD_VALUE, 0)
                         .weaponProperty(
@@ -228,7 +228,7 @@ public class QuietusItems {
         public static final DeferredItem<QuietusProjectileWeaponItem> WEIRD_AMETHYST_STAFF =
             REGISTRAR.register("weird_amethyst_staff", () -> new QuietusProjectileWeaponItem(
                     new QuietusItemProperties()
-                        .addProjectile(0, 5.0f, 0.05d, (damage)->(float)(damage*1.5d), 0.4f, 0.1f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
+                        .addProjectile(0, 5.0f, 0.05d, (damage)->(float)(damage*1.5d), 0.4f, 200, QuietusProjectiles.AMETHYST_PROJECTILE.get())
                         .addSound(QuietusProjectileWeaponItem.MAPKEY_SOUND_PLAYER_SHOOT, SoundEvents.AMETHYST_CLUSTER_HIT, SoundSource.PLAYERS)
                         .manaUse(5, UsesMana.Operation.ADD_VALUE, 0)
                         .weaponProperty(
@@ -245,9 +245,9 @@ public class QuietusItems {
                         .durability(384)
                         .useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, Identifier.parse("quietus:weird_amethyst_staff"))).stacksTo(1).useCooldown(0.75f))
                     );
-        public static final DeferredItem<GrapplingHookItem> CHAIN_GRAPPLING_HOOK =  REGISTRAR.register("chain_grappling_hook", () -> new GrapplingHookItem(
+        public static final DeferredItem<GrapplingHookItem> CHAIN_GRAPPLING_HOOK = REGISTRAR.register("chain_grappling_hook", () -> new GrapplingHookItem(
                 new QuietusItemProperties()
-                        .addProjectile(0, 0.0F, 0.0D, (damage) -> damage, 0.0F, 0.05F, Integer.MAX_VALUE, QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get())
+                        .addProjectile(0, 0.0F, 0.0D, (damage) -> damage, 0.0F, Integer.MAX_VALUE, QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get())
                         .grapplingHook(
                                 1.0F,    // maxRange
                                 0.5F,      // pullStrength
@@ -272,7 +272,7 @@ public class QuietusItems {
                         .enchantable(15)
                         .stacksTo(1)
                         .useItemDescriptionPrefix()
-                        .setId(ResourceKey.create(Registries.ITEM, Identifier.parse("quietus:chain_grappling_hook")))
+                        .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "chain_grappling_hook")))
         ));
 
         /* public static final DeferredItem<Item> COPPER_SWORD = REGISTRAR.registerItem("copper_sword", properties -> new WeatheringCopperItem(WeatheringCopperItems.WeatherState.UNAFFECTED, new QuietusItemProperties().sword(QuietusToolMaterial.COPPER, 3.0f, -2.4f).setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "copper_sword")))));    
@@ -312,6 +312,12 @@ public class QuietusItems {
                                     4.0F, 12.0F, 8.25F, 5.1F, 12.5F, 4.6F)
                             .setId(ResourceKey.create(Registries.ITEM, properties.effectiveModel()))));
         }
+
+        public static final DeferredItem<Item> STALAGMITE_ARROW = REGISTRAR.register("stalagmite_arrow", () -> new QuietusArrowAmmoItem(
+                new QuietusItemProperties()
+                    .ammoProjectile(6.0f, 0.2d, (damage) -> (float)(damage*1.5d), 0.4f, 0.625f, 200, QuietusProjectiles.STALAGMITE_ARROW.get())
+                    .useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "stalagmite_arrow")))
+        ));
 
     //#endregion
 

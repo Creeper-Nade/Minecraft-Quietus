@@ -39,6 +39,7 @@ import static com.quietus.Quietus.MODID;
 import org.slf4j.Logger;
 
 import com.quietus.client.QuietusKeyBindings;
+import com.quietus.client.model.projectile.arrow.StalagmiteArrowRenderer;
 import com.quietus.client.model.projectile.magic.AmethystProjectileRenderer;
 import com.quietus.client.model.projectile.magic.AmethystProjectileSmallRenderer;
 import com.quietus.entity.projectiles.QuietusProjectiles;
@@ -74,6 +75,7 @@ public class ClientModEvent {
         EntityRenderers.register(QuietusProjectiles.AMETHYST_PROJECTILE.get(), AmethystProjectileRenderer::new);
         EntityRenderers.register(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get(), AmethystProjectileSmallRenderer::new);
         EntityRenderers.register(QuietusProjectiles.CHAIN_GRAPPLING_HOOK_PROJECTILE.get(), ChainHookRenderer::new);
+        EntityRenderers.register(QuietusProjectiles.STALAGMITE_ARROW.get(), StalagmiteArrowRenderer::new);
     }
 
     @SubscribeEvent

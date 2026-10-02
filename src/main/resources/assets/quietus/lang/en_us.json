@@ -42,6 +42,8 @@
   "item.quietus.smithing_template.amethyst_upgrade.additions_slot_description": "Add Amethyst Resonator",
   "item.quietus.iron_rod": "Iron Rod",
   "item.quietus.void_orrery": "Void Orrery",
+  "item.quietus.stalagmite_arrow": "Stalagmite Arrow",
+
   "gui.quietus.void_orrery.report": "Disturbance: %1$s — %2$s. Stage: %4$s; Volatility: %5$s.",
   "gui.quietus.void_orrery.level.calm": "Dormant",
   "gui.quietus.void_orrery.level.watchful": "Stirring",

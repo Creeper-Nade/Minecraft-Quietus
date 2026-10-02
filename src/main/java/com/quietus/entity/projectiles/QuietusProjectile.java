@@ -35,11 +35,12 @@ import org.jetbrains.annotations.Nullable;
 
 
 /**
- * Simple straight travelling projectile with gravity, and does effect on entity via contact as a hit
+ * Simple straight travelling projectile, and has a function when contacting an entity
+ * Can override methods to change the projectile's travel path, function when hitting 
+ * entity or block.
  */
-public abstract class QuietusProjectile extends Projectile {
+public abstract class QuietusProjectile extends Projectile implements IQuietusProjectile {
     // default values
-    protected float gravity = 0.05f;
     protected float knockback = 0.4f;
     protected float baseDamage = 5.0f;
     protected ItemStack item;
@@ -47,10 +48,8 @@ public abstract class QuietusProjectile extends Projectile {
     protected double critChance = 0.05d;
     protected Function<Float,Float> critDamageOperation = (damage) -> (float)(damage*(1.0d+0.5d));
 
-    protected static final String NBT_TAG_PROJECTILE_GRAVITY = "ProjectileGravity";
     protected static final String NBT_TAG_CRITICAL = "Critical";
     protected static final String NBT_TAG_MAXIMUM_CRIT_MULTIPLIER = "MaximumCritMultiplier";
-    protected static final EntityDataAccessor<Float> DATA_PROJECTILE_GRAVITY_ID = SynchedEntityData.defineId(QuietusProjectile.class, EntityDataSerializers.FLOAT);
     protected static final EntityDataAccessor<Boolean> DATA_CRITICAL_ID = SynchedEntityData.defineId(QuietusProjectile.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Boolean> DATA_MAXIMUM_CRIT_MULTIPLIER_ID = SynchedEntityData.defineId(QuietusProjectile.class, EntityDataSerializers.BOOLEAN);
 
@@ -60,16 +59,12 @@ public abstract class QuietusProjectile extends Projectile {
     }
     
     public void configure(QuietusProjectileProperty projectileProperty, @Nullable ItemStack item) {
-        this.gravity = projectileProperty.gravity();
-        this.getEntityData().set(DATA_PROJECTILE_GRAVITY_ID, projectileProperty.gravity());
-        this.setNoGravity(gravity == 0.0);
         this.knockback = projectileProperty.knockback();
         this.baseDamage = projectileProperty.damage();
         this.item = Objects.requireNonNullElse(item.copy(), ItemStack.EMPTY);
         this.persistanceTicks = projectileProperty.persistanceTicks();
         this.critChance = projectileProperty.critChance();
         this.critDamageOperation = projectileProperty.critOperation();
-
     }
 
     @Override
@@ -285,26 +280,15 @@ public abstract class QuietusProjectile extends Projectile {
         }
     }
 
-    public float getSynchedGravity() {
-        return this.getEntityData().get(DATA_PROJECTILE_GRAVITY_ID);
-    }
-
-    @Override
-    protected double getDefaultGravity() {
-        return (double)this.getSynchedGravity();
-    }
     @Override
     public void addAdditionalSaveData(ValueOutput content) {
         super.addAdditionalSaveData(content);
-        content.putFloat(NBT_TAG_PROJECTILE_GRAVITY, this.gravity);
         content.putBoolean(NBT_TAG_CRITICAL, this.isCritical());
         content.putBoolean(NBT_TAG_MAXIMUM_CRIT_MULTIPLIER, this.hasMaximumCritMultiplier());
     }
     @Override
     public void readAdditionalSaveData(ValueInput content) {
         super.readAdditionalSaveData(content);
-        float r = content.getFloatOr(NBT_TAG_PROJECTILE_GRAVITY, 0.05f);
-        this.gravity = r;
         this.setCritical(content.getBooleanOr(NBT_TAG_CRITICAL, false));
         this.getEntityData().set(DATA_MAXIMUM_CRIT_MULTIPLIER_ID,
                 content.getBooleanOr(NBT_TAG_MAXIMUM_CRIT_MULTIPLIER, false));
@@ -312,17 +296,9 @@ public abstract class QuietusProjectile extends Projectile {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DATA_PROJECTILE_GRAVITY_ID, 0.05f);
         builder.define(DATA_CRITICAL_ID, false);
         builder.define(DATA_MAXIMUM_CRIT_MULTIPLIER_ID, false);
     }
-    
-    @Override
-    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
-        if (DATA_PROJECTILE_GRAVITY_ID.equals(key)) {
-            this.gravity = getSynchedGravity();
-        }
-    } 
 
     protected abstract void spawnImpactParticles();
     protected abstract void spawnTrailParticles();

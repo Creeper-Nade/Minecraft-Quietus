@@ -85,7 +85,6 @@ public class AmethystArmorItem extends Item implements RetaliatesOnDamaged, GeoI
                     .critChance(0.0d)
                     .critOperation((dmg)->dmg)
                     .knockback(0.2f)
-                    .gravity(0.05f)
                     .persistanceTicks(200)
                     .projectileType(QuietusProjectiles.SMALL_AMETHYST_PROJECTILE.get())
                     .build(), armorMap.get(slot));

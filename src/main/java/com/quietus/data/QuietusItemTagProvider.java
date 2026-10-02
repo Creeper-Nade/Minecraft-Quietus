@@ -153,5 +153,8 @@ public class QuietusItemTagProvider extends ItemTagsProvider {
                 .add(QuietusItems.INSTABOW.get())
                 .add(QuietusItems.AMETHYST_STAFF.get())
                 .add(QuietusItems.WEIRD_AMETHYST_STAFF.get());
+
+        this.tag(ItemTags.ARROWS)
+                .add(QuietusItems.STALAGMITE_ARROW.get());
     }
 }

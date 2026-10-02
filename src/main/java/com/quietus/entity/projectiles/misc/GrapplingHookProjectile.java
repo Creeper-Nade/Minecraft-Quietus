@@ -1,6 +1,7 @@
 package com.quietus.entity.projectiles.misc;
 
 import com.quietus.core.GrapplingHookAttachment;
+import com.quietus.entity.projectiles.IQuietusProjectile;
 import com.quietus.entity.projectiles.QuietusProjectile;
 import com.quietus.item.QuietusComponents;
 import com.quietus.item.property.GrapplingHookProperty;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,6 +34,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 
 public class GrapplingHookProjectile extends QuietusProjectile {
+    protected static final String NBT_TAG_PROJECTILE_GRAVITY = "ProjectileGravity";
+
     private static final EntityDataAccessor<Boolean> IN_BLOCK =
             SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> LENGTH =
@@ -46,17 +50,21 @@ public class GrapplingHookProjectile extends QuietusProjectile {
             SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> DATA_CASTING_OFFHAND =
             SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.BOOLEAN);
-
+    protected static final EntityDataAccessor<Float> DATA_PROJECTILE_GRAVITY_ID = 
+            SynchedEntityData.defineId(GrapplingHookProjectile.class, EntityDataSerializers.FLOAT);
 
     private GrapplingHookProperty grapplingHookProperty;
+    private float gravity = 0.05f;
 
     public GrapplingHookProjectile(EntityType<? extends GrapplingHookProjectile> type, Level level) {
         super(type, level);
     }
 
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(DATA_PROJECTILE_GRAVITY_ID, 0.05f);
         builder.define(IN_BLOCK, false);
         builder.define(LENGTH, 0.0F);
         builder.define(DATA_MAX_TRAVEL_DISTANCE, 100.0F);
@@ -251,6 +259,27 @@ public class GrapplingHookProjectile extends QuietusProjectile {
         return false;
     }
 
+    public float getSynchedGravity() {
+        return this.getEntityData().get(DATA_PROJECTILE_GRAVITY_ID);
+    }
+
+    public void setGravity(float gravity) {
+        this.gravity = gravity;
+        this.getEntityData().set(DATA_PROJECTILE_GRAVITY_ID, gravity);
+    }
+
+    @Override
+    protected double getDefaultGravity() {
+        return (double)this.getSynchedGravity();
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        if (DATA_PROJECTILE_GRAVITY_ID.equals(key)) {
+            this.gravity = getSynchedGravity();
+        }
+    }
+
     @Override
     protected void onHitBlock(BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
@@ -399,6 +428,7 @@ public class GrapplingHookProjectile extends QuietusProjectile {
     @Override
     public void addAdditionalSaveData(ValueOutput tag) {
         super.addAdditionalSaveData(tag);
+        tag.putFloat(NBT_TAG_PROJECTILE_GRAVITY, this.gravity);
         tag.putBoolean("in_block", this.isInBlock());
         tag.putFloat("length", this.getLength());
         tag.putBoolean("casting_offhand", this.entityData.get(DATA_CASTING_OFFHAND));
@@ -407,6 +437,8 @@ public class GrapplingHookProjectile extends QuietusProjectile {
     @Override
     public void readAdditionalSaveData(ValueInput tag) {
         super.readAdditionalSaveData(tag);
+        this.gravity = tag.getFloatOr(NBT_TAG_PROJECTILE_GRAVITY, 0.05f);
+        this.entityData.set(DATA_PROJECTILE_GRAVITY_ID, this.gravity);
         this.setInBlock(tag.getBooleanOr("in_block",false));
         this.setLength(tag.getFloatOr("length",0));
         this.entityData.set(DATA_CASTING_OFFHAND, tag.getBooleanOr("casting_offhand", false));

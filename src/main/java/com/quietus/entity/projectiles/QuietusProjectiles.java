@@ -40,6 +40,17 @@ public class QuietusProjectiles {
             registerProjectile("small_amethyst_projectile", createKey("small_amethyst_projectile"), SmallAmethystShardProjectile::new, 0.3F, 0.3f);
     public static final Supplier<EntityType<GrapplingHookProjectile>> CHAIN_GRAPPLING_HOOK_PROJECTILE =
             registerGrappleProjectile("chain_grappling_hook_projectile", createKey("chain_grappling_hook_projectile"), ChainGrapplingHookProjectile::new, 0.8F, 0.8f,0.5f);
+    public static final Supplier<EntityType<StalagmiteArrow>> STALAGMITE_ARROW =
+            REGISTRAR.register("stalagmite_arrow", () ->
+                    EntityType.Builder.<StalagmiteArrow>of(StalagmiteArrow::new, MobCategory.MISC)
+                            .noLootTable()
+                            .sized(0.5F, 0.5F)
+                            .eyeHeight(0.13F)
+                            .clientTrackingRange(4)
+                            .updateInterval(20)
+                            .setShouldReceiveVelocityUpdates(true)
+                            .build(createKey("stalagmite_arrow"))
+            );
     /*
 
     public static final Supplier<EntityType<MagicalProjectile>> MAGIC_PROJECTILE =

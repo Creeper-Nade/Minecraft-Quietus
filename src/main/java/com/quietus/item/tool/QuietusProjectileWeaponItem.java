@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.quietus.combat.ProjectileVolleyBalance;
+import com.quietus.entity.projectiles.IQuietusProjectile;
 import com.quietus.entity.projectiles.QuietusProjectile;
 import com.quietus.entity.projectiles.QuietusProjectiles;
 import com.quietus.item.QuietusItemProperties;
@@ -59,7 +60,7 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
     protected final Map<String,SoundAsset> soundMap;
 
     private final Map<Integer,QuietusProjectileProperty> MAP_DEFAULT_PROJECTILE_PROPERTY = 
-        Map.of(0, new QuietusProjectileProperty.Builder().damage(5.0f).critChance(0.05d).knockback(0.4f).gravity(0.0f).persistanceTicks(200).projectileType(QuietusProjectiles.AMETHYST_PROJECTILE.get()).build());;
+        Map.of(0, new QuietusProjectileProperty.Builder().damage(5.0f).critChance(0.05d).knockback(0.4f).persistanceTicks(200).projectileType(QuietusProjectiles.AMETHYST_PROJECTILE.get()).build());
 
     public static final String MAPKEY_SOUND_PLAYER_SHOOT = "player_shoot";
 
@@ -220,10 +221,10 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
                     if (level instanceof ServerLevel serverlevel) {
                         this.shoot(
                             serverlevel, player, player.getUsedItemHand(), stack, 
-                            list, // don't care, NonAmmoProjectileWeaponItem#shoot checks on its own
+                            list, // don't care, QuietusProjectileWeaponItem#shoot checks on its own
                             shootVelocity, 
                             1.0F, 
-                            false,  // don't care. This is not use in NonAmmoProjectileWeaponItem#shoot
+                            false,  // don't care. This is not use in QuietusProjectileWeaponItem#shoot
                             null
                         );
                     }
@@ -274,10 +275,10 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
         for (int i = 0; i < this.projectilesPerShot; i++) {
             projectileProperty = Objects.requireNonNullElse(this.projectilePropertyMap.get(i), projectileProperty); // if this key not specified take previous property
             if (projectileProperty.isCustom()) { // custom projectile supports below arguments for projectiles configuring:
-                QuietusProjectile projectile = this.createProjectileWithKey(i, level, shooter, weapon, ItemStack.EMPTY, shooter.getRandom().nextDouble() < projectileProperty.critChance());
-                if (castTotalChecks > 0) {
-                    projectile.applyCastingResult(castSuccesses, castTotalChecks);
-                    projectile.rollCriticalHit();
+                Projectile projectile = this.createProjectileWithKey(i, level, shooter, weapon, ItemStack.EMPTY, shooter.getRandom().nextDouble() < projectileProperty.critChance());
+                if (castTotalChecks > 0 && projectile instanceof IQuietusProjectile quietusProjectile) {
+                    quietusProjectile.applyCastingResult(castSuccesses, castTotalChecks);
+                    quietusProjectile.rollCriticalHit();
                 }
                 ProjectileVolleyBalance.apply(projectile, this.projectilesPerShot);
                 projectile.setOwner(shooter);
@@ -286,7 +287,8 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
                 /* if (projectileProperty.projectileType().create(level, EntitySpawnReason.LOAD) != null) { // projectile of this index is not null */
                     float f4 = f2 + f3 * ((i + 1) / 2) * f1;
                     f3 = -f3;
-                    this.shootProjectile(shooter, projectile, i, velocity, inaccuracy, f4, target);
+                    float finalVelocity = velocity * projectileProperty.velocityMult();
+                    this.shootProjectile(shooter, projectile, i, finalVelocity, inaccuracy, f4, target);
                 /* } */
                 level.addFreshEntity(projectile);
             }
@@ -332,17 +334,23 @@ public class QuietusProjectileWeaponItem extends ProjectileWeaponItem {
         } */
         return this.createProjectileWithKey(0, level, shooter, weapon, ammo, isCrit);
     }
-    protected QuietusProjectile createProjectileWithKey(int key, Level level, LivingEntity shooter, ItemStack weapon, ItemStack ammo, boolean isCrit) {
-        QuietusProjectile projectile;
-        // Use projectileProperty of weapon provided, or else use this own projectileProperty
+    protected Projectile createProjectileWithKey(int key, Level level, LivingEntity shooter, ItemStack weapon, ItemStack ammo, boolean isCrit) {
+        Projectile projectile;
+        // Use projectileProperty of weapon provided if the supplied weapon item is a QuietusProjectileWeaponItem, or else use this own projectileProperty
         if (weapon.getItem() instanceof QuietusProjectileWeaponItem weapon1) {
             projectile = weapon1.getProjectileProperty(key).projectileType().create(level, EntitySpawnReason.LOAD);
-            projectile.configure(weapon1.getProjectileProperty(key),weapon);
+            if (projectile instanceof IQuietusProjectile quietusProjectile) {
+                quietusProjectile.configure(weapon1.getProjectileProperty(key),weapon);
+            }
         } else {
             projectile = this.projectilePropertyMap.get(key).projectileType().create(level, EntitySpawnReason.LOAD);
-            projectile.configure(this.projectilePropertyMap.get(key),weapon);
+            if (projectile instanceof IQuietusProjectile quietusProjectile) {
+                quietusProjectile.configure(this.projectilePropertyMap.get(key),weapon);
+            }
         }
-        projectile.setCritical(isCrit);
+        if (projectile instanceof IQuietusProjectile quietusProjectile) {
+            quietusProjectile.setCritical(isCrit);
+        }
         return projectile;
     }
 

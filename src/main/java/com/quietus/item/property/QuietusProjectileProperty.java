@@ -5,6 +5,7 @@ import java.util.function.Function;
 import com.quietus.entity.projectiles.QuietusProjectile;
 
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.Projectile;
 
 
 public record QuietusProjectileProperty(
@@ -12,12 +13,24 @@ public record QuietusProjectileProperty(
     double critChance,
     Function<Float,Float> critOperation,
     float knockback,
-    float gravity,
+    float velocityMult,
     int persistanceTicks,
-    EntityType<? extends QuietusProjectile> projectileType,
-    boolean isCustom // whether projectileType uses base class of QuietusProjectile or its successor. If false, NonAmmoProjectileWeaponItem will implement only the projectileType
+    EntityType<? extends Projectile> projectileType,
+    boolean isCustom // whether projectileType uses base class of QuietusProjectile or its children classes. If false, QuietusProjectileWeaponItem will not configure its shot projectiles as provided
 ) {
     
+    public QuietusProjectileProperty(
+        float damage,
+        double critChance,
+        Function<Float,Float> critOperation,
+        float knockback,
+        int persistanceTicks,
+        EntityType<? extends QuietusProjectile> projectileType,
+        boolean isCustom
+    ) {
+        this(damage, critChance, critOperation, knockback, 1.0f, persistanceTicks, projectileType, isCustom);
+    }
+
     public static QuietusProjectileProperty.Builder builder() {
         return new QuietusProjectileProperty.Builder();
     }
@@ -27,9 +40,9 @@ public record QuietusProjectileProperty(
         private double critChance;
         private Function<Float,Float> critOperation;
         private float knockback;
-        private float gravity;
+        private float velocityMult = 1.0f;
         private int persistanceTicks;
-        private EntityType<? extends QuietusProjectile> projectileType;
+        private EntityType<? extends Projectile> projectileType;
         private boolean isCustom;
 
         
@@ -49,8 +62,8 @@ public record QuietusProjectileProperty(
             this.knockback = value;
             return this;
         }
-        public QuietusProjectileProperty.Builder gravity(float value) {
-            this.gravity = value;
+        public QuietusProjectileProperty.Builder velocityMult(float value) {
+            this.velocityMult = value;
             return this;
         }
         public QuietusProjectileProperty.Builder persistanceTicks(int value) {
@@ -64,7 +77,7 @@ public record QuietusProjectileProperty(
         }
 
         public QuietusProjectileProperty build() {
-            return new QuietusProjectileProperty(this.damage, this.critChance, this.critOperation, this.knockback, this.gravity, this.persistanceTicks, this.projectileType, this.isCustom);
+            return new QuietusProjectileProperty(this.damage, this.critChance, this.critOperation, this.knockback, this.velocityMult, this.persistanceTicks, this.projectileType, this.isCustom);
         }
     }
 

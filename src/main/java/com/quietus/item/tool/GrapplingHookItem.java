@@ -22,6 +22,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -88,8 +89,8 @@ public class GrapplingHookItem extends QuietusProjectileWeaponItem {
     }
 
     @Override
-    protected QuietusProjectile createProjectileWithKey(int key, Level level, LivingEntity shooter, ItemStack weapon, ItemStack ammo, boolean isCrit) {
-        QuietusProjectile projectile=super.createProjectileWithKey(key, level, shooter, weapon, ammo, isCrit);
+    protected Projectile createProjectileWithKey(int key, Level level, LivingEntity shooter, ItemStack weapon, ItemStack ammo, boolean isCrit) {
+        Projectile projectile = super.createProjectileWithKey(key, level, shooter, weapon, ammo, isCrit);
         if(projectile instanceof GrapplingHookProjectile hook)
         {
             // Configure projectile with both grappling hook and projectile properties
