@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "D": "minecraft:pointed_dripstone",
+    "I": "quietus:iron_rod",
+    "B": "minecraft:bamboo"
+  },
+  "pattern": [
+    "D",
+    "I",
+    "B"
+  ],
+  "result": {
+    "count": 4,
+    "id": "quietus:stalagmite_arrow"
+  }
+}

@@ -22,7 +22,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.Tags;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -34,9 +37,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class StalagmiteArrow extends AbstractArrow implements IQuietusProjectile {
 
-    public static final int MAX_PIERCE_COUNT = 4;
-    public static final double MAX_DIG_DISTANCE = 0.375d;
+    public static final int MAX_PIERCE_COUNT = 4; // maximum entities it can pierce through
     public static final double GRAVITY = 0.05d;
+    private static final double BLOCK_DIG_MINIMUM_SPEED = 0.7d; // minimum speed needed to dig through a block. If speed goes below, the arrow stops in the block
+    private static final double DIG_SPEED_MULTIPLIER = 0.05d; // multiplier to its speed digging through a whole block (through 1 unit length)
+    private static final double DIG_CALC_STEP_LENGTH = 0.05d; // distance of each step during block collision calculation
+    private static final double DIG_SPEED_MULTIPLIER_PER_STEP = Math.pow(DIG_SPEED_MULTIPLIER, DIG_CALC_STEP_LENGTH);
 
     protected static final EntityDataAccessor<Boolean> DATA_MAXIMUM_CRIT_MULTIPLIER_ID =
             SynchedEntityData.defineId(StalagmiteArrow.class, EntityDataSerializers.BOOLEAN);
@@ -144,50 +150,59 @@ public class StalagmiteArrow extends AbstractArrow implements IQuietusProjectile
 
     @Override
     protected void onHitBlock(BlockHitResult hitResult) {
-        Vec3 movement = this.getDeltaMovement();
-        if (movement.lengthSqr() > 1.0E-6D) {
-            Vec3 dir = movement.normalize();
-            double step = 0.025D;
-            Vec3 hitPos = hitResult.getLocation();
-            Vec3 exitPos = null;
-            int steps = 0;
+        Vec3 velocity = this.getDeltaMovement();
+        if (velocity.lengthSqr() > 1.0E-6d) {
+            BlockState penetratingBlock = this.level().getBlockState(hitResult.getBlockPos());
 
-            for (double d = step; d <= MAX_DIG_DISTANCE; d += step) {
+            Vec3 dir = velocity.normalize();
+            Vec3 hitPos = hitResult.getLocation();
+            Vec3 endPos = hitPos;
+            Vec3 exitPos = null;
+
+            Vec3 newVelocity = velocity;
+            for (double d = DIG_CALC_STEP_LENGTH; d <= 1.0; d += DIG_CALC_STEP_LENGTH) {
                 Vec3 testPoint = hitPos.add(dir.scale(d));
                 BlockPos testPos = BlockPos.containing(testPoint);
                 BlockState state = this.level().getBlockState(testPos);
                 VoxelShape shape = state.getCollisionShape(this.level(), testPos);
-                steps += 1;
 
-                boolean isCollisionInside = false;
+                boolean isInside = false;
                 if (!shape.isEmpty()) {
                     for (AABB aabb : shape.toAabbs()) {
                         if (aabb.move(testPos).inflate(0.001D).contains(testPoint)) {
-                            isCollisionInside = true;
+                            isInside = true;
                             break;
                         }
                     }
                 }
 
-                if (!isCollisionInside) {
+                if (!isInside) {
                     exitPos = testPoint.add(dir.scale(0.05D));
+                    break;
+                }
+                
+                newVelocity = newVelocity.scale(DIG_SPEED_MULTIPLIER_PER_STEP);
+                endPos = testPoint;
+                
+                if (newVelocity.length() < BLOCK_DIG_MINIMUM_SPEED) {
                     break;
                 }
             }
 
-            if (exitPos != null) {
-                // Successfully dug through block
+            if (exitPos != null) { // Successfully dug through block
                 this.setPos(exitPos);
-                this.setDeltaMovement(movement.scale(0.85D));
-                if (this.level() instanceof ServerLevel serverLevel) {
-                    serverLevel.sendParticles(
-                            new BlockParticleOption(ParticleTypes.BLOCK, Blocks.POINTED_DRIPSTONE.defaultBlockState()),
-                            hitPos.x, hitPos.y, hitPos.z,
-                            6,
-                            0.05D, 0.05D, 0.05D,
-                            0.02D
-                    );
-                }
+                this.setDeltaMovement(newVelocity);
+
+                SoundType soundType = penetratingBlock.getSoundType(this.level(), hitResult.getBlockPos(), this);
+                this.level().playSound(
+                        null,
+                        hitPos.x, hitPos.y, hitPos.z,
+                        soundType.getHitSound(),
+                        SoundSource.BLOCKS,
+                        (soundType.getVolume() + 1.0F) / 2.0F,
+                        soundType.getPitch() * 0.8F
+                );
+
                 this.level().playSound(
                         null,
                         hitPos.x, hitPos.y, hitPos.z,
@@ -196,20 +211,36 @@ public class StalagmiteArrow extends AbstractArrow implements IQuietusProjectile
                         0.6F,
                         1.3F + this.random.nextFloat() * 0.3F
                 );
+
+                if (!this.level().isClientSide()) {
+                    if (this.level() instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles(
+                                new BlockParticleOption(ParticleTypes.BLOCK, penetratingBlock),
+                                hitPos.x, hitPos.y, hitPos.z,
+                                6,
+                                0.05D, 0.05D, 0.05D,
+                                0.02D
+                        );
+                    }
+
+                    if (isGlassOrGlassPane(penetratingBlock)) {
+                        this.level().destroyBlock(hitResult.getBlockPos(), false, this);
+                    }
+                }
                 return;
             }
 
             // Cannot penetrate through: dig into the block and persist
             super.onHitBlock(hitResult);
-            Vec3 digPos = hitPos.add(dir.scale(MAX_DIG_DISTANCE));
-            this.setPos(digPos);
+            //Vec3 digPos = hitPos.add(dir.scale(steps * DIG_CALC_STEP_LENGTH));
+            this.setPos(endPos);
             this.setDeltaMovement(Vec3.ZERO);
             this.setInGround(true);
 
             if (this.level() instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(
                         new BlockParticleOption(ParticleTypes.BLOCK, Blocks.POINTED_DRIPSTONE.defaultBlockState()),
-                        digPos.x, digPos.y, digPos.z,
+                        endPos.x, endPos.y, endPos.z,
                         20,
                         0.1D, 0.1D, 0.1D,
                         0.05D
@@ -217,7 +248,7 @@ public class StalagmiteArrow extends AbstractArrow implements IQuietusProjectile
             }
             this.level().playSound(
                     null,
-                    digPos.x, digPos.y, digPos.z,
+                    endPos.x, endPos.y, endPos.z,
                     SoundEvents.POINTED_DRIPSTONE_HIT,
                     SoundSource.NEUTRAL,
                     1.0F,
@@ -279,5 +310,14 @@ public class StalagmiteArrow extends AbstractArrow implements IQuietusProjectile
         this.getEntityData().set(DATA_MAXIMUM_CRIT_MULTIPLIER_ID, input.getBooleanOr("MaximumCritMultiplier", false));
         this.critChance = input.getDoubleOr("CritChance", 0.05D);
         this.knockback = input.getFloatOr("Knockback", 0.4F);
+    }
+
+    private static boolean isGlassOrGlassPane(BlockState state) {
+        return state.is(Tags.Blocks.GLASS_BLOCKS)
+                || state.is(Tags.Blocks.GLASS_PANES)
+                || state.is(Blocks.GLASS)
+                || state.is(Blocks.GLASS_PANE)
+                || state.is(Blocks.TINTED_GLASS)
+                || state.getBlock() instanceof StainedGlassPaneBlock;
     }
 }

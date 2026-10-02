@@ -315,7 +315,7 @@ public class QuietusItems {
 
         public static final DeferredItem<Item> STALAGMITE_ARROW = REGISTRAR.register("stalagmite_arrow", () -> new QuietusArrowAmmoItem(
                 new QuietusItemProperties()
-                    .ammoProjectile(6.0f, 0.2d, (damage) -> (float)(damage*1.5d), 0.4f, 0.625f, 200, QuietusProjectiles.STALAGMITE_ARROW.get())
+                    .ammoProjectile(4.0f, 0.2d, (damage) -> (float)(damage*1.5d), 0.4f, 0.625f, 200, QuietusProjectiles.STALAGMITE_ARROW.get())
                     .useItemDescriptionPrefix().setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MODID, "stalagmite_arrow")))
         ));
 
